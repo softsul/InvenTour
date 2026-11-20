@@ -1,0 +1,2605 @@
+{
+ "ordem": 1,
+ "codigo": "A1",
+ "pdf": "A1 - Informaçõees básicas do município.pdf",
+ "itens": [
+  {
+   "secao": "1",
+   "rotulo_oficial": "Informações gerais",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.1",
+   "rotulo_oficial": "Endereço da Prefeitura",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.1.1",
+   "rotulo_oficial": "Avenida/rua/travessa/caminho/outro",
+   "destino": "nucleo",
+   "coluna": "logradouro"
+  },
+  {
+   "secao": "1.1.2",
+   "rotulo_oficial": "Bairro",
+   "destino": "nucleo",
+   "coluna": "bairro"
+  },
+  {
+   "secao": "1.1.3",
+   "rotulo_oficial": "CEP",
+   "destino": "nucleo",
+   "coluna": "cep"
+  },
+  {
+   "secao": "1.2",
+   "rotulo_oficial": "Telefone/ramal",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.2.1",
+   "rotulo_oficial": "Telefone",
+   "destino": "nucleo",
+   "coluna": "telefone"
+  },
+  {
+   "secao": "1.2.1.1",
+   "rotulo_oficial": "Ramal",
+   "destino": "nucleo",
+   "coluna": "ramal"
+  },
+  {
+   "secao": "1.3",
+   "rotulo_oficial": "Fax/ramal",
+   "destino": "ignorar",
+   "motivo": "fax desligado"
+  },
+  {
+   "secao": "1.3.1",
+   "rotulo_oficial": "Fax",
+   "destino": "ignorar",
+   "motivo": "fax desligado"
+  },
+  {
+   "secao": "1.3.1.1",
+   "rotulo_oficial": "Ramal do fax",
+   "destino": "ignorar",
+   "motivo": "fax desligado"
+  },
+  {
+   "secao": "1.4",
+   "rotulo_oficial": "Endereço eletrônico (e-mail)",
+   "destino": "nucleo",
+   "coluna": "email"
+  },
+  {
+   "secao": "1.5",
+   "rotulo_oficial": "Sítio eletrônico (site/página web)",
+   "destino": "nucleo",
+   "coluna": "site"
+  },
+  {
+   "secao": "1.6",
+   "rotulo_oficial": "CNPJ",
+   "destino": "nucleo",
+   "coluna": "cnpj"
+  },
+  {
+   "secao": "1.7",
+   "rotulo_oficial": "Coordenadas geográficas",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.7.1",
+   "rotulo_oficial": "Latitude",
+   "destino": "nucleo",
+   "coluna": "latitude"
+  },
+  {
+   "secao": "1.7.2",
+   "rotulo_oficial": "Longitude",
+   "destino": "nucleo",
+   "coluna": "longitude"
+  },
+  {
+   "secao": "1.8",
+   "rotulo_oficial": "Municípios limítrofes",
+   "destino": "atributo",
+   "atributo_id": 1
+  },
+  {
+   "secao": "1.9",
+   "rotulo_oficial": "Distância da capital (km)",
+   "destino": "atributo",
+   "atributo_id": 2
+  },
+  {
+   "secao": "1.10",
+   "rotulo_oficial": "Quantidade de funcionários",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.10.1",
+   "rotulo_oficial": "Total (nº)",
+   "destino": "atributo",
+   "atributo_id": 3
+  },
+  {
+   "secao": "1.10.2",
+   "rotulo_oficial": "Pessoas com deficiência (%)",
+   "destino": "atributo",
+   "atributo_id": 4
+  },
+  {
+   "secao": "1.11",
+   "rotulo_oficial": "Nome do prefeito",
+   "destino": "atributo",
+   "atributo_id": 5
+  },
+  {
+   "secao": "1.12",
+   "rotulo_oficial": "Nomes das secretarias, departamentos e outros",
+   "destino": "atributo",
+   "atributo_id": 6,
+   "ajustes": {
+    "rotulo": "Nomes das secretarias, departamentos e outros"
+   }
+  },
+  {
+   "secao": "1.13",
+   "rotulo_oficial": "Nome do órgão oficial de turismo",
+   "destino": "atributo",
+   "atributo_id": 7
+  },
+  {
+   "secao": "1.13.1",
+   "rotulo_oficial": "Endereço",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.13.1.1",
+   "rotulo_oficial": "Avenida/rua/travessa/caminho/outro",
+   "destino": "atributo",
+   "atributo_id": 8,
+   "ajustes": {
+    "chave": "oot_logradouro",
+    "rotulo": "Avenida/rua/travessa/caminho/outro (com número e complemento)"
+   }
+  },
+  {
+   "secao": "1.13.1.2",
+   "rotulo_oficial": "Bairro/localidade",
+   "destino": "novo",
+   "novo": {
+    "chave": "oot_bairro",
+    "grupo": "Órgão oficial de turismo",
+    "rotulo": "Bairro/localidade",
+    "tipo": "texto",
+    "apos": 8
+   }
+  },
+  {
+   "secao": "1.13.1.3",
+   "rotulo_oficial": "Distrito",
+   "destino": "novo",
+   "novo": {
+    "chave": "oot_distrito",
+    "grupo": "Órgão oficial de turismo",
+    "rotulo": "Distrito",
+    "tipo": "texto",
+    "apos": 8
+   }
+  },
+  {
+   "secao": "1.13.1.4",
+   "rotulo_oficial": "CEP",
+   "destino": "novo",
+   "novo": {
+    "chave": "oot_cep",
+    "grupo": "Órgão oficial de turismo",
+    "rotulo": "CEP",
+    "tipo": "texto",
+    "ajuda": "00000-000",
+    "apos": 8
+   }
+  },
+  {
+   "secao": "1.13.2",
+   "rotulo_oficial": "Telefone/ramal",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.13.2.1",
+   "rotulo_oficial": "Telefone",
+   "destino": "atributo",
+   "atributo_id": 9,
+   "ajustes": {
+    "rotulo": "Telefone"
+   }
+  },
+  {
+   "secao": "1.13.2.1.1",
+   "rotulo_oficial": "Ramal",
+   "destino": "novo",
+   "novo": {
+    "chave": "oot_ramal",
+    "grupo": "Órgão oficial de turismo",
+    "rotulo": "Ramal",
+    "tipo": "texto",
+    "apos": 9
+   }
+  },
+  {
+   "secao": "1.13.3",
+   "rotulo_oficial": "Fax/ramal",
+   "destino": "ignorar",
+   "motivo": "fax desligado (atributo 10 já inativo)"
+  },
+  {
+   "secao": "1.13.3.1",
+   "rotulo_oficial": "Fax",
+   "destino": "ignorar",
+   "motivo": "fax desligado (atributo 10 já inativo)"
+  },
+  {
+   "secao": "1.13.3.1.1",
+   "rotulo_oficial": "Ramal do fax",
+   "destino": "ignorar",
+   "motivo": "fax desligado"
+  },
+  {
+   "secao": "1.13.4",
+   "rotulo_oficial": "Endereço eletrônico (e-mail)",
+   "destino": "atributo",
+   "atributo_id": 11,
+   "ajustes": {
+    "rotulo": "Endereço eletrônico (e-mail)"
+   }
+  },
+  {
+   "secao": "1.13.5",
+   "rotulo_oficial": "Sítio eletrônico (site/página web)",
+   "destino": "atributo",
+   "atributo_id": 12,
+   "ajustes": {
+    "rotulo": "Sítio eletrônico (site/página web)"
+   }
+  },
+  {
+   "secao": "1.13.6",
+   "rotulo_oficial": "Quantidade de funcionários",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.13.6.1",
+   "rotulo_oficial": "Número de funcionários",
+   "destino": "atributo",
+   "atributo_id": 13
+  },
+  {
+   "secao": "1.13.6.2",
+   "rotulo_oficial": "Formação superior em Turismo (graduação e/ou especialização) (nº)",
+   "destino": "atributo",
+   "atributo_id": 14,
+   "ajustes": {
+    "rotulo": "Funcionários com formação superior em Turismo (graduação e/ou especialização) (nº)"
+   }
+  },
+  {
+   "secao": "1.14",
+   "rotulo_oficial": "Instâncias de governança, associativas, parcerias e outros",
+   "destino": "atributo",
+   "atributo_id": 15,
+   "ajustes": {
+    "colunas": [
+     {
+      "rotulo": "Âmbito",
+      "tipo": "escolha",
+      "opcoes": [
+       "Municipal",
+       "Estadual",
+       "Regional",
+       "Nacional",
+       "Internacional",
+       "Outras"
+      ]
+     },
+     {
+      "rotulo": "Instância/entidade",
+      "tipo": "texto"
+     }
+    ]
+   }
+  },
+  {
+   "secao": "1.14.1",
+   "rotulo_oficial": "Municipal",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 15,
+    "coluna": "Âmbito",
+    "valor": "Municipal"
+   }
+  },
+  {
+   "secao": "1.14.2",
+   "rotulo_oficial": "Estadual",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 15,
+    "coluna": "Âmbito",
+    "valor": "Estadual"
+   }
+  },
+  {
+   "secao": "1.14.3",
+   "rotulo_oficial": "Regional",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 15,
+    "coluna": "Âmbito",
+    "valor": "Regional"
+   }
+  },
+  {
+   "secao": "1.14.4",
+   "rotulo_oficial": "Nacional",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 15,
+    "coluna": "Âmbito",
+    "valor": "Nacional"
+   }
+  },
+  {
+   "secao": "1.14.5",
+   "rotulo_oficial": "Internacional",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 15,
+    "coluna": "Âmbito",
+    "valor": "Internacional"
+   }
+  },
+  {
+   "secao": "1.14.6",
+   "rotulo_oficial": "Outras",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 15,
+    "coluna": "Âmbito",
+    "valor": "Outras"
+   }
+  },
+  {
+   "secao": "1.15",
+   "rotulo_oficial": "Aniversário do município",
+   "destino": "atributo",
+   "atributo_id": 16,
+   "ajustes": {
+    "tipo": "data"
+   }
+  },
+  {
+   "secao": "1.16",
+   "rotulo_oficial": "Santo(a) Padroeiro(a)",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.16.1",
+   "rotulo_oficial": "Nome do(a) Santo(a) Padroeiro(a)",
+   "destino": "atributo",
+   "atributo_id": 17,
+   "ajustes": {
+    "rotulo": "Nome do(a) Santo(a) Padroeiro(a)"
+   }
+  },
+  {
+   "secao": "1.16.2",
+   "rotulo_oficial": "Dia do(a) Santo(a) Padroeiro(a)",
+   "destino": "atributo",
+   "atributo_id": 18,
+   "ajustes": {
+    "tipo": "data",
+    "rotulo": "Dia do(a) Santo(a) Padroeiro(a)"
+   }
+  },
+  {
+   "secao": "1.17",
+   "rotulo_oficial": "Outros feriados municipais",
+   "destino": "atributo",
+   "atributo_id": 19,
+   "ajustes": {
+    "colunas": [
+     {
+      "rotulo": "Data",
+      "tipo": "texto"
+     },
+     {
+      "rotulo": "Feriado",
+      "tipo": "texto"
+     }
+    ],
+    "ajuda": "Data no formato dd/mm/aaaa"
+   }
+  },
+  {
+   "secao": "1.18",
+   "rotulo_oficial": "Histórico do município",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.18.1",
+   "rotulo_oficial": "Origem do nome",
+   "destino": "atributo",
+   "atributo_id": 20
+  },
+  {
+   "secao": "1.18.2",
+   "rotulo_oficial": "Data da fundação",
+   "destino": "atributo",
+   "atributo_id": 21,
+   "ajustes": {
+    "tipo": "data"
+   }
+  },
+  {
+   "secao": "1.18.3",
+   "rotulo_oficial": "Data da emancipação",
+   "destino": "atributo",
+   "atributo_id": 22,
+   "ajustes": {
+    "tipo": "data"
+   }
+  },
+  {
+   "secao": "1.18.4",
+   "rotulo_oficial": "Fundadores",
+   "destino": "atributo",
+   "atributo_id": 23,
+   "ajustes": {
+    "tipo": "texto_longo"
+   }
+  },
+  {
+   "secao": "1.18.5",
+   "rotulo_oficial": "Outros fatos de importância histórica",
+   "destino": "atributo",
+   "atributo_id": 24
+  },
+  {
+   "secao": "2",
+   "rotulo_oficial": "Características",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.1",
+   "rotulo_oficial": "Aspectos gerais",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.1.1",
+   "rotulo_oficial": "Área",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.1.1.1",
+   "rotulo_oficial": "Área total do município (km²)",
+   "destino": "atributo",
+   "atributo_id": 25
+  },
+  {
+   "secao": "2.1.1.2",
+   "rotulo_oficial": "Área urbana (km²)",
+   "destino": "atributo",
+   "atributo_id": 26
+  },
+  {
+   "secao": "2.1.1.3",
+   "rotulo_oficial": "Área rural (km²)",
+   "destino": "atributo",
+   "atributo_id": 27
+  },
+  {
+   "secao": "2.1.1.4",
+   "rotulo_oficial": "Ano-base",
+   "destino": "atributo",
+   "atributo_id": 28
+  },
+  {
+   "secao": "2.1.2",
+   "rotulo_oficial": "População",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.1.2.1",
+   "rotulo_oficial": "População total (nº hab.)",
+   "destino": "atributo",
+   "atributo_id": 29
+  },
+  {
+   "secao": "2.1.2.2",
+   "rotulo_oficial": "População urbana (nº hab.)",
+   "destino": "atributo",
+   "atributo_id": 30
+  },
+  {
+   "secao": "2.1.2.3",
+   "rotulo_oficial": "População rural (nº hab.)",
+   "destino": "atributo",
+   "atributo_id": 31
+  },
+  {
+   "secao": "2.1.2.4",
+   "rotulo_oficial": "Ano-base",
+   "destino": "atributo",
+   "atributo_id": 32
+  },
+  {
+   "secao": "2.1.3",
+   "rotulo_oficial": "Temperatura e chuvas",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.1.3.1",
+   "rotulo_oficial": "Média (ºC)",
+   "destino": "atributo",
+   "atributo_id": 33
+  },
+  {
+   "secao": "2.1.3.2",
+   "rotulo_oficial": "Mínima (ºC)",
+   "destino": "atributo",
+   "atributo_id": 34
+  },
+  {
+   "secao": "2.1.3.3",
+   "rotulo_oficial": "Máxima (ºC)",
+   "destino": "atributo",
+   "atributo_id": 35
+  },
+  {
+   "secao": "2.1.3.4",
+   "rotulo_oficial": "Meses mais frios",
+   "destino": "atributo",
+   "atributo_id": 36
+  },
+  {
+   "secao": "2.1.3.5",
+   "rotulo_oficial": "Meses mais quentes",
+   "destino": "atributo",
+   "atributo_id": 37
+  },
+  {
+   "secao": "2.1.3.6",
+   "rotulo_oficial": "Meses mais chuvosos",
+   "destino": "atributo",
+   "atributo_id": 38
+  },
+  {
+   "secao": "2.1.3.7",
+   "rotulo_oficial": "Meses menos chuvosos",
+   "destino": "atributo",
+   "atributo_id": 39
+  },
+  {
+   "secao": "2.1.3.8",
+   "rotulo_oficial": "Altitude média (em m)",
+   "destino": "atributo",
+   "atributo_id": 40
+  },
+  {
+   "secao": "2.1.4",
+   "rotulo_oficial": "Principais atividades econômicas",
+   "destino": "atributo",
+   "atributo_id": 41
+  },
+  {
+   "secao": "2.2",
+   "rotulo_oficial": "Equipamentos, instalações e serviços públicos",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.2.1",
+   "rotulo_oficial": "Abastecimento de água",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.2.1.1",
+   "rotulo_oficial": "Tipo de abastecimento",
+   "destino": "atributo",
+   "atributo_id": 42,
+   "ajustes": {
+    "outros": true
+   }
+  },
+  {
+   "secao": "2.2.1.2",
+   "rotulo_oficial": "Domicílios atendidos (%)",
+   "destino": "atributo",
+   "atributo_id": 43
+  },
+  {
+   "secao": "2.2.1.3",
+   "rotulo_oficial": "Empresa responsável",
+   "destino": "atributo",
+   "atributo_id": 44
+  },
+  {
+   "secao": "2.2.2",
+   "rotulo_oficial": "Serviços de esgoto",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.2.2.1",
+   "rotulo_oficial": "Coleta e deposição",
+   "destino": "atributo",
+   "atributo_id": 45,
+   "ajustes": {
+    "colunas": [
+     {
+      "rotulo": "Forma",
+      "tipo": "texto"
+     },
+     {
+      "rotulo": "Existe",
+      "tipo": "sim_nao"
+     },
+     {
+      "rotulo": "Total atendido (%)",
+      "tipo": "numero"
+     },
+     {
+      "rotulo": "Domicílios urbanos atendidos (%)",
+      "tipo": "numero"
+     },
+     {
+      "rotulo": "Domicílios rurais atendidos (%)",
+      "tipo": "numero"
+     },
+     {
+      "rotulo": "Entidade responsável",
+      "tipo": "texto"
+     }
+    ],
+    "linhas": [
+     "Rede de esgoto",
+     "Fossa séptica",
+     "Fossa rudimentar",
+     "Vala",
+     "Estação de tratamento",
+     "Esgoto tratado",
+     "Outros"
+    ],
+    "rotulo": "Esgoto: coleta e deposição",
+    "ajuda": "Na linha Esgoto tratado, a coluna Total atendido é o total de esgoto tratado (%). Na linha Outros, escreva qual é."
+   }
+  },
+  {
+   "secao": "2.2.2.1.1",
+   "rotulo_oficial": "Rede de esgoto",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Rede de esgoto",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.2.1.1.1",
+   "rotulo_oficial": "Total atendido (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Rede de esgoto",
+    "coluna": "Total atendido (%)"
+   }
+  },
+  {
+   "secao": "2.2.2.1.1.2",
+   "rotulo_oficial": "Domicílios urbanos atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Rede de esgoto",
+    "coluna": "Domicílios urbanos atendidos (%)"
+   }
+  },
+  {
+   "secao": "2.2.2.1.1.3",
+   "rotulo_oficial": "Domicílios rurais atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Rede de esgoto",
+    "coluna": "Domicílios rurais atendidos (%)"
+   }
+  },
+  {
+   "secao": "2.2.2.1.1.4",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Rede de esgoto",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.2.1.2",
+   "rotulo_oficial": "Fossa séptica",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Fossa séptica",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.2.1.2.1",
+   "rotulo_oficial": "Total atendido (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Fossa séptica",
+    "coluna": "Total atendido (%)"
+   }
+  },
+  {
+   "secao": "2.2.2.1.2.2",
+   "rotulo_oficial": "Domicílios urbanos atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Fossa séptica",
+    "coluna": "Domicílios urbanos atendidos (%)"
+   }
+  },
+  {
+   "secao": "2.2.2.1.2.3",
+   "rotulo_oficial": "Domicílios rurais atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Fossa séptica",
+    "coluna": "Domicílios rurais atendidos (%)"
+   }
+  },
+  {
+   "secao": "2.2.2.1.2.4",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Fossa séptica",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.2.1.3",
+   "rotulo_oficial": "Fossa rudimentar",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Fossa rudimentar",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.2.1.3.1",
+   "rotulo_oficial": "Total atendido (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Fossa rudimentar",
+    "coluna": "Total atendido (%)"
+   }
+  },
+  {
+   "secao": "2.2.2.1.3.2",
+   "rotulo_oficial": "Domicílios urbanos atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Fossa rudimentar",
+    "coluna": "Domicílios urbanos atendidos (%)"
+   }
+  },
+  {
+   "secao": "2.2.2.1.3.3",
+   "rotulo_oficial": "Domicílios rurais atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Fossa rudimentar",
+    "coluna": "Domicílios rurais atendidos (%)"
+   }
+  },
+  {
+   "secao": "2.2.2.1.3.4",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Fossa rudimentar",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.2.1.4",
+   "rotulo_oficial": "Vala",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Vala",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.2.1.4.1",
+   "rotulo_oficial": "Total atendido (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Vala",
+    "coluna": "Total atendido (%)"
+   }
+  },
+  {
+   "secao": "2.2.2.1.4.2",
+   "rotulo_oficial": "Domicílios urbanos atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Vala",
+    "coluna": "Domicílios urbanos atendidos (%)"
+   }
+  },
+  {
+   "secao": "2.2.2.1.4.3",
+   "rotulo_oficial": "Domicílios rurais atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Vala",
+    "coluna": "Domicílios rurais atendidos (%)"
+   }
+  },
+  {
+   "secao": "2.2.2.1.4.4",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Vala",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.2.1.5",
+   "rotulo_oficial": "Estação de tratamento",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Estação de tratamento",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.2.1.5.1",
+   "rotulo_oficial": "Total atendido (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Estação de tratamento",
+    "coluna": "Total atendido (%)"
+   }
+  },
+  {
+   "secao": "2.2.2.1.5.2",
+   "rotulo_oficial": "Domicílios urbanos atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Estação de tratamento",
+    "coluna": "Domicílios urbanos atendidos (%)"
+   }
+  },
+  {
+   "secao": "2.2.2.1.5.3",
+   "rotulo_oficial": "Domicílios rurais atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Estação de tratamento",
+    "coluna": "Domicílios rurais atendidos (%)"
+   }
+  },
+  {
+   "secao": "2.2.2.1.5.4",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Estação de tratamento",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.2.1.6",
+   "rotulo_oficial": "Esgoto tratado",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Esgoto tratado",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.2.1.6.1",
+   "rotulo_oficial": "Total de esgoto tratado (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Esgoto tratado",
+    "coluna": "Total atendido (%)"
+   }
+  },
+  {
+   "secao": "2.2.2.1.6.2",
+   "rotulo_oficial": "Domicílios urbanos atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Esgoto tratado",
+    "coluna": "Domicílios urbanos atendidos (%)"
+   }
+  },
+  {
+   "secao": "2.2.2.1.6.3",
+   "rotulo_oficial": "Domicílios rurais atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Esgoto tratado",
+    "coluna": "Domicílios rurais atendidos (%)"
+   }
+  },
+  {
+   "secao": "2.2.2.1.6.4",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Esgoto tratado",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.2.1.7",
+   "rotulo_oficial": "Outros",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Outros",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.2.1.7.1",
+   "rotulo_oficial": "Total atendido (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Outros",
+    "coluna": "Total atendido (%)"
+   }
+  },
+  {
+   "secao": "2.2.2.1.7.2",
+   "rotulo_oficial": "Domicílios urbanos atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Outros",
+    "coluna": "Domicílios urbanos atendidos (%)"
+   }
+  },
+  {
+   "secao": "2.2.2.1.7.3",
+   "rotulo_oficial": "Domicílios rurais atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Outros",
+    "coluna": "Domicílios rurais atendidos (%)"
+   }
+  },
+  {
+   "secao": "2.2.2.1.7.4",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 45,
+    "linha": "Outros",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.3",
+   "rotulo_oficial": "Serviços de energia",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.2.3.1",
+   "rotulo_oficial": "Energia elétrica",
+   "destino": "atributo",
+   "atributo_id": 46,
+   "ajustes": {
+    "rotulo": "Energia elétrica (voltagem)"
+   }
+  },
+  {
+   "secao": "2.2.3.1.1",
+   "rotulo_oficial": "Capacidade em KVA",
+   "destino": "atributo",
+   "atributo_id": 47
+  },
+  {
+   "secao": "2.2.3.1.2",
+   "rotulo_oficial": "Gerador de emergência",
+   "destino": "atributo",
+   "atributo_id": 48
+  },
+  {
+   "secao": "2.2.3.1.2.1",
+   "rotulo_oficial": "Capacidade em KVA (gerador)",
+   "destino": "atributo",
+   "atributo_id": 49
+  },
+  {
+   "secao": "2.2.3.2",
+   "rotulo_oficial": "Abastecimento de energia",
+   "destino": "atributo",
+   "atributo_id": 50,
+   "ajustes": {
+    "colunas": [
+     {
+      "rotulo": "Rede",
+      "tipo": "texto"
+     },
+     {
+      "rotulo": "Existe",
+      "tipo": "sim_nao"
+     },
+     {
+      "rotulo": "Total abastecido (%)",
+      "tipo": "numero"
+     },
+     {
+      "rotulo": "Domicílios urbanos atendidos (%)",
+      "tipo": "numero"
+     },
+     {
+      "rotulo": "Domicílios rurais atendidos (%)",
+      "tipo": "numero"
+     },
+     {
+      "rotulo": "Entidade responsável",
+      "tipo": "texto"
+     }
+    ],
+    "linhas": [
+     "Rede urbana",
+     "Rede rural",
+     "Abastecimento próprio",
+     "Outros"
+    ],
+    "ajuda": "Rede urbana e rede rural têm só total abastecido e entidade; Outros não tem domicílios rurais. Na linha Outros, escreva qual é."
+   }
+  },
+  {
+   "secao": "2.2.3.2.1",
+   "rotulo_oficial": "Rede urbana",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 50,
+    "linha": "Rede urbana",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.3.2.1.1",
+   "rotulo_oficial": "Total abastecido (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 50,
+    "linha": "Rede urbana",
+    "coluna": "Total abastecido (%)"
+   }
+  },
+  {
+   "secao": "2.2.3.2.1.2",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 50,
+    "linha": "Rede urbana",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.3.2.2",
+   "rotulo_oficial": "Rede rural",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 50,
+    "linha": "Rede rural",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.3.2.2.1",
+   "rotulo_oficial": "Total abastecido (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 50,
+    "linha": "Rede rural",
+    "coluna": "Total abastecido (%)"
+   }
+  },
+  {
+   "secao": "2.2.3.2.2.2",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 50,
+    "linha": "Rede rural",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.3.2.3",
+   "rotulo_oficial": "Abastecimento próprio",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 50,
+    "linha": "Abastecimento próprio",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.3.2.3.1",
+   "rotulo_oficial": "Total abastecido (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 50,
+    "linha": "Abastecimento próprio",
+    "coluna": "Total abastecido (%)"
+   }
+  },
+  {
+   "secao": "2.2.3.2.3.2",
+   "rotulo_oficial": "Domicílios urbanos atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 50,
+    "linha": "Abastecimento próprio",
+    "coluna": "Domicílios urbanos atendidos (%)"
+   }
+  },
+  {
+   "secao": "2.2.3.2.3.3",
+   "rotulo_oficial": "Domicílios rurais atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 50,
+    "linha": "Abastecimento próprio",
+    "coluna": "Domicílios rurais atendidos (%)"
+   }
+  },
+  {
+   "secao": "2.2.3.2.3.4",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 50,
+    "linha": "Abastecimento próprio",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.3.2.4",
+   "rotulo_oficial": "Outros",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 50,
+    "linha": "Outros",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.3.2.4.1",
+   "rotulo_oficial": "Total abastecido (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 50,
+    "linha": "Outros",
+    "coluna": "Total abastecido (%)"
+   }
+  },
+  {
+   "secao": "2.2.3.2.4.2",
+   "rotulo_oficial": "Domicílios urbanos atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 50,
+    "linha": "Outros",
+    "coluna": "Domicílios urbanos atendidos (%)"
+   }
+  },
+  {
+   "secao": "2.2.3.2.4.3",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 50,
+    "linha": "Outros",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.4",
+   "rotulo_oficial": "Serviços de lixo",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.2.4.1",
+   "rotulo_oficial": "Coleta",
+   "destino": "atributo",
+   "atributo_id": 51,
+   "ajustes": {
+    "colunas": [
+     {
+      "rotulo": "Coleta",
+      "tipo": "texto"
+     },
+     {
+      "rotulo": "Existe",
+      "tipo": "sim_nao"
+     },
+     {
+      "rotulo": "Total (%)",
+      "tipo": "numero"
+     },
+     {
+      "rotulo": "Domicílios urbanos (%)",
+      "tipo": "numero"
+     },
+     {
+      "rotulo": "Domicílios rurais (%)",
+      "tipo": "numero"
+     },
+     {
+      "rotulo": "Entidade responsável",
+      "tipo": "texto"
+     }
+    ],
+    "linhas": [
+     "Seletiva",
+     "Não seletiva",
+     "Sem coleta"
+    ],
+    "ajuda": "Seletiva e não seletiva: percentuais atendidos. Sem coleta: percentuais de lixo e de domicílios sem coleta, sem entidade."
+   }
+  },
+  {
+   "secao": "2.2.4.1.1",
+   "rotulo_oficial": "Seletiva",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 51,
+    "linha": "Seletiva",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.4.1.1.1",
+   "rotulo_oficial": "Total atendido (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 51,
+    "linha": "Seletiva",
+    "coluna": "Total (%)"
+   }
+  },
+  {
+   "secao": "2.2.4.1.1.2",
+   "rotulo_oficial": "Domicílios urbanos atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 51,
+    "linha": "Seletiva",
+    "coluna": "Domicílios urbanos (%)"
+   }
+  },
+  {
+   "secao": "2.2.4.1.1.3",
+   "rotulo_oficial": "Domicílios rurais atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 51,
+    "linha": "Seletiva",
+    "coluna": "Domicílios rurais (%)"
+   }
+  },
+  {
+   "secao": "2.2.4.1.1.4",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 51,
+    "linha": "Seletiva",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.4.1.2",
+   "rotulo_oficial": "Não seletiva",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 51,
+    "linha": "Não seletiva",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.4.1.2.1",
+   "rotulo_oficial": "Total atendido (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 51,
+    "linha": "Não seletiva",
+    "coluna": "Total (%)"
+   }
+  },
+  {
+   "secao": "2.2.4.1.2.2",
+   "rotulo_oficial": "Domicílios urbanos atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 51,
+    "linha": "Não seletiva",
+    "coluna": "Domicílios urbanos (%)"
+   }
+  },
+  {
+   "secao": "2.2.4.1.2.3",
+   "rotulo_oficial": "Domicílios rurais atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 51,
+    "linha": "Não seletiva",
+    "coluna": "Domicílios rurais (%)"
+   }
+  },
+  {
+   "secao": "2.2.4.1.2.4",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 51,
+    "linha": "Não seletiva",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.4.1.3",
+   "rotulo_oficial": "Sem coleta",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 51,
+    "linha": "Sem coleta",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.4.1.3.1",
+   "rotulo_oficial": "Total de lixo sem coleta (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 51,
+    "linha": "Sem coleta",
+    "coluna": "Total (%)"
+   }
+  },
+  {
+   "secao": "2.2.4.1.3.2",
+   "rotulo_oficial": "Domicílios urbanos sem coleta (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 51,
+    "linha": "Sem coleta",
+    "coluna": "Domicílios urbanos (%)"
+   }
+  },
+  {
+   "secao": "2.2.4.1.3.3",
+   "rotulo_oficial": "Domicílios rurais sem coleta (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 51,
+    "linha": "Sem coleta",
+    "coluna": "Domicílios rurais (%)"
+   }
+  },
+  {
+   "secao": "2.2.5",
+   "rotulo_oficial": "Deposição e tratamento",
+   "destino": "atributo",
+   "atributo_id": 52,
+   "ajustes": {
+    "colunas": [
+     {
+      "rotulo": "Forma",
+      "tipo": "texto"
+     },
+     {
+      "rotulo": "Existe",
+      "tipo": "sim_nao"
+     },
+     {
+      "rotulo": "Total atendido (%)",
+      "tipo": "numero"
+     },
+     {
+      "rotulo": "Domicílios urbanos atendidos (%)",
+      "tipo": "numero"
+     },
+     {
+      "rotulo": "Domicílios rurais atendidos (%)",
+      "tipo": "numero"
+     },
+     {
+      "rotulo": "Entidade responsável",
+      "tipo": "texto"
+     }
+    ],
+    "linhas": [
+     "Aterro sanitário",
+     "Compostagem",
+     "A céu aberto (lixão)",
+     "Outros"
+    ],
+    "ajuda": "Na linha Outros, escreva qual é."
+   }
+  },
+  {
+   "secao": "2.2.5.1",
+   "rotulo_oficial": "Aterro sanitário",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 52,
+    "linha": "Aterro sanitário",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.5.1.1",
+   "rotulo_oficial": "Total atendido (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 52,
+    "linha": "Aterro sanitário",
+    "coluna": "Total atendido (%)"
+   }
+  },
+  {
+   "secao": "2.2.5.1.2",
+   "rotulo_oficial": "Domicílios urbanos atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 52,
+    "linha": "Aterro sanitário",
+    "coluna": "Domicílios urbanos atendidos (%)"
+   }
+  },
+  {
+   "secao": "2.2.5.1.3",
+   "rotulo_oficial": "Domicílios rurais atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 52,
+    "linha": "Aterro sanitário",
+    "coluna": "Domicílios rurais atendidos (%)"
+   }
+  },
+  {
+   "secao": "2.2.5.1.4",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 52,
+    "linha": "Aterro sanitário",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.5.2",
+   "rotulo_oficial": "Compostagem",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 52,
+    "linha": "Compostagem",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.5.2.1",
+   "rotulo_oficial": "Total atendido (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 52,
+    "linha": "Compostagem",
+    "coluna": "Total atendido (%)"
+   }
+  },
+  {
+   "secao": "2.2.5.2.2",
+   "rotulo_oficial": "Domicílios urbanos atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 52,
+    "linha": "Compostagem",
+    "coluna": "Domicílios urbanos atendidos (%)"
+   }
+  },
+  {
+   "secao": "2.2.5.2.3",
+   "rotulo_oficial": "Domicílios rurais atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 52,
+    "linha": "Compostagem",
+    "coluna": "Domicílios rurais atendidos (%)"
+   }
+  },
+  {
+   "secao": "2.2.5.2.4",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 52,
+    "linha": "Compostagem",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.5.3",
+   "rotulo_oficial": "A céu aberto (lixão)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 52,
+    "linha": "A céu aberto (lixão)",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.5.3.1",
+   "rotulo_oficial": "Total atendido (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 52,
+    "linha": "A céu aberto (lixão)",
+    "coluna": "Total atendido (%)"
+   }
+  },
+  {
+   "secao": "2.2.5.3.2",
+   "rotulo_oficial": "Domicílios urbanos atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 52,
+    "linha": "A céu aberto (lixão)",
+    "coluna": "Domicílios urbanos atendidos (%)"
+   }
+  },
+  {
+   "secao": "2.2.5.3.3",
+   "rotulo_oficial": "Domicílios rurais atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 52,
+    "linha": "A céu aberto (lixão)",
+    "coluna": "Domicílios rurais atendidos (%)"
+   }
+  },
+  {
+   "secao": "2.2.5.3.4",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 52,
+    "linha": "A céu aberto (lixão)",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.5.4",
+   "rotulo_oficial": "Outros",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 52,
+    "linha": "Outros",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.5.4.1",
+   "rotulo_oficial": "Total atendido (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 52,
+    "linha": "Outros",
+    "coluna": "Total atendido (%)"
+   }
+  },
+  {
+   "secao": "2.2.5.4.2",
+   "rotulo_oficial": "Domicílios urbanos atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 52,
+    "linha": "Outros",
+    "coluna": "Domicílios urbanos atendidos (%)"
+   }
+  },
+  {
+   "secao": "2.2.5.4.3",
+   "rotulo_oficial": "Domicílios rurais atendidos (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 52,
+    "linha": "Outros",
+    "coluna": "Domicílios rurais atendidos (%)"
+   }
+  },
+  {
+   "secao": "2.2.5.4.4",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 52,
+    "linha": "Outros",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.6",
+   "rotulo_oficial": "Reciclagem",
+   "destino": "atributo",
+   "atributo_id": 53,
+   "ajustes": {
+    "colunas": [
+     {
+      "rotulo": "Material",
+      "tipo": "texto"
+     },
+     {
+      "rotulo": "Existe",
+      "tipo": "sim_nao"
+     },
+     {
+      "rotulo": "Total reciclado (%)",
+      "tipo": "numero"
+     },
+     {
+      "rotulo": "Entidade responsável",
+      "tipo": "texto"
+     }
+    ],
+    "linhas": [
+     "De aço",
+     "De alumínio",
+     "De ferro",
+     "Outro metal",
+     "De baterias e pilhas",
+     "De borracha",
+     "De eletrônicos",
+     "De embalagens longa vida",
+     "De entulho",
+     "De madeira",
+     "De papel",
+     "De plástico e embalagens",
+     "De vidro",
+     "De óleo de cozinha",
+     "Outros"
+    ],
+    "ajuda": "Nas linhas Outro metal e Outros, escreva qual é."
+   }
+  },
+  {
+   "secao": "2.2.6.1",
+   "rotulo_oficial": "De aço",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De aço",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.6.1.1",
+   "rotulo_oficial": "Total reciclado (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De aço",
+    "coluna": "Total reciclado (%)"
+   }
+  },
+  {
+   "secao": "2.2.6.1.2",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De aço",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.6.2",
+   "rotulo_oficial": "De alumínio",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De alumínio",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.6.2.1",
+   "rotulo_oficial": "Total reciclado (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De alumínio",
+    "coluna": "Total reciclado (%)"
+   }
+  },
+  {
+   "secao": "2.2.6.2.2",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De alumínio",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.6.3",
+   "rotulo_oficial": "De ferro",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De ferro",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.6.3.1",
+   "rotulo_oficial": "Total reciclado (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De ferro",
+    "coluna": "Total reciclado (%)"
+   }
+  },
+  {
+   "secao": "2.2.6.3.2",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De ferro",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.6.4",
+   "rotulo_oficial": "Outro metal",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "Outro metal",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.6.4.1",
+   "rotulo_oficial": "Total reciclado (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "Outro metal",
+    "coluna": "Total reciclado (%)"
+   }
+  },
+  {
+   "secao": "2.2.6.4.2",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "Outro metal",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.6.5",
+   "rotulo_oficial": "De baterias e pilhas",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De baterias e pilhas",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.6.5.1",
+   "rotulo_oficial": "Total reciclado (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De baterias e pilhas",
+    "coluna": "Total reciclado (%)"
+   }
+  },
+  {
+   "secao": "2.2.6.5.2",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De baterias e pilhas",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.6.6",
+   "rotulo_oficial": "De borracha",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De borracha",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.6.6.1",
+   "rotulo_oficial": "Total reciclado (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De borracha",
+    "coluna": "Total reciclado (%)"
+   }
+  },
+  {
+   "secao": "2.2.6.6.2",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De borracha",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.6.7",
+   "rotulo_oficial": "De eletrônicos",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De eletrônicos",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.6.7.1",
+   "rotulo_oficial": "Total reciclado (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De eletrônicos",
+    "coluna": "Total reciclado (%)"
+   }
+  },
+  {
+   "secao": "2.2.6.7.2",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De eletrônicos",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.6.8",
+   "rotulo_oficial": "De embalagens longa vida",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De embalagens longa vida",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.6.8.1",
+   "rotulo_oficial": "Total reciclado (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De embalagens longa vida",
+    "coluna": "Total reciclado (%)"
+   }
+  },
+  {
+   "secao": "2.2.6.8.2",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De embalagens longa vida",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.6.9",
+   "rotulo_oficial": "De entulho",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De entulho",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.6.9.1",
+   "rotulo_oficial": "Total reciclado (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De entulho",
+    "coluna": "Total reciclado (%)"
+   }
+  },
+  {
+   "secao": "2.2.6.9.2",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De entulho",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.6.10",
+   "rotulo_oficial": "De madeira",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De madeira",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.6.10.1",
+   "rotulo_oficial": "Total reciclado (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De madeira",
+    "coluna": "Total reciclado (%)"
+   }
+  },
+  {
+   "secao": "2.2.6.10.2",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De madeira",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.6.11",
+   "rotulo_oficial": "De papel",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De papel",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.6.11.1",
+   "rotulo_oficial": "Total reciclado (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De papel",
+    "coluna": "Total reciclado (%)"
+   }
+  },
+  {
+   "secao": "2.2.6.11.2",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De papel",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.6.12",
+   "rotulo_oficial": "De plástico e embalagens",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De plástico e embalagens",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.6.12.1",
+   "rotulo_oficial": "Total reciclado (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De plástico e embalagens",
+    "coluna": "Total reciclado (%)"
+   }
+  },
+  {
+   "secao": "2.2.6.12.2",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De plástico e embalagens",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.6.13",
+   "rotulo_oficial": "De vidro",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De vidro",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.6.13.1",
+   "rotulo_oficial": "Total reciclado (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De vidro",
+    "coluna": "Total reciclado (%)"
+   }
+  },
+  {
+   "secao": "2.2.6.13.2",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De vidro",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.6.14",
+   "rotulo_oficial": "De óleo de cozinha",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De óleo de cozinha",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.6.14.1",
+   "rotulo_oficial": "Total reciclado (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De óleo de cozinha",
+    "coluna": "Total reciclado (%)"
+   }
+  },
+  {
+   "secao": "2.2.6.14.2",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "De óleo de cozinha",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.6.15",
+   "rotulo_oficial": "Outros",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "Outros",
+    "coluna": "Existe"
+   }
+  },
+  {
+   "secao": "2.2.6.15.1",
+   "rotulo_oficial": "Total reciclado (%)",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "Outros",
+    "coluna": "Total reciclado (%)"
+   }
+  },
+  {
+   "secao": "2.2.6.15.2",
+   "rotulo_oficial": "Entidade responsável",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 53,
+    "linha": "Outros",
+    "coluna": "Entidade responsável"
+   }
+  },
+  {
+   "secao": "2.2.7",
+   "rotulo_oficial": "Serviços de comunicação",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.2.7.1",
+   "rotulo_oficial": "Acesso à internet",
+   "destino": "atributo",
+   "atributo_id": 55
+  },
+  {
+   "secao": "2.2.7.2",
+   "rotulo_oficial": "Telefonia móvel",
+   "destino": "atributo",
+   "atributo_id": 56,
+   "ajustes": {
+    "tipo": "sim_nao",
+    "opcoes": []
+   }
+  },
+  {
+   "secao": "2.2.7.2.1",
+   "rotulo_oficial": "Área de cobertura",
+   "destino": "novo",
+   "novo": {
+    "chave": "telefonia_movel_cobertura",
+    "grupo": "Comunicação",
+    "rotulo": "Telefonia móvel: área de cobertura",
+    "tipo": "escolha",
+    "opcoes": [
+     "Em todo município",
+     "Em parte do município"
+    ],
+    "apos": 56
+   }
+  },
+  {
+   "secao": "2.2.7.3",
+   "rotulo_oficial": "Telefonia fixa",
+   "destino": "atributo",
+   "atributo_id": 57,
+   "ajustes": {
+    "tipo": "sim_nao",
+    "opcoes": []
+   }
+  },
+  {
+   "secao": "2.2.7.3.1",
+   "rotulo_oficial": "Área de cobertura",
+   "destino": "novo",
+   "novo": {
+    "chave": "telefonia_fixa_cobertura",
+    "grupo": "Comunicação",
+    "rotulo": "Telefonia fixa: área de cobertura",
+    "tipo": "escolha",
+    "opcoes": [
+     "Em todo município",
+     "Em parte do município"
+    ],
+    "apos": 57
+   }
+  },
+  {
+   "secao": "2.3",
+   "rotulo_oficial": "Serviços turísticos",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.3.1",
+   "rotulo_oficial": "Promoção turística",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.3.1.1",
+   "rotulo_oficial": "Divulgação impressa",
+   "destino": "atributo",
+   "atributo_id": 58,
+   "ajustes": {
+    "tipo": "sim_nao",
+    "opcoes": []
+   }
+  },
+  {
+   "secao": "2.3.1.1.1",
+   "rotulo_oficial": "Folder",
+   "destino": "novo",
+   "novo": {
+    "chave": "divulgacao_folder",
+    "grupo": "Promoção turística",
+    "rotulo": "Divulgação impressa: folder",
+    "tipo": "texto",
+    "apos": 58
+   }
+  },
+  {
+   "secao": "2.3.1.1.2",
+   "rotulo_oficial": "Revista",
+   "destino": "novo",
+   "novo": {
+    "chave": "divulgacao_revista",
+    "grupo": "Promoção turística",
+    "rotulo": "Divulgação impressa: revista",
+    "tipo": "texto",
+    "apos": 58
+   }
+  },
+  {
+   "secao": "2.3.1.1.3",
+   "rotulo_oficial": "Jornal",
+   "destino": "novo",
+   "novo": {
+    "chave": "divulgacao_jornal",
+    "grupo": "Promoção turística",
+    "rotulo": "Divulgação impressa: jornal",
+    "tipo": "texto",
+    "apos": 58
+   }
+  },
+  {
+   "secao": "2.3.1.1.4",
+   "rotulo_oficial": "Outros",
+   "destino": "novo",
+   "novo": {
+    "chave": "divulgacao_outros",
+    "grupo": "Promoção turística",
+    "rotulo": "Divulgação impressa: outros",
+    "tipo": "texto",
+    "apos": 58
+   }
+  },
+  {
+   "secao": "2.3.1.2",
+   "rotulo_oficial": "Divulgação televisiva",
+   "destino": "atributo",
+   "atributo_id": 59
+  },
+  {
+   "secao": "2.3.2",
+   "rotulo_oficial": "Atendimento ao visitante",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.3.2.1",
+   "rotulo_oficial": "Atendimento em língua estrangeira",
+   "destino": "atributo",
+   "atributo_id": 60,
+   "ajustes": {
+    "outros": true
+   }
+  },
+  {
+   "secao": "2.3.2.2",
+   "rotulo_oficial": "Informativos impressos",
+   "destino": "atributo",
+   "atributo_id": 61,
+   "ajustes": {
+    "chave": "informativos_impressos",
+    "outros": true
+   }
+  },
+  {
+   "secao": "2.3.3",
+   "rotulo_oficial": "Caracterização do fluxo de visitantes",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.3.3.1",
+   "rotulo_oficial": "Dados de visitação",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.3.3.1.1",
+   "rotulo_oficial": "Visitantes ano (nº)",
+   "destino": "atributo",
+   "atributo_id": 62,
+   "ajustes": {
+    "chave": "fluxo_ano"
+   }
+  },
+  {
+   "secao": "2.3.3.1.2",
+   "rotulo_oficial": "Visitantes alta temporada (nº)",
+   "destino": "atributo",
+   "atributo_id": 63,
+   "ajustes": {
+    "chave": "fluxo_alta"
+   }
+  },
+  {
+   "secao": "2.3.3.1.3",
+   "rotulo_oficial": "Meses de alta temporada",
+   "destino": "atributo",
+   "atributo_id": 64,
+   "ajustes": {
+    "chave": "fluxo_meses_alta"
+   }
+  },
+  {
+   "secao": "2.3.3.2",
+   "rotulo_oficial": "Origem dos visitantes/turistas",
+   "destino": "atributo",
+   "atributo_id": 65,
+   "ajustes": {
+    "chave": "fluxo_origem"
+   }
+  },
+  {
+   "secao": "2.3.3.2.1",
+   "rotulo_oficial": "Origem dos turistas nacionais (até 5 estados)",
+   "destino": "atributo",
+   "atributo_id": 66,
+   "ajustes": {
+    "chave": "fluxo_estados",
+    "tipo": "multipla",
+    "opcoes": [
+     "AC",
+     "AL",
+     "AP",
+     "AM",
+     "BA",
+     "CE",
+     "DF",
+     "ES",
+     "GO",
+     "MA",
+     "MT",
+     "MS",
+     "MG",
+     "PA",
+     "PB",
+     "PR",
+     "PE",
+     "PI",
+     "RJ",
+     "RN",
+     "RS",
+     "RO",
+     "RR",
+     "SC",
+     "SP",
+     "SE",
+     "TO"
+    ],
+    "maximo": 5,
+    "ajuda": "Até 5 estados, pela sigla."
+   }
+  },
+  {
+   "secao": "2.3.3.2.2",
+   "rotulo_oficial": "Origem dos turistas internacionais (até 5 países)",
+   "destino": "atributo",
+   "atributo_id": 67,
+   "ajustes": {
+    "chave": "fluxo_paises",
+    "colunas": [
+     {
+      "rotulo": "País",
+      "tipo": "texto"
+     }
+    ],
+    "ajuda": "Até 5 países",
+    "maximo": 5
+   }
+  },
+  {
+   "secao": "2.3.3.2.3",
+   "rotulo_oficial": "Ano-base",
+   "destino": "atributo",
+   "atributo_id": 68,
+   "ajustes": {
+    "chave": "fluxo_ano_base"
+   }
+  },
+  {
+   "secao": "2.3.4",
+   "rotulo_oficial": "Atrativos mais visitados",
+   "destino": "atributo",
+   "atributo_id": 69
+  },
+  {
+   "secao": "2.3.5",
+   "rotulo_oficial": "Segmentos ou tipos de turismo em que é especializado (assinalar até 3)",
+   "destino": "atributo",
+   "atributo_id": 70,
+   "ajustes": {
+    "maximo": 3
+   }
+  },
+  {
+   "secao": "3",
+   "rotulo_oficial": "Legislação municipal",
+   "destino": "atributo",
+   "atributo_id": 71,
+   "ajustes": {
+    "colunas": [
+     {
+      "rotulo": "Instrumento",
+      "tipo": "texto"
+     },
+     {
+      "rotulo": "Tipo/número/data",
+      "tipo": "texto"
+     }
+    ],
+    "linhas": [
+     "Lei Orgânica",
+     "Ocupação do solo",
+     "Plano de desenvolvimento do turismo",
+     "Proteção ambiental",
+     "Apoio à cultura",
+     "Incentivos fiscais ao turismo",
+     "Plano Diretor",
+     "Fundo Municipal de Turismo",
+     "Outras"
+    ]
+   }
+  },
+  {
+   "secao": "3.1",
+   "rotulo_oficial": "Lei Orgânica",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 71,
+    "linha": "Lei Orgânica",
+    "coluna": "Tipo/número/data"
+   }
+  },
+  {
+   "secao": "3.2",
+   "rotulo_oficial": "Ocupação do solo",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 71,
+    "linha": "Ocupação do solo",
+    "coluna": "Tipo/número/data"
+   }
+  },
+  {
+   "secao": "3.3",
+   "rotulo_oficial": "Plano de desenvolvimento do turismo",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 71,
+    "linha": "Plano de desenvolvimento do turismo",
+    "coluna": "Tipo/número/data"
+   }
+  },
+  {
+   "secao": "3.4",
+   "rotulo_oficial": "Proteção ambiental",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 71,
+    "linha": "Proteção ambiental",
+    "coluna": "Tipo/número/data"
+   }
+  },
+  {
+   "secao": "3.5",
+   "rotulo_oficial": "Apoio à cultura",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 71,
+    "linha": "Apoio à cultura",
+    "coluna": "Tipo/número/data"
+   }
+  },
+  {
+   "secao": "3.6",
+   "rotulo_oficial": "Incentivos fiscais ao turismo",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 71,
+    "linha": "Incentivos fiscais ao turismo",
+    "coluna": "Tipo/número/data"
+   }
+  },
+  {
+   "secao": "3.7",
+   "rotulo_oficial": "Plano Diretor",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 71,
+    "linha": "Plano Diretor",
+    "coluna": "Tipo/número/data"
+   }
+  },
+  {
+   "secao": "3.8",
+   "rotulo_oficial": "Fundo Municipal de Turismo",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 71,
+    "linha": "Fundo Municipal de Turismo",
+    "coluna": "Tipo/número/data"
+   }
+  },
+  {
+   "secao": "3.9",
+   "rotulo_oficial": "Outras",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 71,
+    "linha": "Outras",
+    "coluna": "Tipo/número/data"
+   }
+  },
+  {
+   "secao": "4",
+   "rotulo_oficial": "Observações",
+   "destino": "nucleo",
+   "coluna": "observacoes"
+  },
+  {
+   "secao": "5",
+   "rotulo_oficial": "Referências",
+   "destino": "nucleo",
+   "coluna": "referencias"
+  },
+  {
+   "secao": "6",
+   "rotulo_oficial": "Equipe responsável",
+   "destino": "nucleo",
+   "coluna": "equipe"
+  }
+ ],
+ "desativar": [
+  {
+   "atributo_id": 54,
+   "motivo": "duplica a coluna Existe da tabela de reciclagem (atributo 53), que agora tem as 15 linhas fixas do PDF"
+  }
+ ],
+ "notas": "Forma município: endereço, telefone, ramal, e-mail, site, CNPJ e coordenada da prefeitura (1.1 a 1.7) vão para o núcleo. Funcionários da prefeitura (1.10) seguem nos atributos 3 e 4, porque o DESENHO não estende funcionarios/funcionarios_pcd do núcleo à forma município. Órgão oficial de turismo: o endereço único (atributo 8) vira o logradouro (chave oot_logradouro) e ganham campos próprios bairro/localidade, distrito, CEP e ramal; telefone, e-mail e site seguem nos atributos 9, 11 e 12; fax (10) já estava inativo. Datas modernas (1.15 aniversário, 1.16.2 dia do padroeiro, 1.18.2 fundação, 1.18.3 emancipação) passam a tipo data. Os feriados (1.17) ficam em tabela com a coluna Data como texto, porque coluna de tabela não tem tipo data. Fundadores (1.18.4, três linhas no PDF) passa a texto_longo. Meses mais frios/quentes/chuvosos/menos chuvosos são linhas livres no PDF; mantidos como múltipla de meses (mais útil, sem perda). Esgoto, energia, coleta de lixo, deposição e reciclagem ficam nas tabelas existentes, agora com linhas fixas na ordem do PDF e colunas tipadas; cada subitem do PDF é célula dessas tabelas (destino \"titulo\" com \"parte_de\" linha e coluna). Linhas que no PDF não têm alguma coluna (rede urbana e rural sem domicílios; Outros de energia sem domicílios rurais; Sem coleta sem entidade; Outro metal sem sim/não) ficam com a célula vazia. Materiais reciclados (54, múltipla) é desativado por duplicar a coluna Existe da tabela de reciclagem (53). Telefonia móvel e fixa: o escolha único (Não, Em todo, Em parte) é separado em sim/não (o próprio atributo) e área de cobertura (novo), como no PDF. Divulgação impressa: a múltipla Folder/Revista/Jornal/Outros vira sim/não, e cada tipo ganha um texto para a especificação que a ficha pede. Acesso à internet: as opções Discada e 3G estão no PDF, mas seguem inativas no sistema (desligadas antes, por serem obsoletas); não foram reativadas. Instâncias de governança (1.14) e Legislação (3) usam as tabelas existentes: a primeira com a coluna Âmbito tipada, a segunda com as 9 linhas fixas. Convenção geral: item \"titulo\" com \"parte_de\" é subitem do PDF que vira linha, coluna, célula ou opção de outro campo (o validador só aceita citar cada atributo uma vez); novos com o mesmo \"apos\" entram na ordem dos itens."
+}

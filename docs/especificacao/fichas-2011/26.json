@@ -1,0 +1,638 @@
+{
+ "ordem": 26,
+ "codigo": "B5",
+ "pdf": "B.5.2 - Serviços para eventos.pdf",
+ "itens": [
+  {
+   "secao": "1",
+   "rotulo_oficial": "INFORMAÇÕES GERAIS",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.1",
+   "rotulo_oficial": "Razão social",
+   "destino": "nucleo",
+   "coluna": "razao_social"
+  },
+  {
+   "secao": "1.2",
+   "rotulo_oficial": "Nome fantasia",
+   "destino": "nucleo",
+   "coluna": "nome"
+  },
+  {
+   "secao": "1.3",
+   "rotulo_oficial": "CNPJ",
+   "destino": "nucleo",
+   "coluna": "cnpj"
+  },
+  {
+   "secao": "1.4",
+   "rotulo_oficial": "Código CNAE",
+   "destino": "nucleo",
+   "coluna": "cnae"
+  },
+  {
+   "secao": "1.5",
+   "rotulo_oficial": "Atividade econômica",
+   "destino": "nucleo",
+   "coluna": "atividade_economica"
+  },
+  {
+   "secao": "1.6",
+   "rotulo_oficial": "Nome da rede/holding",
+   "destino": "nucleo",
+   "coluna": "rede"
+  },
+  {
+   "secao": "1.7",
+   "rotulo_oficial": "Inscrição municipal",
+   "destino": "nucleo",
+   "coluna": "inscricao_municipal"
+  },
+  {
+   "secao": "1.8",
+   "rotulo_oficial": "Natureza",
+   "destino": "nucleo",
+   "coluna": "natureza",
+   "nota": "opções Pública, Privada, Outra (com natureza_outra)"
+  },
+  {
+   "secao": "1.9",
+   "rotulo_oficial": "Tipo de organização/instituição",
+   "destino": "nucleo",
+   "coluna": "tipo_organizacao",
+   "nota": "opções Associação, Sindicato, Cooperativa, Sistema S, Empresa, Outros (com tipo_organizacao_outro)"
+  },
+  {
+   "secao": "1.10",
+   "rotulo_oficial": "Início da atividade",
+   "destino": "nucleo",
+   "coluna": "inicio_atividade",
+   "nota": "na ficha é data dd/mm/aaaa"
+  },
+  {
+   "secao": "1.11",
+   "rotulo_oficial": "Quantidade de funcionários",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.11.1",
+   "rotulo_oficial": "Permanentes (nº)",
+   "destino": "nucleo",
+   "coluna": "funcionarios"
+  },
+  {
+   "secao": "1.11.2",
+   "rotulo_oficial": "Temporários (nº)",
+   "destino": "nucleo",
+   "coluna": "funcionarios_temporarios"
+  },
+  {
+   "secao": "1.11.3",
+   "rotulo_oficial": "Pessoas com deficiência (%)",
+   "destino": "nucleo",
+   "coluna": "funcionarios_pcd"
+  },
+  {
+   "secao": "1.12",
+   "rotulo_oficial": "Localização",
+   "destino": "nucleo",
+   "coluna": "zona",
+   "nota": "Urbana ou Rural"
+  },
+  {
+   "secao": "1.13",
+   "rotulo_oficial": "Coordenadas geográficas",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.13.1",
+   "rotulo_oficial": "Latitude",
+   "destino": "nucleo",
+   "coluna": "latitude"
+  },
+  {
+   "secao": "1.13.2",
+   "rotulo_oficial": "Longitude",
+   "destino": "nucleo",
+   "coluna": "longitude"
+  },
+  {
+   "secao": "1.14",
+   "rotulo_oficial": "Endereço",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.14.1",
+   "rotulo_oficial": "Avenida/rua/travessa/caminho/outro",
+   "destino": "nucleo",
+   "coluna": "logradouro",
+   "nota": "com numero e complemento do núcleo"
+  },
+  {
+   "secao": "1.14.2",
+   "rotulo_oficial": "Bairro/localidade",
+   "destino": "nucleo",
+   "coluna": "bairro"
+  },
+  {
+   "secao": "1.14.3",
+   "rotulo_oficial": "Distrito",
+   "destino": "nucleo",
+   "coluna": "distrito"
+  },
+  {
+   "secao": "1.14.4",
+   "rotulo_oficial": "CEP",
+   "destino": "nucleo",
+   "coluna": "cep"
+  },
+  {
+   "secao": "1.15",
+   "rotulo_oficial": "Telefone/ramal",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.15.1",
+   "rotulo_oficial": "Telefone",
+   "destino": "nucleo",
+   "coluna": "telefone"
+  },
+  {
+   "secao": "1.15.1.1",
+   "rotulo_oficial": "Ramal",
+   "destino": "nucleo",
+   "coluna": "ramal"
+  },
+  {
+   "secao": "1.16",
+   "rotulo_oficial": "Fax/ramal",
+   "destino": "ignorar",
+   "motivo": "fax desligado de propósito"
+  },
+  {
+   "secao": "1.16.1",
+   "rotulo_oficial": "Fax",
+   "destino": "ignorar",
+   "motivo": "fax desligado de propósito"
+  },
+  {
+   "secao": "1.16.1.1",
+   "rotulo_oficial": "Ramal (do fax)",
+   "destino": "ignorar",
+   "motivo": "ramal do fax desligado de propósito"
+  },
+  {
+   "secao": "1.17",
+   "rotulo_oficial": "Endereço eletrônico (e-mail)",
+   "destino": "nucleo",
+   "coluna": "email"
+  },
+  {
+   "secao": "1.18",
+   "rotulo_oficial": "Sítio eletrônico (site/página web)",
+   "destino": "nucleo",
+   "coluna": "site"
+  },
+  {
+   "secao": "1.19",
+   "rotulo_oficial": "Sinalização",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.19.1",
+   "rotulo_oficial": "De acesso",
+   "destino": "nucleo",
+   "coluna": "sinalizacao_acesso"
+  },
+  {
+   "secao": "1.19.2",
+   "rotulo_oficial": "Turística",
+   "destino": "nucleo",
+   "coluna": "sinalizacao_turistica"
+  },
+  {
+   "secao": "1.20",
+   "rotulo_oficial": "Proximidades",
+   "destino": "novo",
+   "novo": {
+    "chave": "proximidades",
+    "grupo": "Informações gerais",
+    "rotulo": "Proximidades",
+    "tipo": "multipla",
+    "opcoes": [
+     "Restaurante",
+     "Bar/lanchonete",
+     "Meio de hospedagem",
+     "Shopping",
+     "Galeria/rua comercial",
+     "Centro de convenções/exposições",
+     "Posto de combustível",
+     "Outras"
+    ],
+    "outros": true,
+    "apos": null
+   }
+  },
+  {
+   "secao": "1.21",
+   "rotulo_oficial": "Distâncias (km)",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.21.1",
+   "rotulo_oficial": "Aeroporto",
+   "destino": "novo",
+   "novo": {
+    "chave": "dist_aeroporto",
+    "grupo": "Informações gerais",
+    "rotulo": "Distância do aeroporto (km)",
+    "tipo": "numero",
+    "apos": null
+   }
+  },
+  {
+   "secao": "1.21.2",
+   "rotulo_oficial": "Estação rodoviária",
+   "destino": "novo",
+   "novo": {
+    "chave": "dist_rodoviaria",
+    "grupo": "Informações gerais",
+    "rotulo": "Distância da estação rodoviária (km)",
+    "tipo": "numero",
+    "apos": null
+   }
+  },
+  {
+   "secao": "1.21.3",
+   "rotulo_oficial": "Estação ferroviária",
+   "destino": "novo",
+   "novo": {
+    "chave": "dist_ferroviaria",
+    "grupo": "Informações gerais",
+    "rotulo": "Distância da estação ferroviária (km)",
+    "tipo": "numero",
+    "apos": null
+   }
+  },
+  {
+   "secao": "1.21.4",
+   "rotulo_oficial": "Estação marítima/fluvial",
+   "destino": "novo",
+   "novo": {
+    "chave": "dist_maritima",
+    "grupo": "Informações gerais",
+    "rotulo": "Distância da estação marítima/fluvial (km)",
+    "tipo": "numero",
+    "apos": null
+   }
+  },
+  {
+   "secao": "1.21.5",
+   "rotulo_oficial": "Estação metroviária",
+   "destino": "novo",
+   "novo": {
+    "chave": "dist_metroviaria",
+    "grupo": "Informações gerais",
+    "rotulo": "Distância da estação metroviária (km)",
+    "tipo": "numero",
+    "apos": null
+   }
+  },
+  {
+   "secao": "1.21.6",
+   "rotulo_oficial": "Ponto de ônibus",
+   "destino": "novo",
+   "novo": {
+    "chave": "dist_ponto_onibus",
+    "grupo": "Informações gerais",
+    "rotulo": "Distância do ponto de ônibus (km)",
+    "tipo": "numero",
+    "apos": null
+   }
+  },
+  {
+   "secao": "1.21.7",
+   "rotulo_oficial": "Ponto de táxi",
+   "destino": "novo",
+   "novo": {
+    "chave": "dist_ponto_taxi",
+    "grupo": "Informações gerais",
+    "rotulo": "Distância do ponto de táxi (km)",
+    "tipo": "numero",
+    "apos": null
+   }
+  },
+  {
+   "secao": "1.21.8",
+   "rotulo_oficial": "Outras",
+   "destino": "novo",
+   "novo": {
+    "chave": "dist_outras",
+    "grupo": "Informações gerais",
+    "rotulo": "Outras distâncias (local e km)",
+    "tipo": "texto",
+    "apos": null
+   }
+  },
+  {
+   "secao": "1.22",
+   "rotulo_oficial": "Pontos de referência",
+   "destino": "nucleo",
+   "coluna": "referencia"
+  },
+  {
+   "secao": "1.23",
+   "rotulo_oficial": "Cadastros, classificações e outros",
+   "destino": "novo",
+   "novo": {
+    "chave": "cadastros",
+    "grupo": "Informações gerais",
+    "rotulo": "Cadastros, classificações e outros",
+    "tipo": "tabela",
+    "colunas": [
+     {
+      "rotulo": "Cadastro",
+      "tipo": "texto"
+     },
+     {
+      "rotulo": "Entidade/guia turístico",
+      "tipo": "texto"
+     },
+     {
+      "rotulo": "Categoria/tipo/classificação/número",
+      "tipo": "texto"
+     }
+    ],
+    "linhas": [
+     "MTur: outros",
+     "Associações e sindicatos do setor de eventos",
+     "Associações de turismo",
+     "Associações comerciais",
+     "Guias turísticos",
+     "Outros"
+    ],
+    "apos": null
+   },
+   "nota": "as linhas 1.23.2 a 1.23.6 (e a parte \"Outros\" do MTur) são linhas sugeridas desta tabela; o CADASTUR do MTur fica na coluna cadastur do núcleo"
+  },
+  {
+   "secao": "1.23.1",
+   "rotulo_oficial": "MTur (CADASTUR; Outros)",
+   "destino": "nucleo",
+   "coluna": "cadastur",
+   "nota": "o número CADASTUR vai para o núcleo (cadastur e cadastur_validade); \"MTur: outros\" é linha da tabela cadastros"
+  },
+  {
+   "secao": "1.23.2",
+   "rotulo_oficial": "Associações e sindicatos do setor de eventos",
+   "destino": "titulo",
+   "nota": "linha sugerida da tabela cadastros"
+  },
+  {
+   "secao": "1.23.3",
+   "rotulo_oficial": "Associações de turismo",
+   "destino": "titulo",
+   "nota": "linha sugerida da tabela cadastros"
+  },
+  {
+   "secao": "1.23.4",
+   "rotulo_oficial": "Associações comerciais",
+   "destino": "titulo",
+   "nota": "linha sugerida da tabela cadastros"
+  },
+  {
+   "secao": "1.23.5",
+   "rotulo_oficial": "Guias turísticos",
+   "destino": "titulo",
+   "nota": "linha sugerida da tabela cadastros"
+  },
+  {
+   "secao": "1.23.6",
+   "rotulo_oficial": "Outros",
+   "destino": "titulo",
+   "nota": "linha sugerida da tabela cadastros"
+  },
+  {
+   "secao": "2",
+   "rotulo_oficial": "FUNCIONAMENTO",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.1",
+   "rotulo_oficial": "Estrutura de funcionamento",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.1.1",
+   "rotulo_oficial": "Formas de pagamento",
+   "destino": "nucleo",
+   "coluna": "formas_pagamento",
+   "nota": "ficha: Dinheiro, Cheque, Cheque de outras praças, Cartão de crédito, Cartão de débito; cheque e cheque de outra praça desligados de propósito"
+  },
+  {
+   "secao": "2.1.2",
+   "rotulo_oficial": "Atendimento ao público",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.1.2.1",
+   "rotulo_oficial": "Atendimento em língua estrangeira",
+   "destino": "nucleo",
+   "coluna": "idiomas",
+   "nota": "ficha: Não, Inglês, Espanhol, Outras"
+  },
+  {
+   "secao": "2.1.2.2",
+   "rotulo_oficial": "Informativos impressos",
+   "destino": "novo",
+   "novo": {
+    "chave": "informativos_impressos",
+    "grupo": "Funcionamento",
+    "rotulo": "Informativos impressos",
+    "tipo": "multipla",
+    "opcoes": [
+     "Não",
+     "Português",
+     "Inglês",
+     "Espanhol",
+     "Outras"
+    ],
+    "outros": true,
+    "apos": null
+   }
+  },
+  {
+   "secao": "2.2",
+   "rotulo_oficial": "Regras de funcionamento",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.2.1",
+   "rotulo_oficial": "Período",
+   "destino": "novo",
+   "novo": {
+    "chave": "periodo_meses",
+    "grupo": "Funcionamento",
+    "rotulo": "Período de funcionamento",
+    "tipo": "multipla",
+    "opcoes": [
+     "Janeiro",
+     "Fevereiro",
+     "Março",
+     "Abril",
+     "Maio",
+     "Junho",
+     "Julho",
+     "Agosto",
+     "Setembro",
+     "Outubro",
+     "Novembro",
+     "Dezembro",
+     "Ano inteiro"
+    ],
+    "apos": null
+   }
+  },
+  {
+   "secao": "2.2.2",
+   "rotulo_oficial": "Horário",
+   "destino": "nucleo",
+   "coluna": "horario"
+  },
+  {
+   "secao": "2.2.2.1",
+   "rotulo_oficial": "Abertura",
+   "destino": "nucleo",
+   "coluna": "horario",
+   "nota": "2ª feira a domingo"
+  },
+  {
+   "secao": "2.2.2.2",
+   "rotulo_oficial": "Encerramento",
+   "destino": "nucleo",
+   "coluna": "horario",
+   "nota": "2ª feira a domingo"
+  },
+  {
+   "secao": "2.2.2.3",
+   "rotulo_oficial": "Funcionamento 24 horas",
+   "destino": "nucleo",
+   "coluna": "horario"
+  },
+  {
+   "secao": "2.2.2.4",
+   "rotulo_oficial": "Funcionamento em feriados",
+   "destino": "nucleo",
+   "coluna": "horario"
+  },
+  {
+   "secao": "2.2.3",
+   "rotulo_oficial": "Outras regras e informações",
+   "destino": "novo",
+   "novo": {
+    "chave": "outras_regras",
+    "grupo": "Funcionamento",
+    "rotulo": "Outras regras e informações",
+    "tipo": "texto_longo",
+    "apos": null
+   }
+  },
+  {
+   "secao": "3",
+   "rotulo_oficial": "CARACTERÍSTICAS",
+   "destino": "titulo"
+  },
+  {
+   "secao": "3.1",
+   "rotulo_oficial": "Atividades básicas",
+   "destino": "atributo",
+   "atributo_id": 369,
+   "ajustes": {
+    "opcoes": [
+     "Eventos sociais (casamentos, formaturas, aniversários e outros)",
+     "Eventos corporativos, institucionais, científicos, profissionais, promocionais (oficinas, seminários, confraternizações, congressos, simpósios, salões, feiras, exposições e outros)",
+     "Eventos esportivos",
+     "Eventos culturais e artísticos (shows, festivais, exposições e outros)",
+     "Outras"
+    ],
+    "outros": true
+   },
+   "nota": "faltava \"( 5 ) Outras ____\" e o complemento entre parênteses da opção 2 (\"científico\" da ficha corrigido para \"científicos\")"
+  },
+  {
+   "secao": "3.2",
+   "rotulo_oficial": "Outras atividades e serviços",
+   "destino": "atributo",
+   "atributo_id": 370,
+   "ajustes": {
+    "opcoes": [
+     "Captação de eventos",
+     "Planejamento de eventos",
+     "Administração de eventos",
+     "Cerimonial",
+     "Secretaria preparatória",
+     "Secretaria operacional",
+     "Secretaria durante o evento",
+     "Secretaria pós-evento",
+     "Serviço de café/buffet",
+     "Manobrista",
+     "Recepcionista",
+     "Limpeza",
+     "Sinalização",
+     "Filmagem",
+     "Fotografia",
+     "Gravação",
+     "Recrutamento de pessoal",
+     "Recreação/animação",
+     "Efeitos especiais e pirotécnicos",
+     "Locação de telões",
+     "Gestão",
+     "Organização",
+     "Promoção",
+     "Coordenação",
+     "Operacionalização",
+     "Produção",
+     "Assessoria de eventos",
+     "Locação de projetor multimídia",
+     "Locação e montagem de equipamentos de som",
+     "Locação e montagem de tendas e estandes",
+     "Locação e montagem de equipamentos de iluminação",
+     "Locação e montagem de equipamento de tradução simultânea",
+     "Locação e montagem de estruturas para shows",
+     "Locação e montagem de banheiros químicos",
+     "Locação e montagem de brinquedos",
+     "Locação e montagem de equipamentos de videoconferência",
+     "Locação e montagem de camarins",
+     "Locação de espaços",
+     "Locação de mobiliário",
+     "Locação de utensílios",
+     "Outras"
+    ],
+    "outros": true
+   },
+   "nota": "faltava \"( 41 ) Outras ____\""
+  },
+  {
+   "secao": "4",
+   "rotulo_oficial": "OBSERVAÇÕES",
+   "destino": "nucleo",
+   "coluna": "observacoes"
+  },
+  {
+   "secao": "5",
+   "rotulo_oficial": "REFERÊNCIAS",
+   "destino": "nucleo",
+   "coluna": "referencias"
+  },
+  {
+   "secao": "6",
+   "rotulo_oficial": "EQUIPE RESPONSÁVEL",
+   "destino": "ignorar",
+   "motivo": "equipe responsável vem do núcleo (pesquisador_id, coordenador_id); telefone/fax e e-mail da equipe saem do cadastro do usuário"
+  }
+ ],
+ "desativar": [],
+ "notas": "A ficha B5.2 é curta: não tem segmentos, vendas e reservas, restrições, fluxo, estacionamento, proteção, conservação nem acessibilidade (seções 4 a 6 são observações, referências e equipe). Novos com apos null ficam no início do grupo, na ordem desta spec."
+}

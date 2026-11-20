@@ -258,7 +258,7 @@
   }
   // O que está no aparelho por cima do que veio do servidor. Os campos da
   // ficha, a acessibilidade e as horas trocam um a um; o resto, inteiro.
-  var POR_PARTE = ['at', 'aus', 'acess', 'h_abre', 'h_fecha', 'h_abre2', 'h_fecha2'];
+  var POR_PARTE = ['at', 'aus', 'outro', 'acess', 'h_abre', 'h_fecha', 'h_abre2', 'h_fecha2'];
   function mesclarFicha(f, dados) {
     var r = JSON.parse(JSON.stringify(f || {}));
     Object.keys(dados || {}).forEach(function (k) {
@@ -615,10 +615,12 @@
     el.querySelectorAll('input, select, textarea').forEach(function (c) { c.disabled = !sim; });
   }
 
-  var AUSENCIAS = [['na', 'NA'], ['ni', 'NI'], ['ne', 'NE']];
+  // A situação do campo, numa pílula ao lado do título: Respondido (verde,
+  // quando tem valor), Pendente, ou NA, NI, NE (metodologia do MTur).
+  var AUSENCIAS = [['na', 'NA · não se aplica'], ['ni', 'NI · não informou'], ['ne', 'NE · não existe']];
   function seletorAusencia(aid) {
-    return '<select class="ausencia" name="aus[' + aid + ']" aria-label="Sem resposta"><option value="">Respondido</option>'
-      + AUSENCIAS.map(function (a) { return '<option value="' + a[0] + '">' + a[1] + '</option>'; }).join('') + '</select>';
+    return '<span class="entrada ausencia-pilula"><select class="ausencia" name="aus[' + aid + ']" aria-label="Situação da resposta"><option value="">Pendente</option>'
+      + AUSENCIAS.map(function (a) { return '<option value="' + a[0] + '">' + a[1] + '</option>'; }).join('') + '</select></span>';
   }
   function caixasHtml(nome, opcoes) {
     return '<div class="caixas">' + opcoes.map(function (op) {
@@ -626,37 +628,72 @@
       return '<label class="check"><input type="checkbox" name="' + esc(nome) + '[]" value="' + esc(v) + '"><i></i>' + esc(r) + '</label>';
     }).join('') + '</div>';
   }
-  function linhaTabela(aid, n, colunas) {
+  var MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+  // As colunas da tabela, com tipo (texto, numero, sim_nao, escolha, meses).
+  function colunasDe(a) {
+    return (a.colunas || (a.opcoes || []).map(function (c) { return { rotulo: c, tipo: 'texto', opcoes: [] }; }));
+  }
+  // padrao: a linha sugerida pela ficha, escrita na primeira coluna.
+  function linhaTabela(aid, n, colunas, padrao) {
     return '<tr>' + colunas.map(function (col, k) {
-      return '<td><div class="entrada mini"><input type="text" name="at[' + aid + '][' + n + '][' + k + ']" maxlength="200" aria-label="' + esc(col) + ', linha ' + (n + 1) + '"></div></td>';
+      var nome = 'at[' + aid + '][' + n + '][' + k + ']';
+      var rot = esc(col.rotulo) + ', linha ' + (n + 1);
+      var pad = k === 0 && padrao !== undefined ? ' data-padrao="' + esc(padrao) + '"' : '';
+      if (col.tipo === 'meses') {
+        return '<td><div class="meses-celula" role="group" aria-label="' + rot + '">' + MESES.map(function (m) {
+          return '<label class="check mes" title="' + m + '"><input type="checkbox" name="' + nome + '[]" value="' + m + '"><i></i>' + m.slice(0, 3) + '</label>';
+        }).join('') + '</div></td>';
+      }
+      if (col.tipo === 'sim_nao' || col.tipo === 'escolha') {
+        var ops = col.tipo === 'sim_nao' ? [['1', 'Sim'], ['0', 'Não']] : (col.opcoes || []).map(function (o) { return [o, o]; });
+        return '<td><div class="entrada mini"><select name="' + nome + '" aria-label="' + rot + '"' + pad + '><option value=""></option>'
+          + ops.map(function (o) { return '<option value="' + esc(o[0]) + '">' + esc(o[1]) + '</option>'; }).join('') + '</select></div></td>';
+      }
+      return '<td><div class="entrada mini"><input type="text" name="' + nome + '" maxlength="200"' + (col.tipo === 'numero' ? ' inputmode="decimal"' : '')
+        + ' aria-label="' + rot + '"' + pad + '></div></td>';
     }).join('') + '</tr>';
+  }
+  function outroTexto(a) {
+    return a.outros ? '<div class="entrada outro-texto" data-outro-at="' + a.id + '" hidden><input type="text" name="outro[' + a.id + ']" maxlength="255" placeholder="Quais? Especifique" aria-label="'
+      + esc(a.rotulo) + ': especifique o outro"></div>' : '';
   }
   function campoEspecifico(a, valor) {
     var id = 'c-at-' + a.id;
     var largo = ['texto_longo', 'multipla', 'tabela'].indexOf(a.tipo) !== -1;
-    var h = '<div class="campo ' + (largo ? 'c-12' : 'c-6') + '"><label for="' + id + '">' + esc(a.rotulo)
-      + (a.obrigatorio ? ' <span class="obrig">núcleo do MTur</span>' : '') + '</label>';
+    var h = '<div class="campo campo-ficha ' + (largo ? 'c-12' : 'c-6') + '" data-campo-at="' + a.id + '"><div class="campo-cab"><label for="' + id + '">' + esc(a.rotulo)
+      + (a.obrigatorio ? ' <span class="essencial" title="Item essencial da metodologia do MTur">MTur</span>' : '') + '</label>' + seletorAusencia(a.id) + '</div>';
     if (a.tipo === 'numero') {
-      h += '<div class="entrada"><input type="text" id="' + id + '" name="at[' + a.id + ']" inputmode="decimal" autocomplete="off">' + seletorAusencia(a.id) + '</div>';
+      h += '<div class="entrada"><input type="text" id="' + id + '" name="at[' + a.id + ']" inputmode="decimal" autocomplete="off"></div>';
+    } else if (a.tipo === 'data') {
+      h += '<div class="entrada"><input type="date" id="' + id + '" name="at[' + a.id + ']"></div>';
     } else if (a.tipo === 'sim_nao') {
-      h += '<div class="entrada"><select id="' + id + '" name="at[' + a.id + ']"><option value="">Não respondido</option><option value="1">Sim</option><option value="0">Não</option></select>' + seletorAusencia(a.id) + '</div>';
+      // Sim ou não: dois botões grandes, mais fácil que abrir uma lista.
+      h += '<div class="sim-nao" role="radiogroup" aria-labelledby="' + id + '-r"><span id="' + id + '-r" hidden>' + esc(a.rotulo) + '</span>'
+        + '<label class="opcao-sn"><input type="radio" name="at[' + a.id + ']" value="1"><span>Sim</span></label>'
+        + '<label class="opcao-sn"><input type="radio" name="at[' + a.id + ']" value="0"><span>Não</span></label></div>';
     } else if (a.tipo === 'escolha') {
-      h += '<div class="entrada"><select id="' + id + '" name="at[' + a.id + ']"><option value="">Não respondido</option>'
-        + a.opcoes.map(function (o) { return '<option value="' + esc(o) + '">' + esc(o) + '</option>'; }).join('') + '</select>' + seletorAusencia(a.id) + '</div>';
+      h += '<div class="entrada"><select id="' + id + '" name="at[' + a.id + ']"><option value="">Escolha</option>'
+        + a.opcoes.map(function (o) { return '<option value="' + esc(o) + '">' + esc(o) + '</option>'; }).join('') + '</select></div>'
+        + outroTexto(a);
     } else if (a.tipo === 'multipla') {
-      h += caixasHtml('at[' + a.id + ']', a.opcoes) + '<div class="entrada estreita">' + seletorAusencia(a.id) + '</div>';
+      h += (a.maximo ? '<span class="ajuda">Marque até ' + a.maximo + '.</span>' : '')
+        + '<div data-maximo="' + (a.maximo || 0) + '">' + caixasHtml('at[' + a.id + ']', a.opcoes) + '</div>' + outroTexto(a);
     } else if (a.tipo === 'tabela') {
+      var cols = colunasDe(a);
       var linhas = valor && typeof valor === 'object' ? Object.keys(valor).length : 0;
+      // Linhas sugeridas pela ficha: a primeira coluna já vem escrita (data-padrao).
+      var sugeridas = !linhas && a.linhas ? a.linhas : [];
       var corpo = '';
-      for (var n = 0; n < linhas + 1; n++) { corpo += linhaTabela(a.id, n, a.opcoes); }
+      for (var n = 0; n < Math.max(linhas, sugeridas.length) + 1; n++) {
+        corpo += linhaTabela(a.id, n, cols, sugeridas[n]);
+      }
       h += '<div class="rolagem"><table class="dados tabela-campo" data-tabela="' + a.id + '"><thead><tr>'
-        + a.opcoes.map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>' + corpo + '</tbody></table></div>'
-        + '<div class="tabela-acoes"><button type="button" class="como-link" data-mais-linha="' + a.id + '">' + icone('mais') + 'Mais uma linha</button>'
-        + '<div class="entrada estreita">' + seletorAusencia(a.id) + '</div></div>';
+        + cols.map(function (c) { return '<th>' + esc(c.rotulo) + '</th>'; }).join('') + '</tr></thead><tbody>' + corpo + '</tbody></table></div>'
+        + '<div class="tabela-acoes"><button type="button" class="como-link" data-mais-linha="' + a.id + '">' + icone('mais') + 'Mais uma linha</button></div>';
     } else if (a.tipo === 'texto_longo') {
-      h += '<div class="entrada"><textarea id="' + id + '" name="at[' + a.id + ']" rows="3"></textarea></div><div class="entrada estreita">' + seletorAusencia(a.id) + '</div>';
+      h += '<div class="entrada"><textarea id="' + id + '" name="at[' + a.id + ']" rows="3"></textarea></div>';
     } else {
-      h += '<div class="entrada"><input type="text" id="' + id + '" name="at[' + a.id + ']" maxlength="500" autocomplete="off">' + seletorAusencia(a.id) + '</div>';
+      h += '<div class="entrada"><input type="text" id="' + id + '" name="at[' + a.id + ']" maxlength="500" autocomplete="off"></div>';
     }
     return h + (a.ajuda ? '<span class="ajuda">' + esc(a.ajuda) + '</span>' : '') + '</div>';
   }
@@ -676,13 +713,13 @@
     var grupo = null;
     atributos.forEach(function (a) {
       if (a.grupo !== grupo) {
-        if (grupo !== null) { html += '</div>'; }
+        if (grupo !== null) { html += '</div></section>'; }
         grupo = a.grupo;
-        html += '<h3 class="sub-cartao">' + esc(grupo) + '</h3><div class="grade">';
+        html += '<section class="grupo-ficha"><header><h3>' + esc(grupo) + '</h3><span class="grupo-conta"></span></header><div class="grade">';
       }
       html += campoEspecifico(a, valores.at ? valores.at[String(a.id)] : null);
     });
-    if (grupo !== null) { html += '</div>'; }
+    if (grupo !== null) { html += '</div></section>'; }
     if (!cat && f) { html = '<p class="aviso atencao">' + icone('alerta') + '<span>Toque em Sincronizar com sinal para baixar os campos completos da ficha.</span></p>'; }
     $('c-especificos').innerHTML = html;
     $('aba-ficha-rotulo').textContent = f ? 'Ficha ' + f.codigo : 'Ficha';
@@ -723,6 +760,9 @@
         if (el.checked) { alvo[chave].push(el.value); }
       } else if (el.type === 'checkbox') {
         alvo[chave] = el.checked ? el.value : '';
+      } else if (el.type === 'radio') {
+        if (!(chave in alvo)) { alvo[chave] = ''; }
+        if (el.checked) { alvo[chave] = el.value; }
       } else {
         alvo[chave] = el.value.trim();
       }
@@ -745,8 +785,10 @@
       var v = valorNoCaminho(f, el.name);
       if (el.type === 'checkbox') {
         el.checked = /\[\]$/.test(el.name) ? Array.isArray(v) && v.map(String).indexOf(el.value) !== -1 : !!v && v !== '0';
+      } else if (el.type === 'radio') {
+        el.checked = v != null && String(v) === el.value;
       } else {
-        el.value = v == null || typeof v === 'object' ? '' : String(v);
+        el.value = v == null || typeof v === 'object' ? (el.getAttribute('data-padrao') || '') : String(v);
       }
     });
     form.elements.telefone.value = telefoneLegivel(form.elements.telefone.value);
@@ -759,6 +801,8 @@
     cnpjConsultado = limparCnpj(form.elements.cnpj.value);
     cadasturConsultado = form.elements.cadastur.value.trim();
     semanaDaFicha();
+    if (window.inventourCamposFicha) { window.inventourCamposFicha(form); }
+    if (window.inventourSituarCampos) { window.inventourSituarCampos(form); }
     contarTribos();
     contarFicha();
   }
@@ -774,7 +818,7 @@
     Object.keys(antes).concat(Object.keys(agora)).forEach(function (k) { chaves[k] = true; });
     var horario = false;
     Object.keys(chaves).forEach(function (k) {
-      if (k === 'at' || k === 'aus') { return; }
+      if (k === 'at' || k === 'aus' || k === 'outro') { return; }
       if (HORARIO.indexOf(k) !== -1) { if (!igual(antes[k], agora[k])) { horario = true; } return; }
       if (k === 'acess') {
         var a = antes.acess || {}, b = agora.acess || {};
@@ -786,11 +830,12 @@
       if (!igual(antes[k], agora[k])) { mudou[k] = agora[k] == null ? '' : agora[k]; n++; }
     });
     if (horario) { HORARIO.forEach(function (k) { mudou[k] = agora[k] == null ? '' : agora[k]; }); n++; }
-    var at0 = antes.at || {}, at1 = agora.at || {}, au0 = antes.aus || {}, au1 = agora.aus || {};
-    Object.keys(Object.assign({}, at0, at1, au0, au1)).forEach(function (aid) {
-      if (!igual(at0[aid], at1[aid]) || !igual(au0[aid], au1[aid])) {
+    var at0 = antes.at || {}, at1 = agora.at || {}, au0 = antes.aus || {}, au1 = agora.aus || {}, ou0 = antes.outro || {}, ou1 = agora.outro || {};
+    Object.keys(Object.assign({}, at0, at1, au0, au1, ou0, ou1)).forEach(function (aid) {
+      if (!igual(at0[aid], at1[aid]) || !igual(au0[aid], au1[aid]) || !igual(ou0[aid], ou1[aid])) {
         (mudou.at = mudou.at || {})[aid] = at1[aid] == null ? '' : at1[aid];
         (mudou.aus = mudou.aus || {})[aid] = au1[aid] || '';
+        (mudou.outro = mudou.outro || {})[aid] = ou1[aid] || '';
         n++;
       }
     });
@@ -873,24 +918,26 @@
       if (n) { t.open = true; }
     });
   }
-  // Campos da ficha respondidos (valor ou NA, NI, NE) sobre o total.
+  // Campos da ficha resolvidos (com valor ou NA, NI, NE) sobre o total, na
+  // aba e em cada grupo.
   function contarFicha() {
-    var cat = base && base.catalogo;
-    var f = atual ? fichaPorId(atual.ficha_id) : null;
-    var lista = cat && f ? (cat.atributos[String(f.id)] || []) : [];
+    if (window.inventourSituarCampos) { window.inventourSituarCampos($('c-especificos')); }
+    var campos = $('c-especificos').querySelectorAll('[data-campo-at]');
     var marca = $('aba-ficha-conta');
-    if (!lista.length) { marca.hidden = true; return; }
-    var v = lerForm();
-    var feitos = lista.filter(function (a) {
-      var x = v.at ? v.at[String(a.id)] : null;
-      var temValor = Array.isArray(x) ? x.length > 0 : (x && typeof x === 'object' ? Object.keys(x).some(function (n) {
-        return Object.keys(x[n]).some(function (k) { return x[n][k]; });
-      }) : !!x);
-      return temValor || (v.aus && v.aus[String(a.id)]);
-    }).length;
+    if (!campos.length) { marca.hidden = true; return; }
+    var feito = function (c) { return c.classList.contains('respondido') || c.classList.contains('sem-resposta'); };
+    var total = Array.prototype.filter.call(campos, feito).length;
     marca.hidden = false;
-    marca.textContent = feitos + '/' + lista.length;
+    marca.textContent = total + '/' + campos.length;
+    $('c-especificos').querySelectorAll('.grupo-ficha').forEach(function (g) {
+      var cs = g.querySelectorAll('[data-campo-at]');
+      var n = Array.prototype.filter.call(cs, feito).length;
+      var c = g.querySelector('.grupo-conta');
+      c.textContent = n + '/' + cs.length;
+      c.classList.toggle('completo', n === cs.length);
+    });
   }
+  $('c-especificos').addEventListener('input', contarFicha);
   $('c-tribos').addEventListener('change', contarTribos);
   $('c-especificos').addEventListener('change', contarFicha);
   $('c-especificos').addEventListener('click', function (ev) {
@@ -898,9 +945,10 @@
     if (!b) { return; }
     var aid = b.getAttribute('data-mais-linha');
     var tabela = form.querySelector('[data-tabela="' + aid + '"]');
-    var colunas = Array.prototype.map.call(tabela.querySelectorAll('thead th'), function (th) { return th.textContent; });
+    var f = atual ? fichaPorId(atual.ficha_id) : null;
+    var def = ((base && base.catalogo && f ? base.catalogo.atributos[String(f.id)] : null) || []).filter(function (x) { return String(x.id) === String(aid); })[0];
     var n = tabela.querySelectorAll('tbody tr').length;
-    tabela.querySelector('tbody').insertAdjacentHTML('beforeend', linhaTabela(aid, n, colunas));
+    tabela.querySelector('tbody').insertAdjacentHTML('beforeend', linhaTabela(aid, n, def ? colunasDe(def) : []));
     tabela.querySelector('tbody tr:last-child input').focus();
   });
 
@@ -1112,7 +1160,9 @@
     cadastur: function (v) { return String(v || '').toUpperCase().replace(/[^0-9A-Z]/g, '').slice(0, 30); },
     plus_code: function (v) { return String(v || '').toUpperCase().replace(/[^0-9A-Z+ ]/g, '').slice(0, 16); },
     funcionarios: function (v) { return String(v || '').replace(/\D/g, '').slice(0, 5); },
-    inicio_atividade: function (v) { return String(v || '').replace(/\D/g, '').slice(0, 4); }
+    funcionarios_temporarios: function (v) { return String(v || '').replace(/\D/g, '').slice(0, 5); },
+    cnae: function (v) { return String(v || '').replace(/\D/g, '').slice(0, 7); },
+    ramal: function (v) { return String(v || '').replace(/\D/g, '').slice(0, 10); },
   };
   Object.keys(MASCARAS).forEach(function (nome) {
     var el = form.elements[nome];
@@ -1153,13 +1203,17 @@
     } else if ((el.name === 'site' || el.name === 'maps_url') && v && !/^https?:\/\//i.test(v)) {
       el.value = 'https://' + v;
     } else if (el.name === 'inicio_atividade' && v) {
-      var ano = parseInt(v, 10);
-      erro = ano >= 1500 && ano <= new Date().getFullYear() ? '' : 'Ano entre 1500 e ' + new Date().getFullYear() + '.';
+      var md = v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/), ano = md ? parseInt(md[3], 10) : (/^\d{4}$/.test(v) ? parseInt(v, 10) : 0);
+      var dt = md ? new Date(ano, parseInt(md[2], 10) - 1, parseInt(md[1], 10)) : null;
+      erro = !ano || ano < 1500 || ano > new Date().getFullYear() || (dt && dt.getDate() !== parseInt(md[1], 10)) ? 'Use dd/mm/aaaa ou só o ano.' : '';
+    } else if (el.name === 'funcionarios_pcd' && v) {
+      var pc = parseFloat(v.replace(',', '.'));
+      erro = isFinite(pc) && pc >= 0 && pc <= 100 ? '' : 'Percentual entre 0 e 100.';
     }
     erroDoCampo(el, erro);
     return !erro;
   }
-  ['cnpj', 'email', 'telefone', 'whatsapp', 'cep', 'instagram', 'site', 'maps_url', 'inicio_atividade'].forEach(function (nome) {
+  ['cnpj', 'email', 'telefone', 'whatsapp', 'cep', 'instagram', 'site', 'maps_url', 'inicio_atividade', 'funcionarios_pcd'].forEach(function (nome) {
     var el = form.elements[nome];
     if (el) { el.addEventListener('blur', function () { conferirCampo(el); }); }
   });
@@ -1259,7 +1313,8 @@
           razao_social: [rec.razao_social, 'razão social'], nome: [rec.nome_fantasia || rec.razao_social, 'nome'],
           email: [rec.email ? rec.email.toLowerCase() : null, 'e-mail'], telefone: [rec.telefone, 'telefone'],
           cep: [rec.cep, 'CEP'], logradouro: [rec.logradouro, 'rua'], numero: [rec.numero, 'número'], complemento: [rec.complemento, 'complemento'],
-          bairro: [rec.bairro, 'bairro'], inicio_atividade: [rec.inicio_atividade, 'início da atividade'], natureza: [naturezaDaReceita(rec.natureza_juridica), 'natureza']
+          bairro: [rec.bairro, 'bairro'], inicio_atividade: [rec.inicio_atividade_data || rec.inicio_atividade, 'início da atividade'], natureza: [naturezaDaReceita(rec.natureza_juridica), 'natureza'],
+          cnae: [rec.cnae, 'CNAE'], atividade_economica: [rec.atividade_economica, 'atividade econômica']
         };
         partes.push('<b>Receita (' + esc(rec.fonte) + '):</b> ' + esc(rec.razao_social || '') + (rec.nome_fantasia ? ' (' + esc(rec.nome_fantasia) + ')' : '')
           + ', ' + esc([rec.cidade, rec.uf].filter(Boolean).join('/')) + '. Situação: <b>' + esc(rec.situacao_cadastral || '?') + '</b>.');
@@ -1548,5 +1603,105 @@
       mandar(reg.active || reg.waiting || reg.installing);
       navigator.serviceWorker.ready.then(function (r) { mandar(r.active); });
     }).catch(function () {});
+  }
+})();
+
+/*
+ * Campos da ficha (painel e coleta): o texto do "Outros ____" aparece só com
+ * a opção Outros/Outras marcada; "marque até N" trava as outras caixas ao
+ * chegar no limite; o início da atividade aceita dd/mm/aaaa ou só o ano.
+ * Softsul Software. O mesmo código está no inventour.js e no coleta.js (o
+ * app de campo não carrega o inventour.js); repetir não faz mal.
+ */
+(function () {
+  'use strict';
+  function ehOutros(t) { return /^outr[oa]s?(\s|$|\W)/i.test(String(t || '').trim()); }
+  function atualizarOutros(campo) {
+    if (!campo) { return; }
+    campo.querySelectorAll('.outro-texto[data-outro-at]').forEach(function (caixa) {
+      var marcado = Array.prototype.some.call(campo.querySelectorAll('input[type=checkbox]:checked'), function (c) { return ehOutros(c.value); })
+        || Array.prototype.some.call(campo.querySelectorAll('select:not(.ausencia)'), function (s) { return ehOutros(s.value); });
+      caixa.hidden = !marcado;
+    });
+    campo.querySelectorAll('.outro-texto[data-outro-de]').forEach(function (caixa) {
+      var sel = campo.querySelector('select[name="' + caixa.getAttribute('data-outro-de') + '"]');
+      caixa.hidden = !sel || sel.value !== caixa.getAttribute('data-outro-valor');
+    });
+  }
+  function limitar(grupo) {
+    var max = parseInt(grupo.getAttribute('data-maximo'), 10) || 0;
+    if (!max) { return; }
+    var n = grupo.querySelectorAll('input[type=checkbox]:checked').length;
+    grupo.querySelectorAll('input[type=checkbox]').forEach(function (c) { if (!c.checked) { c.disabled = n >= max; } });
+  }
+  function dataOuAno(el) {
+    var d = el.value.replace(/\D/g, '').slice(0, 8);
+    el.value = d.length <= 4 ? d : d.length <= 6 ? d.slice(0, 2) + '/' + d.slice(2) : d.slice(0, 2) + '/' + d.slice(2, 4) + '/' + d.slice(4);
+  }
+  window.inventourCamposFicha = function (raiz) {
+    (raiz || document).querySelectorAll('.outro-texto').forEach(function (c) { atualizarOutros(c.closest('.campo')); });
+    (raiz || document).querySelectorAll('[data-maximo]').forEach(limitar);
+  };
+  document.addEventListener('change', function (ev) {
+    if (!ev.target.closest) { return; }
+    atualizarOutros(ev.target.closest('.campo'));
+    var g = ev.target.closest('[data-maximo]');
+    if (g) { limitar(g); }
+  });
+  document.addEventListener('input', function (ev) {
+    if (ev.target.matches && ev.target.matches('[data-data-ou-ano]')) { dataOuAno(ev.target); }
+  });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { window.inventourCamposFicha(); });
+  } else {
+    window.inventourCamposFicha();
+  }
+})();
+
+/*
+ * A situação de cada campo da ficha, na pílula ao lado do título (painel e
+ * app): Respondido, em verde, quando o campo tem valor (aí NA, NI e NE não
+ * cabem); Pendente quando está vazio; NA, NI ou NE quando a pessoa marca.
+ * O campo ganha a classe respondido ou sem-resposta. Softsul Software.
+ */
+(function () {
+  'use strict';
+  function temValor(campo) {
+    return Array.prototype.some.call(campo.querySelectorAll('input, select, textarea'), function (el) {
+      if (!el.name || el.classList.contains('ausencia') || /^outro\[/.test(el.name)) { return false; }
+      if (el.type === 'checkbox' || el.type === 'radio') { return el.checked; }
+      var v = (el.value || '').trim();
+      return v !== '' && v !== (el.getAttribute('data-padrao') || '');
+    });
+  }
+  function situar(campo) {
+    var sel = campo.querySelector('select.ausencia');
+    if (!sel) { return; }
+    if (sel.getAttribute('data-trava') === null) { sel.setAttribute('data-trava', sel.disabled ? '1' : '0'); }
+    var travado = sel.getAttribute('data-trava') === '1';
+    var ok = temValor(campo);
+    sel.options[0].text = ok ? 'Respondido' : 'Pendente';
+    if (ok) { sel.value = ''; }
+    if (!travado) { sel.disabled = ok; }
+    var sem = !ok && sel.value !== '';
+    sel.classList.toggle('respondido', ok);
+    sel.classList.toggle('ausente', sem);
+    campo.classList.toggle('respondido', ok);
+    campo.classList.toggle('sem-resposta', sem);
+  }
+  function campoDe(el) { return el.closest && el.closest('.campo'); }
+  window.inventourSituarCampos = function (raiz) {
+    (raiz || document).querySelectorAll('select.ausencia').forEach(function (s) { var c = campoDe(s); if (c) { situar(c); } });
+  };
+  ['input', 'change'].forEach(function (tipo) {
+    document.addEventListener(tipo, function (ev) {
+      var c = campoDe(ev.target);
+      if (c && c.querySelector('select.ausencia')) { situar(c); }
+    });
+  });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { window.inventourSituarCampos(); });
+  } else {
+    window.inventourSituarCampos();
   }
 })();

@@ -50,7 +50,7 @@ foreach (array_merge(glob("{$raiz}/public/*.php") ?: [], glob("{$raiz}/portal/*.
 // Travessão (U+2013 e U+2014) em qualquer arquivo de texto versionado.
 $iterador = new RecursiveIteratorIterator(new RecursiveCallbackFilterIterator(
     new RecursiveDirectoryIterator($raiz, FilesystemIterator::SKIP_DOTS),
-    static fn ($atual) => !in_array($atual->getFilename(), ['.git', 'storage', 'logs', 'vendor', 'node_modules', 'build', 'material-original', 'fontes'], true)
+    static fn ($atual) => !in_array($atual->getFilename(), ['.git', 'storage', 'logs', 'vendor', 'node_modules', 'build', 'material-original', 'texto-dos-pdfs', 'fontes'], true)
 ));
 foreach ($iterador as $arquivo) {
     if (!preg_match('/\.(php|js|css|sql|md|html|txt|conf|json|webmanifest|svg|htaccess|local)$/', $arquivo->getFilename())) {

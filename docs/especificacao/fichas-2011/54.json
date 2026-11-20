@@ -1,0 +1,986 @@
+{
+ "ordem": 54,
+ "codigo": "C5",
+ "pdf": "C.5 - Eventos programados.pdf",
+ "itens": [
+  {
+   "secao": "1",
+   "rotulo_oficial": "Informações gerais",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.1",
+   "rotulo_oficial": "Nome oficial",
+   "destino": "nucleo",
+   "coluna": "nome"
+  },
+  {
+   "secao": "1.2",
+   "rotulo_oficial": "Nome popular",
+   "destino": "nucleo",
+   "coluna": "nome_popular"
+  },
+  {
+   "secao": "1.3",
+   "rotulo_oficial": "Natureza",
+   "destino": "nucleo",
+   "coluna": "natureza"
+  },
+  {
+   "secao": "1.4",
+   "rotulo_oficial": "Tipo de organização/instituição",
+   "destino": "nucleo",
+   "coluna": "tipo_organizacao"
+  },
+  {
+   "secao": "1.5",
+   "rotulo_oficial": "Localização (urbana/rural)",
+   "destino": "nucleo",
+   "coluna": "zona"
+  },
+  {
+   "secao": "1.6",
+   "rotulo_oficial": "Coordenadas geográficas",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.6.1",
+   "rotulo_oficial": "Latitude",
+   "destino": "nucleo",
+   "coluna": "latitude"
+  },
+  {
+   "secao": "1.6.2",
+   "rotulo_oficial": "Longitude",
+   "destino": "nucleo",
+   "coluna": "longitude"
+  },
+  {
+   "secao": "1.7",
+   "rotulo_oficial": "Endereço",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.7.1",
+   "rotulo_oficial": "Avenida/rua/travessa/caminho/outro",
+   "destino": "nucleo",
+   "coluna": "logradouro"
+  },
+  {
+   "secao": "1.7.2",
+   "rotulo_oficial": "Bairro/localidade",
+   "destino": "nucleo",
+   "coluna": "bairro"
+  },
+  {
+   "secao": "1.7.3",
+   "rotulo_oficial": "Distrito",
+   "destino": "nucleo",
+   "coluna": "distrito"
+  },
+  {
+   "secao": "1.7.4",
+   "rotulo_oficial": "CEP",
+   "destino": "nucleo",
+   "coluna": "cep"
+  },
+  {
+   "secao": "1.8",
+   "rotulo_oficial": "Sinalização",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.8.1",
+   "rotulo_oficial": "De acesso",
+   "destino": "nucleo",
+   "coluna": "sinalizacao_acesso"
+  },
+  {
+   "secao": "1.8.2",
+   "rotulo_oficial": "Turística",
+   "destino": "nucleo",
+   "coluna": "sinalizacao_turistica"
+  },
+  {
+   "secao": "1.9",
+   "rotulo_oficial": "Proximidades",
+   "destino": "novo",
+   "novo": {
+    "chave": "proximidades",
+    "grupo": "Proximidades",
+    "rotulo": "Proximidades",
+    "tipo": "multipla",
+    "opcoes": [
+     "Restaurante",
+     "Bar/lanchonete",
+     "Meio de hospedagem",
+     "Shopping",
+     "Galeria/rua comercial",
+     "Centro de convenções/exposições",
+     "Posto de combustível",
+     "Outras"
+    ],
+    "outros": true,
+    "apos": null
+   }
+  },
+  {
+   "secao": "1.10",
+   "rotulo_oficial": "Distâncias (km)",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.10.1",
+   "rotulo_oficial": "Aeroporto",
+   "destino": "novo",
+   "novo": {
+    "chave": "dist_aeroporto",
+    "grupo": "Distâncias (km)",
+    "rotulo": "Aeroporto (km)",
+    "tipo": "numero",
+    "apos": null
+   }
+  },
+  {
+   "secao": "1.10.2",
+   "rotulo_oficial": "Estação rodoviária",
+   "destino": "novo",
+   "novo": {
+    "chave": "dist_rodoviaria",
+    "grupo": "Distâncias (km)",
+    "rotulo": "Estação rodoviária (km)",
+    "tipo": "numero",
+    "apos": null,
+    "apos_chave": "dist_aeroporto"
+   }
+  },
+  {
+   "secao": "1.10.3",
+   "rotulo_oficial": "Estação ferroviária",
+   "destino": "novo",
+   "novo": {
+    "chave": "dist_ferroviaria",
+    "grupo": "Distâncias (km)",
+    "rotulo": "Estação ferroviária (km)",
+    "tipo": "numero",
+    "apos": null,
+    "apos_chave": "dist_rodoviaria"
+   }
+  },
+  {
+   "secao": "1.10.4",
+   "rotulo_oficial": "Estação marítima/fluvial",
+   "destino": "novo",
+   "novo": {
+    "chave": "dist_maritima",
+    "grupo": "Distâncias (km)",
+    "rotulo": "Estação marítima/fluvial (km)",
+    "tipo": "numero",
+    "apos": null,
+    "apos_chave": "dist_ferroviaria"
+   }
+  },
+  {
+   "secao": "1.10.5",
+   "rotulo_oficial": "Estação metroviária",
+   "destino": "novo",
+   "novo": {
+    "chave": "dist_metroviaria",
+    "grupo": "Distâncias (km)",
+    "rotulo": "Estação metroviária (km)",
+    "tipo": "numero",
+    "apos": null,
+    "apos_chave": "dist_maritima"
+   }
+  },
+  {
+   "secao": "1.10.6",
+   "rotulo_oficial": "Ponto de ônibus",
+   "destino": "novo",
+   "novo": {
+    "chave": "dist_ponto_onibus",
+    "grupo": "Distâncias (km)",
+    "rotulo": "Ponto de ônibus (km)",
+    "tipo": "numero",
+    "apos": null,
+    "apos_chave": "dist_metroviaria"
+   }
+  },
+  {
+   "secao": "1.10.7",
+   "rotulo_oficial": "Ponto de táxi",
+   "destino": "novo",
+   "novo": {
+    "chave": "dist_ponto_taxi",
+    "grupo": "Distâncias (km)",
+    "rotulo": "Ponto de táxi (km)",
+    "tipo": "numero",
+    "apos": null,
+    "apos_chave": "dist_ponto_onibus"
+   }
+  },
+  {
+   "secao": "1.10.8",
+   "rotulo_oficial": "Sede do município",
+   "destino": "novo",
+   "novo": {
+    "chave": "dist_sede_km",
+    "grupo": "Distâncias (km)",
+    "rotulo": "Sede do município (km)",
+    "tipo": "numero",
+    "apos": null,
+    "apos_chave": "dist_ponto_taxi"
+   }
+  },
+  {
+   "secao": "1.10.9",
+   "rotulo_oficial": "Localidade mais próxima",
+   "destino": "novo",
+   "novo": {
+    "chave": "localidade_proxima",
+    "grupo": "Distâncias (km)",
+    "rotulo": "Localidade mais próxima",
+    "tipo": "texto",
+    "apos": null,
+    "apos_chave": "dist_sede_km"
+   }
+  },
+  {
+   "secao": "1.10.9",
+   "rotulo_oficial": "Localidade mais próxima (distância)",
+   "destino": "novo",
+   "novo": {
+    "chave": "dist_localidade_km",
+    "grupo": "Distâncias (km)",
+    "rotulo": "Localidade mais próxima (km)",
+    "tipo": "numero",
+    "apos": null,
+    "apos_chave": "localidade_proxima"
+   }
+  },
+  {
+   "secao": "1.10.10",
+   "rotulo_oficial": "Outras",
+   "destino": "novo",
+   "novo": {
+    "chave": "dist_outras",
+    "grupo": "Distâncias (km)",
+    "rotulo": "Outras (nome e km)",
+    "tipo": "texto",
+    "ajuda": "Nome do lugar e distância em km",
+    "apos": null,
+    "apos_chave": "dist_localidade_km"
+   }
+  },
+  {
+   "secao": "1.11",
+   "rotulo_oficial": "Pontos de referência",
+   "destino": "nucleo",
+   "coluna": "referencia"
+  },
+  {
+   "secao": "1.12",
+   "rotulo_oficial": "Nome do realizador/entidade",
+   "destino": "atributo",
+   "atributo_id": 703
+  },
+  {
+   "secao": "1.12.1",
+   "rotulo_oficial": "CNPJ do realizador/entidade",
+   "destino": "atributo",
+   "atributo_id": 704
+  },
+  {
+   "secao": "1.12.2",
+   "rotulo_oficial": "Endereço eletrônico (e-mail)",
+   "destino": "atributo",
+   "atributo_id": 705
+  },
+  {
+   "secao": "1.12.3",
+   "rotulo_oficial": "Sítio eletrônico (site/página web)",
+   "destino": "atributo",
+   "atributo_id": 706
+  },
+  {
+   "secao": "1.12.4",
+   "rotulo_oficial": "Telefone/ramal",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.12.4.1",
+   "rotulo_oficial": "Telefone",
+   "destino": "atributo",
+   "atributo_id": 707
+  },
+  {
+   "secao": "1.12.4.1.1",
+   "rotulo_oficial": "Ramal",
+   "destino": "novo",
+   "novo": {
+    "chave": "realizador_ramal",
+    "grupo": "Realizador",
+    "rotulo": "Ramal do realizador",
+    "tipo": "texto",
+    "apos": 707
+   }
+  },
+  {
+   "secao": "1.12.5",
+   "rotulo_oficial": "Fax/ramal",
+   "destino": "ignorar",
+   "motivo": "fax desligado (o campo 708 realizador_fax já está inativo)"
+  },
+  {
+   "secao": "1.12.5.1",
+   "rotulo_oficial": "Fax",
+   "destino": "ignorar",
+   "motivo": "fax desligado"
+  },
+  {
+   "secao": "1.12.5.1.1",
+   "rotulo_oficial": "Ramal do fax",
+   "destino": "ignorar",
+   "motivo": "fax desligado"
+  },
+  {
+   "secao": "2",
+   "rotulo_oficial": "Funcionamento",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.1",
+   "rotulo_oficial": "Estrutura de funcionamento",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.1.1",
+   "rotulo_oficial": "Entrada",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.1.1.1",
+   "rotulo_oficial": "Gratuita",
+   "destino": "novo",
+   "novo": {
+    "chave": "entrada_gratuita",
+    "grupo": "Estrutura de funcionamento",
+    "rotulo": "Entrada gratuita",
+    "tipo": "sim_nao",
+    "apos": null
+   }
+  },
+  {
+   "secao": "2.1.1.2",
+   "rotulo_oficial": "Paga: inteira",
+   "destino": "novo",
+   "novo": {
+    "chave": "entrada_inteira",
+    "grupo": "Estrutura de funcionamento",
+    "rotulo": "Entrada paga: inteira (R$)",
+    "tipo": "numero",
+    "apos": null,
+    "apos_chave": "entrada_gratuita"
+   }
+  },
+  {
+   "secao": "2.1.1.2",
+   "rotulo_oficial": "Paga: meia",
+   "destino": "novo",
+   "novo": {
+    "chave": "entrada_meia",
+    "grupo": "Estrutura de funcionamento",
+    "rotulo": "Entrada paga: meia (R$)",
+    "tipo": "numero",
+    "apos": null,
+    "apos_chave": "entrada_inteira"
+   }
+  },
+  {
+   "secao": "2.1.2",
+   "rotulo_oficial": "Instalações de entrada",
+   "destino": "novo",
+   "novo": {
+    "chave": "instalacoes_entrada",
+    "grupo": "Estrutura de funcionamento",
+    "rotulo": "Instalações de entrada",
+    "tipo": "multipla",
+    "opcoes": [
+     "Centro de recepção",
+     "Posto de informação",
+     "Portaria principal",
+     "Guarita",
+     "Bilheteria",
+     "Outras"
+    ],
+    "outros": true,
+    "ajuda": "Na ficha cada instalação é marcada Sim/Não; aqui marca-se a que existe",
+    "apos": null,
+    "apos_chave": "entrada_meia"
+   }
+  },
+  {
+   "secao": "2.1.2.1",
+   "rotulo_oficial": "Centro de recepção",
+   "destino": "titulo",
+   "motivo": "opção do campo instalacoes_entrada (2.1.2)"
+  },
+  {
+   "secao": "2.1.2.2",
+   "rotulo_oficial": "Posto de informação",
+   "destino": "titulo",
+   "motivo": "opção do campo instalacoes_entrada (2.1.2)"
+  },
+  {
+   "secao": "2.1.2.3",
+   "rotulo_oficial": "Portaria principal",
+   "destino": "titulo",
+   "motivo": "opção do campo instalacoes_entrada (2.1.2)"
+  },
+  {
+   "secao": "2.1.2.4",
+   "rotulo_oficial": "Guarita",
+   "destino": "titulo",
+   "motivo": "opção do campo instalacoes_entrada (2.1.2)"
+  },
+  {
+   "secao": "2.1.2.5",
+   "rotulo_oficial": "Bilheteria",
+   "destino": "titulo",
+   "motivo": "opção do campo instalacoes_entrada (2.1.2)"
+  },
+  {
+   "secao": "2.1.2.6",
+   "rotulo_oficial": "Outras",
+   "destino": "titulo",
+   "motivo": "opção do campo instalacoes_entrada (2.1.2)"
+  },
+  {
+   "secao": "2.1.3",
+   "rotulo_oficial": "Atendimento ao público",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.1.3.1",
+   "rotulo_oficial": "Atendimento em língua estrangeira",
+   "destino": "nucleo",
+   "coluna": "idiomas"
+  },
+  {
+   "secao": "2.1.3.2",
+   "rotulo_oficial": "Informativos impressos",
+   "destino": "novo",
+   "novo": {
+    "chave": "informativos_impressos",
+    "grupo": "Atendimento ao público",
+    "rotulo": "Informativos impressos",
+    "tipo": "multipla",
+    "opcoes": [
+     "Não",
+     "Português",
+     "Inglês",
+     "Espanhol",
+     "Outras"
+    ],
+    "outros": true,
+    "apos": null
+   }
+  },
+  {
+   "secao": "2.2",
+   "rotulo_oficial": "Regras de funcionamento",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.2.1",
+   "rotulo_oficial": "Período",
+   "destino": "novo",
+   "novo": {
+    "chave": "periodo_meses",
+    "grupo": "Regras de funcionamento",
+    "rotulo": "Período",
+    "tipo": "multipla",
+    "opcoes": [
+     "Janeiro",
+     "Fevereiro",
+     "Março",
+     "Abril",
+     "Maio",
+     "Junho",
+     "Julho",
+     "Agosto",
+     "Setembro",
+     "Outubro",
+     "Novembro",
+     "Dezembro",
+     "Ano inteiro"
+    ],
+    "apos": null
+   }
+  },
+  {
+   "secao": "2.2.2",
+   "rotulo_oficial": "Horário",
+   "destino": "nucleo",
+   "coluna": "horario"
+  },
+  {
+   "secao": "2.2.2.1",
+   "rotulo_oficial": "Abertura",
+   "destino": "nucleo",
+   "coluna": "horario"
+  },
+  {
+   "secao": "2.2.2.2",
+   "rotulo_oficial": "Encerramento",
+   "destino": "nucleo",
+   "coluna": "horario"
+  },
+  {
+   "secao": "2.2.2.3",
+   "rotulo_oficial": "Funcionamento 24 horas",
+   "destino": "nucleo",
+   "coluna": "horario"
+  },
+  {
+   "secao": "2.2.2.4",
+   "rotulo_oficial": "Funcionamento em feriados",
+   "destino": "nucleo",
+   "coluna": "horario"
+  },
+  {
+   "secao": "2.2.3",
+   "rotulo_oficial": "Restrições",
+   "destino": "novo",
+   "novo": {
+    "chave": "restricoes",
+    "grupo": "Regras de funcionamento",
+    "rotulo": "Restrições",
+    "tipo": "multipla",
+    "opcoes": [
+     "Crianças",
+     "Fumantes",
+     "Animais",
+     "Outras"
+    ],
+    "outros": true,
+    "apos": null,
+    "apos_chave": "periodo_meses"
+   }
+  },
+  {
+   "secao": "2.2.4",
+   "rotulo_oficial": "Outras regras e informações",
+   "destino": "novo",
+   "novo": {
+    "chave": "outras_regras",
+    "grupo": "Regras de funcionamento",
+    "rotulo": "Outras regras e informações",
+    "tipo": "texto_longo",
+    "apos": null,
+    "apos_chave": "restricoes"
+   }
+  },
+  {
+   "secao": "2.3",
+   "rotulo_oficial": "Caracterização do fluxo turístico",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.3.1",
+   "rotulo_oficial": "Dados da visitação",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.3.1.1",
+   "rotulo_oficial": "Total de visitantes por evento (nº)",
+   "destino": "atributo",
+   "atributo_id": 709,
+   "ajustes": {
+    "grupo": "Caracterização do fluxo turístico"
+   }
+  },
+  {
+   "secao": "2.3.1.2",
+   "rotulo_oficial": "Origem dos visitantes/turistas",
+   "destino": "novo",
+   "novo": {
+    "chave": "fluxo_origem",
+    "grupo": "Caracterização do fluxo turístico",
+    "rotulo": "Origem dos visitantes/turistas",
+    "tipo": "multipla",
+    "opcoes": [
+     "Entorno municipal",
+     "Estadual",
+     "Nacional",
+     "Internacional"
+    ],
+    "apos": null
+   }
+  },
+  {
+   "secao": "2.3.1.2.1",
+   "rotulo_oficial": "Origem dos turistas nacionais (até 5 estados)",
+   "destino": "novo",
+   "novo": {
+    "chave": "fluxo_estados",
+    "grupo": "Caracterização do fluxo turístico",
+    "rotulo": "Origem dos turistas nacionais (até 5 estados)",
+    "tipo": "multipla",
+    "opcoes": [
+     "AC",
+     "AL",
+     "AP",
+     "AM",
+     "BA",
+     "CE",
+     "DF",
+     "ES",
+     "GO",
+     "MA",
+     "MT",
+     "MS",
+     "MG",
+     "PA",
+     "PB",
+     "PR",
+     "PE",
+     "PI",
+     "RJ",
+     "RN",
+     "RS",
+     "RO",
+     "RR",
+     "SC",
+     "SP",
+     "SE",
+     "TO"
+    ],
+    "maximo": 5,
+    "apos": null,
+    "apos_chave": "fluxo_origem",
+    "ajuda": "Até 5 estados, pela sigla."
+   }
+  },
+  {
+   "secao": "2.3.1.2.2",
+   "rotulo_oficial": "Origem dos turistas internacionais (até 5 países)",
+   "destino": "novo",
+   "novo": {
+    "chave": "fluxo_paises",
+    "grupo": "Caracterização do fluxo turístico",
+    "rotulo": "Origem dos turistas internacionais (até 5 países)",
+    "tipo": "tabela",
+    "colunas": [
+     {
+      "rotulo": "País",
+      "tipo": "texto"
+     }
+    ],
+    "ajuda": "Até 5 países",
+    "apos": null,
+    "apos_chave": "fluxo_estados",
+    "maximo": 5
+   }
+  },
+  {
+   "secao": "2.3.1.2.3",
+   "rotulo_oficial": "Ano-base",
+   "destino": "novo",
+   "novo": {
+    "chave": "fluxo_ano_base",
+    "grupo": "Caracterização do fluxo turístico",
+    "rotulo": "Ano-base",
+    "tipo": "numero",
+    "apos": null,
+    "apos_chave": "fluxo_paises"
+   }
+  },
+  {
+   "secao": "2.3.1.3",
+   "rotulo_oficial": "Principal público frequentador",
+   "destino": "novo",
+   "novo": {
+    "chave": "publico_frequentador",
+    "grupo": "Caracterização do fluxo turístico",
+    "rotulo": "Principal público frequentador",
+    "tipo": "multipla",
+    "opcoes": [
+     "Turistas",
+     "Moradores"
+    ],
+    "apos": null,
+    "apos_chave": "fluxo_ano_base"
+   }
+  },
+  {
+   "secao": "2.4",
+   "rotulo_oficial": "Apoio à comercialização",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.4.1",
+   "rotulo_oficial": "Integra roteiros turísticos comercializados",
+   "destino": "novo",
+   "novo": {
+    "chave": "roteiros_integra",
+    "grupo": "Apoio à comercialização",
+    "rotulo": "Integra roteiros turísticos comercializados",
+    "tipo": "sim_nao",
+    "apos": null
+   }
+  },
+  {
+   "secao": "2.4.1",
+   "rotulo_oficial": "Nome dos principais roteiros (até 5) e sítio eletrônico",
+   "destino": "novo",
+   "novo": {
+    "chave": "roteiros",
+    "grupo": "Apoio à comercialização",
+    "rotulo": "Principais roteiros",
+    "tipo": "tabela",
+    "colunas": [
+     "Nome do roteiro",
+     "Sítio eletrônico (site/página web)"
+    ],
+    "ajuda": "Os principais, até 5.",
+    "apos": null,
+    "apos_chave": "roteiros_integra",
+    "maximo": 5
+   }
+  },
+  {
+   "secao": "2.4.2",
+   "rotulo_oficial": "Integra guia turístico",
+   "destino": "novo",
+   "novo": {
+    "chave": "guias_integra",
+    "grupo": "Apoio à comercialização",
+    "rotulo": "Integra guia turístico",
+    "tipo": "sim_nao",
+    "apos": null,
+    "apos_chave": "roteiros"
+   }
+  },
+  {
+   "secao": "2.4.2",
+   "rotulo_oficial": "Nome dos principais guias impressos (até 5) e sítio eletrônico",
+   "destino": "novo",
+   "novo": {
+    "chave": "guias_impressos",
+    "grupo": "Apoio à comercialização",
+    "rotulo": "Principais guias impressos",
+    "tipo": "tabela",
+    "colunas": [
+     "Nome do guia impresso",
+     "Sítio eletrônico (site/página web)"
+    ],
+    "ajuda": "Os principais, até 5.",
+    "apos": null,
+    "apos_chave": "guias_integra",
+    "maximo": 5
+   }
+  },
+  {
+   "secao": "3",
+   "rotulo_oficial": "Características",
+   "destino": "titulo"
+  },
+  {
+   "secao": "3.1",
+   "rotulo_oficial": "Período de realização",
+   "destino": "atributo",
+   "atributo_id": 710
+  },
+  {
+   "secao": "3.2",
+   "rotulo_oficial": "Periodicidade",
+   "destino": "atributo",
+   "atributo_id": 711,
+   "ajustes": {
+    "outros": true
+   }
+  },
+  {
+   "secao": "3.3",
+   "rotulo_oficial": "Caráter do evento",
+   "destino": "atributo",
+   "atributo_id": 712,
+   "ajustes": {
+    "opcoes": [
+     "Social",
+     "Comercial",
+     "Promocional",
+     "Cultural",
+     "Técnico-científico",
+     "Outros"
+    ],
+    "outros": true,
+    "ajuda": "Social: envolve assuntos próprios da sociedade, comunidade ou agremiação, com vistas ao bem comum. Comercial: associado às transações de compra e venda de produtos e serviços. Promocional: realizado apenas para divulgação institucional ou de apoio às estratégias de marketing. Cultural: eventos tradicionais das comunidades com características de realização próprias da região ou dos grupos detentores. Técnico-científico: abarca especialidades, processos, habilidades, domínio de uma prática, arte ou ciência."
+   }
+  },
+  {
+   "secao": "3.4",
+   "rotulo_oficial": "Descritivo das especificidades do evento",
+   "destino": "atributo",
+   "atributo_id": 713
+  },
+  {
+   "secao": "4",
+   "rotulo_oficial": "Acessibilidade",
+   "destino": "titulo"
+  },
+  {
+   "secao": "4.1",
+   "rotulo_oficial": "Possui alguma facilidade para pessoas com deficiência ou mobilidade reduzida?",
+   "destino": "nucleo",
+   "coluna": "acessibilidade_possui"
+  },
+  {
+   "secao": "4.1.1",
+   "rotulo_oficial": "Pessoal capacitado para receber pessoas com deficiência",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "4.1.2",
+   "rotulo_oficial": "Rota externa acessível",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "4.1.3",
+   "rotulo_oficial": "Símbolo internacional de acesso",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "4.1.4",
+   "rotulo_oficial": "Local de embarque e desembarque",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "4.1.5",
+   "rotulo_oficial": "Vaga em estacionamento",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "4.1.6",
+   "rotulo_oficial": "Área de circulação/acesso interno para cadeiras de rodas",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "4.1.7",
+   "rotulo_oficial": "Escada",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "4.1.8",
+   "rotulo_oficial": "Rampa",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "4.1.9",
+   "rotulo_oficial": "Piso",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "4.1.10",
+   "rotulo_oficial": "Elevador",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "4.1.11",
+   "rotulo_oficial": "Equipamento motorizado para deslocamento interno",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "4.1.12",
+   "rotulo_oficial": "Sinalização visual",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "4.1.13",
+   "rotulo_oficial": "Sinalização tátil",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "4.1.14",
+   "rotulo_oficial": "Alarme de emergência",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "4.1.15",
+   "rotulo_oficial": "Comunicação",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "4.1.16",
+   "rotulo_oficial": "Balcão de atendimento",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "4.1.17",
+   "rotulo_oficial": "Mobiliário",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "4.1.18",
+   "rotulo_oficial": "Sanitário",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "4.1.19",
+   "rotulo_oficial": "Telefone",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "4.1.20",
+   "rotulo_oficial": "Sinalização indicativa de atendimento preferencial para pessoas com deficiência ou mobilidade reduzida",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "4.1.21",
+   "rotulo_oficial": "Outras",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "5",
+   "rotulo_oficial": "Observações",
+   "destino": "nucleo",
+   "coluna": "observacoes"
+  },
+  {
+   "secao": "6",
+   "rotulo_oficial": "Referências",
+   "destino": "nucleo",
+   "coluna": "referencias"
+  },
+  {
+   "secao": "7",
+   "rotulo_oficial": "Equipe responsável",
+   "destino": "nucleo",
+   "coluna": "equipe"
+  }
+ ],
+ "desativar": [],
+ "notas": "Ficha de evento: sem CNPJ próprio do evento, sem mantenedora (no lugar dela o Realizador, campos 703 a 707 mantidos), sem visitação, sem acesso ao atrativo, sem proteção e sem conservação. A acessibilidade é a seção 4 (não 6). Novo: realizador_ramal (1.12.4.1.1), logo depois do telefone do realizador. Fax do realizador (708) já está inativo e o fax é ignorado. Total de visitantes por evento (709) ficou com chave própria (não é fluxo_ano, que é total anual) e foi movido para o grupo do fluxo, junto da origem e do público. Caráter do evento ganhou Outros (opção 6); as explicações entre parênteses de cada opção do PDF foram para a ajuda, para a opção não ficar enorme; conferir se preferem o texto completo na opção. Periodicidade com outros: true. Decisões comuns: (1) quando um único número do PDF vira dois campos, a seção se repete em dois itens (Localidade mais próxima: nome e km; Entrada paga: inteira e meia em R$; Integra roteiros/guia: sim/não e tabela; Proteção: sim/não e tabela). (2) As linhas fixas da tabela de proteção (Esfera x Instrumento, x.1.1 a x.5.2) entram como \"titulo\" com motivo, porque viram as colunas tipadas Esfera e Instrumento da tabela padrão. (3) Os subitens x.1 a x.6 das Instalações de entrada (Sim/Não cada) entram como \"titulo\": viram as opções da múltipla instalacoes_entrada. (4) Atendimento em língua estrangeira vai para a coluna idiomas do núcleo (o núcleo usa Português, Inglês, Espanhol, Libras, Outros; a ficha traz Não, Inglês, Espanhol, Outras). (5) Campos novos de grupos novos têm apos null; a ordem dentro do grupo vem de apos_chave (chave nova anterior do mesmo grupo) e da ordem dos itens. (6) Origem dos turistas nacionais usa as 27 siglas de UF em ordem alfabética do nome do estado. (7) Hoje a proteção fica na tabela inventario_item_protecoes (esfera, instrumento, descricao); a migração precisa levar esses dados para protecao_equip/protecao_area. (8) Em toda lista com Outros/Outras foi posto outros: true."
+}

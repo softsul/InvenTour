@@ -24,3 +24,4 @@
 # Downloads do app (APK e AAB gerados pelo mobile/campo/publicar-apk.sh).
 /public/baixar/
 __pycache__/
+docs/especificacao/fichas-2011/texto-dos-pdfs/

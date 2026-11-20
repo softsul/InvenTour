@@ -1,0 +1,394 @@
+{
+ "ordem": 49,
+ "codigo": "C2",
+ "pdf": "C.2.25 a .27 - Gastronomia, artesanato, trabalhos manuais.pdf",
+ "itens": [
+  {
+   "secao": "1",
+   "rotulo_oficial": "Informações gerais",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.1",
+   "rotulo_oficial": "Nome",
+   "destino": "nucleo",
+   "coluna": "nome"
+  },
+  {
+   "secao": "1.2",
+   "rotulo_oficial": "Histórico do produto",
+   "destino": "atributo",
+   "atributo_id": 682
+  },
+  {
+   "secao": "1.3",
+   "rotulo_oficial": "Modo de preparo/fabricação",
+   "destino": "atributo",
+   "atributo_id": 683
+  },
+  {
+   "secao": "1.4",
+   "rotulo_oficial": "Artista/executante",
+   "destino": "atributo",
+   "atributo_id": 684,
+   "ajustes": {
+    "rotulo": "Artista/executante",
+    "colunas": [
+     {
+      "rotulo": "Nome",
+      "tipo": "texto"
+     },
+     {
+      "rotulo": "Endereço completo do ateliê",
+      "tipo": "texto"
+     },
+     {
+      "rotulo": "Ateliê aberto a visitação",
+      "tipo": "sim_nao"
+     },
+     {
+      "rotulo": "Telefones",
+      "tipo": "texto"
+     },
+     {
+      "rotulo": "Endereço eletrônico (e-mail)",
+      "tipo": "texto"
+     },
+     {
+      "rotulo": "Ano de início da atividade",
+      "tipo": "numero"
+     },
+     {
+      "rotulo": "Premiação",
+      "tipo": "texto"
+     },
+     {
+      "rotulo": "Outras informações",
+      "tipo": "texto"
+     }
+    ]
+   }
+  },
+  {
+   "secao": "2",
+   "rotulo_oficial": "Funcionamento",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.1",
+   "rotulo_oficial": "Apoio à comercialização",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.1.1",
+   "rotulo_oficial": "Integra roteiros turísticos comercializados",
+   "destino": "novo",
+   "novo": {
+    "chave": "roteiros_integra",
+    "grupo": "Apoio à comercialização",
+    "rotulo": "Integra roteiros turísticos comercializados",
+    "tipo": "sim_nao",
+    "apos": null
+   }
+  },
+  {
+   "secao": "2.1.1",
+   "rotulo_oficial": "Nome dos principais roteiros (até 5) e sítio eletrônico",
+   "destino": "novo",
+   "novo": {
+    "chave": "roteiros",
+    "grupo": "Apoio à comercialização",
+    "rotulo": "Principais roteiros",
+    "tipo": "tabela",
+    "colunas": [
+     "Nome do roteiro",
+     "Sítio eletrônico (site/página web)"
+    ],
+    "ajuda": "Os principais, até 5.",
+    "apos": null,
+    "apos_chave": "roteiros_integra",
+    "maximo": 5
+   }
+  },
+  {
+   "secao": "2.1.2",
+   "rotulo_oficial": "Integra guia turístico",
+   "destino": "novo",
+   "novo": {
+    "chave": "guias_integra",
+    "grupo": "Apoio à comercialização",
+    "rotulo": "Integra guia turístico",
+    "tipo": "sim_nao",
+    "apos": null,
+    "apos_chave": "roteiros"
+   }
+  },
+  {
+   "secao": "2.1.2",
+   "rotulo_oficial": "Nome dos principais guias impressos (até 5) e sítio eletrônico",
+   "destino": "novo",
+   "novo": {
+    "chave": "guias_impressos",
+    "grupo": "Apoio à comercialização",
+    "rotulo": "Principais guias impressos",
+    "tipo": "tabela",
+    "colunas": [
+     "Nome do guia impresso",
+     "Sítio eletrônico (site/página web)"
+    ],
+    "ajuda": "Os principais, até 5.",
+    "apos": null,
+    "apos_chave": "guias_integra",
+    "maximo": 5
+   }
+  },
+  {
+   "secao": "3",
+   "rotulo_oficial": "Características",
+   "destino": "titulo"
+  },
+  {
+   "secao": "3.1",
+   "rotulo_oficial": "Locais de comercialização",
+   "destino": "atributo",
+   "atributo_id": 685,
+   "ajustes": {
+    "outros": true
+   }
+  },
+  {
+   "secao": "3.2",
+   "rotulo_oficial": "Descritivo das especificidades",
+   "destino": "atributo",
+   "atributo_id": 686
+  },
+  {
+   "secao": "4",
+   "rotulo_oficial": "Proteção, qualificação, certificação, premiação, destaques e outros",
+   "destino": "titulo"
+  },
+  {
+   "secao": "4.1",
+   "rotulo_oficial": "Do atrativo",
+   "destino": "novo",
+   "novo": {
+    "chave": "protecao_equip_possui",
+    "grupo": "Proteção, qualificação, certificação, premiação, destaques e outros",
+    "rotulo": "Proteção do atrativo",
+    "tipo": "sim_nao",
+    "apos": null
+   }
+  },
+  {
+   "secao": "4.1",
+   "rotulo_oficial": "Do atrativo: tabela (linhas 4.1.1 a 4.1.5.2)",
+   "destino": "novo",
+   "novo": {
+    "chave": "protecao_equip",
+    "grupo": "Proteção, qualificação, certificação, premiação, destaques e outros",
+    "rotulo": "Proteção do atrativo: instrumentos",
+    "tipo": "tabela",
+    "colunas": [
+     {
+      "rotulo": "Esfera",
+      "tipo": "escolha",
+      "opcoes": [
+       "Municipal",
+       "Estadual/Distrital",
+       "Federal",
+       "Internacional",
+       "Outras"
+      ]
+     },
+     {
+      "rotulo": "Instrumento",
+      "tipo": "escolha",
+      "opcoes": [
+       "Lei/Decreto",
+       "Portaria/Instrução/Deliberação",
+       "Norma/Ato",
+       "Outros"
+      ]
+     },
+     {
+      "rotulo": "Instrumento (nº)",
+      "tipo": "texto"
+     },
+     {
+      "rotulo": "Nome/Título/Certificação/Licenciamento/outro",
+      "tipo": "texto"
+     },
+     {
+      "rotulo": "Entidade declaratória/Tipo de declaração",
+      "tipo": "texto"
+     }
+    ],
+    "apos": null,
+    "apos_chave": "protecao_equip_possui"
+   }
+  },
+  {
+   "secao": "4.1.1",
+   "rotulo_oficial": "Municipal",
+   "destino": "titulo",
+   "motivo": "linha da tabela protecao_equip (Esfera Municipal)"
+  },
+  {
+   "secao": "4.1.1.1",
+   "rotulo_oficial": "Lei/Decreto",
+   "destino": "titulo",
+   "motivo": "linha da tabela protecao_equip (Esfera Municipal, Instrumento Lei/Decreto)"
+  },
+  {
+   "secao": "4.1.1.2",
+   "rotulo_oficial": "Portaria/Instrução/Deliberação",
+   "destino": "titulo",
+   "motivo": "linha da tabela protecao_equip (Esfera Municipal, Instrumento Portaria/Instrução/Deliberação)"
+  },
+  {
+   "secao": "4.1.1.3",
+   "rotulo_oficial": "Norma/Ato",
+   "destino": "titulo",
+   "motivo": "linha da tabela protecao_equip (Esfera Municipal, Instrumento Norma/Ato)"
+  },
+  {
+   "secao": "4.1.1.4",
+   "rotulo_oficial": "Outros",
+   "destino": "titulo",
+   "motivo": "linha da tabela protecao_equip (Esfera Municipal, Instrumento Outros)"
+  },
+  {
+   "secao": "4.1.2",
+   "rotulo_oficial": "Estadual/Distrital",
+   "destino": "titulo",
+   "motivo": "linha da tabela protecao_equip (Esfera Estadual/Distrital)"
+  },
+  {
+   "secao": "4.1.2.1",
+   "rotulo_oficial": "Lei/Decreto",
+   "destino": "titulo",
+   "motivo": "linha da tabela protecao_equip (Esfera Estadual/Distrital, Instrumento Lei/Decreto)"
+  },
+  {
+   "secao": "4.1.2.2",
+   "rotulo_oficial": "Portaria/Instrução/Deliberação",
+   "destino": "titulo",
+   "motivo": "linha da tabela protecao_equip (Esfera Estadual/Distrital, Instrumento Portaria/Instrução/Deliberação)"
+  },
+  {
+   "secao": "4.1.2.3",
+   "rotulo_oficial": "Norma/Ato",
+   "destino": "titulo",
+   "motivo": "linha da tabela protecao_equip (Esfera Estadual/Distrital, Instrumento Norma/Ato)"
+  },
+  {
+   "secao": "4.1.2.4",
+   "rotulo_oficial": "Outros",
+   "destino": "titulo",
+   "motivo": "linha da tabela protecao_equip (Esfera Estadual/Distrital, Instrumento Outros)"
+  },
+  {
+   "secao": "4.1.3",
+   "rotulo_oficial": "Federal",
+   "destino": "titulo",
+   "motivo": "linha da tabela protecao_equip (Esfera Federal)"
+  },
+  {
+   "secao": "4.1.3.1",
+   "rotulo_oficial": "Lei/Decreto",
+   "destino": "titulo",
+   "motivo": "linha da tabela protecao_equip (Esfera Federal, Instrumento Lei/Decreto)"
+  },
+  {
+   "secao": "4.1.3.2",
+   "rotulo_oficial": "Portaria/Instrução/Deliberação",
+   "destino": "titulo",
+   "motivo": "linha da tabela protecao_equip (Esfera Federal, Instrumento Portaria/Instrução/Deliberação)"
+  },
+  {
+   "secao": "4.1.3.3",
+   "rotulo_oficial": "Norma/Ato",
+   "destino": "titulo",
+   "motivo": "linha da tabela protecao_equip (Esfera Federal, Instrumento Norma/Ato)"
+  },
+  {
+   "secao": "4.1.3.4",
+   "rotulo_oficial": "Outros",
+   "destino": "titulo",
+   "motivo": "linha da tabela protecao_equip (Esfera Federal, Instrumento Outros)"
+  },
+  {
+   "secao": "4.1.4",
+   "rotulo_oficial": "Internacional",
+   "destino": "titulo",
+   "motivo": "linha da tabela protecao_equip (Esfera Internacional)"
+  },
+  {
+   "secao": "4.1.4.1",
+   "rotulo_oficial": "Lei/Decreto",
+   "destino": "titulo",
+   "motivo": "linha da tabela protecao_equip (Esfera Internacional, Instrumento Lei/Decreto)"
+  },
+  {
+   "secao": "4.1.4.2",
+   "rotulo_oficial": "Portaria/Instrução/Deliberação",
+   "destino": "titulo",
+   "motivo": "linha da tabela protecao_equip (Esfera Internacional, Instrumento Portaria/Instrução/Deliberação)"
+  },
+  {
+   "secao": "4.1.4.3",
+   "rotulo_oficial": "Norma/Ato",
+   "destino": "titulo",
+   "motivo": "linha da tabela protecao_equip (Esfera Internacional, Instrumento Norma/Ato)"
+  },
+  {
+   "secao": "4.1.4.4",
+   "rotulo_oficial": "Outros",
+   "destino": "titulo",
+   "motivo": "linha da tabela protecao_equip (Esfera Internacional, Instrumento Outros)"
+  },
+  {
+   "secao": "4.1.5",
+   "rotulo_oficial": "Outras",
+   "destino": "titulo",
+   "motivo": "linha da tabela protecao_equip (Esfera Outras)"
+  },
+  {
+   "secao": "4.1.5.1",
+   "rotulo_oficial": "Outras (linha 1)",
+   "destino": "titulo",
+   "motivo": "linha da tabela protecao_equip (Esfera Outras, especificar no Instrumento)"
+  },
+  {
+   "secao": "4.1.5.2",
+   "rotulo_oficial": "Outras (linha 2)",
+   "destino": "titulo",
+   "motivo": "linha da tabela protecao_equip (Esfera Outras, especificar no Instrumento)"
+  },
+  {
+   "secao": "5",
+   "rotulo_oficial": "Observações",
+   "destino": "nucleo",
+   "coluna": "observacoes"
+  },
+  {
+   "secao": "6",
+   "rotulo_oficial": "Referências",
+   "destino": "nucleo",
+   "coluna": "referencias"
+  },
+  {
+   "secao": "7",
+   "rotulo_oficial": "Equipe responsável",
+   "destino": "nucleo",
+   "coluna": "equipe"
+  }
+ ],
+ "desativar": [
+  {
+   "atributo_id": 681,
+   "motivo": "duplica a coluna nome do núcleo (1.1 Nome); sem valores gravados"
+  }
+ ],
+ "notas": "Ficha sem endereço, sem visitação/fluxo, sem conservação e sem acessibilidade: só tem nome, histórico, modo de preparo, artistas, apoio à comercialização, locais de comercialização, descritivo e proteção do atrativo (só 4.1, não há 4.2). A tabela de artistas passou a ter colunas tipadas: Ateliê aberto a visitação (sim_nao) e Ano de início da atividade (numero); rótulo ajustado para o singular do PDF (Artista/executante). Locais de comercialização com outros: true. O campo 681 (nome) foi desativado porque repete o nome do núcleo. Decisões comuns: (1) quando um único número do PDF vira dois campos, a seção se repete em dois itens (Localidade mais próxima: nome e km; Entrada paga: inteira e meia em R$; Integra roteiros/guia: sim/não e tabela; Proteção: sim/não e tabela). (2) As linhas fixas da tabela de proteção (Esfera x Instrumento, x.1.1 a x.5.2) entram como \"titulo\" com motivo, porque viram as colunas tipadas Esfera e Instrumento da tabela padrão. (3) Os subitens x.1 a x.6 das Instalações de entrada (Sim/Não cada) entram como \"titulo\": viram as opções da múltipla instalacoes_entrada. (4) Atendimento em língua estrangeira vai para a coluna idiomas do núcleo (o núcleo usa Português, Inglês, Espanhol, Libras, Outros; a ficha traz Não, Inglês, Espanhol, Outras). (5) Campos novos de grupos novos têm apos null; a ordem dentro do grupo vem de apos_chave (chave nova anterior do mesmo grupo) e da ordem dos itens. (6) Origem dos turistas nacionais usa as 27 siglas de UF em ordem alfabética do nome do estado. (7) Hoje a proteção fica na tabela inventario_item_protecoes (esfera, instrumento, descricao); a migração precisa levar esses dados para protecao_equip/protecao_area. (8) Em toda lista com Outros/Outras foi posto outros: true."
+}

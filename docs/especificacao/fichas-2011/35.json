@@ -1,0 +1,120 @@
+{
+ "ordem": 35,
+ "codigo": "B7",
+ "pdf": "B.7.3 - Guiamento e condução turística.pdf",
+ "itens": [
+  {
+   "secao": "1",
+   "rotulo_oficial": "Informações gerais",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.1",
+   "rotulo_oficial": "Nome completo",
+   "destino": "nucleo",
+   "coluna": "nome"
+  },
+  {
+   "secao": "1.1.1",
+   "rotulo_oficial": "CPF",
+   "destino": "atributo",
+   "atributo_id": 437
+  },
+  {
+   "secao": "1.1.2",
+   "rotulo_oficial": "Endereço",
+   "destino": "nucleo",
+   "coluna": "logradouro",
+   "motivo": "a coluna única \"Endereço\" da lista vira o bloco de endereço do núcleo (logradouro, número, complemento, bairro, distrito, CEP)"
+  },
+  {
+   "secao": "1.1.3",
+   "rotulo_oficial": "Telefones",
+   "destino": "nucleo",
+   "coluna": "telefone",
+   "motivo": "telefone principal; ramal e WhatsApp também no núcleo"
+  },
+  {
+   "secao": "1.1.4",
+   "rotulo_oficial": "Endereço eletrônico (e-mail)",
+   "destino": "nucleo",
+   "coluna": "email"
+  },
+  {
+   "secao": "1.1.5",
+   "rotulo_oficial": "Escolaridade",
+   "destino": "atributo",
+   "atributo_id": 441
+  },
+  {
+   "secao": "1.1.6",
+   "rotulo_oficial": "Serviços especializados",
+   "destino": "atributo",
+   "atributo_id": 442
+  },
+  {
+   "secao": "1.1.7",
+   "rotulo_oficial": "Nº do Cadastur",
+   "destino": "nucleo",
+   "coluna": "cadastur",
+   "motivo": "coluna cadastur do núcleo (com validade)"
+  },
+  {
+   "secao": "1.1.8",
+   "rotulo_oficial": "Outros cadastros e registros (Tipo e nº)",
+   "destino": "atributo",
+   "atributo_id": 444,
+   "ajustes": {
+    "rotulo": "Outros cadastros e registros (tipo e nº)"
+   }
+  },
+  {
+   "secao": "1.1.9",
+   "rotulo_oficial": "Outras informações",
+   "destino": "atributo",
+   "atributo_id": 445
+  },
+  {
+   "secao": "2",
+   "rotulo_oficial": "Observações",
+   "destino": "nucleo",
+   "coluna": "observacoes"
+  },
+  {
+   "secao": "3",
+   "rotulo_oficial": "Referências",
+   "destino": "nucleo",
+   "coluna": "referencias"
+  },
+  {
+   "secao": "4",
+   "rotulo_oficial": "Equipe responsável",
+   "destino": "nucleo",
+   "coluna": "equipe",
+   "motivo": "pesquisador_id e coordenador_id do item; telefone e e-mail vêm do cadastro do usuário"
+  }
+ ],
+ "desativar": [
+  {
+   "atributo_id": 436,
+   "motivo": "duplica a coluna nome do núcleo (os 5 itens já têm o nome no núcleo; o atributo está vazio)"
+  },
+  {
+   "atributo_id": 438,
+   "motivo": "duplica o bloco de endereço do núcleo (dados já no núcleo; atributo vazio)"
+  },
+  {
+   "atributo_id": 439,
+   "motivo": "duplica a coluna telefone do núcleo (dados já no núcleo; atributo vazio)"
+  },
+  {
+   "atributo_id": 440,
+   "motivo": "duplica a coluna email do núcleo (dados já no núcleo; atributo vazio)"
+  },
+  {
+   "atributo_id": 443,
+   "motivo": "duplica a coluna cadastur do núcleo (dados já no núcleo; atributo vazio)"
+  }
+ ],
+ "notas": "Ficha em forma de lista no papel (uma linha por equipamento); no sistema cada linha é um item, então cada coluna virou núcleo ou atributo do item. A pergunta \"Tipos\" (A.x.y) não tem número próprio e corresponde ao tipo_id do item; os tipos do sistema conferem com os do PDF. A coluna única \"Endereço\" foi para o bloco de endereço do núcleo (registrada em logradouro) e \"Telefones\" para telefone (ramal e WhatsApp também disponíveis no núcleo). Equipe responsável vai para pesquisador_id/coordenador_id (coluna equipe). Nome completo, endereço, telefones, e-mail e Cadastur vão para o núcleo, onde os 5 itens atuais já têm esses dados; os atributos 436, 438, 439, 440 e 443 estão vazios e são desativados. CPF (437) fica atributo. CONFERIR: o CPF é dado pessoal; avaliar se deve ficar fora do portal (portal=0). Observação: alguns itens atuais desta ficha parecem empresas (ex.: cervejaria, clube) e não guias; vale revisar a classificação desses itens."
+}

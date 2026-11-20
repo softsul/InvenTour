@@ -1,0 +1,326 @@
+{
+ "ordem": 4,
+ "codigo": "A2",
+ "pdf": "A2.2.1 - Ferroviário Ferrovia e Metrovia.pdf",
+ "itens": [
+  {
+   "secao": "1",
+   "rotulo_oficial": "Informações gerais",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.1",
+   "rotulo_oficial": "Nome oficial",
+   "destino": "nucleo",
+   "coluna": "nome"
+  },
+  {
+   "secao": "1.2",
+   "rotulo_oficial": "Nome popular",
+   "destino": "nucleo",
+   "coluna": "nome_popular"
+  },
+  {
+   "secao": "1.3",
+   "rotulo_oficial": "Jurisdição",
+   "destino": "nucleo",
+   "coluna": "jurisdicao"
+  },
+  {
+   "secao": "1.4",
+   "rotulo_oficial": "Natureza",
+   "destino": "nucleo",
+   "coluna": "natureza"
+  },
+  {
+   "secao": "1.5",
+   "rotulo_oficial": "Tipo de organização/instituição",
+   "destino": "nucleo",
+   "coluna": "tipo_organizacao"
+  },
+  {
+   "secao": "1.6",
+   "rotulo_oficial": "Tipo de serviço",
+   "destino": "atributo",
+   "atributo_id": 101,
+   "ajustes": {
+    "outros": true
+   }
+  },
+  {
+   "secao": "1.7",
+   "rotulo_oficial": "Extensão da ferrovia/metrovia no âmbito do município",
+   "destino": "nucleo",
+   "coluna": "extensao_km"
+  },
+  {
+   "secao": "1.8",
+   "rotulo_oficial": "Municípios vizinhos interligados pela ferrovia ou metrovia",
+   "destino": "atributo",
+   "atributo_id": 102,
+   "ajustes": {
+    "rotulo": "Municípios vizinhos interligados pela ferrovia ou metrovia"
+   }
+  },
+  {
+   "secao": "1.9",
+   "rotulo_oficial": "Sinalização",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.9.1",
+   "rotulo_oficial": "De acesso",
+   "destino": "nucleo",
+   "coluna": "sinalizacao_acesso"
+  },
+  {
+   "secao": "1.9.2",
+   "rotulo_oficial": "Turística",
+   "destino": "nucleo",
+   "coluna": "sinalizacao_turistica"
+  },
+  {
+   "secao": "1.10",
+   "rotulo_oficial": "Entidade mantenedora",
+   "destino": "novo",
+   "novo": {
+    "chave": "mantenedora",
+    "grupo": "Entidade mantenedora",
+    "rotulo": "Entidade mantenedora",
+    "tipo": "texto",
+    "apos": 102
+   }
+  },
+  {
+   "secao": "1.10.1",
+   "rotulo_oficial": "Endereço eletrônico (e-mail)",
+   "destino": "novo",
+   "novo": {
+    "chave": "mantenedora_email",
+    "grupo": "Entidade mantenedora",
+    "rotulo": "E-mail da entidade mantenedora",
+    "tipo": "texto",
+    "apos": 102
+   }
+  },
+  {
+   "secao": "1.10.2",
+   "rotulo_oficial": "Sítio eletrônico (site/página web)",
+   "destino": "novo",
+   "novo": {
+    "chave": "mantenedora_site",
+    "grupo": "Entidade mantenedora",
+    "rotulo": "Site da entidade mantenedora",
+    "tipo": "texto",
+    "apos": 102
+   }
+  },
+  {
+   "secao": "2",
+   "rotulo_oficial": "Características",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.1",
+   "rotulo_oficial": "Estruturas ao longo da via",
+   "destino": "atributo",
+   "atributo_id": 103,
+   "ajustes": {
+    "outros": true
+   }
+  },
+  {
+   "secao": "2.2",
+   "rotulo_oficial": "Questões ambientais/sociais",
+   "destino": "atributo",
+   "atributo_id": 104,
+   "ajustes": {
+    "rotulo": "Questões ambientais/sociais",
+    "tipo": "tabela",
+    "opcoes": [],
+    "colunas": [
+     {
+      "rotulo": "Questão",
+      "tipo": "texto"
+     },
+     {
+      "rotulo": "Visualização",
+      "tipo": "sim_nao"
+     },
+     {
+      "rotulo": "Especificação",
+      "tipo": "texto"
+     }
+    ],
+    "linhas": [
+     "Poluição",
+     "Lixo",
+     "Desmatamento",
+     "Queimadas",
+     "Insegurança",
+     "Extrativismo",
+     "Prostituição",
+     "Ocupações irregulares/invasão",
+     "Outras"
+    ],
+    "ajuda": "Na linha Outras, escreva qual é a questão."
+   }
+  },
+  {
+   "secao": "2.2.1",
+   "rotulo_oficial": "Poluição",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 104,
+    "linha": "Poluição",
+    "colunas": [
+     "Visualização",
+     "Especificação"
+    ]
+   }
+  },
+  {
+   "secao": "2.2.2",
+   "rotulo_oficial": "Lixo",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 104,
+    "linha": "Lixo",
+    "colunas": [
+     "Visualização",
+     "Especificação"
+    ]
+   }
+  },
+  {
+   "secao": "2.2.3",
+   "rotulo_oficial": "Desmatamento",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 104,
+    "linha": "Desmatamento",
+    "colunas": [
+     "Visualização",
+     "Especificação"
+    ]
+   }
+  },
+  {
+   "secao": "2.2.4",
+   "rotulo_oficial": "Queimadas",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 104,
+    "linha": "Queimadas",
+    "colunas": [
+     "Visualização",
+     "Especificação"
+    ]
+   }
+  },
+  {
+   "secao": "2.2.5",
+   "rotulo_oficial": "Insegurança",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 104,
+    "linha": "Insegurança",
+    "colunas": [
+     "Visualização",
+     "Especificação"
+    ]
+   }
+  },
+  {
+   "secao": "2.2.6",
+   "rotulo_oficial": "Extrativismo",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 104,
+    "linha": "Extrativismo",
+    "colunas": [
+     "Visualização",
+     "Especificação"
+    ]
+   }
+  },
+  {
+   "secao": "2.2.7",
+   "rotulo_oficial": "Prostituição",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 104,
+    "linha": "Prostituição",
+    "colunas": [
+     "Visualização",
+     "Especificação"
+    ]
+   }
+  },
+  {
+   "secao": "2.2.8",
+   "rotulo_oficial": "Ocupações irregulares/invasão",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 104,
+    "linha": "Ocupações irregulares/invasão",
+    "colunas": [
+     "Visualização",
+     "Especificação"
+    ]
+   }
+  },
+  {
+   "secao": "2.2.9",
+   "rotulo_oficial": "Outras",
+   "destino": "titulo",
+   "parte_de": {
+    "atributo_id": 104,
+    "linha": "Outras",
+    "colunas": [
+     "Visualização",
+     "Especificação"
+    ]
+   }
+  },
+  {
+   "secao": "3",
+   "rotulo_oficial": "Estado geral de conservação",
+   "destino": "nucleo",
+   "coluna": "conservacao"
+  },
+  {
+   "secao": "4",
+   "rotulo_oficial": "Observações",
+   "destino": "nucleo",
+   "coluna": "observacoes"
+  },
+  {
+   "secao": "5",
+   "rotulo_oficial": "Referências",
+   "destino": "nucleo",
+   "coluna": "referencias"
+  },
+  {
+   "secao": "6",
+   "rotulo_oficial": "Equipe responsável",
+   "destino": "nucleo",
+   "coluna": "equipe"
+  }
+ ],
+ "desativar": [
+  {
+   "atributo_id": 99,
+   "motivo": "duplica a coluna jurisdicao do núcleo"
+  },
+  {
+   "atributo_id": 100,
+   "motivo": "duplica a coluna extensao_km do núcleo (extensão no município)"
+  },
+  {
+   "atributo_id": 105,
+   "motivo": "substituída pela tabela de linhas fixas do atributo 104 (questão, visualização, especificação)"
+  }
+ ],
+ "notas": "Convenções: item com destino \"titulo\" e \"parte_de\" é subitem do PDF que vira linha ou célula de um campo definido em outro item (o validador só aceita citar cada atributo uma vez); novos com o mesmo \"apos\" entram na ordem em que aparecem nos itens. Jurisdição: o PDF tem Federal, Estadual e Municipal; vai para a coluna jurisdicao do núcleo (que também tem Não se aplica) e o atributo específico de jurisdição é desativado por duplicar o núcleo. Extensão no âmbito do município: vai para a coluna extensao_km do núcleo (rótulo \"Extensão no município (km)\", das fichas lineares) e o atributo específico é desativado. Questões ambientais/sociais: a múltipla vira tabela de linhas fixas (as 9 questões do PDF) com Visualização sim/não e Especificação, e a tabela antiga de especificação é desativada; assim o \"Não\" explícito e a especificação de cada linha ficam guardados. Conservação: o PDF tem Muito bom, Bom e Ruim; o núcleo tem também Não se aplica. Ferrovia: Entidade mantenedora entra como grupo novo com nome, e-mail e site."
+}

@@ -1,0 +1,310 @@
+{
+ "ordem": 52,
+ "codigo": "C3",
+ "pdf": "C.3 - Atividades econômicas.pdf",
+ "itens": [
+  {
+   "secao": "1",
+   "rotulo_oficial": "Informações gerais",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.1",
+   "rotulo_oficial": "Nome da atividade",
+   "destino": "nucleo",
+   "coluna": "nome"
+  },
+  {
+   "secao": "1.2",
+   "rotulo_oficial": "Principais empresas",
+   "destino": "atributo",
+   "atributo_id": 696
+  },
+  {
+   "secao": "2",
+   "rotulo_oficial": "Funcionamento",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.1",
+   "rotulo_oficial": "Caracterização do fluxo turístico",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.1.1",
+   "rotulo_oficial": "Dados da visitação",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.1.1.1",
+   "rotulo_oficial": "Total anual de visitantes (nº)",
+   "destino": "novo",
+   "novo": {
+    "chave": "fluxo_ano",
+    "grupo": "Caracterização do fluxo turístico",
+    "rotulo": "Total anual de visitantes (nº)",
+    "tipo": "numero",
+    "apos": null
+   }
+  },
+  {
+   "secao": "2.1.1.2",
+   "rotulo_oficial": "Total de visitantes alta temporada (nº)",
+   "destino": "novo",
+   "novo": {
+    "chave": "fluxo_alta",
+    "grupo": "Caracterização do fluxo turístico",
+    "rotulo": "Total de visitantes na alta temporada (nº)",
+    "tipo": "numero",
+    "apos": null,
+    "apos_chave": "fluxo_ano"
+   }
+  },
+  {
+   "secao": "2.1.1.2.1",
+   "rotulo_oficial": "Meses de alta temporada",
+   "destino": "novo",
+   "novo": {
+    "chave": "fluxo_meses_alta",
+    "grupo": "Caracterização do fluxo turístico",
+    "rotulo": "Meses de alta temporada",
+    "tipo": "multipla",
+    "opcoes": [
+     "Janeiro",
+     "Fevereiro",
+     "Março",
+     "Abril",
+     "Maio",
+     "Junho",
+     "Julho",
+     "Agosto",
+     "Setembro",
+     "Outubro",
+     "Novembro",
+     "Dezembro",
+     "Ano inteiro"
+    ],
+    "apos": null,
+    "apos_chave": "fluxo_alta"
+   }
+  },
+  {
+   "secao": "2.1.2",
+   "rotulo_oficial": "Origem dos visitantes/turistas",
+   "destino": "novo",
+   "novo": {
+    "chave": "fluxo_origem",
+    "grupo": "Caracterização do fluxo turístico",
+    "rotulo": "Origem dos visitantes/turistas",
+    "tipo": "multipla",
+    "opcoes": [
+     "Entorno municipal",
+     "Estadual",
+     "Nacional",
+     "Internacional"
+    ],
+    "apos": null,
+    "apos_chave": "fluxo_meses_alta"
+   }
+  },
+  {
+   "secao": "2.1.2.1",
+   "rotulo_oficial": "Origem dos turistas nacionais (até 5 estados)",
+   "destino": "novo",
+   "novo": {
+    "chave": "fluxo_estados",
+    "grupo": "Caracterização do fluxo turístico",
+    "rotulo": "Origem dos turistas nacionais (até 5 estados)",
+    "tipo": "multipla",
+    "opcoes": [
+     "AC",
+     "AL",
+     "AP",
+     "AM",
+     "BA",
+     "CE",
+     "DF",
+     "ES",
+     "GO",
+     "MA",
+     "MT",
+     "MS",
+     "MG",
+     "PA",
+     "PB",
+     "PR",
+     "PE",
+     "PI",
+     "RJ",
+     "RN",
+     "RS",
+     "RO",
+     "RR",
+     "SC",
+     "SP",
+     "SE",
+     "TO"
+    ],
+    "maximo": 5,
+    "apos": null,
+    "apos_chave": "fluxo_origem",
+    "ajuda": "Até 5 estados, pela sigla."
+   }
+  },
+  {
+   "secao": "2.1.2.2",
+   "rotulo_oficial": "Origem dos turistas internacionais (até 5 países)",
+   "destino": "novo",
+   "novo": {
+    "chave": "fluxo_paises",
+    "grupo": "Caracterização do fluxo turístico",
+    "rotulo": "Origem dos turistas internacionais (até 5 países)",
+    "tipo": "tabela",
+    "colunas": [
+     {
+      "rotulo": "País",
+      "tipo": "texto"
+     }
+    ],
+    "ajuda": "Até 5 países",
+    "apos": null,
+    "apos_chave": "fluxo_estados",
+    "maximo": 5
+   }
+  },
+  {
+   "secao": "2.1.2.3",
+   "rotulo_oficial": "Ano-base",
+   "destino": "novo",
+   "novo": {
+    "chave": "fluxo_ano_base",
+    "grupo": "Caracterização do fluxo turístico",
+    "rotulo": "Ano-base",
+    "tipo": "numero",
+    "apos": null,
+    "apos_chave": "fluxo_paises"
+   }
+  },
+  {
+   "secao": "2.1.3",
+   "rotulo_oficial": "Principal público frequentador",
+   "destino": "novo",
+   "novo": {
+    "chave": "publico_frequentador",
+    "grupo": "Caracterização do fluxo turístico",
+    "rotulo": "Principal público frequentador",
+    "tipo": "multipla",
+    "opcoes": [
+     "Turistas",
+     "Moradores"
+    ],
+    "apos": null,
+    "apos_chave": "fluxo_ano_base"
+   }
+  },
+  {
+   "secao": "2.2",
+   "rotulo_oficial": "Apoio à comercialização",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.2.1",
+   "rotulo_oficial": "Integra roteiros turísticos comercializados",
+   "destino": "novo",
+   "novo": {
+    "chave": "roteiros_integra",
+    "grupo": "Apoio à comercialização",
+    "rotulo": "Integra roteiros turísticos comercializados",
+    "tipo": "sim_nao",
+    "apos": null
+   }
+  },
+  {
+   "secao": "2.2.1",
+   "rotulo_oficial": "Nome dos principais roteiros (até 5) e sítio eletrônico",
+   "destino": "novo",
+   "novo": {
+    "chave": "roteiros",
+    "grupo": "Apoio à comercialização",
+    "rotulo": "Principais roteiros",
+    "tipo": "tabela",
+    "colunas": [
+     "Nome do roteiro",
+     "Sítio eletrônico (site/página web)"
+    ],
+    "ajuda": "Os principais, até 5.",
+    "apos": null,
+    "apos_chave": "roteiros_integra",
+    "maximo": 5
+   }
+  },
+  {
+   "secao": "2.2.2",
+   "rotulo_oficial": "Integra guia turístico",
+   "destino": "novo",
+   "novo": {
+    "chave": "guias_integra",
+    "grupo": "Apoio à comercialização",
+    "rotulo": "Integra guia turístico",
+    "tipo": "sim_nao",
+    "apos": null,
+    "apos_chave": "roteiros"
+   }
+  },
+  {
+   "secao": "2.2.2",
+   "rotulo_oficial": "Nome dos principais guias impressos (até 5) e sítio eletrônico",
+   "destino": "novo",
+   "novo": {
+    "chave": "guias_impressos",
+    "grupo": "Apoio à comercialização",
+    "rotulo": "Principais guias impressos",
+    "tipo": "tabela",
+    "colunas": [
+     "Nome do guia impresso",
+     "Sítio eletrônico (site/página web)"
+    ],
+    "ajuda": "Os principais, até 5.",
+    "apos": null,
+    "apos_chave": "guias_integra",
+    "maximo": 5
+   }
+  },
+  {
+   "secao": "3",
+   "rotulo_oficial": "Características",
+   "destino": "titulo"
+  },
+  {
+   "secao": "3.1",
+   "rotulo_oficial": "Descritivo das especificidades da atividade econômica",
+   "destino": "atributo",
+   "atributo_id": 697
+  },
+  {
+   "secao": "4",
+   "rotulo_oficial": "Observações",
+   "destino": "nucleo",
+   "coluna": "observacoes"
+  },
+  {
+   "secao": "5",
+   "rotulo_oficial": "Referências",
+   "destino": "nucleo",
+   "coluna": "referencias"
+  },
+  {
+   "secao": "6",
+   "rotulo_oficial": "Equipe responsável",
+   "destino": "nucleo",
+   "coluna": "equipe"
+  }
+ ],
+ "desativar": [
+  {
+   "atributo_id": 695,
+   "motivo": "duplica a coluna nome do núcleo (1.1 Nome da atividade); sem valores gravados"
+  }
+ ],
+ "notas": "Ficha sem endereço, sem coordenadas, sem visitação/entrada, sem regras, sem proteção, sem conservação e sem acessibilidade. O fluxo começa em 2.1 (não 2.3) e o apoio à comercialização em 2.2. O campo 695 (nome_atividade) foi desativado: o Nome da atividade é o nome do item no núcleo. A tabela Principais empresas já tem as cinco colunas do PDF (todas texto). Decisões comuns: (1) quando um único número do PDF vira dois campos, a seção se repete em dois itens (Localidade mais próxima: nome e km; Entrada paga: inteira e meia em R$; Integra roteiros/guia: sim/não e tabela; Proteção: sim/não e tabela). (2) As linhas fixas da tabela de proteção (Esfera x Instrumento, x.1.1 a x.5.2) entram como \"titulo\" com motivo, porque viram as colunas tipadas Esfera e Instrumento da tabela padrão. (3) Os subitens x.1 a x.6 das Instalações de entrada (Sim/Não cada) entram como \"titulo\": viram as opções da múltipla instalacoes_entrada. (4) Atendimento em língua estrangeira vai para a coluna idiomas do núcleo (o núcleo usa Português, Inglês, Espanhol, Libras, Outros; a ficha traz Não, Inglês, Espanhol, Outras). (5) Campos novos de grupos novos têm apos null; a ordem dentro do grupo vem de apos_chave (chave nova anterior do mesmo grupo) e da ordem dos itens. (6) Origem dos turistas nacionais usa as 27 siglas de UF em ordem alfabética do nome do estado. (7) Hoje a proteção fica na tabela inventario_item_protecoes (esfera, instrumento, descricao); a migração precisa levar esses dados para protecao_equip/protecao_area. (8) Em toda lista com Outros/Outras foi posto outros: true."
+}

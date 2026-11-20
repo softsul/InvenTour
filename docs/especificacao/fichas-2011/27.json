@@ -1,0 +1,1455 @@
+{
+ "ordem": 27,
+ "codigo": "B6",
+ "pdf": "B.6.1 - Parques.pdf",
+ "itens": [
+  {
+   "secao": "1",
+   "rotulo_oficial": "Informações gerais",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.1",
+   "rotulo_oficial": "Razão social",
+   "destino": "nucleo",
+   "coluna": "razao_social"
+  },
+  {
+   "secao": "1.2",
+   "rotulo_oficial": "Nome fantasia",
+   "destino": "nucleo",
+   "coluna": "nome"
+  },
+  {
+   "secao": "1.3",
+   "rotulo_oficial": "CNPJ",
+   "destino": "nucleo",
+   "coluna": "cnpj"
+  },
+  {
+   "secao": "1.4",
+   "rotulo_oficial": "Código CNAE",
+   "destino": "nucleo",
+   "coluna": "cnae"
+  },
+  {
+   "secao": "1.5",
+   "rotulo_oficial": "Atividade econômica",
+   "destino": "nucleo",
+   "coluna": "atividade_economica"
+  },
+  {
+   "secao": "1.6",
+   "rotulo_oficial": "Nome da rede/holding",
+   "destino": "nucleo",
+   "coluna": "rede"
+  },
+  {
+   "secao": "1.7",
+   "rotulo_oficial": "Inscrição municipal",
+   "destino": "nucleo",
+   "coluna": "inscricao_municipal"
+  },
+  {
+   "secao": "1.8",
+   "rotulo_oficial": "Área total do estabelecimento (m²)",
+   "destino": "atributo",
+   "atributo_id": 371
+  },
+  {
+   "secao": "1.9",
+   "rotulo_oficial": "Ambientação temática principal",
+   "destino": "atributo",
+   "atributo_id": 372,
+   "ajustes": {
+    "opcoes": [
+     "Aventura",
+     "Histórico",
+     "Infantil",
+     "Água",
+     "Multitemático",
+     "Outras"
+    ],
+    "outros": true
+   }
+  },
+  {
+   "secao": "1.10",
+   "rotulo_oficial": "Natureza",
+   "destino": "nucleo",
+   "coluna": "natureza"
+  },
+  {
+   "secao": "1.11",
+   "rotulo_oficial": "Tipo de organização/instituição",
+   "destino": "nucleo",
+   "coluna": "tipo_organizacao"
+  },
+  {
+   "secao": "1.12",
+   "rotulo_oficial": "Início da atividade",
+   "destino": "nucleo",
+   "coluna": "inicio_atividade"
+  },
+  {
+   "secao": "1.13",
+   "rotulo_oficial": "Quantidade de funcionários",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.13.1",
+   "rotulo_oficial": "Permanentes (nº)",
+   "destino": "nucleo",
+   "coluna": "funcionarios"
+  },
+  {
+   "secao": "1.13.2",
+   "rotulo_oficial": "Temporários (nº)",
+   "destino": "nucleo",
+   "coluna": "funcionarios_temporarios"
+  },
+  {
+   "secao": "1.13.3",
+   "rotulo_oficial": "Pessoas com deficiência (%)",
+   "destino": "nucleo",
+   "coluna": "funcionarios_pcd"
+  },
+  {
+   "secao": "1.14",
+   "rotulo_oficial": "Localização (urbana/rural)",
+   "destino": "nucleo",
+   "coluna": "zona"
+  },
+  {
+   "secao": "1.15",
+   "rotulo_oficial": "Coordenadas geográficas",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.15.1",
+   "rotulo_oficial": "Latitude",
+   "destino": "nucleo",
+   "coluna": "latitude"
+  },
+  {
+   "secao": "1.15.2",
+   "rotulo_oficial": "Longitude",
+   "destino": "nucleo",
+   "coluna": "longitude"
+  },
+  {
+   "secao": "1.16",
+   "rotulo_oficial": "Endereço",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.16.1",
+   "rotulo_oficial": "Avenida/rua/travessa/caminho/outro",
+   "destino": "nucleo",
+   "coluna": "logradouro"
+  },
+  {
+   "secao": "1.16.2",
+   "rotulo_oficial": "Bairro/localidade",
+   "destino": "nucleo",
+   "coluna": "bairro"
+  },
+  {
+   "secao": "1.16.3",
+   "rotulo_oficial": "Distrito",
+   "destino": "nucleo",
+   "coluna": "distrito"
+  },
+  {
+   "secao": "1.16.4",
+   "rotulo_oficial": "CEP",
+   "destino": "nucleo",
+   "coluna": "cep"
+  },
+  {
+   "secao": "1.17",
+   "rotulo_oficial": "Telefone/ramal",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.17.1",
+   "rotulo_oficial": "Telefone",
+   "destino": "nucleo",
+   "coluna": "telefone"
+  },
+  {
+   "secao": "1.17.1.1",
+   "rotulo_oficial": "Ramal",
+   "destino": "nucleo",
+   "coluna": "ramal"
+  },
+  {
+   "secao": "1.18",
+   "rotulo_oficial": "Fax/ramal",
+   "destino": "ignorar",
+   "motivo": "fax desligado"
+  },
+  {
+   "secao": "1.18.1",
+   "rotulo_oficial": "Fax",
+   "destino": "ignorar",
+   "motivo": "fax desligado"
+  },
+  {
+   "secao": "1.18.1.1",
+   "rotulo_oficial": "Ramal do fax",
+   "destino": "ignorar",
+   "motivo": "fax desligado"
+  },
+  {
+   "secao": "1.19",
+   "rotulo_oficial": "Endereço eletrônico (e-mail)",
+   "destino": "nucleo",
+   "coluna": "email"
+  },
+  {
+   "secao": "1.20",
+   "rotulo_oficial": "Sítio eletrônico (site/página web)",
+   "destino": "nucleo",
+   "coluna": "site"
+  },
+  {
+   "secao": "1.21",
+   "rotulo_oficial": "Sinalização",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.21.1",
+   "rotulo_oficial": "De acesso",
+   "destino": "nucleo",
+   "coluna": "sinalizacao_acesso"
+  },
+  {
+   "secao": "1.21.2",
+   "rotulo_oficial": "Turística",
+   "destino": "nucleo",
+   "coluna": "sinalizacao_turistica"
+  },
+  {
+   "secao": "1.22",
+   "rotulo_oficial": "Proximidades",
+   "destino": "novo",
+   "novo": {
+    "chave": "proximidades",
+    "grupo": "Informações gerais",
+    "rotulo": "Proximidades",
+    "tipo": "multipla",
+    "opcoes": [
+     "Restaurante",
+     "Bar/lanchonete",
+     "Meio de hospedagem",
+     "Shopping",
+     "Galeria/rua comercial",
+     "Centro de convenções/exposições",
+     "Posto de combustível",
+     "Outras"
+    ],
+    "outros": true,
+    "apos": 372
+   }
+  },
+  {
+   "secao": "1.23",
+   "rotulo_oficial": "Distâncias (km)",
+   "destino": "titulo"
+  },
+  {
+   "secao": "1.23.1",
+   "rotulo_oficial": "Aeroporto",
+   "destino": "novo",
+   "novo": {
+    "chave": "dist_aeroporto",
+    "grupo": "Informações gerais",
+    "rotulo": "Distância: aeroporto (km)",
+    "tipo": "numero",
+    "apos": 372
+   }
+  },
+  {
+   "secao": "1.23.2",
+   "rotulo_oficial": "Estação rodoviária",
+   "destino": "novo",
+   "novo": {
+    "chave": "dist_rodoviaria",
+    "grupo": "Informações gerais",
+    "rotulo": "Distância: estação rodoviária (km)",
+    "tipo": "numero",
+    "apos": 372
+   }
+  },
+  {
+   "secao": "1.23.3",
+   "rotulo_oficial": "Estação ferroviária",
+   "destino": "novo",
+   "novo": {
+    "chave": "dist_ferroviaria",
+    "grupo": "Informações gerais",
+    "rotulo": "Distância: estação ferroviária (km)",
+    "tipo": "numero",
+    "apos": 372
+   }
+  },
+  {
+   "secao": "1.23.4",
+   "rotulo_oficial": "Estação marítima/fluvial",
+   "destino": "novo",
+   "novo": {
+    "chave": "dist_maritima",
+    "grupo": "Informações gerais",
+    "rotulo": "Distância: estação marítima/fluvial (km)",
+    "tipo": "numero",
+    "apos": 372
+   }
+  },
+  {
+   "secao": "1.23.5",
+   "rotulo_oficial": "Estação metroviária",
+   "destino": "novo",
+   "novo": {
+    "chave": "dist_metroviaria",
+    "grupo": "Informações gerais",
+    "rotulo": "Distância: estação metroviária (km)",
+    "tipo": "numero",
+    "apos": 372
+   }
+  },
+  {
+   "secao": "1.23.6",
+   "rotulo_oficial": "Ponto de ônibus",
+   "destino": "novo",
+   "novo": {
+    "chave": "dist_ponto_onibus",
+    "grupo": "Informações gerais",
+    "rotulo": "Distância: ponto de ônibus (km)",
+    "tipo": "numero",
+    "apos": 372
+   }
+  },
+  {
+   "secao": "1.23.7",
+   "rotulo_oficial": "Ponto de táxi",
+   "destino": "novo",
+   "novo": {
+    "chave": "dist_ponto_taxi",
+    "grupo": "Informações gerais",
+    "rotulo": "Distância: ponto de táxi (km)",
+    "tipo": "numero",
+    "apos": 372
+   }
+  },
+  {
+   "secao": "1.23.8",
+   "rotulo_oficial": "Outras",
+   "destino": "novo",
+   "novo": {
+    "chave": "dist_outras",
+    "grupo": "Informações gerais",
+    "rotulo": "Distância: outras (local e km)",
+    "tipo": "texto",
+    "ajuda": "Nome do local e distância em km, por exemplo: Centro de eventos, 3 km",
+    "apos": 372
+   }
+  },
+  {
+   "secao": "1.24",
+   "rotulo_oficial": "Pontos de referência",
+   "destino": "nucleo",
+   "coluna": "referencia"
+  },
+  {
+   "secao": "1.25",
+   "rotulo_oficial": "Cadastros, classificações e outros",
+   "destino": "novo",
+   "novo": {
+    "chave": "cadastros",
+    "grupo": "Informações gerais",
+    "rotulo": "Cadastros, classificações e outros",
+    "tipo": "tabela",
+    "colunas": [
+     {
+      "rotulo": "Entidade/guia turístico",
+      "tipo": "texto"
+     },
+     {
+      "rotulo": "Categoria/tipo/classificação/número",
+      "tipo": "texto"
+     }
+    ],
+    "linhas": [
+     "Associações e sindicatos do setor",
+     "Associações de turismo",
+     "Associações comerciais",
+     "Guias turísticos",
+     "Outros"
+    ],
+    "ajuda": "O Cadastur fica no campo próprio do cadastro; aqui vão os demais cadastros e classificações.",
+    "apos": 372
+   }
+  },
+  {
+   "secao": "1.25.1",
+   "rotulo_oficial": "MTur CADASTUR",
+   "destino": "nucleo",
+   "coluna": "cadastur"
+  },
+  {
+   "secao": "1.25.2",
+   "rotulo_oficial": "Associações e sindicatos do setor",
+   "destino": "titulo",
+   "motivo": "linha sugerida da tabela cadastros"
+  },
+  {
+   "secao": "1.25.3",
+   "rotulo_oficial": "Associações de turismo",
+   "destino": "titulo",
+   "motivo": "linha sugerida da tabela cadastros"
+  },
+  {
+   "secao": "1.25.4",
+   "rotulo_oficial": "Associações comerciais",
+   "destino": "titulo",
+   "motivo": "linha sugerida da tabela cadastros"
+  },
+  {
+   "secao": "1.25.5",
+   "rotulo_oficial": "Guias turísticos",
+   "destino": "titulo",
+   "motivo": "linha sugerida da tabela cadastros"
+  },
+  {
+   "secao": "1.25.6",
+   "rotulo_oficial": "Outros",
+   "destino": "titulo",
+   "motivo": "linha sugerida da tabela cadastros"
+  },
+  {
+   "secao": "1.26",
+   "rotulo_oficial": "Entidade mantenedora",
+   "destino": "novo",
+   "novo": {
+    "chave": "mantenedora",
+    "grupo": "Informações gerais",
+    "rotulo": "Entidade mantenedora",
+    "tipo": "texto",
+    "apos": 372
+   }
+  },
+  {
+   "secao": "1.26.1",
+   "rotulo_oficial": "Endereço eletrônico (e-mail)",
+   "destino": "novo",
+   "novo": {
+    "chave": "mantenedora_email",
+    "grupo": "Informações gerais",
+    "rotulo": "E-mail da entidade mantenedora",
+    "tipo": "texto",
+    "apos": 372
+   }
+  },
+  {
+   "secao": "1.26.2",
+   "rotulo_oficial": "Sítio eletrônico (site/página web)",
+   "destino": "novo",
+   "novo": {
+    "chave": "mantenedora_site",
+    "grupo": "Informações gerais",
+    "rotulo": "Site da entidade mantenedora",
+    "tipo": "texto",
+    "apos": 372
+   }
+  },
+  {
+   "secao": "2",
+   "rotulo_oficial": "Funcionamento",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.1",
+   "rotulo_oficial": "Estrutura de funcionamento",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.1.1",
+   "rotulo_oficial": "Entrada",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.1.1.1",
+   "rotulo_oficial": "Gratuita",
+   "destino": "novo",
+   "novo": {
+    "chave": "entrada_gratuita",
+    "grupo": "Entrada",
+    "rotulo": "Entrada gratuita",
+    "tipo": "sim_nao",
+    "apos": null
+   }
+  },
+  {
+   "secao": "2.1.1.2",
+   "rotulo_oficial": "Paga: inteira",
+   "destino": "novo",
+   "novo": {
+    "chave": "entrada_inteira",
+    "grupo": "Entrada",
+    "rotulo": "Entrada paga: inteira (R$)",
+    "tipo": "numero",
+    "ajuda": "Valor da inteira em R$. A ficha marca só se há inteira; o valor deixa o dado comparável com as fichas de atrativo.",
+    "apos": null
+   }
+  },
+  {
+   "secao": "2.1.1.2",
+   "rotulo_oficial": "Paga: meia",
+   "destino": "novo",
+   "novo": {
+    "chave": "entrada_meia",
+    "grupo": "Entrada",
+    "rotulo": "Entrada paga: meia (R$)",
+    "tipo": "numero",
+    "ajuda": "Valor da meia-entrada em R$; deixe vazio se não houver meia.",
+    "apos": null
+   }
+  },
+  {
+   "secao": "2.1.2",
+   "rotulo_oficial": "Formas de pagamento (cheque e cheque de outra praça desligados)",
+   "destino": "nucleo",
+   "coluna": "formas_pagamento"
+  },
+  {
+   "secao": "2.1.3",
+   "rotulo_oficial": "Vendas e reserva",
+   "destino": "novo",
+   "novo": {
+    "chave": "vendas_reservas",
+    "grupo": "Estrutura de funcionamento",
+    "rotulo": "Vendas e reservas",
+    "tipo": "multipla",
+    "opcoes": [
+     "Balcão",
+     "Telefone",
+     "Fax",
+     "Internet",
+     "Agência de turismo",
+     "Antecipado",
+     "Outras"
+    ],
+    "outros": true,
+    "apos": null
+   }
+  },
+  {
+   "secao": "2.1.4",
+   "rotulo_oficial": "Atendimento ao público",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.1.4.1",
+   "rotulo_oficial": "Atendimento em língua estrangeira",
+   "destino": "nucleo",
+   "coluna": "idiomas"
+  },
+  {
+   "secao": "2.1.4.2",
+   "rotulo_oficial": "Informativos impressos",
+   "destino": "novo",
+   "novo": {
+    "chave": "informativos_impressos",
+    "grupo": "Estrutura de funcionamento",
+    "rotulo": "Informativos impressos",
+    "tipo": "multipla",
+    "opcoes": [
+     "Não",
+     "Português",
+     "Inglês",
+     "Espanhol",
+     "Outras"
+    ],
+    "outros": true,
+    "apos": null
+   }
+  },
+  {
+   "secao": "2.2",
+   "rotulo_oficial": "Regras de funcionamento",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.2.1",
+   "rotulo_oficial": "Período",
+   "destino": "novo",
+   "novo": {
+    "chave": "periodo_meses",
+    "grupo": "Regras de funcionamento",
+    "rotulo": "Período de funcionamento",
+    "tipo": "multipla",
+    "opcoes": [
+     "Janeiro",
+     "Fevereiro",
+     "Março",
+     "Abril",
+     "Maio",
+     "Junho",
+     "Julho",
+     "Agosto",
+     "Setembro",
+     "Outubro",
+     "Novembro",
+     "Dezembro",
+     "Ano inteiro"
+    ],
+    "apos": null
+   }
+  },
+  {
+   "secao": "2.2.2",
+   "rotulo_oficial": "Horário",
+   "destino": "nucleo",
+   "coluna": "horario"
+  },
+  {
+   "secao": "2.2.2.1",
+   "rotulo_oficial": "Abertura (2ª feira a domingo)",
+   "destino": "nucleo",
+   "coluna": "horario"
+  },
+  {
+   "secao": "2.2.2.2",
+   "rotulo_oficial": "Encerramento (2ª feira a domingo)",
+   "destino": "nucleo",
+   "coluna": "horario"
+  },
+  {
+   "secao": "2.2.2.3",
+   "rotulo_oficial": "Funcionamento 24 horas",
+   "destino": "nucleo",
+   "coluna": "horario"
+  },
+  {
+   "secao": "2.2.2.4",
+   "rotulo_oficial": "Funcionamento em feriados",
+   "destino": "nucleo",
+   "coluna": "horario"
+  },
+  {
+   "secao": "2.2.3",
+   "rotulo_oficial": "Outras regras e informações",
+   "destino": "novo",
+   "novo": {
+    "chave": "outras_regras",
+    "grupo": "Regras de funcionamento",
+    "rotulo": "Outras regras e informações",
+    "tipo": "texto_longo",
+    "apos": null
+   }
+  },
+  {
+   "secao": "2.3",
+   "rotulo_oficial": "Caracterização do fluxo de visitantes",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.3.1",
+   "rotulo_oficial": "Dados da ocupação",
+   "destino": "titulo"
+  },
+  {
+   "secao": "2.3.1.1",
+   "rotulo_oficial": "Ocupação ano (nº)",
+   "destino": "novo",
+   "novo": {
+    "chave": "fluxo_ano",
+    "grupo": "Caracterização do fluxo de visitantes",
+    "rotulo": "Ocupação ano (nº)",
+    "tipo": "numero",
+    "ajuda": "Número de visitantes no ano.",
+    "apos": null
+   }
+  },
+  {
+   "secao": "2.3.1.2",
+   "rotulo_oficial": "Ocupação na alta temporada (nº)",
+   "destino": "novo",
+   "novo": {
+    "chave": "fluxo_alta",
+    "grupo": "Caracterização do fluxo de visitantes",
+    "rotulo": "Ocupação na alta temporada (nº)",
+    "tipo": "numero",
+    "apos": null
+   }
+  },
+  {
+   "secao": "2.3.1.2.1",
+   "rotulo_oficial": "Meses de alta temporada",
+   "destino": "novo",
+   "novo": {
+    "chave": "fluxo_meses_alta",
+    "grupo": "Caracterização do fluxo de visitantes",
+    "rotulo": "Meses de alta temporada",
+    "tipo": "multipla",
+    "opcoes": [
+     "Janeiro",
+     "Fevereiro",
+     "Março",
+     "Abril",
+     "Maio",
+     "Junho",
+     "Julho",
+     "Agosto",
+     "Setembro",
+     "Outubro",
+     "Novembro",
+     "Dezembro",
+     "Ano inteiro"
+    ],
+    "apos": null
+   }
+  },
+  {
+   "secao": "2.3.2",
+   "rotulo_oficial": "Origem dos visitantes",
+   "destino": "novo",
+   "novo": {
+    "chave": "fluxo_origem",
+    "grupo": "Caracterização do fluxo de visitantes",
+    "rotulo": "Origem dos visitantes",
+    "tipo": "multipla",
+    "opcoes": [
+     "Entorno municipal",
+     "Estadual",
+     "Nacional",
+     "Internacional"
+    ],
+    "apos": null
+   }
+  },
+  {
+   "secao": "2.3.2.1",
+   "rotulo_oficial": "Origem dos visitantes nacionais (até 5 estados)",
+   "destino": "novo",
+   "novo": {
+    "chave": "fluxo_estados",
+    "grupo": "Caracterização do fluxo de visitantes",
+    "rotulo": "Origem dos visitantes nacionais (até 5 estados)",
+    "tipo": "multipla",
+    "opcoes": [
+     "AC",
+     "AL",
+     "AP",
+     "AM",
+     "BA",
+     "CE",
+     "DF",
+     "ES",
+     "GO",
+     "MA",
+     "MT",
+     "MS",
+     "MG",
+     "PA",
+     "PB",
+     "PR",
+     "PE",
+     "PI",
+     "RJ",
+     "RN",
+     "RS",
+     "RO",
+     "RR",
+     "SC",
+     "SP",
+     "SE",
+     "TO"
+    ],
+    "maximo": 5,
+    "apos": null,
+    "ajuda": "Até 5 estados, pela sigla."
+   }
+  },
+  {
+   "secao": "2.3.2.2",
+   "rotulo_oficial": "Origem dos visitantes internacionais (até 5 países)",
+   "destino": "novo",
+   "novo": {
+    "chave": "fluxo_paises",
+    "grupo": "Caracterização do fluxo de visitantes",
+    "rotulo": "Origem dos visitantes internacionais (até 5 países)",
+    "tipo": "tabela",
+    "colunas": [
+     {
+      "rotulo": "País",
+      "tipo": "texto"
+     }
+    ],
+    "ajuda": "Até 5 países.",
+    "apos": null,
+    "maximo": 5
+   }
+  },
+  {
+   "secao": "2.3.2.3",
+   "rotulo_oficial": "Ano-base",
+   "destino": "novo",
+   "novo": {
+    "chave": "fluxo_ano_base",
+    "grupo": "Caracterização do fluxo de visitantes",
+    "rotulo": "Ano-base",
+    "tipo": "numero",
+    "apos": null
+   }
+  },
+  {
+   "secao": "3",
+   "rotulo_oficial": "Características",
+   "destino": "titulo"
+  },
+  {
+   "secao": "3.1",
+   "rotulo_oficial": "Instalações",
+   "destino": "titulo"
+  },
+  {
+   "secao": "3.1.1",
+   "rotulo_oficial": "Estacionamento",
+   "destino": "novo",
+   "novo": {
+    "chave": "estacionamento",
+    "grupo": "Instalações",
+    "rotulo": "Estacionamento",
+    "tipo": "multipla",
+    "opcoes": [
+     "Pago",
+     "Gratuito",
+     "Coberto",
+     "Descoberto"
+    ],
+    "apos": null
+   }
+  },
+  {
+   "secao": "3.1.1.1",
+   "rotulo_oficial": "Capacidade de veículos (nº)",
+   "destino": "novo",
+   "novo": {
+    "chave": "estac_capacidade",
+    "grupo": "Instalações",
+    "rotulo": "Estacionamento: capacidade de veículos (nº)",
+    "tipo": "numero",
+    "apos": null
+   }
+  },
+  {
+   "secao": "3.1.1.1.1",
+   "rotulo_oficial": "Automóveis (nº)",
+   "destino": "novo",
+   "novo": {
+    "chave": "estac_automoveis",
+    "grupo": "Instalações",
+    "rotulo": "Estacionamento: automóveis (nº)",
+    "tipo": "numero",
+    "apos": null
+   }
+  },
+  {
+   "secao": "3.1.1.1.2",
+   "rotulo_oficial": "Ônibus (nº)",
+   "destino": "novo",
+   "novo": {
+    "chave": "estac_onibus",
+    "grupo": "Instalações",
+    "rotulo": "Estacionamento: ônibus (nº)",
+    "tipo": "numero",
+    "apos": null
+   }
+  },
+  {
+   "secao": "3.2",
+   "rotulo_oficial": "Outras instalações, equipamentos e serviços",
+   "destino": "atributo",
+   "atributo_id": 373,
+   "ajustes": {
+    "outros": true
+   }
+  },
+  {
+   "secao": "3.3",
+   "rotulo_oficial": "Outros equipamentos e espaços",
+   "destino": "atributo",
+   "atributo_id": 374,
+   "ajustes": {
+    "rotulo": "Outros equipamentos e espaços",
+    "outros": true
+   }
+  },
+  {
+   "secao": "4",
+   "rotulo_oficial": "Proteção, qualificação, certificação, premiação, destaques e outros",
+   "destino": "titulo"
+  },
+  {
+   "secao": "4.1",
+   "rotulo_oficial": "Do equipamento/espaço",
+   "destino": "novo",
+   "novo": {
+    "chave": "protecao_equip_possui",
+    "grupo": "Proteção do equipamento/espaço",
+    "rotulo": "Possui proteção, qualificação ou certificação (do equipamento/espaço)",
+    "tipo": "sim_nao",
+    "apos": null
+   }
+  },
+  {
+   "secao": "4.1",
+   "rotulo_oficial": "Do equipamento/espaço (quadro)",
+   "destino": "novo",
+   "novo": {
+    "chave": "protecao_equip",
+    "grupo": "Proteção do equipamento/espaço",
+    "rotulo": "Proteção, qualificação, certificação, premiação e destaques",
+    "tipo": "tabela",
+    "colunas": [
+     {
+      "rotulo": "Esfera",
+      "tipo": "escolha",
+      "opcoes": [
+       "Municipal",
+       "Estadual/Distrital",
+       "Federal",
+       "Internacional",
+       "Outras"
+      ]
+     },
+     {
+      "rotulo": "Instrumento",
+      "tipo": "escolha",
+      "opcoes": [
+       "Lei/Decreto",
+       "Portaria/Instrução/Deliberação",
+       "Norma/Ato",
+       "Outros"
+      ]
+     },
+     {
+      "rotulo": "Instrumento (nº)",
+      "tipo": "texto"
+     },
+     {
+      "rotulo": "Nome/Título/Certificação/Licenciamento/outro",
+      "tipo": "texto"
+     },
+     {
+      "rotulo": "Entidade declaratória/Tipo de declaração",
+      "tipo": "texto"
+     }
+    ],
+    "ajuda": "Uma linha por instrumento: esfera, tipo de instrumento, número, nome e entidade.",
+    "apos": null
+   }
+  },
+  {
+   "secao": "4.1.1",
+   "rotulo_oficial": "Municipal",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_equip: Esfera Municipal"
+  },
+  {
+   "secao": "4.1.1.1",
+   "rotulo_oficial": "Municipal: Lei/Decreto",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_equip: Esfera Municipal, Instrumento Lei/Decreto"
+  },
+  {
+   "secao": "4.1.1.2",
+   "rotulo_oficial": "Municipal: Portaria/Instrução/Deliberação",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_equip: Esfera Municipal, Instrumento Portaria/Instrução/Deliberação"
+  },
+  {
+   "secao": "4.1.1.3",
+   "rotulo_oficial": "Municipal: Norma/Ato",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_equip: Esfera Municipal, Instrumento Norma/Ato"
+  },
+  {
+   "secao": "4.1.1.4",
+   "rotulo_oficial": "Municipal: Outro",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_equip: Esfera Municipal, Instrumento Outro"
+  },
+  {
+   "secao": "4.1.2",
+   "rotulo_oficial": "Estadual/Distrital",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_equip: Esfera Estadual/Distrital"
+  },
+  {
+   "secao": "4.1.2.1",
+   "rotulo_oficial": "Estadual/Distrital: Lei/Decreto",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_equip: Esfera Estadual/Distrital, Instrumento Lei/Decreto"
+  },
+  {
+   "secao": "4.1.2.2",
+   "rotulo_oficial": "Estadual/Distrital: Portaria/Instrução/Deliberação",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_equip: Esfera Estadual/Distrital, Instrumento Portaria/Instrução/Deliberação"
+  },
+  {
+   "secao": "4.1.2.3",
+   "rotulo_oficial": "Estadual/Distrital: Norma/Ato",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_equip: Esfera Estadual/Distrital, Instrumento Norma/Ato"
+  },
+  {
+   "secao": "4.1.2.4",
+   "rotulo_oficial": "Estadual/Distrital: Outro",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_equip: Esfera Estadual/Distrital, Instrumento Outro"
+  },
+  {
+   "secao": "4.1.3",
+   "rotulo_oficial": "Federal",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_equip: Esfera Federal"
+  },
+  {
+   "secao": "4.1.3.1",
+   "rotulo_oficial": "Federal: Lei/Decreto",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_equip: Esfera Federal, Instrumento Lei/Decreto"
+  },
+  {
+   "secao": "4.1.3.2",
+   "rotulo_oficial": "Federal: Portaria/Instrução/Deliberação",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_equip: Esfera Federal, Instrumento Portaria/Instrução/Deliberação"
+  },
+  {
+   "secao": "4.1.3.3",
+   "rotulo_oficial": "Federal: Norma/Ato",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_equip: Esfera Federal, Instrumento Norma/Ato"
+  },
+  {
+   "secao": "4.1.3.4",
+   "rotulo_oficial": "Federal: Outro",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_equip: Esfera Federal, Instrumento Outro"
+  },
+  {
+   "secao": "4.1.4",
+   "rotulo_oficial": "Internacional",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_equip: Esfera Internacional"
+  },
+  {
+   "secao": "4.1.4.1",
+   "rotulo_oficial": "Internacional: Lei/Decreto",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_equip: Esfera Internacional, Instrumento Lei/Decreto"
+  },
+  {
+   "secao": "4.1.4.2",
+   "rotulo_oficial": "Internacional: Portaria/Instrução/Deliberação",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_equip: Esfera Internacional, Instrumento Portaria/Instrução/Deliberação"
+  },
+  {
+   "secao": "4.1.4.3",
+   "rotulo_oficial": "Internacional: Norma/Ato",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_equip: Esfera Internacional, Instrumento Norma/Ato"
+  },
+  {
+   "secao": "4.1.4.4",
+   "rotulo_oficial": "Internacional: Outro",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_equip: Esfera Internacional, Instrumento Outro"
+  },
+  {
+   "secao": "4.1.5",
+   "rotulo_oficial": "Outras",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_equip: Esfera Outras"
+  },
+  {
+   "secao": "4.1.5.1",
+   "rotulo_oficial": "Outras (1ª linha)",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_equip: Esfera Outras"
+  },
+  {
+   "secao": "4.1.5.2",
+   "rotulo_oficial": "Outras (2ª linha)",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_equip: Esfera Outras"
+  },
+  {
+   "secao": "4.2",
+   "rotulo_oficial": "Da área ou edificação em que está localizado/instalado",
+   "destino": "novo",
+   "novo": {
+    "chave": "protecao_area_possui",
+    "grupo": "Proteção da área ou edificação",
+    "rotulo": "Possui proteção, qualificação ou certificação (da área ou edificação em que está localizado/instalado)",
+    "tipo": "sim_nao",
+    "apos": null
+   }
+  },
+  {
+   "secao": "4.2",
+   "rotulo_oficial": "Da área ou edificação em que está localizado/instalado (quadro)",
+   "destino": "novo",
+   "novo": {
+    "chave": "protecao_area",
+    "grupo": "Proteção da área ou edificação",
+    "rotulo": "Proteção, qualificação, certificação, premiação e destaques",
+    "tipo": "tabela",
+    "colunas": [
+     {
+      "rotulo": "Esfera",
+      "tipo": "escolha",
+      "opcoes": [
+       "Municipal",
+       "Estadual/Distrital",
+       "Federal",
+       "Internacional",
+       "Outras"
+      ]
+     },
+     {
+      "rotulo": "Instrumento",
+      "tipo": "escolha",
+      "opcoes": [
+       "Lei/Decreto",
+       "Portaria/Instrução/Deliberação",
+       "Norma/Ato",
+       "Outros"
+      ]
+     },
+     {
+      "rotulo": "Instrumento (nº)",
+      "tipo": "texto"
+     },
+     {
+      "rotulo": "Nome/Título/Certificação/Licenciamento/outro",
+      "tipo": "texto"
+     },
+     {
+      "rotulo": "Entidade declaratória/Tipo de declaração",
+      "tipo": "texto"
+     }
+    ],
+    "ajuda": "Uma linha por instrumento: esfera, tipo de instrumento, número, nome e entidade.",
+    "apos": null
+   }
+  },
+  {
+   "secao": "4.2.1",
+   "rotulo_oficial": "Municipal",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_area: Esfera Municipal"
+  },
+  {
+   "secao": "4.2.1.1",
+   "rotulo_oficial": "Municipal: Lei/Decreto",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_area: Esfera Municipal, Instrumento Lei/Decreto"
+  },
+  {
+   "secao": "4.2.1.2",
+   "rotulo_oficial": "Municipal: Portaria/Instrução/Deliberação",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_area: Esfera Municipal, Instrumento Portaria/Instrução/Deliberação"
+  },
+  {
+   "secao": "4.2.1.3",
+   "rotulo_oficial": "Municipal: Norma/Ato",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_area: Esfera Municipal, Instrumento Norma/Ato"
+  },
+  {
+   "secao": "4.2.1.4",
+   "rotulo_oficial": "Municipal: Outro",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_area: Esfera Municipal, Instrumento Outro"
+  },
+  {
+   "secao": "4.2.2",
+   "rotulo_oficial": "Estadual/Distrital",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_area: Esfera Estadual/Distrital"
+  },
+  {
+   "secao": "4.2.2.1",
+   "rotulo_oficial": "Estadual/Distrital: Lei/Decreto",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_area: Esfera Estadual/Distrital, Instrumento Lei/Decreto"
+  },
+  {
+   "secao": "4.2.2.2",
+   "rotulo_oficial": "Estadual/Distrital: Portaria/Instrução/Deliberação",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_area: Esfera Estadual/Distrital, Instrumento Portaria/Instrução/Deliberação"
+  },
+  {
+   "secao": "4.2.2.3",
+   "rotulo_oficial": "Estadual/Distrital: Norma/Ato",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_area: Esfera Estadual/Distrital, Instrumento Norma/Ato"
+  },
+  {
+   "secao": "4.2.2.4",
+   "rotulo_oficial": "Estadual/Distrital: Outro",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_area: Esfera Estadual/Distrital, Instrumento Outro"
+  },
+  {
+   "secao": "4.2.3",
+   "rotulo_oficial": "Federal",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_area: Esfera Federal"
+  },
+  {
+   "secao": "4.2.3.1",
+   "rotulo_oficial": "Federal: Lei/Decreto",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_area: Esfera Federal, Instrumento Lei/Decreto"
+  },
+  {
+   "secao": "4.2.3.2",
+   "rotulo_oficial": "Federal: Portaria/Instrução/Deliberação",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_area: Esfera Federal, Instrumento Portaria/Instrução/Deliberação"
+  },
+  {
+   "secao": "4.2.3.3",
+   "rotulo_oficial": "Federal: Norma/Ato",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_area: Esfera Federal, Instrumento Norma/Ato"
+  },
+  {
+   "secao": "4.2.3.4",
+   "rotulo_oficial": "Federal: Outro",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_area: Esfera Federal, Instrumento Outro"
+  },
+  {
+   "secao": "4.2.4",
+   "rotulo_oficial": "Internacional",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_area: Esfera Internacional"
+  },
+  {
+   "secao": "4.2.4.1",
+   "rotulo_oficial": "Internacional: Lei/Decreto",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_area: Esfera Internacional, Instrumento Lei/Decreto"
+  },
+  {
+   "secao": "4.2.4.2",
+   "rotulo_oficial": "Internacional: Portaria/Instrução/Deliberação",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_area: Esfera Internacional, Instrumento Portaria/Instrução/Deliberação"
+  },
+  {
+   "secao": "4.2.4.3",
+   "rotulo_oficial": "Internacional: Norma/Ato",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_area: Esfera Internacional, Instrumento Norma/Ato"
+  },
+  {
+   "secao": "4.2.4.4",
+   "rotulo_oficial": "Internacional: Outro",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_area: Esfera Internacional, Instrumento Outro"
+  },
+  {
+   "secao": "4.2.5",
+   "rotulo_oficial": "Outras",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_area: Esfera Outras"
+  },
+  {
+   "secao": "4.2.5.1",
+   "rotulo_oficial": "Outras (1ª linha)",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_area: Esfera Outras"
+  },
+  {
+   "secao": "4.2.5.2",
+   "rotulo_oficial": "Outras (2ª linha)",
+   "destino": "titulo",
+   "motivo": "linha do quadro protecao_area: Esfera Outras"
+  },
+  {
+   "secao": "5",
+   "rotulo_oficial": "Estado geral de conservação",
+   "destino": "nucleo",
+   "coluna": "conservacao"
+  },
+  {
+   "secao": "6",
+   "rotulo_oficial": "Acessibilidade",
+   "destino": "titulo"
+  },
+  {
+   "secao": "6.1",
+   "rotulo_oficial": "Possui alguma facilidade para pessoas com deficiência ou mobilidade reduzida?",
+   "destino": "nucleo",
+   "coluna": "acessibilidade_possui"
+  },
+  {
+   "secao": "6.1.1",
+   "rotulo_oficial": "Pessoal capacitado para receber pessoas com deficiência",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "6.1.2",
+   "rotulo_oficial": "Rota externa acessível",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "6.1.3",
+   "rotulo_oficial": "Símbolo internacional de acesso",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "6.1.4",
+   "rotulo_oficial": "Local de embarque e desembarque",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "6.1.5",
+   "rotulo_oficial": "Vaga em estacionamento",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "6.1.6",
+   "rotulo_oficial": "Área de circulação/acesso interno para cadeiras de rodas",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "6.1.7",
+   "rotulo_oficial": "Escada",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "6.1.8",
+   "rotulo_oficial": "Rampa",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "6.1.9",
+   "rotulo_oficial": "Piso",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "6.1.10",
+   "rotulo_oficial": "Elevador",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "6.1.11",
+   "rotulo_oficial": "Equipamento motorizado para deslocamento interno",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "6.1.12",
+   "rotulo_oficial": "Sinalização visual",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "6.1.13",
+   "rotulo_oficial": "Sinalização tátil",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "6.1.14",
+   "rotulo_oficial": "Alarme de emergência",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "6.1.15",
+   "rotulo_oficial": "Comunicação",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "6.1.16",
+   "rotulo_oficial": "Balcão de atendimento",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "6.1.17",
+   "rotulo_oficial": "Mobiliário",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "6.1.18",
+   "rotulo_oficial": "Sanitário",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "6.1.19",
+   "rotulo_oficial": "Telefone",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "6.1.20",
+   "rotulo_oficial": "Sinalização indicativa de atendimento preferencial para pessoas com deficiência ou mobilidade reduzida",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "6.1.21",
+   "rotulo_oficial": "Outras",
+   "destino": "nucleo",
+   "coluna": "acessibilidade"
+  },
+  {
+   "secao": "7",
+   "rotulo_oficial": "Observações",
+   "destino": "nucleo",
+   "coluna": "observacoes"
+  },
+  {
+   "secao": "8",
+   "rotulo_oficial": "Referências",
+   "destino": "nucleo",
+   "coluna": "referencias"
+  },
+  {
+   "secao": "9",
+   "rotulo_oficial": "Equipe responsável",
+   "destino": "nucleo",
+   "coluna": "equipe"
+  }
+ ],
+ "desativar": [],
+ "notas": "Identificação (tipo e subtipo) não tem número no PDF e fica no núcleo (tipo_id); os subtipos do sistema conferem com o PDF. Cabeçalho uf, região turística e município vem do destino. Fax e ramal do fax ignorados (desligados); cheque e cheque de outra praça continuam desligados em formas de pagamento. Horário: os itens de abertura, encerramento, 24 horas e feriados vão todos para a coluna horario. Proteção (seção 4): cada subitem 4.x.y é uma linha do quadro e fica como titulo; o quadro em si é um campo tabela com as colunas padrão (Esfera, Instrumento, nº, Nome, Entidade), por isso o número 4.1 e o 4.2 aparecem duas vezes na spec (o sim/não e o quadro). Cadastros (1.x Cadastros, classificações e outros): o MTur CADASTUR vai para a coluna cadastur do núcleo; as demais linhas são linhas sugeridas da tabela cadastros. Novos campos sem atributo anterior no mesmo grupo ficam com apos null; a ordem entre eles é a ordem desta spec. Na opção do PDF \"Telefone público\" (quando existe), o sistema já a mantém em opcoes_inativas; a spec não mexe nisso. Ficha 27: 1.9 Ambientação temática ganhou a opção \"Outras\" com especificação (faltava). O rótulo do 374 passa ao da ficha (\"Outros equipamentos e espaços\"); o grupo Atrações foi mantido. Ambientação temática \"principal\" está como multipla no sistema; mantive (mudar para escolha perderia dados já gravados), mas a ficha sugere uma só: conferir. Entrada 2.1.1.2 Paga (Inteira/Meia) é marcação na ficha; uso as chaves padrão entrada_inteira e entrada_meia (valor em R$), por isso o número 2.1.1.2 aparece duas vezes. Fluxo (2.3): no PDF é \"Ocupação\"; mantive o rótulo oficial nas chaves padrão fluxo_ano e fluxo_alta."
+}

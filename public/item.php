@@ -214,7 +214,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $acaoFoto === '' && $acaoEsteira ==
         $pagamentos = json_decode((string) ($nucleo['formas_pagamento'] ?? ''), true) ?: [];
         $idiomas = json_decode((string) ($nucleo['idiomas'] ?? ''), true) ?: [];
         foreach ($especificos as $aid => $v) {
-            $valores[$aid] = ['valor_texto' => $v['texto'], 'valor_numero' => $v['numero'], 'ausencia' => $v['ausencia']];
+            $valores[$aid] = ['valor_texto' => $v['texto'], 'valor_numero' => $v['numero'], 'valor_outro' => $v['outro'] ?? null, 'ausencia' => $v['ausencia']];
         }
         $acess = $acessNovo;
     }
@@ -373,16 +373,24 @@ paginaFicha($titulo, 'inventario');
             <?php endforeach; ?>
           </select></div>
         </div>
-        <?php if ($ficha['forma'] !== 'municipio'): ?>
         <div class="campo c-6">
-          <label for="cnpj">CNPJ</label>
+          <label for="cnpj">CNPJ<?= $ficha['forma'] === 'municipio' ? ' da prefeitura ou do órgão' : '' ?></label>
           <div class="entrada"><?= icone('predio') ?><input type="text" id="cnpj" name="cnpj" class="cnpj" maxlength="18" autocomplete="off"
                  value="<?= e(!empty($d['cnpj']) && strlen((string) $d['cnpj']) === 14 ? formatarCnpj((string) $d['cnpj']) : (string) ($d['cnpj'] ?? '')) ?>"<?= $ro ?>></div>
           <span class="ajuda">Inventarie também quem não tem CNPJ: o manual manda incluir todo estabelecimento aberto ao público.</span>
         </div>
+        <?php if ($ficha['forma'] !== 'municipio'): ?>
         <div class="campo c-6">
           <label for="razao_social">Razão social</label>
           <div class="entrada"><input type="text" id="razao_social" name="razao_social" maxlength="180" value="<?= e((string) ($d['razao_social'] ?? '')) ?>"<?= $ro ?>></div>
+        </div>
+        <div class="campo c-4">
+          <label for="cnae">Código CNAE</label>
+          <div class="entrada"><input type="text" id="cnae" name="cnae" maxlength="10" inputmode="numeric" placeholder="5510801" value="<?= e((string) ($d['cnae'] ?? '')) ?>"<?= $ro ?>></div>
+        </div>
+        <div class="campo c-8">
+          <label for="atividade_economica">Atividade econômica</label>
+          <div class="entrada"><input type="text" id="atividade_economica" name="atividade_economica" maxlength="255" value="<?= e((string) ($d['atividade_economica'] ?? '')) ?>"<?= $ro ?>></div>
         </div>
         <div class="campo c-6">
           <label for="inscricao_municipal">Inscrição municipal</label>
@@ -401,6 +409,14 @@ paginaFicha($titulo, 'inventario');
           <div class="entrada"><select id="natureza" name="natureza"<?= $dis ?>><option value="">Não informada</option>
             <?php foreach (Inventario::NATUREZAS as $k => $r): ?><option value="<?= $k ?>"<?= ($d['natureza'] ?? '') === $k ? ' selected' : '' ?>><?= e($r) ?></option><?php endforeach; ?>
           </select></div>
+          <div class="entrada outro-texto" data-outro-de="natureza" data-outro-valor="outra"><input type="text" name="natureza_outra" maxlength="120" placeholder="Qual?" aria-label="Natureza: qual outra" value="<?= e((string) ($d['natureza_outra'] ?? '')) ?>"<?= $ro ?>></div>
+        </div>
+        <div class="campo c-4">
+          <label for="tipo_organizacao">Tipo de organização</label>
+          <div class="entrada"><select id="tipo_organizacao" name="tipo_organizacao"<?= $dis ?>><option value="">Não informado</option>
+            <?php foreach (Inventario::TIPOS_ORGANIZACAO as $k => $r): ?><option value="<?= $k ?>"<?= ($d['tipo_organizacao'] ?? '') === $k ? ' selected' : '' ?>><?= e($r) ?></option><?php endforeach; ?>
+          </select></div>
+          <div class="entrada outro-texto" data-outro-de="tipo_organizacao" data-outro-valor="outros"><input type="text" name="tipo_organizacao_outro" maxlength="120" placeholder="Qual?" aria-label="Tipo de organização: qual outro" value="<?= e((string) ($d['tipo_organizacao_outro'] ?? '')) ?>"<?= $ro ?>></div>
         </div>
         <div class="campo c-4">
           <label for="jurisdicao">Jurisdição</label>
@@ -409,31 +425,43 @@ paginaFicha($titulo, 'inventario');
           </select></div>
         </div>
         <div class="campo c-4">
-          <label for="inicio_atividade">Início da atividade (ano)</label>
-          <div class="entrada"><input type="number" id="inicio_atividade" name="inicio_atividade" min="1500" max="<?= date('Y') ?>" value="<?= e((string) ($d['inicio_atividade'] ?? '')) ?>"<?= $ro ?>></div>
+          <label for="inicio_atividade">Início da atividade</label>
+          <div class="entrada"><input type="text" id="inicio_atividade" name="inicio_atividade" maxlength="10" inputmode="numeric" placeholder="dd/mm/aaaa ou o ano" data-data-ou-ano
+            value="<?= e(!empty($d['inicio_atividade_data']) ? date('d/m/Y', strtotime((string) $d['inicio_atividade_data'])) : (string) ($d['inicio_atividade'] ?? '')) ?>"<?= $ro ?>></div>
         </div>
         <div class="campo c-8">
           <label for="rede">Rede, holding ou franquia</label>
           <div class="entrada"><input type="text" id="rede" name="rede" maxlength="120" value="<?= e((string) ($d['rede'] ?? '')) ?>"<?= $ro ?>></div>
         </div>
         <div class="campo c-4">
-          <label for="funcionarios">Funcionários</label>
+          <label for="funcionarios">Funcionários permanentes</label>
           <div class="entrada"><input type="number" id="funcionarios" name="funcionarios" min="0" value="<?= e((string) ($d['funcionarios'] ?? '')) ?>"<?= $ro ?>></div>
+        </div>
+        <div class="campo c-4">
+          <label for="funcionarios_temporarios">Funcionários temporários</label>
+          <div class="entrada"><input type="number" id="funcionarios_temporarios" name="funcionarios_temporarios" min="0" value="<?= e((string) ($d['funcionarios_temporarios'] ?? '')) ?>"<?= $ro ?>></div>
+        </div>
+        <div class="campo c-4">
+          <label for="funcionarios_pcd">Pessoas com deficiência (%)</label>
+          <div class="entrada"><input type="text" id="funcionarios_pcd" name="funcionarios_pcd" inputmode="decimal" maxlength="6" value="<?= e(($d['funcionarios_pcd'] ?? null) !== null ? rtrim(rtrim(number_format((float) $d['funcionarios_pcd'], 2, ',', ''), '0'), ',') : '') ?>"<?= $ro ?>></div>
+          <span class="ajuda">Entre os funcionários.</span>
         </div>
         <?php endif; ?>
       </div>
     </div>
 
-    <?php if ($ficha['forma'] !== 'municipio'): ?>
+    <?php $soLugar = $ficha['forma'] !== 'municipio'; ?>
     <div class="cartao">
-      <h2 class="titulo-secao">Localização</h2>
+      <h2 class="titulo-secao"><?= $soLugar ? 'Localização' : ($ficha['ordem'] == 13 ? 'Endereço da Secretaria de Educação' : 'Endereço da prefeitura') ?></h2>
       <div class="grade">
+        <?php if ($soLugar): ?>
         <div class="campo c-4">
           <label for="zona">Zona</label>
           <div class="entrada"><select id="zona" name="zona"<?= $dis ?>><option value="">Não informada</option>
             <?php foreach (Inventario::ZONAS as $k => $r): ?><option value="<?= $k ?>"<?= ($d['zona'] ?? '') === $k ? ' selected' : '' ?>><?= e($r) ?></option><?php endforeach; ?>
           </select></div>
         </div>
+        <?php endif; ?>
         <?php if ($ficha['forma'] === 'linear'): ?>
         <div class="campo c-4">
           <label for="extensao_km">Extensão no município (km)</label>
@@ -454,8 +482,12 @@ paginaFicha($titulo, 'inventario');
           <div class="entrada"><input type="text" id="numero" name="numero" maxlength="20" value="<?= e((string) ($d['numero'] ?? '')) ?>"<?= $ro ?>></div>
         </div>
         <div class="campo c-6">
-          <label for="bairro">Bairro ou distrito</label>
+          <label for="bairro">Bairro ou localidade</label>
           <div class="entrada"><input type="text" id="bairro" name="bairro" maxlength="120" value="<?= e((string) ($d['bairro'] ?? '')) ?>"<?= $ro ?>></div>
+        </div>
+        <div class="campo c-6">
+          <label for="distrito">Distrito</label>
+          <div class="entrada"><input type="text" id="distrito" name="distrito" maxlength="120" value="<?= e((string) ($d['distrito'] ?? '')) ?>"<?= $ro ?>></div>
         </div>
         <div class="campo c-6">
           <label for="complemento">Complemento</label>
@@ -488,6 +520,7 @@ paginaFicha($titulo, 'inventario');
           <div class="entrada"><?= icone('mapa') ?><input type="url" id="maps_url" name="maps_url" maxlength="500" value="<?= e((string) ($d['maps_url'] ?? '')) ?>"<?= $ro ?>></div>
           <span class="ajuda">O "Como chegar" do portal. Em campo, a coordenada vem do GPS do celular.</span>
         </div>
+        <?php if ($soLugar): ?>
         <div class="campo c-12">
           <label for="referencia">Pontos de referência</label>
           <div class="entrada"><input type="text" id="referencia" name="referencia" maxlength="255" value="<?= e((string) ($d['referencia'] ?? '')) ?>"<?= $ro ?>></div>
@@ -501,17 +534,22 @@ paginaFicha($titulo, 'inventario');
           </select></div>
         </div>
         <?php endforeach; ?>
+        <?php endif; ?>
       </div>
     </div>
 
     <div class="cartao">
       <h2 class="titulo-secao">Contato público</h2>
       <div class="grade">
-        <div class="campo c-6">
+        <div class="campo c-4">
           <label for="telefone">Telefone</label>
           <div class="entrada"><input type="text" id="telefone" name="telefone" class="telefone" value="<?= e(!empty($d['telefone']) && ctype_digit((string) $d['telefone']) ? formatarTelefone((string) $d['telefone']) : (string) ($d['telefone'] ?? '')) ?>"<?= $ro ?>></div>
         </div>
-        <div class="campo c-6">
+        <div class="campo c-3">
+          <label for="ramal">Ramal</label>
+          <div class="entrada"><input type="text" id="ramal" name="ramal" maxlength="10" inputmode="numeric" value="<?= e((string) ($d['ramal'] ?? '')) ?>"<?= $ro ?>></div>
+        </div>
+        <div class="campo c-5">
           <label for="whatsapp">WhatsApp</label>
           <div class="entrada"><?= icone('whatsapp') ?><input type="text" id="whatsapp" name="whatsapp" class="telefone" value="<?= e(!empty($d['whatsapp']) && ctype_digit((string) $d['whatsapp']) ? formatarTelefone((string) $d['whatsapp']) : (string) ($d['whatsapp'] ?? '')) ?>"<?= $ro ?>></div>
         </div>
@@ -531,6 +569,7 @@ paginaFicha($titulo, 'inventario');
       <p class="ajuda">Contato que o turista vê. O dado pessoal de quem responde pelo negócio fica na conta dele, nunca aqui.</p>
     </div>
 
+    <?php if ($soLugar): ?>
     <div class="cartao">
       <h2 class="titulo-secao">Funcionamento</h2>
       <?= semanaDeHorario($horario, 'data-semana', !$podeEditar) ?>
@@ -568,18 +607,61 @@ paginaFicha($titulo, 'inventario');
   </div>
   <?php endif; ?>
 
+  <?php
+  /** Uma linha de tabela da ficha, com cada célula pelo tipo da coluna. */
+  $linhaTabela = function (int $aid, int $n, array $colunas, array $linha) use ($ro, $dis): string {
+      $h = '<tr>';
+      foreach ($colunas as $k => $col) {
+          $nome = 'at[' . $aid . '][' . $n . '][' . $k . ']';
+          $v = $linha[$k] ?? '';
+          $rot = e($col['rotulo']) . ', linha ' . ($n + 1);
+          $h .= '<td>';
+          if ($col['tipo'] === 'meses') {
+              $marcados = array_map('strval', (array) $v);
+              $h .= '<div class="meses-celula" role="group" aria-label="' . $rot . '">';
+              foreach (Inventario::MESES as $mes) {
+                  $h .= '<label class="check mes" title="' . e($mes) . '"><input type="checkbox" name="' . $nome . '[]" value="' . e($mes) . '"'
+                      . (in_array($mes, $marcados, true) ? ' checked' : '') . $dis . '><i></i>' . e(mb_substr($mes, 0, 3)) . '</label>';
+              }
+              $h .= '</div>';
+          } elseif ($col['tipo'] === 'sim_nao' || $col['tipo'] === 'escolha') {
+              $ops = $col['tipo'] === 'sim_nao' ? ['1' => 'Sim', '0' => 'Não'] : array_combine($col['opcoes'], $col['opcoes']);
+              $h .= '<div class="entrada mini"><select name="' . $nome . '" aria-label="' . $rot . '"' . $dis . '><option value=""></option>';
+              foreach ($ops as $ov => $or) {
+                  $h .= '<option value="' . e((string) $ov) . '"' . ((string) $v === (string) $ov && $v !== '' ? ' selected' : '') . '>' . e((string) $or) . '</option>';
+              }
+              $h .= '</select></div>';
+          } else {
+              $h .= '<div class="entrada mini"><input type="text" name="' . $nome . '" maxlength="200"' . ($col['tipo'] === 'numero' ? ' inputmode="decimal"' : '')
+                  . ' aria-label="' . $rot . '" value="' . e(is_scalar($v) ? (string) $v : '') . '"' . $ro . '></div>';
+          }
+          $h .= '</td>';
+      }
+      return $h . '</tr>';
+  };
+  /** O texto do "Outros ____", que aparece quando a opção Outros está marcada. */
+  $outroTexto = function (int $aid, array $at, ?string $valor) use ($ro): string {
+      if (empty($at['config']['outros'])) {
+          return '';
+      }
+      return '<div class="entrada outro-texto" data-outro-at="' . $aid . '"><input type="text" name="outro[' . $aid . ']" maxlength="255" placeholder="Quais? Especifique"'
+          . ' aria-label="' . e((string) $at['rotulo']) . ': especifique o outro" value="' . e((string) $valor) . '"' . $ro . '></div>';
+  };
+  ?>
   <?php foreach ($atributos as $grupo => $lista): ?>
   <div class="cartao">
     <h2 class="titulo-secao"><?= e((string) $grupo) ?></h2>
     <div class="grade">
-      <?php foreach ($lista as $at): $aid = (int) $at['id']; $v = $valores[$aid] ?? null;
-        $txt = $v['valor_texto'] ?? null; $num = $v['valor_numero'] ?? null; $aus = $v['ausencia'] ?? null;
+      <?php foreach ($lista as $at): $aid = (int) $at['id']; $v = $valores[$aid] ?? null; $cfg = (array) ($at['config'] ?? []);
+        $txt = $v['valor_texto'] ?? null; $num = $v['valor_numero'] ?? null; $aus = $v['ausencia'] ?? null; $outro = $v['valor_outro'] ?? null;
         $largo = in_array($at['tipo'], ['texto_longo', 'multipla', 'tabela'], true); ?>
         <div class="campo <?= $largo ? 'c-12' : 'c-6' ?>">
           <label for="at-<?= $aid ?>"><?= e((string) $at['rotulo']) ?><?= $at['obrigatorio'] ? ' <span class="obrig">núcleo do MTur</span>' : '' ?></label>
           <?php switch ($at['tipo']):
             case 'numero': ?>
               <div class="entrada"><input type="text" id="at-<?= $aid ?>" name="at[<?= $aid ?>]" inputmode="decimal" value="<?= $num !== null ? e(rtrim(rtrim(number_format((float) $num, 2, ',', ''), '0'), ',')) : '' ?>"<?= $ro ?>><?= $ausencia($aid, $aus) ?></div>
+            <?php break; case 'data': ?>
+              <div class="entrada"><input type="date" id="at-<?= $aid ?>" name="at[<?= $aid ?>]" value="<?= e((string) $txt) ?>"<?= $ro ?>><?= $ausencia($aid, $aus) ?></div>
             <?php break; case 'sim_nao': ?>
               <div class="entrada"><select id="at-<?= $aid ?>" name="at[<?= $aid ?>]"<?= $dis ?>><option value="">Não respondido</option>
                 <option value="1"<?= $num !== null && (float) $num === 1.0 ? ' selected' : '' ?>>Sim</option>
@@ -588,21 +670,29 @@ paginaFicha($titulo, 'inventario');
               <div class="entrada"><select id="at-<?= $aid ?>" name="at[<?= $aid ?>]"<?= $dis ?>><option value="">Não respondido</option>
                 <?php foreach ($at['opcoes'] as $op): ?><option<?= $txt === $op ? ' selected' : '' ?>><?= e((string) $op) ?></option><?php endforeach; ?>
               </select><?= $ausencia($aid, $aus) ?></div>
+              <?= $outroTexto($aid, $at, $outro) ?>
             <?php break; case 'multipla': ?>
-              <?= $caixas('at[' . $aid . ']', $at['opcoes'], json_decode((string) $txt, true) ?: []) ?>
+              <div data-maximo="<?= $podeEditar ? (int) ($cfg['maximo'] ?? 0) : 0 ?>"><?= $caixas('at[' . $aid . ']', $at['opcoes'], json_decode((string) $txt, true) ?: []) ?></div>
+              <?= $outroTexto($aid, $at, $outro) ?>
               <div class="entrada estreita"><?= $ausencia($aid, $aus) ?></div>
-            <?php break; case 'tabela': $linhas = json_decode((string) $txt, true) ?: []; $linhas = array_merge($linhas, array_fill(0, 2, [])); ?>
-              <div class="rolagem"><table class="dados tabela-campo">
-                <thead><tr><?php foreach ($at['opcoes'] as $col): ?><th><?= e((string) $col) ?></th><?php endforeach; ?></tr></thead>
+              <?php if (!empty($cfg['maximo'])): ?><span class="ajuda">Marque até <?= (int) $cfg['maximo'] ?>.</span><?php endif; ?>
+            <?php break; case 'tabela':
+              $colunas = FichaFormulario::colunas($at);
+              $linhas = json_decode((string) $txt, true) ?: [];
+              // Linhas sugeridas pela ficha (Auditório, Salas modulares...): a primeira coluna já vem escrita.
+              if (!$linhas && !empty($cfg['linhas'])) {
+                  $linhas = array_map(fn ($l) => [(string) $l], (array) $cfg['linhas']);
+              }
+              $linhas[] = []; ?>
+              <div class="rolagem"><table class="dados tabela-campo" data-tabela-at="<?= $aid ?>">
+                <thead><tr><?php foreach ($colunas as $col): ?><th><?= e($col['rotulo']) ?></th><?php endforeach; ?></tr></thead>
                 <tbody>
-                <?php foreach ($linhas as $n => $linha): ?>
-                  <tr><?php foreach (array_values($at['opcoes']) as $k => $col): ?>
-                    <td><div class="entrada mini"><input type="text" name="at[<?= $aid ?>][<?= $n ?>][<?= $k ?>]" maxlength="200" aria-label="<?= e((string) $col) ?>, linha <?= $n + 1 ?>" value="<?= e((string) ($linha[$k] ?? '')) ?>"<?= $ro ?>></div></td>
-                  <?php endforeach; ?></tr>
-                <?php endforeach; ?>
+                <?php foreach ($linhas as $n => $linha): ?><?= $linhaTabela($aid, $n, $colunas, (array) $linha) ?><?php endforeach; ?>
                 </tbody></table></div>
-              <div class="entrada estreita"><?= $ausencia($aid, $aus) ?></div>
-              <span class="ajuda">Duas linhas em branco a cada salvamento; salve para ganhar mais.</span>
+              <div class="tabela-acoes">
+                <?php if ($podeEditar): ?><button type="button" class="como-link" data-mais-linha-at="<?= $aid ?>"><?= icone('mais') ?>Mais uma linha</button><?php endif; ?>
+                <div class="entrada estreita"><?= $ausencia($aid, $aus) ?></div>
+              </div>
             <?php break; case 'texto_longo': ?>
               <div class="entrada"><textarea id="at-<?= $aid ?>" name="at[<?= $aid ?>]" rows="3"<?= $ro ?>><?= e((string) $txt) ?></textarea></div>
               <div class="entrada estreita"><?= $ausencia($aid, $aus) ?></div>
@@ -622,6 +712,15 @@ paginaFicha($titulo, 'inventario');
   <div class="painel-aba" data-painel="acessibilidade" hidden>
   <div class="cartao">
     <h2 class="titulo-secao">Acessibilidade</h2>
+    <div class="grade">
+      <div class="campo c-6">
+        <label for="acessibilidade_possui">Possui alguma facilidade para pessoas com deficiência ou mobilidade reduzida?</label>
+        <div class="entrada"><select id="acessibilidade_possui" name="acessibilidade_possui"<?= $dis ?>><option value="">Não informado</option>
+          <option value="1"<?= ($d['acessibilidade_possui'] ?? null) !== null && (int) $d['acessibilidade_possui'] === 1 ? ' selected' : '' ?>>Sim</option>
+          <option value="0"<?= ($d['acessibilidade_possui'] ?? null) !== null && (int) $d['acessibilidade_possui'] === 0 ? ' selected' : '' ?>>Não</option>
+        </select></div>
+      </div>
+    </div>
     <p class="ajuda">Os subitens da seção 6 da ficha oficial. O portal resume em cinco selos simples para o turista.</p>
     <?php foreach ($subitensAcess as $s): ?>
       <h3 class="sub-cartao"><?= e((string) $s['rotulo']) ?></h3>

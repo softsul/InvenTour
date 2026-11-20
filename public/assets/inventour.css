@@ -1509,3 +1509,55 @@ dialog.coleta-dialogo.app-instalar{height:auto; max-height:calc(100vh - 32px)}
 .consulta-doc.bom{background:var(--verde-sup); color:#0A6B4F}
 .consulta-doc.atencao{background:var(--ambar-sup); color:#7A4808}
 .consulta-doc .botao{width:auto; padding:7px 12px; font-size:12.5px}
+
+/* Ficha completa: o texto do "Outros ____" logo abaixo das opções, e os
+   meses de janeiro a dezembro dentro da célula de uma tabela. */
+.entrada.outro-texto{margin-top:6px; max-width:520px}
+.entrada.outro-texto[hidden]{display:none}
+.meses-celula{display:grid; grid-template-columns:repeat(6, auto); gap:2px 8px; min-width:250px}
+.meses-celula .check.mes{margin:0; font-size:11.5px; gap:4px; white-space:nowrap}
+table.tabela-campo td{vertical-align:top}
+table.tabela-campo td .entrada.mini select{width:100%; min-width:90px}
+
+/* Situação da resposta (NA, NI, NE) em pílula: Respondido em verde quando o
+   campo tem valor; Pendente, neutro; NA, NI ou NE em âmbar. Painel e app. */
+select.ausencia.respondido{color:var(--verde); font-weight:700}
+select.ausencia.respondido:disabled{opacity:1; cursor:default}
+select.ausencia.ausente{color:var(--ambar); font-weight:700}
+
+/* A ficha no app e na coleta: o título do campo e a pílula na mesma linha. */
+.campo-ficha .campo-cab{display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:6px}
+.campo-ficha .campo-cab label{margin:0; flex:1; min-width:0}
+.campo-ficha .essencial{display:inline-block; margin-left:4px; padding:1px 6px; border-radius:6px; background:var(--indigo-sup); color:var(--indigo);
+  font-size:10px; font-weight:700; letter-spacing:.02em; vertical-align:1px}
+.entrada.ausencia-pilula{flex:none; width:auto; min-height:0; padding:0 4px 0 10px; border-radius:999px; background:var(--leve); border:1px solid var(--traco)}
+.entrada.ausencia-pilula select.ausencia{flex:none; margin:0; padding:5px 0; border:0; font-size:12px; color:var(--suave); background:transparent}
+.campo-ficha.respondido .entrada.ausencia-pilula{background:var(--verde-sup); border-color:#BDE5D6}
+.campo-ficha.sem-resposta .entrada.ausencia-pilula{background:var(--ambar-sup); border-color:#F1D6AE}
+.campo-ficha.respondido > .entrada:not(.ausencia-pilula){border-color:#BDE5D6}
+
+/* Cada grupo da ficha num cartão, com quantos campos já foram resolvidos. */
+.grupo-ficha{background:var(--branco); border:1px solid var(--traco); border-radius:var(--r-g); padding:14px 16px 6px; margin-bottom:14px}
+.grupo-ficha > header{display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 0 10px; padding-bottom:10px; border-bottom:1px solid var(--traco)}
+.grupo-ficha > header h3{margin:0; font-size:15px; color:var(--tinta)}
+.grupo-ficha .grupo-conta{flex:none; padding:2px 9px; border-radius:999px; background:var(--leve); color:var(--suave); font-family:var(--dado); font-size:11.5px; font-weight:700}
+.grupo-ficha .grupo-conta.completo{background:var(--verde-sup); color:var(--verde)}
+
+/* Sim ou não em dois botões. */
+.sim-nao{display:flex; gap:8px}
+.opcao-sn{flex:1; position:relative; cursor:pointer}
+.opcao-sn input{position:absolute; opacity:0; width:0; height:0}
+.opcao-sn span{display:flex; align-items:center; justify-content:center; min-height:44px; border:1px solid var(--traco); border-radius:var(--r);
+  background:var(--branco); font-weight:600; font-size:14px; color:var(--suave)}
+.opcao-sn input:checked + span{background:var(--indigo); border-color:var(--indigo); color:#fff}
+.opcao-sn input:focus-visible + span{box-shadow:var(--anel)}
+
+/* Opções de marcar na coleta: botões de toque, que acendem quando marcados. */
+.coleta-dialogo .caixas{display:flex; flex-wrap:wrap; gap:8px; margin:4px 0 8px}
+.coleta-dialogo .caixas .check{position:relative; padding:9px 13px; border:1px solid var(--traco); border-radius:999px; background:var(--branco);
+  font-size:13.5px; color:var(--tinta); line-height:1.25; min-height:40px}
+.coleta-dialogo .caixas .check i{display:none}
+.coleta-dialogo .caixas .check:has(input:checked){background:var(--indigo-sup); border-color:var(--indigo); color:var(--indigo-fte); font-weight:600}
+.coleta-dialogo .caixas .check:has(input:checked)::before{content:"✓"; margin-right:2px; font-weight:700}
+.coleta-dialogo .caixas .check:has(input:disabled){opacity:.45}
+.coleta-dialogo .caixas .check:has(input:focus-visible){box-shadow:var(--anel)}

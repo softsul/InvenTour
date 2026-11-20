@@ -179,8 +179,8 @@ function telaColeta(bool $noApp, bool $comEstado = true): string
              somem; no celular a barra corre de lado. */ ?>
     <nav class="abas-chamado abas-coleta" role="tablist" aria-label="Partes da ficha">
       <button type="button" role="tab" data-aba-coleta="ident" aria-selected="true"><?= icone('etiqueta') ?>Identificação</button>
-      <button type="button" role="tab" data-aba-coleta="local" aria-selected="false"<?= $naoMunicipio ?>><?= icone('mapa') ?>Localização<span class="conta-aba" id="aba-gps-sinal" hidden>GPS</span></button>
-      <button type="button" role="tab" data-aba-coleta="contato" aria-selected="false"<?= $naoMunicipio ?>><?= icone('whatsapp') ?>Contato</button>
+      <button type="button" role="tab" data-aba-coleta="local" aria-selected="false"><?= icone('mapa') ?>Localização<span class="conta-aba" id="aba-gps-sinal" hidden>GPS</span></button>
+      <button type="button" role="tab" data-aba-coleta="contato" aria-selected="false"><?= icone('whatsapp') ?>Contato</button>
       <button type="button" role="tab" data-aba-coleta="funcionamento" aria-selected="false"<?= $naoMunicipio ?>><?= icone('relogio') ?>Funcionamento</button>
       <button type="button" role="tab" data-aba-coleta="ficha" aria-selected="false"><?= icone('lista') ?><span id="aba-ficha-rotulo">Ficha</span><span class="conta-aba" id="aba-ficha-conta" hidden></span></button>
       <button type="button" role="tab" data-aba-coleta="acessibilidade" aria-selected="false"<?= $naoMunicipio ?>><?= icone('cadeirante') ?>Acessibilidade</button>
@@ -199,17 +199,28 @@ function telaColeta(bool $noApp, bool $comEstado = true): string
           <?= $campo('nome', 'Nome', 'c-12', ['attrs' => ['maxlength' => 180, 'required' => true], 'ajuda' => 'Nome fantasia ou denominação oficial, como está na fachada ou na placa.']) ?>
           <div class="campo c-12" id="c-tipo-campo"><label for="c-tipo">Tipo</label><div class="entrada"><select id="c-tipo" name="tipo_id"><option value="">Escolha</option></select></div></div>
           <?= $campo('nome_popular', 'Nome popular', 'c-6', ['attrs' => ['maxlength' => 180]]) ?>
-          <?= $campo('cnpj', 'CNPJ', 'c-6', ['attrs' => ['maxlength' => 18, 'autocapitalize' => 'characters', 'placeholder' => '00.000.000/0000-00'], 'onde' => $naoMunicipio, 'icone' => icone('predio'),
+          <?= $campo('cnpj', 'CNPJ', 'c-6', ['attrs' => ['maxlength' => 18, 'autocapitalize' => 'characters', 'placeholder' => '00.000.000/0000-00'], 'icone' => icone('predio'),
               'ajuda' => 'Inventarie também quem não tem CNPJ: o manual manda incluir todo estabelecimento aberto ao público.']) ?>
           <?= $campo('razao_social', 'Razão social', 'c-6', ['attrs' => ['maxlength' => 180], 'onde' => $naoMunicipio]) ?>
+          <?= $campo('cnae', 'Código CNAE', 'c-4', ['attrs' => ['maxlength' => 10, 'inputmode' => 'numeric', 'placeholder' => '5510801'], 'onde' => $naoMunicipio]) ?>
+          <?= $campo('atividade_economica', 'Atividade econômica', 'c-8', ['attrs' => ['maxlength' => 255], 'onde' => $naoMunicipio]) ?>
           <?= $campo('inscricao_municipal', 'Inscrição municipal', 'c-6', ['attrs' => ['maxlength' => 30], 'onde' => $naoMunicipio]) ?>
           <?= $campo('cadastur', 'Cadastur', 'c-6', ['attrs' => ['maxlength' => 30], 'onde' => $naoMunicipio]) ?>
           <?= $campo('cadastur_validade', 'Validade do Cadastur', 'c-6', ['tipo' => 'date', 'onde' => $naoMunicipio]) ?>
-          <?= $campo('natureza', 'Natureza', 'c-4', ['opcoes' => Inventario::NATUREZAS, 'vazio' => 'Não informada', 'onde' => $naoMunicipio]) ?>
+          <div class="campo c-4"<?= $naoMunicipio ?>><label for="c-natureza">Natureza</label>
+            <div class="entrada"><select id="c-natureza" name="natureza"><option value="">Não informada</option>
+              <?php foreach (Inventario::NATUREZAS as $k => $r): ?><option value="<?= e($k) ?>"><?= e($r) ?></option><?php endforeach; ?></select></div>
+            <div class="entrada outro-texto" data-outro-de="natureza" data-outro-valor="outra" hidden><input type="text" name="natureza_outra" maxlength="120" placeholder="Qual?" aria-label="Natureza: qual outra"></div></div>
+          <div class="campo c-4"<?= $naoMunicipio ?>><label for="c-tipo-organizacao">Tipo de organização</label>
+            <div class="entrada"><select id="c-tipo-organizacao" name="tipo_organizacao"><option value="">Não informado</option>
+              <?php foreach (Inventario::TIPOS_ORGANIZACAO as $k => $r): ?><option value="<?= e($k) ?>"><?= e($r) ?></option><?php endforeach; ?></select></div>
+            <div class="entrada outro-texto" data-outro-de="tipo_organizacao" data-outro-valor="outros" hidden><input type="text" name="tipo_organizacao_outro" maxlength="120" placeholder="Qual?" aria-label="Tipo de organização: qual outro"></div></div>
           <?= $campo('jurisdicao', 'Jurisdição', 'c-4', ['opcoes' => Inventario::JURISDICOES, 'vazio' => 'Não informada', 'onde' => $naoMunicipio]) ?>
-          <?= $campo('inicio_atividade', 'Início da atividade (ano)', 'c-4', ['tipo' => 'number', 'attrs' => ['min' => 1500, 'max' => date('Y'), 'inputmode' => 'numeric'], 'onde' => $naoMunicipio]) ?>
+          <?= $campo('inicio_atividade', 'Início da atividade', 'c-4', ['attrs' => ['maxlength' => 10, 'inputmode' => 'numeric', 'placeholder' => 'dd/mm/aaaa ou o ano', 'data-data-ou-ano' => true], 'onde' => $naoMunicipio]) ?>
           <?= $campo('rede', 'Rede, holding ou franquia', 'c-8', ['attrs' => ['maxlength' => 120], 'onde' => $naoMunicipio]) ?>
-          <?= $campo('funcionarios', 'Funcionários', 'c-4', ['tipo' => 'number', 'attrs' => ['min' => 0, 'inputmode' => 'numeric'], 'onde' => $naoMunicipio]) ?>
+          <?= $campo('funcionarios', 'Funcionários permanentes', 'c-4', ['tipo' => 'number', 'attrs' => ['min' => 0, 'inputmode' => 'numeric'], 'onde' => $naoMunicipio]) ?>
+          <?= $campo('funcionarios_temporarios', 'Funcionários temporários', 'c-4', ['tipo' => 'number', 'attrs' => ['min' => 0, 'inputmode' => 'numeric'], 'onde' => $naoMunicipio]) ?>
+          <?= $campo('funcionarios_pcd', 'Pessoas com deficiência (%)', 'c-4', ['attrs' => ['maxlength' => 6, 'inputmode' => 'decimal'], 'onde' => $naoMunicipio, 'ajuda' => 'Entre os funcionários.']) ?>
         </div>
       </section>
 
@@ -229,25 +240,27 @@ function telaColeta(bool $noApp, bool $comEstado = true): string
         <div class="endereco-achado" id="c-endereco" hidden><span id="c-endereco-texto"></span>
           <button type="button" class="botao mini" id="c-usar-endereco" hidden><?= icone('check') ?>Usar este endereço</button></div>
         <div class="grade">
-          <?= $campo('zona', 'Zona', 'c-4', ['opcoes' => Inventario::ZONAS, 'vazio' => 'Não informada']) ?>
+          <?= $campo('zona', 'Zona', 'c-4', ['opcoes' => Inventario::ZONAS, 'vazio' => 'Não informada', 'onde' => $naoMunicipio]) ?>
           <?= $campo('extensao_km', 'Extensão no município (km)', 'c-4', ['attrs' => ['inputmode' => 'decimal'], 'onde' => ' data-so-linear']) ?>
           <?= $campo('cep', 'CEP', 'c-4', ['attrs' => ['maxlength' => 9, 'inputmode' => 'numeric', 'placeholder' => '00000-000']]) ?>
           <?= $campo('logradouro', 'Rua, rodovia ou linha', 'c-8', ['attrs' => ['maxlength' => 200]]) ?>
           <?= $campo('numero', 'Número', 'c-4', ['attrs' => ['maxlength' => 20, 'inputmode' => 'numeric']]) ?>
-          <?= $campo('bairro', 'Bairro ou distrito', 'c-6', ['attrs' => ['maxlength' => 120]]) ?>
+          <?= $campo('bairro', 'Bairro ou localidade', 'c-6', ['attrs' => ['maxlength' => 120]]) ?>
+          <?= $campo('distrito', 'Distrito', 'c-6', ['attrs' => ['maxlength' => 120]]) ?>
           <?= $campo('complemento', 'Complemento', 'c-6', ['attrs' => ['maxlength' => 80]]) ?>
           <?= $campo('plus_code', 'Plus code', 'c-6', ['attrs' => ['maxlength' => 16, 'placeholder' => 'Q8FF+VM', 'autocapitalize' => 'characters']]) ?>
-          <?= $campo('referencia', 'Ponto de referência', 'c-6', ['attrs' => ['maxlength' => 255, 'placeholder' => 'Em frente à praça, depois da ponte...']]) ?>
+          <?= $campo('referencia', 'Ponto de referência', 'c-6', ['attrs' => ['maxlength' => 255, 'placeholder' => 'Em frente à praça, depois da ponte...'], 'onde' => $naoMunicipio]) ?>
           <?= $campo('maps_url', 'Link do mapa', 'c-12', ['tipo' => 'url', 'attrs' => ['maxlength' => 500, 'autocapitalize' => 'none', 'placeholder' => 'https://maps.app.goo.gl/...'], 'icone' => icone('mapa')]) ?>
-          <?= $campo('sinalizacao_acesso', 'Sinalização de acesso', 'c-6', ['opcoes' => ['1' => 'Sim', '0' => 'Não'], 'vazio' => 'Não informada']) ?>
-          <?= $campo('sinalizacao_turistica', 'Sinalização turística', 'c-6', ['opcoes' => ['1' => 'Sim', '0' => 'Não'], 'vazio' => 'Não informada']) ?>
+          <?= $campo('sinalizacao_acesso', 'Sinalização de acesso', 'c-6', ['opcoes' => ['1' => 'Sim', '0' => 'Não'], 'vazio' => 'Não informada', 'onde' => $naoMunicipio]) ?>
+          <?= $campo('sinalizacao_turistica', 'Sinalização turística', 'c-6', ['opcoes' => ['1' => 'Sim', '0' => 'Não'], 'vazio' => 'Não informada', 'onde' => $naoMunicipio]) ?>
         </div>
       </section>
 
       <section class="painel-coleta" data-painel-coleta="contato" hidden>
         <div class="grade">
-          <?= $campo('telefone', 'Telefone', 'c-6', ['tipo' => 'tel', 'attrs' => ['inputmode' => 'tel', 'placeholder' => '(46) 3220-0000', 'data-telefone' => true]]) ?>
-          <?= $campo('whatsapp', 'WhatsApp', 'c-6', ['tipo' => 'tel', 'attrs' => ['inputmode' => 'tel', 'placeholder' => '(46) 99999-0000', 'data-telefone' => true], 'icone' => icone('whatsapp')]) ?>
+          <?= $campo('telefone', 'Telefone', 'c-4', ['tipo' => 'tel', 'attrs' => ['inputmode' => 'tel', 'placeholder' => '(46) 3220-0000', 'data-telefone' => true]]) ?>
+          <?= $campo('ramal', 'Ramal', 'c-3', ['attrs' => ['maxlength' => 10, 'inputmode' => 'numeric']]) ?>
+          <?= $campo('whatsapp', 'WhatsApp', 'c-5', ['tipo' => 'tel', 'attrs' => ['inputmode' => 'tel', 'placeholder' => '(46) 99999-0000', 'data-telefone' => true], 'icone' => icone('whatsapp')]) ?>
           <?= $campo('email', 'E-mail', 'c-12', ['tipo' => 'email', 'attrs' => ['maxlength' => 150, 'autocapitalize' => 'none', 'inputmode' => 'email'], 'icone' => icone('emails')]) ?>
           <?= $campo('site', 'Site', 'c-6', ['tipo' => 'url', 'attrs' => ['maxlength' => 255, 'placeholder' => 'https://', 'autocapitalize' => 'none']]) ?>
           <?= $campo('instagram', 'Instagram', 'c-6', ['attrs' => ['maxlength' => 100, 'placeholder' => '@perfil', 'autocapitalize' => 'none']]) ?>
@@ -278,6 +291,9 @@ function telaColeta(bool $noApp, bool $comEstado = true): string
       </section>
 
       <section class="painel-coleta" data-painel-coleta="acessibilidade" hidden>
+        <div class="grade">
+          <?= $campo('acessibilidade_possui', 'Possui alguma facilidade para pessoas com deficiência ou mobilidade reduzida?', 'c-12', ['opcoes' => ['1' => 'Sim', '0' => 'Não'], 'vazio' => 'Não informado']) ?>
+        </div>
         <p class="ajuda">Os subitens da seção 6 da ficha oficial. O portal resume em cinco selos simples para o turista.</p>
         <div id="c-acess"></div>
       </section>

@@ -55,38 +55,53 @@ final class FichaFormulario
             return $t && in_array($t, array_map('intval', array_column(Inventario::tipos($fichaId), 'id')), true) ? $t : null;
         });
         $set('nome_popular', fn () => $texto('nome_popular', 180));
+        // Endereço, contato, CNPJ e coordenada valem também para o município
+        // (A1: a prefeitura; A6: a Secretaria Municipal de Educação).
+        $set('cnpj', fn () => Cnpj::normalizar((string) $texto('cnpj', 30)) ?: null);
+        $set('cep', fn () => strlen($cep = soDigitos((string) $texto('cep', 12))) === 8 ? $cep : null);
+        $set('logradouro', fn () => $texto('logradouro', 200));
+        $set('numero', fn () => $texto('numero', 20));
+        $set('complemento', fn () => $texto('complemento', 80));
+        $set('bairro', fn () => $texto('bairro', 120));
+        $set('distrito', fn () => $texto('distrito', 120));
+        $set('latitude', fn () => ($la = $numero('latitude')) !== null && abs($la) <= 90 ? round($la, 7) : null);
+        $set('longitude', fn () => ($lo = $numero('longitude')) !== null && abs($lo) <= 180 ? round($lo, 7) : null);
+        $set('plus_code', fn () => PlusCode::valido($pc = strtoupper((string) $texto('plus_code', 16))) ? $pc : null);
+        $set('maps_url', fn () => $texto('maps_url', 500));
+        $set('telefone', fn () => telefoneParaBanco($texto('telefone', 30)));
+        $set('ramal', fn () => ($r = soDigitos((string) $texto('ramal', 20))) !== '' ? substr($r, 0, 10) : null);
+        $set('whatsapp', fn () => telefoneParaBanco($texto('whatsapp', 30)));
+        $set('email', fn () => ($em = mb_strtolower((string) $texto('email', 150))) !== '' ? $em : null);
+        $set('site', fn () => $texto('site', 255));
+        $set('instagram', fn () => ($ig = ltrim((string) $texto('instagram', 100), '@')) !== '' ? $ig : null);
         if (!$municipio) {
             $set('razao_social', fn () => $texto('razao_social', 180));
-            $set('cnpj', fn () => Cnpj::normalizar((string) $texto('cnpj', 30)) ?: null);
+            $set('cnae', fn () => ($c = preg_replace('/[^0-9]/', '', (string) $texto('cnae', 20))) !== '' ? substr($c, 0, 7) : null);
+            $set('atividade_economica', fn () => $texto('atividade_economica', 255));
             $set('inscricao_municipal', fn () => $texto('inscricao_municipal', 30));
             $set('cadastur', fn () => $texto('cadastur', 30));
             $set('cadastur_validade', fn () => preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $texto('cadastur_validade', 10)) ? $texto('cadastur_validade', 10) : null);
             $set('natureza', fn () => $doCatalogo('natureza', Inventario::NATUREZAS));
+            $set('natureza_outra', fn () => $doCatalogo('natureza', Inventario::NATUREZAS) === 'outra' ? $texto('natureza_outra', 120) : null);
+            $set('tipo_organizacao', fn () => $doCatalogo('tipo_organizacao', Inventario::TIPOS_ORGANIZACAO));
+            $set('tipo_organizacao_outro', fn () => $doCatalogo('tipo_organizacao', Inventario::TIPOS_ORGANIZACAO) === 'outros' ? $texto('tipo_organizacao_outro', 120) : null);
             $set('jurisdicao', fn () => $doCatalogo('jurisdicao', Inventario::JURISDICOES));
             $set('rede', fn () => $texto('rede', 120));
-            $set('inicio_atividade', fn () => ($a = (int) $numero('inicio_atividade')) >= 1500 && $a <= (int) date('Y') ? $a : null);
+            // Início da atividade: a ficha pede a data; muita gente sabe só o ano.
+            if ($veio('inicio_atividade')) {
+                [$n['inicio_atividade'], $n['inicio_atividade_data']] = self::anoOuData((string) $texto('inicio_atividade', 20));
+            }
             $set('funcionarios', fn () => ($f = (int) $numero('funcionarios')) > 0 ? min($f, 65000) : null);
+            $set('funcionarios_temporarios', fn () => ($f = (int) $numero('funcionarios_temporarios')) > 0 ? min($f, 65000) : null);
+            $set('funcionarios_pcd', fn () => ($f = $numero('funcionarios_pcd')) !== null && $f >= 0 && $f <= 100 ? round($f, 2) : null);
             $set('zona', fn () => $doCatalogo('zona', Inventario::ZONAS));
-            $set('cep', fn () => strlen($cep = soDigitos((string) $texto('cep', 12))) === 8 ? $cep : null);
-            $set('logradouro', fn () => $texto('logradouro', 200));
-            $set('numero', fn () => $texto('numero', 20));
-            $set('complemento', fn () => $texto('complemento', 80));
-            $set('bairro', fn () => $texto('bairro', 120));
-            $set('latitude', fn () => ($la = $numero('latitude')) !== null && abs($la) <= 90 ? round($la, 7) : null);
-            $set('longitude', fn () => ($lo = $numero('longitude')) !== null && abs($lo) <= 180 ? round($lo, 7) : null);
-            $set('plus_code', fn () => PlusCode::valido($pc = strtoupper((string) $texto('plus_code', 16))) ? $pc : null);
-            $set('maps_url', fn () => $texto('maps_url', 500));
             $set('referencia', fn () => $texto('referencia', 255));
             $set('sinalizacao_acesso', fn () => $simNao('sinalizacao_acesso'));
             $set('sinalizacao_turistica', fn () => $simNao('sinalizacao_turistica'));
+            $set('acessibilidade_possui', fn () => $simNao('acessibilidade_possui'));
             if ($ficha['forma'] === 'linear') {
                 $set('extensao_km', fn () => $numero('extensao_km'));
             }
-            $set('telefone', fn () => telefoneParaBanco($texto('telefone', 30)));
-            $set('whatsapp', fn () => telefoneParaBanco($texto('whatsapp', 30)));
-            $set('email', fn () => ($em = mb_strtolower((string) $texto('email', 150))) !== '' ? $em : null);
-            $set('site', fn () => $texto('site', 255));
-            $set('instagram', fn () => ($ig = ltrim((string) $texto('instagram', 100), '@')) !== '' ? $ig : null);
             $horarioVeio = !$parcial || array_intersect(self::CHAVES_HORARIO, array_keys($p));
             if ($horarioVeio) {
                 $h = ['24h' => !empty($p['h24']), 'feriados' => $texto('h_feriados', 200), 'temporada' => $texto('h_temporada', 200)];
@@ -122,14 +137,14 @@ final class FichaFormulario
         $esp = [];
         $at = (array) ($p['at'] ?? []);
         $aus = (array) ($p['aus'] ?? []);
+        $outro = (array) ($p['outro'] ?? []);
         foreach (Inventario::atributos($fichaId) as $lista) {
             foreach ($lista as $a) {
                 $aid = (int) $a['id'];
-                if ($parcial && !array_key_exists($aid, $at) && !array_key_exists($aid, $aus)
-                    && !array_key_exists((string) $aid, $at) && !array_key_exists((string) $aid, $aus)) {
+                if ($parcial && !array_key_exists($aid, $at) && !array_key_exists($aid, $aus) && !array_key_exists($aid, $outro)) {
                     continue;
                 }
-                $esp[$aid] = self::valorDoAtributo($a, $at[$aid] ?? null, $aus[$aid] ?? null);
+                $esp[$aid] = self::valorDoAtributo($a, $at[$aid] ?? null, $aus[$aid] ?? null, $outro[$aid] ?? null);
             }
         }
 
@@ -160,43 +175,159 @@ final class FichaFormulario
         return ['nucleo' => $n, 'especificos' => $esp, 'acess' => $acess, 'facilidades' => $facilidades, 'erros' => $erros];
     }
 
-    /** Um campo específico: o valor bruto do formulário vira texto ou número. */
-    public static function valorDoAtributo(array $a, mixed $bruto, mixed $ausencia): array
+    /**
+     * Início da atividade: "2015", "10/05/2015" ou "2015-05-10". Devolve
+     * [ano, data completa ou null].
+     *
+     * @return array{0:?int,1:?string}
+     */
+    public static function anoOuData(string $v): array
     {
+        $v = trim($v);
+        $data = null;
+        if (preg_match('#^(\d{1,2})/(\d{1,2})/(\d{4})$#', $v, $m) && checkdate((int) $m[2], (int) $m[1], (int) $m[3])) {
+            $data = sprintf('%04d-%02d-%02d', $m[3], $m[2], $m[1]);
+        } elseif (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $v, $m) && checkdate((int) $m[2], (int) $m[3], (int) $m[1])) {
+            $data = $v;
+        }
+        $ano = $data ? (int) substr($data, 0, 4) : (preg_match('/^\d{4}$/', $v) ? (int) $v : null);
+        if ($ano === null || $ano < 1500 || $ano > (int) date('Y')) {
+            return [null, null];
+        }
+        return [$ano, $data];
+    }
+
+    /** Uma data do formulário (aaaa-mm-dd ou dd/mm/aaaa) no formato do banco, ou null. */
+    public static function data(mixed $v): ?string
+    {
+        $v = trim(is_scalar($v) ? (string) $v : '');
+        if (preg_match('#^(\d{1,2})/(\d{1,2})/(\d{4})$#', $v, $m) && checkdate((int) $m[2], (int) $m[1], (int) $m[3])) {
+            return sprintf('%04d-%02d-%02d', $m[3], $m[2], $m[1]);
+        }
+        return preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $v, $m) && checkdate((int) $m[2], (int) $m[3], (int) $m[1]) ? $v : null;
+    }
+
+    /**
+     * Um campo específico: o valor bruto do formulário vira texto ou número,
+     * mais o texto do "Outros ____" quando o campo tem essa opção.
+     *
+     * @return array{texto:?string,numero:?float,ausencia:?string,outro:?string}
+     */
+    public static function valorDoAtributo(array $a, mixed $bruto, mixed $ausencia, mixed $outro = null): array
+    {
+        $cfg = (array) ($a['config'] ?? []);
         $aus = is_scalar($ausencia) && array_key_exists((string) $ausencia, Inventario::AUSENCIAS) ? (string) $ausencia : null;
-        $v = ['texto' => null, 'numero' => null, 'ausencia' => $aus];
+        $v = ['texto' => null, 'numero' => null, 'ausencia' => $aus, 'outro' => null];
         switch ($a['tipo']) {
             case 'numero':
                 $n = str_replace(',', '.', trim(is_scalar($bruto) ? (string) $bruto : ''));
-                $v['numero'] = is_numeric($n) ? (float) $n : null;
+                $v['numero'] = is_numeric($n) && abs((float) $n) < 1e12 ? (float) $n : null;
                 break;
             case 'sim_nao':
                 $v['numero'] = $bruto === '1' || $bruto === 1 ? 1.0 : ($bruto === '0' || $bruto === 0 ? 0.0 : null);
                 break;
+            case 'data':
+                $v['texto'] = self::data($bruto);
+                break;
             case 'multipla':
-                $marcadas = array_values(array_intersect($a['opcoes'], array_map('strval', (array) $bruto)));
+                $marcadas = array_values(array_intersect($a['opcoes'], array_map('strval', array_filter((array) $bruto, 'is_scalar'))));
+                if (!empty($cfg['maximo'])) {
+                    $marcadas = array_slice($marcadas, 0, (int) $cfg['maximo']);
+                }
                 $v['texto'] = $marcadas ? json_encode($marcadas, JSON_UNESCAPED_UNICODE) : null;
                 break;
             case 'escolha':
                 $v['texto'] = is_scalar($bruto) && in_array((string) $bruto, $a['opcoes'], true) ? (string) $bruto : null;
                 break;
             case 'tabela':
-                $linhas = [];
-                foreach ((array) $bruto as $linha) {
-                    $linha = array_map(fn ($c) => mb_substr(trim(is_scalar($c) ? (string) $c : ''), 0, 200), array_slice(array_values((array) $linha), 0, count($a['opcoes'])));
-                    if (implode('', $linha) !== '') {
-                        $linhas[] = $linha;
-                    }
-                }
-                $v['texto'] = $linhas ? json_encode($linhas, JSON_UNESCAPED_UNICODE) : null;
+                $v['texto'] = self::linhasDaTabela($a, $bruto);
                 break;
             default:
                 $v['texto'] = ($t = mb_substr(trim(is_scalar($bruto) ? (string) $bruto : ''), 0, $a['tipo'] === 'texto_longo' ? 10000 : 500)) !== '' ? $t : null;
+        }
+        // O "Outros ____": só vale com a opção Outros/Outras marcada.
+        if (!empty($cfg['outros']) && $v['texto'] !== null && in_array($a['tipo'], ['multipla', 'escolha'], true)) {
+            $marcou = $a['tipo'] === 'multipla' ? (json_decode($v['texto'], true) ?: []) : [$v['texto']];
+            if (array_filter($marcou, fn ($o) => self::ehOutros((string) $o))) {
+                $v['outro'] = ($t = mb_substr(trim(is_scalar($outro) ? (string) $outro : ''), 0, 255)) !== '' ? $t : null;
+            }
         }
         if ($v['texto'] !== null || $v['numero'] !== null) {
             $v['ausencia'] = null;
         }
         return $v;
+    }
+
+    /** A opção que abre o texto do "Outros ____" (Outros, Outras, Outro, Outra). */
+    public static function ehOutros(string $opcao): bool
+    {
+        return (bool) preg_match('/^outr[oa]s?\b/iu', trim($opcao));
+    }
+
+    /**
+     * As linhas de uma tabela, com cada célula conforme o tipo da coluna
+     * (texto, número, sim/não, escolha ou meses). Linha vazia é descartada.
+     */
+    private static function linhasDaTabela(array $a, mixed $bruto): ?string
+    {
+        $colunas = self::colunas($a);
+        $linhas = [];
+        foreach ((array) $bruto as $linha) {
+            $linha = array_values((array) $linha);
+            $celulas = [];
+            $algo = false;
+            foreach ($colunas as $k => $col) {
+                $c = $linha[$k] ?? '';
+                switch ($col['tipo']) {
+                    case 'meses':
+                        $c = array_values(array_intersect(Inventario::MESES, array_map('strval', array_filter((array) $c, 'is_scalar'))));
+                        $algo = $algo || $c;
+                        break;
+                    case 'numero':
+                        $c = str_replace(',', '.', trim(is_scalar($c) ? (string) $c : ''));
+                        $c = is_numeric($c) ? $c : '';
+                        $algo = $algo || $c !== '';
+                        break;
+                    case 'sim_nao':
+                        $c = in_array((string) (is_scalar($c) ? $c : ''), ['1', '0'], true) ? (string) $c : '';
+                        $algo = $algo || $c !== '';
+                        break;
+                    case 'escolha':
+                        $c = is_scalar($c) && in_array((string) $c, $col['opcoes'], true) ? (string) $c : '';
+                        $algo = $algo || $c !== '';
+                        break;
+                    default:
+                        $c = mb_substr(trim(is_scalar($c) ? (string) $c : ''), 0, 200);
+                        $algo = $algo || $c !== '';
+                }
+                $celulas[] = $c;
+            }
+            // Linha sugerida pela ficha (Auditório, Salas modulares...) só com o nome não é dado.
+            $sugeridas = array_map('strval', (array) ($a['config']['linhas'] ?? []));
+            if ($algo && $sugeridas && in_array((string) ($celulas[0] ?? ''), $sugeridas, true)
+                && !array_filter(array_slice($celulas, 1), fn ($c) => $c !== '' && $c !== [])) {
+                $algo = false;
+            }
+            if ($algo) {
+                $linhas[] = $celulas;
+            }
+        }
+        return $linhas ? json_encode($linhas, JSON_UNESCAPED_UNICODE) : null;
+    }
+
+    /**
+     * As colunas da tabela, com tipo: a configuração do campo quando tem; se
+     * não, as opções (nomes), todas de texto.
+     *
+     * @return list<array{rotulo:string,tipo:string,opcoes:list<string>}>
+     */
+    public static function colunas(array $a): array
+    {
+        $cfg = (array) ($a['config'] ?? []);
+        $fonte = !empty($cfg['colunas']) ? (array) $cfg['colunas'] : (array) $a['opcoes'];
+        return array_map(fn ($c) => is_array($c)
+            ? ['rotulo' => (string) ($c['rotulo'] ?? ''), 'tipo' => (string) ($c['tipo'] ?? 'texto'), 'opcoes' => array_values((array) ($c['opcoes'] ?? []))]
+            : ['rotulo' => (string) $c, 'tipo' => 'texto', 'opcoes' => []], array_values($fonte));
     }
 
     /**
@@ -209,11 +340,11 @@ final class FichaFormulario
         $pdo = Database::conexao();
         $eid = Empresa::id();
         $del = $pdo->prepare('DELETE FROM inventario_item_atributos WHERE item_id = ? AND atributo_id = ? AND empresa_id = ?');
-        $ins = $pdo->prepare('INSERT INTO inventario_item_atributos (item_id, atributo_id, empresa_id, valor_texto, valor_numero, ausencia) VALUES (?, ?, ?, ?, ?, ?)');
+        $ins = $pdo->prepare('INSERT INTO inventario_item_atributos (item_id, atributo_id, empresa_id, valor_texto, valor_numero, valor_outro, ausencia) VALUES (?, ?, ?, ?, ?, ?, ?)');
         foreach ($especificos as $aid => $v) {
             $del->execute([$itemId, $aid, $eid]);
             if ($v['texto'] !== null || $v['numero'] !== null || $v['ausencia'] !== null) {
-                $ins->execute([$itemId, $aid, $eid, $v['texto'], $v['numero'], $v['ausencia']]);
+                $ins->execute([$itemId, $aid, $eid, $v['texto'], $v['numero'], $v['outro'] ?? null, $v['ausencia']]);
             }
         }
         $delA = $pdo->prepare('DELETE FROM inventario_item_acessibilidade WHERE item_id = ? AND chave = ? AND empresa_id = ?');
@@ -240,8 +371,12 @@ final class FichaFormulario
             $lista = [];
             foreach (Inventario::atributos((int) $fid) as $grupo => $itens) {
                 foreach ($itens as $a) {
+                    $cfg = (array) ($a['config'] ?? []);
                     $lista[] = ['id' => (int) $a['id'], 'grupo' => (string) $grupo, 'rotulo' => (string) $a['rotulo'], 'tipo' => (string) $a['tipo'],
-                                'opcoes' => array_values($a['opcoes']), 'obrigatorio' => (bool) $a['obrigatorio'], 'ajuda' => $a['ajuda'] ?: null];
+                                'opcoes' => array_values($a['opcoes']), 'obrigatorio' => (bool) $a['obrigatorio'], 'ajuda' => $a['ajuda'] ?: null,
+                                'outros' => !empty($cfg['outros']), 'maximo' => !empty($cfg['maximo']) ? (int) $cfg['maximo'] : null,
+                                'colunas' => $a['tipo'] === 'tabela' ? self::colunas($a) : null,
+                                'linhas' => !empty($cfg['linhas']) ? array_values((array) $cfg['linhas']) : null];
                 }
             }
             if ($lista) {
@@ -280,7 +415,7 @@ final class FichaFormulario
         $marcas = implode(',', array_fill(0, count($ids), '?'));
         $tipos = $pdo->query('SELECT id, tipo FROM inventario_atributos')->fetchAll(PDO::FETCH_KEY_PAIR);
         $vals = $acs = $facs = [];
-        $q = $pdo->prepare("SELECT item_id, atributo_id, valor_texto, valor_numero, ausencia FROM inventario_item_atributos WHERE empresa_id = ? AND item_id IN ({$marcas})");
+        $q = $pdo->prepare("SELECT item_id, atributo_id, valor_texto, valor_numero, valor_outro, ausencia FROM inventario_item_atributos WHERE empresa_id = ? AND item_id IN ({$marcas})");
         $q->execute([$eid, ...$ids]);
         foreach ($q as $l) {
             $vals[(int) $l['item_id']][] = $l;
@@ -300,13 +435,21 @@ final class FichaFormulario
         foreach ($itens as $i) {
             $id = (int) $i['id'];
             $f = [];
-            foreach (['nome', 'nome_popular', 'razao_social', 'inscricao_municipal', 'cadastur', 'cadastur_validade', 'natureza', 'jurisdicao', 'rede',
-                      'inicio_atividade', 'funcionarios', 'zona', 'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'plus_code', 'maps_url',
+            foreach (['nome', 'nome_popular', 'razao_social', 'inscricao_municipal', 'cadastur', 'cadastur_validade', 'natureza', 'natureza_outra',
+                      'tipo_organizacao', 'tipo_organizacao_outro', 'cnae', 'atividade_economica', 'jurisdicao', 'rede',
+                      'inicio_atividade', 'funcionarios', 'funcionarios_temporarios', 'zona', 'cep', 'logradouro', 'numero', 'complemento', 'bairro',
+                      'distrito', 'ramal', 'plus_code', 'maps_url', 'acessibilidade_possui',
                       'referencia', 'sinalizacao_acesso', 'sinalizacao_turistica', 'email', 'site', 'capacidade_publico', 'conservacao',
                       'descricao_tecnica', 'descricao_promocional', 'referencias', 'tipo_id', 'latitude', 'longitude'] as $c) {
                 if (isset($i[$c]) && $i[$c] !== '') {
                     $f[$c] = (string) $i[$c];
                 }
+            }
+            if (!empty($i['inicio_atividade_data'])) {
+                $f['inicio_atividade'] = date('d/m/Y', strtotime((string) $i['inicio_atividade_data']));
+            }
+            if (isset($i['funcionarios_pcd']) && $i['funcionarios_pcd'] !== null) {
+                $f['funcionarios_pcd'] = rtrim(rtrim(number_format((float) $i['funcionarios_pcd'], 2, ',', ''), '0'), ',');
             }
             if (isset($f['cep']) && strlen($f['cep']) === 8) {
                 $f['cep'] = substr($f['cep'], 0, 5) . '-' . substr($f['cep'], 5);
@@ -358,6 +501,9 @@ final class FichaFormulario
                 $tipo = $tipos[(int) $aid] ?? 'texto';
                 if ($v['ausencia']) {
                     $f['aus'][$aid] = (string) $v['ausencia'];
+                }
+                if ($v['valor_outro'] !== null && $v['valor_outro'] !== '') {
+                    $f['outro'][$aid] = (string) $v['valor_outro'];
                 }
                 if ($v['valor_numero'] !== null) {
                     $f['at'][$aid] = $tipo === 'sim_nao' ? ((float) $v['valor_numero'] === 1.0 ? '1' : '0')

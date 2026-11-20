@@ -42,6 +42,9 @@ final class Inventario
     public const AUSENCIAS = ['na' => 'NA, não se aplica', 'ni' => 'NI, não informou', 'ne' => 'NE, não existe'];
     public const PAGAMENTOS = ['Dinheiro', 'PIX', 'Cartão de crédito', 'Cartão de débito', 'Tíquete', 'Gratuito'];
     public const IDIOMAS = ['Português', 'Inglês', 'Espanhol', 'Libras', 'Outros'];
+    public const TIPOS_ORGANIZACAO = ['associacao' => 'Associação', 'sindicato' => 'Sindicato', 'cooperativa' => 'Cooperativa', 'sistema_s' => 'Sistema S',
+                                      'empresa' => 'Empresa', 'outros' => 'Outros'];
+    public const MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
     public const DIAS = ['seg' => 'Segunda', 'ter' => 'Terça', 'qua' => 'Quarta', 'qui' => 'Quinta', 'sex' => 'Sexta', 'sab' => 'Sábado', 'dom' => 'Domingo'];
 
     /**
@@ -109,6 +112,7 @@ final class Inventario
         $grupos = [];
         foreach ($q->fetchAll() as $a) {
             $a['opcoes'] = json_decode((string) $a['opcoes'], true) ?: [];
+            $a['config'] = json_decode((string) ($a['config'] ?? ''), true) ?: [];
             $grupos[$a['grupo']][] = $a;
         }
         return $grupos;
@@ -210,10 +214,10 @@ final class Inventario
                 $id = (int) $pdo->lastInsertId();
             }
             $pdo->prepare('DELETE FROM inventario_item_atributos WHERE item_id = ? AND empresa_id = ?')->execute([$id, $eid]);
-            $ins = $pdo->prepare('INSERT INTO inventario_item_atributos (item_id, atributo_id, empresa_id, valor_texto, valor_numero, ausencia) VALUES (?, ?, ?, ?, ?, ?)');
+            $ins = $pdo->prepare('INSERT INTO inventario_item_atributos (item_id, atributo_id, empresa_id, valor_texto, valor_numero, valor_outro, ausencia) VALUES (?, ?, ?, ?, ?, ?, ?)');
             foreach ($especificos as $aid => $v) {
                 if ($v['texto'] !== null || $v['numero'] !== null || $v['ausencia'] !== null) {
-                    $ins->execute([$id, $aid, $eid, $v['texto'], $v['numero'], $v['ausencia']]);
+                    $ins->execute([$id, $aid, $eid, $v['texto'], $v['numero'], $v['outro'] ?? null, $v['ausencia']]);
                 }
             }
             $pdo->prepare('DELETE FROM inventario_item_acessibilidade WHERE item_id = ? AND empresa_id = ?')->execute([$id, $eid]);

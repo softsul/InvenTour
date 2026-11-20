@@ -129,6 +129,9 @@ class Cnpj
             'cnae_principal'     => trim(((string) ($r['cnae_fiscal'] ?? '')) . ' ' . ($r['cnae_fiscal_descricao'] ?? '')) ?: null,
             'situacao_cadastral' => self::limpar($r['descricao_situacao_cadastral'] ?? null),
             'inicio_atividade'   => preg_match('/^(\d{4})-/', (string) ($r['data_inicio_atividade'] ?? ''), $m) ? (int) $m[1] : null,
+            'inicio_atividade_data' => preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', (string) ($r['data_inicio_atividade'] ?? ''), $m) ? "{$m[3]}/{$m[2]}/{$m[1]}" : null,
+            'cnae'               => isset($r['cnae_fiscal']) ? str_pad((string) $r['cnae_fiscal'], 7, '0', STR_PAD_LEFT) : null,
+            'atividade_economica' => self::limpar($r['cnae_fiscal_descricao'] ?? null),
         ];
     }
 
@@ -153,6 +156,9 @@ class Cnpj
                 : null,
             'situacao_cadastral' => self::limpar($r['situacao'] ?? null),
             'inicio_atividade'   => preg_match('#/(\d{4})$#', (string) ($r['abertura'] ?? ''), $m) ? (int) $m[1] : null,
+            'inicio_atividade_data' => preg_match('#^\d{2}/\d{2}/\d{4}$#', (string) ($r['abertura'] ?? '')) ? (string) $r['abertura'] : null,
+            'cnae'               => isset($r['atividade_principal'][0]['code']) ? (self::digitos($r['atividade_principal'][0]['code']) ?: null) : null,
+            'atividade_economica' => self::limpar($r['atividade_principal'][0]['text'] ?? null),
         ];
     }
 

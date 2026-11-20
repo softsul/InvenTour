@@ -6520,3 +6520,129 @@ window.inventourMarcarNoFiltro = function (form, campo, ids, nome) {
     });
   });
 })();
+
+/*
+ * Campos da ficha (painel e coleta): o texto do "Outros ____" aparece só com
+ * a opção Outros/Outras marcada; "marque até N" trava as outras caixas ao
+ * chegar no limite; o início da atividade aceita dd/mm/aaaa ou só o ano.
+ * Softsul Software. O mesmo código está no inventour.js e no coleta.js (o
+ * app de campo não carrega o inventour.js); repetir não faz mal.
+ */
+(function () {
+  'use strict';
+  function ehOutros(t) { return /^outr[oa]s?(\s|$|\W)/i.test(String(t || '').trim()); }
+  function atualizarOutros(campo) {
+    if (!campo) { return; }
+    campo.querySelectorAll('.outro-texto[data-outro-at]').forEach(function (caixa) {
+      var marcado = Array.prototype.some.call(campo.querySelectorAll('input[type=checkbox]:checked'), function (c) { return ehOutros(c.value); })
+        || Array.prototype.some.call(campo.querySelectorAll('select:not(.ausencia)'), function (s) { return ehOutros(s.value); });
+      caixa.hidden = !marcado;
+    });
+    campo.querySelectorAll('.outro-texto[data-outro-de]').forEach(function (caixa) {
+      var sel = campo.querySelector('select[name="' + caixa.getAttribute('data-outro-de') + '"]');
+      caixa.hidden = !sel || sel.value !== caixa.getAttribute('data-outro-valor');
+    });
+  }
+  function limitar(grupo) {
+    var max = parseInt(grupo.getAttribute('data-maximo'), 10) || 0;
+    if (!max) { return; }
+    var n = grupo.querySelectorAll('input[type=checkbox]:checked').length;
+    grupo.querySelectorAll('input[type=checkbox]').forEach(function (c) { if (!c.checked) { c.disabled = n >= max; } });
+  }
+  function dataOuAno(el) {
+    var d = el.value.replace(/\D/g, '').slice(0, 8);
+    el.value = d.length <= 4 ? d : d.length <= 6 ? d.slice(0, 2) + '/' + d.slice(2) : d.slice(0, 2) + '/' + d.slice(2, 4) + '/' + d.slice(4);
+  }
+  window.inventourCamposFicha = function (raiz) {
+    (raiz || document).querySelectorAll('.outro-texto').forEach(function (c) { atualizarOutros(c.closest('.campo')); });
+    (raiz || document).querySelectorAll('[data-maximo]').forEach(limitar);
+  };
+  document.addEventListener('change', function (ev) {
+    if (!ev.target.closest) { return; }
+    atualizarOutros(ev.target.closest('.campo'));
+    var g = ev.target.closest('[data-maximo]');
+    if (g) { limitar(g); }
+  });
+  document.addEventListener('input', function (ev) {
+    if (ev.target.matches && ev.target.matches('[data-data-ou-ano]')) { dataOuAno(ev.target); }
+  });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { window.inventourCamposFicha(); });
+  } else {
+    window.inventourCamposFicha();
+  }
+})();
+
+/*
+ * Tabelas da ficha do item: "Mais uma linha" copia a última linha, vazia,
+ * com o número da linha nos nomes dos campos.
+ * Softsul Software
+ */
+(function () {
+  'use strict';
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest && ev.target.closest('[data-mais-linha-at]');
+    if (!b) { return; }
+    var aid = b.getAttribute('data-mais-linha-at');
+    var corpo = document.querySelector('[data-tabela-at="' + aid + '"] tbody');
+    if (!corpo || !corpo.lastElementChild) { return; }
+    var n = corpo.children.length;
+    var nova = corpo.lastElementChild.cloneNode(true);
+    nova.querySelectorAll('input, select').forEach(function (c) {
+      c.name = c.name.replace('at[' + aid + '][' + (n - 1) + ']', 'at[' + aid + '][' + n + ']');
+      if (c.type === 'checkbox') { c.checked = false; } else { c.value = ''; }
+      if (c.getAttribute('aria-label')) { c.setAttribute('aria-label', c.getAttribute('aria-label').replace(/linha \d+/, 'linha ' + (n + 1))); }
+    });
+    corpo.appendChild(nova);
+    var primeiro = nova.querySelector('input:not([type=checkbox]), select');
+    if (primeiro) { primeiro.focus(); }
+  });
+})();
+
+/*
+ * A situação de cada campo da ficha, na pílula ao lado do título (painel e
+ * app): Respondido, em verde, quando o campo tem valor (aí NA, NI e NE não
+ * cabem); Pendente quando está vazio; NA, NI ou NE quando a pessoa marca.
+ * O campo ganha a classe respondido ou sem-resposta. Softsul Software.
+ */
+(function () {
+  'use strict';
+  function temValor(campo) {
+    return Array.prototype.some.call(campo.querySelectorAll('input, select, textarea'), function (el) {
+      if (!el.name || el.classList.contains('ausencia') || /^outro\[/.test(el.name)) { return false; }
+      if (el.type === 'checkbox' || el.type === 'radio') { return el.checked; }
+      var v = (el.value || '').trim();
+      return v !== '' && v !== (el.getAttribute('data-padrao') || '');
+    });
+  }
+  function situar(campo) {
+    var sel = campo.querySelector('select.ausencia');
+    if (!sel) { return; }
+    if (sel.getAttribute('data-trava') === null) { sel.setAttribute('data-trava', sel.disabled ? '1' : '0'); }
+    var travado = sel.getAttribute('data-trava') === '1';
+    var ok = temValor(campo);
+    sel.options[0].text = ok ? 'Respondido' : 'Pendente';
+    if (ok) { sel.value = ''; }
+    if (!travado) { sel.disabled = ok; }
+    var sem = !ok && sel.value !== '';
+    sel.classList.toggle('respondido', ok);
+    sel.classList.toggle('ausente', sem);
+    campo.classList.toggle('respondido', ok);
+    campo.classList.toggle('sem-resposta', sem);
+  }
+  function campoDe(el) { return el.closest && el.closest('.campo'); }
+  window.inventourSituarCampos = function (raiz) {
+    (raiz || document).querySelectorAll('select.ausencia').forEach(function (s) { var c = campoDe(s); if (c) { situar(c); } });
+  };
+  ['input', 'change'].forEach(function (tipo) {
+    document.addEventListener(tipo, function (ev) {
+      var c = campoDe(ev.target);
+      if (c && c.querySelector('select.ausencia')) { situar(c); }
+    });
+  });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { window.inventourSituarCampos(); });
+  } else {
+    window.inventourSituarCampos();
+  }
+})();
