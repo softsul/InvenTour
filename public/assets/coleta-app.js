@@ -50,3 +50,23 @@
   document.addEventListener('visibilitychange', function () { if (!document.hidden) { olhar(); } });
   olhar();
 })();
+
+/*
+ * Modal dos três passos do app (Baixar / validar app): abre pelo botão ao
+ * lado do Sincronizar, e sozinho logo depois de gerar o código.
+ * Softsul Software
+ */
+(function () {
+  'use strict';
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest && ev.target.closest('[data-abre-dialogo]');
+    if (!b) { return; }
+    var d = document.getElementById(b.getAttribute('data-abre-dialogo'));
+    if (d && !d.open) { d.showModal(); }
+  });
+  // Depois de todos os scripts (o coleta.js tira as janelas de dentro das abas).
+  document.addEventListener('DOMContentLoaded', function () {
+    var aberto = document.querySelector('dialog[data-abrir]');
+    if (aberto && !aberto.open) { aberto.showModal(); }
+  });
+})();

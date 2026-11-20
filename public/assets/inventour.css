@@ -1454,3 +1454,10 @@ dialog.visualizador.vis-pdf .vis-palco{padding:0 12px 12px}
 .cab-pag .acoes .liga-cab{margin-right:6px; font-size:13px}
 .liga-cab input:checked + i{background:var(--rubi)}
 .liga-cab input:checked ~ .liga-sim{color:var(--rubi)}
+/* Modal dos três passos do app. */
+dialog.coleta-dialogo.app-instalar{height:auto; max-height:calc(100vh - 32px)}
+.app-instalar .app-campo-grade{margin:0}
+.app-instalar .app-passo{box-shadow:none}
+.app-instalar .corpo-dialogo{flex:none}
+#app-instalar{height:fit-content; max-height:calc(100vh - 32px)}
+#app-instalar .corpo-dialogo{flex:none}

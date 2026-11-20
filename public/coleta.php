@@ -73,9 +73,17 @@ paginaInicio('Coleta de campo', 'coleta');
            aba Coleta, gravar já envia, porque o painel está sempre online. */ ?>
   <div class="cartao app-sinc">
     <div class="cab-cartao"><h2>Sincronização deste navegador</h2></div>
-    <?= telaEstadoColeta() ?>
+    <?= telaEstadoColeta('<button type="button" class="botao claro" data-abre-dialogo="app-instalar">' . icone('baixar') . 'Baixar / validar app</button>') ?>
     <p class="ajuda">Na aba Coleta, o que você grava aqui no painel já sobe na hora. No celular, quem envia é o botão Sincronizar do app.</p>
   </div>
+  <?php /* Os três passos (instalar, gerar o código, digitar no app) num
+           modal, aberto pelo botão Baixar / validar app; abre sozinho quando
+           o código acabou de ser gerado. */ ?>
+  <dialog class="coleta-dialogo app-instalar" id="app-instalar" aria-labelledby="app-instalar-titulo"<?= $codigo ? ' data-abrir' : '' ?>>
+    <div class="cab-dialogo"><div><h2 id="app-instalar-titulo">Baixar e conectar o InvenTour Campo</h2>
+      <p class="nulo">Três passos, uma vez por celular. Os aparelhos conectados aparecem na lista assim que o código é usado.</p></div>
+      <button type="button" class="fechar" data-fechar aria-label="Fechar"><?= icone('fechar') ?></button></div>
+    <div class="corpo-dialogo">
   <div class="app-campo-grade">
     <div class="cartao app-passo">
       <span class="app-passo-num">1</span>
@@ -98,6 +106,8 @@ paginaInicio('Coleta de campo', 'coleta');
       <p>Abra o InvenTour Campo, digite o código e toque em Conectar. O app baixa a lista do destino; daí em diante funciona sem sinal.</p>
     </div>
   </div>
+    </div>
+  </dialog>
 
   <div class="cartao" id="app-aparelhos" data-codigo="<?= $codigo ? 'pendente' : e($estado['estado']) ?>">
 <?= cartaoAparelhos($aparelhos, $daEquipe, (int) $u['id'], $csrf) ?>

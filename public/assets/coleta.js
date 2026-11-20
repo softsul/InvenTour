@@ -17,6 +17,11 @@
   var raiz = document.getElementById('coleta');
   if (!raiz || !window.indexedDB) { return; }
 
+  // As janelas da coleta saem de dentro das abas: modal aberto dentro de
+  // uma aba escondida fica invisível e trava a página inteira (o Histórico,
+  // aberto da aba Aplicativo, ficava dentro da aba Coleta).
+  document.querySelectorAll('dialog.coleta-dialogo').forEach(function (d) { document.body.appendChild(d); });
+
   var APP = window.INVENTOUR_CAMPO || null;
   var API = APP ? APP.servidor : '';
   var csrf = raiz.getAttribute('data-csrf') || '';

@@ -17,7 +17,7 @@ require_once __DIR__ . '/Inventario.php';
  * A barra de sincronização (sinal, fila, Histórico, Sincronizar). No app fica
  * no topo da coleta; no painel, na aba Aplicativo (lá gravar já envia).
  */
-function telaEstadoColeta(): string
+function telaEstadoColeta(string $botaoExtra = ''): string
 {
     ob_start();
     ?>
@@ -26,6 +26,7 @@ function telaEstadoColeta(): string
   <span class="fila-local" id="col-fila">Nada esperando envio</span>
   <span class="quando" id="col-quando"></span>
   <span class="coleta-botoes">
+    <?= $botaoExtra ?>
     <button type="button" class="botao claro" id="col-historico" title="O que já foi sincronizado neste aparelho"><?= icone('relogio') ?>Histórico</button>
     <button type="button" class="botao" id="col-sincronizar"><?= icone('trocar') ?><span>Sincronizar</span></button>
   </span>
