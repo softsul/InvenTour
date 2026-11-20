@@ -223,7 +223,7 @@ paginaFicha($x['titulo'] ?: 'Nova experiência', 'inventario');
   <h2 class="titulo-secao">Evidências (<?= count($evidencias) ?>)</h2>
   <p class="ajuda">Fotos da vivência acontecendo, com visitantes, e não só da fachada: é o que a curadoria confere.</p>
   <?php if ($evidencias): ?><div class="galeria-item"><?php foreach ($evidencias as $f): ?>
-    <figure><a href="<?= e(Inventario::urlFoto($eid, (string) $f['arquivo'])) ?>" data-visualizar="foto" data-galeria="experiencia"><img src="<?= e(Inventario::urlFoto($eid, (string) $f['arquivo'])) ?>" alt="" loading="lazy"></a></figure>
+    <figure><a href="<?= e(Inventario::urlFoto($eid, (string) $f['arquivo'])) ?>" data-visualizar="foto" data-galeria="experiencia"><img src="<?= e(Inventario::urlFoto($eid, (string) $f['arquivo'], 'm')) ?>" alt="" loading="lazy"></a></figure>
   <?php endforeach; ?></div><?php endif; ?>
   <?php if ($podeEditar): ?>
     <form method="post" action="<?= e($aqui) ?>" enctype="multipart/form-data">

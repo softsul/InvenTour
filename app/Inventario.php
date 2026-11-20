@@ -395,9 +395,22 @@ final class Inventario
         return $pasta;
     }
 
-    public static function urlFoto(int $empresaId, string $arquivo): string
+    /**
+     * Endereço da foto. $tamanho: 'p' (listas, avatares), 'm' (cartões,
+     * galerias) ou '' (a grande, só para o visualizador). Sem a miniatura
+     * no disco, cai na grande.
+     */
+    public static function urlFoto(int $empresaId, string $arquivo, string $tamanho = ''): string
     {
-        return '/midia/inventario/' . $empresaId . '/' . rawurlencode(basename($arquivo));
+        $nome = basename($arquivo);
+        if ($tamanho !== '') {
+            require_once __DIR__ . '/Imagem.php';
+            $mini = Imagem::nomeMiniatura($nome, $tamanho);
+            if (is_file(self::pastaFotos($empresaId) . '/' . $mini)) {
+                $nome = $mini;
+            }
+        }
+        return '/midia/inventario/' . $empresaId . '/' . rawurlencode($nome);
     }
 
     public static function fotos(int $itemId): array
@@ -438,6 +451,10 @@ final class Inventario
         if (@file_put_contents(self::pastaFotos($eid) . '/' . $nome, $bytes) === false) {
             return 'Não consegui guardar a foto agora.';
         }
+        // Miniaturas para listas e galerias (a grande só no visualizador).
+        foreach (Imagem::miniaturas($bytes) as $sufixo => $miniatura) {
+            @file_put_contents(self::pastaFotos($eid) . '/' . Imagem::nomeMiniatura($nome, $sufixo), $miniatura);
+        }
         $pdo = self::pdo();
         $q = $pdo->prepare('SELECT COUNT(*) FROM inventario_midias WHERE item_id = ? AND empresa_id = ? AND experiencia_id <=> ?');
         $q->execute([$itemId, $eid, $experienciaId]);
@@ -477,6 +494,10 @@ final class Inventario
         }
         self::pdo()->prepare('DELETE FROM inventario_midias WHERE id = ? AND empresa_id = ?')->execute([$fotoId, $eid]);
         @unlink(self::pastaFotos($eid) . '/' . basename((string) $f['arquivo']));
+        require_once __DIR__ . '/Imagem.php';
+        foreach (array_keys(Imagem::MINIATURAS) as $sufixo) {
+            @unlink(self::pastaFotos($eid) . '/' . Imagem::nomeMiniatura((string) $f['arquivo'], $sufixo));
+        }
         if ((int) $f['capa']) {
             self::pdo()->prepare('UPDATE inventario_midias SET capa = 1 WHERE item_id = ? AND empresa_id = ? AND experiencia_id IS NULL ORDER BY ordem, id LIMIT 1')
                 ->execute([$itemId, $eid]);

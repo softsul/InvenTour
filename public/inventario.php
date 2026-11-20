@@ -113,7 +113,7 @@ $lista = function () use ($itens, $busca, $total, $pagina, $ordem, $comFiltro, $
             [$rotulo, $tom] = Inventario::SITUACOES[$i['situacao']] ?? [$i['situacao'], 'nu']; ?>
             <tr class="<?= $i['situacao'] === 'arquivada' ? 'inativa' : '' ?>">
               <td class="elastica"><span class="cli">
-                <?php if ($i['foto']): ?><img class="avatar com-foto" src="/midia/inventario/<?= $eid ?>/<?= e(rawurlencode(basename((string) $i['foto']))) ?>" alt="" loading="lazy"><?php else: ?><?= avatarIniciais((string) $i['nome'], 'avatar') ?><?php endif; ?>
+                <?php if ($i['foto']): ?><img class="avatar com-foto" src="<?= e(Inventario::urlFoto($eid, (string) $i['foto'], 'p')) ?>" alt="" loading="lazy"><?php else: ?><?= avatarIniciais((string) $i['nome'], 'avatar') ?><?php endif; ?>
                 <span class="txt"><b><a href="<?= e($url) ?>" data-ficha="<?= e($i['nome']) ?>"><?= e($i['nome']) ?></a></b>
                 <span><?= e((string) ($i['tipo_nome'] ?: $i['ficha_nome'])) ?></span></span></span></td>
               <td class="dado"><?= e((string) $i['codigo']) ?></td>

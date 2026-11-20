@@ -94,6 +94,41 @@ final class Imagem
     }
 
     /**
+     * Tamanhos de miniatura do sistema (regra do Luiz, 20/11/2026): a foto
+     * grande (1600 px) só abre no visualizador; listas e avatares usam a
+     * "p", cartões e galerias a "m". Sufixo no nome do arquivo: foto-p.jpg.
+     */
+    public const MINIATURAS = ['p' => [160, 72], 'm' => [640, 76]];
+
+    /** Miniaturas a partir dos bytes já tratados (a foto de 1600 px). [sufixo => bytes] */
+    public static function miniaturas(string $jpeg): array
+    {
+        $img = @imagecreatefromstring($jpeg);
+        if (!$img) {
+            return [];
+        }
+        [$l, $a] = [imagesx($img), imagesy($img)];
+        $saidas = [];
+        foreach (self::MINIATURAS as $sufixo => [$max, $qualidade]) {
+            $escala = min($max / max($l, $a), 1);
+            [$lNovo, $aNovo] = [max(1, (int) round($l * $escala)), max(1, (int) round($a * $escala))];
+            $m = imagecreatetruecolor($lNovo, $aNovo);
+            imagecopyresampled($m, $img, 0, 0, 0, 0, $lNovo, $aNovo, $l, $a);
+            imageinterlace($m, true);
+            ob_start();
+            imagejpeg($m, null, $qualidade);
+            $saidas[$sufixo] = (string) ob_get_clean();
+        }
+        return $saidas;
+    }
+
+    /** Nome da miniatura de um arquivo: 775-abc.jpg + p = 775-abc-p.jpg. */
+    public static function nomeMiniatura(string $arquivo, string $sufixo): string
+    {
+        return (string) preg_replace('/(\.[a-z0-9]+)$/i', '-' . $sufixo . '$1', basename($arquivo));
+    }
+
+    /**
      * Coordenada gravada pela câmera (EXIF), lida antes de a imagem ser
      * redesenhada sem metadados. [latitude, longitude] ou null.
      */

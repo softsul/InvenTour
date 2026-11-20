@@ -851,7 +851,7 @@ paginaFicha($titulo, 'inventario');
     <div class="galeria-item">
       <?php foreach ($fotos as $f): ?>
         <figure class="<?= $f['capa'] ? 'capa' : '' ?>">
-          <a href="<?= e(Inventario::urlFoto($eid, (string) $f['arquivo'])) ?>" data-visualizar="foto" data-galeria="item-<?= $id ?>" data-legenda="<?= e(trim((string) $f['legenda'] . ($f['credito'] ? ' · Foto: ' . $f['credito'] : ''), ' ·')) ?>"><img src="<?= e(Inventario::urlFoto($eid, (string) $f['arquivo'])) ?>" alt="<?= e((string) ($f['legenda'] ?: $d['nome'])) ?>" loading="lazy"></a>
+          <a href="<?= e(Inventario::urlFoto($eid, (string) $f['arquivo'])) ?>" data-visualizar="foto" data-galeria="item-<?= $id ?>" data-legenda="<?= e(trim((string) $f['legenda'] . ($f['credito'] ? ' · Foto: ' . $f['credito'] : ''), ' ·')) ?>"><img src="<?= e(Inventario::urlFoto($eid, (string) $f['arquivo'], 'm')) ?>" alt="<?= e((string) ($f['legenda'] ?: $d['nome'])) ?>" loading="lazy"></a>
           <figcaption>
             <?php if ($f['capa']): ?><span class="pilula ok">Capa</span><?php endif; ?>
             <?php if ($f['latitude']): ?><span class="pilula nu" title="A foto trouxe a coordenada da câmera"><?= icone('mapa') ?>GPS</span><?php endif; ?>

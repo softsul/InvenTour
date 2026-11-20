@@ -135,8 +135,20 @@ foreach (array_merge(glob("{$raiz}/public/*.php") ?: [], glob("{$raiz}/portal/*.
     }
 }
 
+// Regra do Luiz (20/11/2026): <img> nunca carrega a foto grande; pede a
+// miniatura (urlFoto com 'p' ou 'm'). A grande só no visualizador (href).
+foreach (array_merge(glob("{$raiz}/public/*.php") ?: [], glob("{$raiz}/portal/*.php") ?: []) as $arquivo) {
+    foreach (file($arquivo) ?: [] as $n => $linha) {
+        if (preg_match('#<img\b[^>]*src="[^"]*urlFoto\([^,()]+,\s*[^,()]+(?:\([^()]*\))?[^,()]*\)\)#', $linha)
+            || preg_match('#<img\b[^>]*src="/midia/inventario/#', $linha)) {
+            echo substr((string) $arquivo, strlen($raiz) + 1) . ':' . ($n + 1) . ": <img> com a foto grande; use a miniatura (urlFoto com 'p' ou 'm')\n";
+            $problemas++;
+        }
+    }
+}
+
 if ($problemas) {
     echo "\n{$problemas} problema(s).\n";
     exit(1);
 }
-echo "Nenhum formulário aninhado ou sem fechar, nenhum travessão, marca igual no portal, upload só por arrastar e soltar, nenhum campo cru, foto e PDF em modal.\n";
+echo "Nenhum formulário aninhado ou sem fechar, nenhum travessão, marca igual no portal, upload só por arrastar e soltar, nenhum campo cru, foto e PDF em modal, imagens pela miniatura.\n";
