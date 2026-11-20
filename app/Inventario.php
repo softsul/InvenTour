@@ -229,6 +229,107 @@ final class Inventario
         return $id;
     }
 
+    // ----------------------------------------------------------------- FOTOS
+
+    /** Pasta das fotos do destino, servida por /midia/inventario/<empresa>/. */
+    private static function pastaFotos(int $empresaId): string
+    {
+        $cfg = require __DIR__ . '/config.php';
+        $pasta = rtrim((string) $cfg['caminhos']['midias'], '/') . '/inventario/' . $empresaId;
+        if (!is_dir($pasta)) {
+            @mkdir($pasta, 0770, true);
+        }
+        return $pasta;
+    }
+
+    public static function urlFoto(int $empresaId, string $arquivo): string
+    {
+        return '/midia/inventario/' . $empresaId . '/' . rawurlencode(basename($arquivo));
+    }
+
+    public static function fotos(int $itemId): array
+    {
+        [$f, $a] = Empresa::filtro();
+        $q = self::pdo()->prepare("SELECT * FROM inventario_midias WHERE item_id = ? AND experiencia_id IS NULL{$f} ORDER BY capa DESC, ordem, id");
+        $q->execute([$itemId, ...$a]);
+        return $q->fetchAll();
+    }
+
+    /**
+     * Guarda uma foto enviada: lê o GPS do EXIF, redesenha a imagem sem
+     * metadados (Imagem::foto) e grava. A primeira vira capa. Se o item não
+     * tem coordenada, a da foto passa a valer. Devolve o erro ou null.
+     */
+    public static function guardarFoto(int $itemId, array $arquivo, ?string $credito, ?int $experienciaId = null): ?string
+    {
+        require_once __DIR__ . '/Imagem.php';
+        if (($arquivo['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK || !is_uploaded_file((string) $arquivo['tmp_name'])) {
+            return 'A foto não chegou inteira.';
+        }
+        if ((int) $arquivo['size'] > 20 * 1048576) {
+            return 'A foto passa de 20 MB.';
+        }
+        $dados = (string) file_get_contents((string) $arquivo['tmp_name']);
+        $mime = (new finfo(FILEINFO_MIME_TYPE))->buffer($dados);
+        if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true)) {
+            return 'Use fotos em JPG, PNG ou WebP.';
+        }
+        $gps = $mime === 'image/jpeg' ? Imagem::gpsDoExif($dados) : null;
+        $foto = Imagem::foto($dados);
+        if ($foto === null) {
+            return 'O arquivo não é uma imagem válida.';
+        }
+        [$bytes, $l, $a] = $foto;
+        $eid = Empresa::id();
+        $nome = $itemId . '-' . bin2hex(random_bytes(6)) . '.jpg';
+        if (@file_put_contents(self::pastaFotos($eid) . '/' . $nome, $bytes) === false) {
+            return 'Não consegui guardar a foto agora.';
+        }
+        $pdo = self::pdo();
+        $q = $pdo->prepare('SELECT COUNT(*) FROM inventario_midias WHERE item_id = ? AND empresa_id = ? AND experiencia_id <=> ?');
+        $q->execute([$itemId, $eid, $experienciaId]);
+        $ja = (int) $q->fetchColumn();
+        $pdo->prepare('INSERT INTO inventario_midias (empresa_id, item_id, experiencia_id, arquivo, largura, altura, credito, capa, ordem, latitude, longitude, criado_em, criado_por)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)')
+            ->execute([$eid, $itemId, $experienciaId, $nome, $l, $a, $credito, $ja === 0 ? 1 : 0, $ja + 1, $gps[0] ?? null, $gps[1] ?? null,
+                       Auth::usuarioOuNulo()['id'] ?? null]);
+        if ($gps && $experienciaId === null) {
+            $pdo->prepare('UPDATE inventario_itens SET latitude = ?, longitude = ? WHERE id = ? AND empresa_id = ? AND latitude IS NULL')
+                ->execute([$gps[0], $gps[1], $itemId, $eid]);
+        }
+        return null;
+    }
+
+    public static function definirCapa(int $itemId, int $fotoId): void
+    {
+        $eid = Empresa::id();
+        $pdo = self::pdo();
+        $pdo->prepare('UPDATE inventario_midias SET capa = (id = ?) WHERE item_id = ? AND empresa_id = ? AND experiencia_id IS NULL')
+            ->execute([$fotoId, $itemId, $eid]);
+    }
+
+    public static function legendarFoto(int $itemId, int $fotoId, ?string $legenda, ?string $credito): void
+    {
+        self::pdo()->prepare('UPDATE inventario_midias SET legenda = ?, credito = ? WHERE id = ? AND item_id = ? AND empresa_id = ?')
+            ->execute([$legenda, $credito, $fotoId, $itemId, Empresa::id()]);
+    }
+
+    public static function excluirFoto(int $itemId, int $fotoId): void
+    {
+        $eid = Empresa::id();
+        $q = self::pdo()->prepare('SELECT arquivo, capa FROM inventario_midias WHERE id = ? AND item_id = ? AND empresa_id = ?');
+        $q->execute([$fotoId, $itemId, $eid]);
+        if (!($f = $q->fetch())) {
+            return;
+        }
+        self::pdo()->prepare('DELETE FROM inventario_midias WHERE id = ? AND empresa_id = ?')->execute([$fotoId, $eid]);
+        @unlink(self::pastaFotos($eid) . '/' . basename((string) $f['arquivo']));
+        if ((int) $f['capa']) {
+            self::pdo()->prepare('UPDATE inventario_midias SET capa = 1 WHERE item_id = ? AND empresa_id = ? AND experiencia_id IS NULL ORDER BY ordem, id LIMIT 1')
+                ->execute([$itemId, $eid]);
+        }
+    }
+
     /** Totais do destino para o Início: por situação e por categoria. */
     public static function resumo(int $empresaId): array
     {
