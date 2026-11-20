@@ -42,9 +42,26 @@
       db.createObjectStore('fila', { keyPath: 'uuid' }).createIndex('ordem', 'ordem');
       db.createObjectStore('fotos', { keyPath: 'uuid' }).createIndex('coleta', 'coleta');
     };
-    req.onsuccess = function () { ok(req.result); };
+    req.onsuccess = function () {
+      var db = req.result;
+      // Outra aba (ou uma versão nova) pediu o banco: solta, senão ela fica
+      // esperando para sempre. A tela recarrega para reabrir.
+      db.onversionchange = function () { db.close(); setTimeout(function () { location.reload(); }, 300); };
+      ok(db);
+    };
     req.onerror = function () { falha(req.error); };
+    req.onblocked = function () { avisarBancoPreso(); };
   });
+  // Banco que não abre em 6 s: quase sempre outra aba da coleta segurando.
+  var relogioBanco = setTimeout(avisarBancoPreso, 6000);
+  bancoPromessa.then(function () { clearTimeout(relogioBanco); }, function () { clearTimeout(relogioBanco); avisarBancoPreso(); });
+  function avisarBancoPreso() {
+    var caixa = document.getElementById('col-erros');
+    if (!caixa) { return; }
+    caixa.hidden = false;
+    caixa.innerHTML = '<svg aria-hidden="true"><use href="#i-alerta"></use></svg><span>O armazenamento deste navegador não respondeu. '
+      + 'Feche as outras abas ou janelas com a Coleta de campo e recarregue esta página.</span>';
+  }
   function tx(loja, modo, fazer) {
     return bancoPromessa.then(function (db) {
       return new Promise(function (ok, falha) {
@@ -524,7 +541,7 @@
   var dialogo = $('col-dialogo');
   var ABAS = ['ident', 'local', 'contato', 'fotos', 'conferencia'];
   var abaAtual = 'ident';
-  var CAMPOS = ['nome', 'tipo_id', 'zona', 'logradouro', 'numero', 'bairro', 'referencia', 'plus_code', 'telefone', 'whatsapp', 'instagram', 'site', 'conservacao'];
+  var CAMPOS = ['nome', 'tipo_id', 'zona', 'logradouro', 'numero', 'bairro', 'cep', 'referencia', 'plus_code', 'telefone', 'whatsapp', 'instagram', 'site', 'conservacao'];
 
   function abrirAba(aba) {
     abaAtual = aba;
@@ -534,6 +551,7 @@
     $('c-anterior').hidden = i === 0;
     $('c-proxima').hidden = i === ABAS.length - 1;
     form.querySelector('.corpo-dialogo').scrollTop = 0;
+    if (aba === 'local') { mostrarMapa(); }
   }
   form.querySelectorAll('[data-aba-coleta]').forEach(function (b) {
     b.addEventListener('click', function () { abrirAba(b.getAttribute('data-aba-coleta')); });
@@ -560,6 +578,8 @@
     });
     form.elements.telefone.value = telefoneLegivel(item.telefone);
     form.elements.whatsapp.value = telefoneLegivel(item.whatsapp);
+    form.elements.cep.value = item.cep ? String(item.cep).replace(/^(\d{5})(\d{3})$/, '$1-$2') : '';
+    $('c-endereco').hidden = true;
     if (form.elements.instagram.value) { form.elements.instagram.value = '@' + form.elements.instagram.value.replace(/^@/, ''); }
     $('c-lat').value = item.latitude == null ? '' : item.latitude;
     $('c-lng').value = item.longitude == null ? '' : item.longitude;
@@ -667,6 +687,8 @@
       $('c-gps-texto').textContent = textoGps(p.lat, p.lng, p.precisao);
       $('c-gps-quando').textContent = 'agora, ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
       mostrarPendencias();
+      mostrarMapa();
+      buscarEndereco(p.lat, p.lng);
     }).catch(function (e) {
       botao.disabled = false;
       $('c-gps-texto').textContent = e.message === 'negado' ? 'O aparelho não deixou usar a localização. Libere nas permissões do app.'
@@ -701,6 +723,7 @@
             $('c-gps-texto').textContent = textoGps(r.gps.lat, r.gps.lng, r.gps.precisao);
             $('c-gps-quando').textContent = 'da foto';
             mostrarPendencias();
+            buscarEndereco(r.gps.lat, r.gps.lng);
           }
         }).catch(function () { b.disabled = false; });
       });
@@ -741,6 +764,7 @@
       var antes = atual[k] == null ? '' : String(atual[k]);
       var agora = dados[k] == null ? '' : String(dados[k]);
       if (k === 'telefone' || k === 'whatsapp') { antes = soDigitosTel(antes); agora = soDigitosTel(agora); }
+      if (k === 'cep') { antes = antes.replace(/\D/g, ''); agora = agora.replace(/\D/g, ''); }
       if (k === 'latitude' || k === 'longitude') { antes = antes ? Number(antes).toFixed(6) : ''; agora = agora ? Number(agora).toFixed(6) : ''; }
       if (antes !== agora) { mudou[k] = dados[k]; }
     });
@@ -774,6 +798,73 @@
       alert('Não consegui guardar no aparelho. Veja se há espaço livre e tente de novo.');
     });
   });
+
+
+  // ------------------------------------------------------------ mapa e endereço (com internet)
+  // Com internet: o mapa do Google incorporado (sem chave, sem custo) e o
+  // endereço achado pela coordenada (/api/endereco, OpenStreetMap), que
+  // preenche só os campos vazios. Sem internet: só a coordenada; nada fica
+  // guardado no aparelho.
+  function temInternet() {
+    return navigator.onLine && conexao.estado !== 'falhou' && conexao.estado !== 'sem-rede';
+  }
+  var mapaMostrado = '';
+  function mostrarMapa() {
+    var caixa = $('c-mapa');
+    var lat = parseFloat($('c-lat').value), lng = parseFloat($('c-lng').value);
+    if (!isFinite(lat) || !isFinite(lng)) { caixa.hidden = true; caixa.innerHTML = ''; mapaMostrado = ''; return; }
+    if (!temInternet()) {
+      caixa.hidden = true; caixa.innerHTML = ''; mapaMostrado = '';
+      avisoEndereco('Sem internet: só a coordenada. O mapa e o endereço aparecem quando houver sinal.', 'nulo');
+      return;
+    }
+    var chave = lat.toFixed(6) + ',' + lng.toFixed(6);
+    caixa.hidden = false;
+    if (mapaMostrado === chave) { return; }
+    mapaMostrado = chave;
+    caixa.innerHTML = '';
+    var quadro = document.createElement('iframe');
+    quadro.src = 'https://www.google.com/maps?q=' + chave + '&z=17&hl=pt-BR&output=embed';
+    quadro.title = 'Mapa da coordenada';
+    quadro.loading = 'lazy';
+    quadro.referrerPolicy = 'no-referrer';
+    var abrir = document.createElement('a');
+    abrir.href = 'https://www.google.com/maps/search/?api=1&query=' + chave;
+    abrir.target = '_blank'; abrir.rel = 'noopener';
+    abrir.className = 'mapa-abrir';
+    abrir.textContent = 'Abrir no Google Maps';
+    caixa.appendChild(quadro);
+    caixa.appendChild(abrir);
+  }
+  function avisoEndereco(texto, classe) {
+    var p = $('c-endereco');
+    p.className = 'endereco-achado ' + (classe || '');
+    p.textContent = texto;
+    p.hidden = !texto;
+  }
+  function buscarEndereco(lat, lng) {
+    if (!temInternet()) {
+      avisoEndereco('Sem internet: só a coordenada. O endereço pode ser buscado depois, com sinal.', 'nulo');
+      return;
+    }
+    avisoEndereco('Buscando o endereço desta coordenada...', 'nulo');
+    pedir('/api/endereco?lat=' + lat.toFixed(6) + '&lng=' + lng.toFixed(6), { headers: cabecalhos(false), cache: 'no-store' }, 15000)
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.ok) { avisoEndereco('Não achei endereço para esta coordenada. Preencha à mão.', 'nulo'); return; }
+        var preenchi = [];
+        var por = { logradouro: 'rua', numero: 'número', bairro: 'bairro', cep: 'CEP' };
+        Object.keys(por).forEach(function (k) {
+          if (!d[k] || form.elements[k].value.trim()) { return; }
+          form.elements[k].value = k === 'cep' ? d.cep.replace(/^(\d{5})(\d{3})$/, '$1-$2') : d[k];
+          preenchi.push(por[k]);
+        });
+        mostrarPendencias();
+        avisoEndereco('Endereço pela coordenada: ' + (d.completo || '') + '. '
+          + (preenchi.length ? 'Preenchi ' + preenchi.join(', ') + '; confira na fachada.' : 'Os campos já preenchidos foram mantidos.'), 'achou');
+      })
+      .catch(function () { avisoEndereco('O endereço não veio agora. Preencha à mão ou tente o GPS de novo.', 'nulo'); });
+  }
 
   // ------------------------------------------------------------ eventos
   document.querySelectorAll('.coleta-dialogo [data-fechar]').forEach(function (b) {

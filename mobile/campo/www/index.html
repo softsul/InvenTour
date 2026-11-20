@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob: capacitor: https://localhost; font-src 'self'; connect-src 'self' https://app.inventour.com.br blob: capacitor: https://localhost; object-src 'none'; base-uri 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob: capacitor: https://localhost; font-src 'self'; connect-src 'self' https://app.inventour.com.br blob: capacitor: https://localhost; frame-src https://www.google.com; object-src 'none'; base-uri 'self'">
 <title>InvenTour Campo</title>
 <link rel="stylesheet" href="assets/tema.css">
 <link rel="stylesheet" href="assets/inventour.css">
@@ -22,7 +22,7 @@
 <main class="campo-corpo">
   <section id="campo-conectar" hidden>
     <form class="campo-conectar" id="campo-form" novalidate>
-      <span class="marca-svg marca-logo" aria-hidden="true"><img class="marca-emblema-img" src="/assets/marca/emblema.svg?v=1795204232" alt="" width="446" height="446"><svg class="marca-nome-svg" viewBox="0 0 480 100" aria-hidden="true" focusable="false"><text x="0" y="80" textLength="480" lengthAdjust="spacingAndGlyphs" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="100"><tspan fill="currentColor">inven</tspan><tspan>tour</tspan></text></svg></span>
+      <span class="marca-svg marca-logo" aria-hidden="true"><img class="marca-emblema-img" src="/assets/marca/emblema.svg?v=1795204998" alt="" width="446" height="446"><svg class="marca-nome-svg" viewBox="0 0 480 100" aria-hidden="true" focusable="false"><text x="0" y="80" textLength="480" lengthAdjust="spacingAndGlyphs" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="100"><tspan fill="currentColor">inven</tspan><tspan>tour</tspan></text></svg></span>
       <h1>Conectar este aparelho</h1>
       <ol>
         <li>No computador, entre no painel do InvenTour.</li>
@@ -103,12 +103,15 @@
           <button type="button" class="botao" id="c-gps"><svg aria-hidden="true" focusable="false"><use href="#i-mapa"/></svg>Usar o GPS daqui</button>
           <input type="hidden" name="latitude" id="c-lat"><input type="hidden" name="longitude" id="c-lng">
         </div>
+                <div class="mapa-online" id="c-mapa" hidden></div>
+        <p class="endereco-achado" id="c-endereco" hidden></p>
         <div class="grade">
           <div class="campo c-8"><label for="c-logradouro">Rua, rodovia ou linha</label><div class="entrada"><input type="text" id="c-logradouro" name="logradouro" maxlength="200" autocomplete="off"></div></div>
           <div class="campo c-4"><label for="c-numero">Número</label><div class="entrada"><input type="text" id="c-numero" name="numero" maxlength="20" inputmode="numeric" autocomplete="off"></div></div>
           <div class="campo c-6"><label for="c-bairro">Bairro ou distrito</label><div class="entrada"><input type="text" id="c-bairro" name="bairro" maxlength="120" autocomplete="off"></div></div>
+          <div class="campo c-6"><label for="c-cep">CEP</label><div class="entrada"><input type="text" id="c-cep" name="cep" maxlength="9" inputmode="numeric" placeholder="00000-000" autocomplete="off"></div></div>
           <div class="campo c-6"><label for="c-plus">Plus code</label><div class="entrada"><input type="text" id="c-plus" name="plus_code" maxlength="16" placeholder="Q8FF+VM" autocapitalize="characters" autocomplete="off"></div></div>
-          <div class="campo c-12"><label for="c-referencia">Ponto de referência</label><div class="entrada"><input type="text" id="c-referencia" name="referencia" maxlength="255" placeholder="Em frente à praça, depois da ponte..." autocomplete="off"></div></div>
+          <div class="campo c-6"><label for="c-referencia">Ponto de referência</label><div class="entrada"><input type="text" id="c-referencia" name="referencia" maxlength="255" placeholder="Em frente à praça, depois da ponte..." autocomplete="off"></div></div>
         </div>
       </section>
 

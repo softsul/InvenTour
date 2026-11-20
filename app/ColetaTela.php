@@ -107,12 +107,18 @@ function telaColeta(bool $noApp, bool $comEstado = true): string
           <button type="button" class="botao" id="c-gps"><?= icone('mapa') ?>Usar o GPS daqui</button>
           <input type="hidden" name="latitude" id="c-lat"><input type="hidden" name="longitude" id="c-lng">
         </div>
+        <?php /* Com internet: o mapa (Google Maps incorporado, sem chave e sem
+                 custo) e o endereço achado pela coordenada. Sem internet: só a
+                 coordenada; nada de mapa guardado no aparelho. */ ?>
+        <div class="mapa-online" id="c-mapa" hidden></div>
+        <p class="endereco-achado" id="c-endereco" hidden></p>
         <div class="grade">
           <div class="campo c-8"><label for="c-logradouro">Rua, rodovia ou linha</label><div class="entrada"><input type="text" id="c-logradouro" name="logradouro" maxlength="200" autocomplete="off"></div></div>
           <div class="campo c-4"><label for="c-numero">Número</label><div class="entrada"><input type="text" id="c-numero" name="numero" maxlength="20" inputmode="numeric" autocomplete="off"></div></div>
           <div class="campo c-6"><label for="c-bairro">Bairro ou distrito</label><div class="entrada"><input type="text" id="c-bairro" name="bairro" maxlength="120" autocomplete="off"></div></div>
+          <div class="campo c-6"><label for="c-cep">CEP</label><div class="entrada"><input type="text" id="c-cep" name="cep" maxlength="9" inputmode="numeric" placeholder="00000-000" autocomplete="off"></div></div>
           <div class="campo c-6"><label for="c-plus">Plus code</label><div class="entrada"><input type="text" id="c-plus" name="plus_code" maxlength="16" placeholder="Q8FF+VM" autocapitalize="characters" autocomplete="off"></div></div>
-          <div class="campo c-12"><label for="c-referencia">Ponto de referência</label><div class="entrada"><input type="text" id="c-referencia" name="referencia" maxlength="255" placeholder="Em frente à praça, depois da ponte..." autocomplete="off"></div></div>
+          <div class="campo c-6"><label for="c-referencia">Ponto de referência</label><div class="entrada"><input type="text" id="c-referencia" name="referencia" maxlength="255" placeholder="Em frente à praça, depois da ponte..." autocomplete="off"></div></div>
         </div>
       </section>
 

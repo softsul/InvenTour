@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $fichas[] = ['id' => (int) $f['id'], 'codigo' => $f['codigo'], 'nome' => $f['nome'], 'categoria' => $f['categoria'], 'forma' => $f['forma'],
                      'tipos' => array_map(fn ($t) => ['id' => (int) $t['id'], 'nome' => $t['nome']], Inventario::tipos((int) $f['id']))];
     }
-    $q = $pdo->prepare("SELECT i.id, i.ficha_id, i.tipo_id, i.situacao, i.nome, i.logradouro, i.numero, i.bairro, i.referencia, i.zona,
+    $q = $pdo->prepare("SELECT i.id, i.ficha_id, i.tipo_id, i.situacao, i.nome, i.logradouro, i.numero, i.bairro, i.cep, i.referencia, i.zona,
                                i.latitude, i.longitude, i.plus_code, i.telefone, i.whatsapp, i.instagram, i.site, i.conservacao,
                                i.devolucao_nota, f.codigo AS ficha_codigo,
                                (SELECT COUNT(*) FROM inventario_midias m WHERE m.item_id = i.id AND m.experiencia_id IS NULL) AS fotos
@@ -183,6 +183,9 @@ foreach (['telefone', 'whatsapp'] as $c) {
     if (array_key_exists($c, $d)) {
         $campos[$c] = telefoneParaBanco($d[$c] ?: null);
     }
+}
+if (array_key_exists('cep', $d)) {
+    $campos['cep'] = strlen($cep = (string) preg_replace('/\D/', '', (string) $d['cep'])) === 8 ? $cep : null;
 }
 if (array_key_exists('zona', $d)) {
     $campos['zona'] = array_key_exists((string) $d['zona'], Inventario::ZONAS) ? (string) $d['zona'] : null;

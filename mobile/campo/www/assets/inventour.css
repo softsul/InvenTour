@@ -1433,3 +1433,13 @@ dialog.visualizador.vis-pdf .vis-palco{padding:0 12px 12px}
 .coleta-fixo{display:flex; flex-direction:column; gap:12px}
 .coleta-estado .sinal.lenta i{background:var(--ambar); box-shadow:0 0 0 3px var(--ambar-sup)}
 .coleta-estado .sinal{cursor:help}
+
+/* Coleta: mapa online (só com internet) e o endereço achado pela coordenada. */
+.mapa-online{position:relative; height:240px; border-radius:var(--r); overflow:hidden; border:1px solid var(--traco); background:var(--leve)}
+.mapa-online[hidden]{display:none}
+.mapa-online iframe{display:block; width:100%; height:100%; border:0}
+.mapa-online .mapa-abrir{position:absolute; right:8px; bottom:8px; padding:6px 10px; border-radius:999px; background:#fff; color:var(--indigo-fte);
+  font-size:12px; font-weight:700; text-decoration:none; box-shadow:var(--sombra)}
+.endereco-achado{margin:0; padding:10px 12px; border-radius:var(--r); font-size:13px; background:var(--leve); color:var(--suave)}
+.endereco-achado.achou{background:var(--verde-sup); color:#0A6B4F}
+.endereco-achado[hidden]{display:none}

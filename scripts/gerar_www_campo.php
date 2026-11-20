@@ -57,7 +57,7 @@ $html = '<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light">
-<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; script-src \'self\'; style-src \'self\'; img-src \'self\' data: blob: capacitor: https://localhost; font-src \'self\'; connect-src \'self\' https://app.inventour.com.br blob: capacitor: https://localhost; object-src \'none\'; base-uri \'self\'">
+<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; script-src \'self\'; style-src \'self\'; img-src \'self\' data: blob: capacitor: https://localhost; font-src \'self\'; connect-src \'self\' https://app.inventour.com.br blob: capacitor: https://localhost; frame-src https://www.google.com; object-src \'none\'; base-uri \'self\'">
 <title>InvenTour Campo</title>
 <link rel="stylesheet" href="assets/tema.css">
 <link rel="stylesheet" href="assets/inventour.css">
