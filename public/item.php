@@ -558,6 +558,15 @@ paginaFicha($titulo, 'inventario');
           <div class="entrada"><input type="text" id="plus_code" name="plus_code" maxlength="16" placeholder="Q8FF+VM" autocapitalize="characters" value="<?= e((string) ($d['plus_code'] ?? '')) ?>"<?= $ro ?>></div>
           <span class="ajuda">O código do Google Maps. Sem latitude, ela sai daqui ao gravar.</span>
         </div>
+        <?php if ($podeEditar): ?>
+        <div class="campo c-12">
+          <div class="endereco-coordenada" data-endereco-coordenada>
+            <button type="button" class="botao claro" data-buscar-endereco><?= icone('busca') ?>Buscar endereço pela coordenada</button>
+            <span class="endereco-achado" hidden><span data-endereco-texto></span>
+              <button type="button" class="botao mini" data-usar-endereco hidden><?= icone('check') ?>Usar este endereço</button></span>
+          </div>
+        </div>
+        <?php endif; ?>
         <div class="campo c-12">
           <label for="maps_url">Link do mapa</label>
           <div class="entrada"><?= icone('mapa') ?><input type="url" id="maps_url" name="maps_url" maxlength="500" value="<?= e((string) ($d['maps_url'] ?? '')) ?>"<?= $ro ?>></div>

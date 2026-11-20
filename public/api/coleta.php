@@ -43,8 +43,15 @@ $eid = Empresa::id();
 $uid = (int) Auth::usuarioOuNulo()['id'];
 
 // Teste de conexão do botão Sincronizar: rápido e sem dados.
+// Com a versão publicada do app: o app antigo se vê e pede para atualizar.
+$versaoApp = function (): ?array {
+    $j = json_decode((string) @file_get_contents(__DIR__ . '/../baixar/versao-inventour-campo.json'), true);
+    return is_array($j) && !empty($j['versionCode'])
+        ? ['codigo' => (int) $j['versionCode'], 'nome' => (string) ($j['versionName'] ?? ''), 'android' => 'https://app.inventour.com.br/baixar/inventour-campo.apk']
+        : null;
+};
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ping'])) {
-    responder(['ok' => true, 'em' => date('c')]);
+    responder(['ok' => true, 'em' => date('c'), 'app' => $versaoApp()]);
 }
 
 // ------------------------------------------------------------------ DADOS

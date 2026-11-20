@@ -138,6 +138,9 @@
     return pedir('/api/coleta?ping=1', { headers: cabecalhos(false), cache: 'no-store' }, 8000)
       .then(function (r) {
         conexao = { estado: r.ok ? 'ok' : 'falhou', ms: Date.now() - inicio, quando: Date.now() };
+        if (r.ok && APP && APP.exigirAtualizacao) {
+          r.clone().json().then(function (d) { if (d && d.app) { APP.exigirAtualizacao(d.app); } }).catch(function () {});
+        }
         return r.ok;
       }).catch(function (e) {
         if (e && e.message === 'sessao') { throw e; }
@@ -580,6 +583,7 @@
     form.elements.whatsapp.value = telefoneLegivel(item.whatsapp);
     form.elements.cep.value = item.cep ? String(item.cep).replace(/^(\d{5})(\d{3})$/, '$1-$2') : '';
     $('c-endereco').hidden = true;
+    enderecoAchado = null;
     if (form.elements.instagram.value) { form.elements.instagram.value = '@' + form.elements.instagram.value.replace(/^@/, ''); }
     $('c-lat').value = item.latitude == null ? '' : item.latitude;
     $('c-lng').value = item.longitude == null ? '' : item.longitude;
@@ -836,35 +840,63 @@
     caixa.appendChild(quadro);
     caixa.appendChild(abrir);
   }
-  function avisoEndereco(texto, classe) {
+  function avisoEndereco(texto, classe, oferecer) {
     var p = $('c-endereco');
     p.className = 'endereco-achado ' + (classe || '');
-    p.textContent = texto;
+    $('c-endereco-texto').textContent = texto;
+    $('c-usar-endereco').hidden = !oferecer;
     p.hidden = !texto;
   }
+  // O último endereço achado, para o botão "Usar este endereço" trocar os campos.
+  var enderecoAchado = null;
+  var CAMPOS_ENDERECO = { logradouro: 'rua', numero: 'número', bairro: 'bairro', cep: 'CEP' };
+  function valorEndereco(k, d) { return k === 'cep' ? String(d.cep || '').replace(/^(\d{5})(\d{3})$/, '$1-$2') : String(d[k] || ''); }
   function buscarEndereco(lat, lng) {
+    if (lat == null) {
+      lat = parseFloat($('c-lat').value); lng = parseFloat($('c-lng').value);
+    }
+    if (!isFinite(lat) || !isFinite(lng)) { avisoEndereco('Sem coordenada: use o GPS daqui ou marque o plus code primeiro.', 'nulo'); return; }
     if (!temInternet()) {
       avisoEndereco('Sem internet: só a coordenada. O endereço pode ser buscado depois, com sinal.', 'nulo');
       return;
     }
+    var botao = $('c-buscar-endereco');
+    botao.disabled = true;
     avisoEndereco('Buscando o endereço desta coordenada...', 'nulo');
     pedir('/api/endereco?lat=' + lat.toFixed(6) + '&lng=' + lng.toFixed(6), { headers: cabecalhos(false), cache: 'no-store' }, 15000)
       .then(function (r) { return r.json(); })
       .then(function (d) {
-        if (!d || !d.ok) { avisoEndereco('Não achei endereço para esta coordenada. Preencha à mão.', 'nulo'); return; }
-        var preenchi = [];
-        var por = { logradouro: 'rua', numero: 'número', bairro: 'bairro', cep: 'CEP' };
-        Object.keys(por).forEach(function (k) {
-          if (!d[k] || form.elements[k].value.trim()) { return; }
-          form.elements[k].value = k === 'cep' ? d.cep.replace(/^(\d{5})(\d{3})$/, '$1-$2') : d[k];
-          preenchi.push(por[k]);
+        botao.disabled = false;
+        if (!d || !d.ok) { enderecoAchado = null; avisoEndereco('Não achei endereço para esta coordenada. Preencha à mão.', 'nulo'); return; }
+        enderecoAchado = d;
+        // Vazio é preenchido na hora; o que já tinha e é diferente fica para o botão.
+        var preenchi = [], diferentes = [];
+        Object.keys(CAMPOS_ENDERECO).forEach(function (k) {
+          var achado = valorEndereco(k, d);
+          if (!achado) { return; }
+          var atualCampo = form.elements[k].value.trim();
+          if (!atualCampo) { form.elements[k].value = achado; preenchi.push(CAMPOS_ENDERECO[k]); }
+          else if (atualCampo.toLowerCase() !== achado.toLowerCase()) { diferentes.push(CAMPOS_ENDERECO[k]); }
         });
         mostrarPendencias();
-        avisoEndereco('Endereço pela coordenada: ' + (d.completo || '') + '. '
-          + (preenchi.length ? 'Preenchi ' + preenchi.join(', ') + '; confira na fachada.' : 'Os campos já preenchidos foram mantidos.'), 'achou');
+        var texto = 'Endereço desta coordenada: ' + (d.completo || '') + '.';
+        if (preenchi.length) { texto += ' Preenchi ' + preenchi.join(', ') + '.'; }
+        if (diferentes.length) { texto += ' Diferente do que está na ficha: ' + diferentes.join(', ') + '.'; }
+        if (!preenchi.length && !diferentes.length) { texto += ' A ficha já está igual.'; }
+        avisoEndereco(texto, 'achou', diferentes.length > 0);
       })
-      .catch(function () { avisoEndereco('O endereço não veio agora. Preencha à mão ou tente o GPS de novo.', 'nulo'); });
+      .catch(function () { botao.disabled = false; avisoEndereco('O endereço não veio agora. Tente de novo ou preencha à mão.', 'nulo'); });
   }
+  $('c-buscar-endereco').addEventListener('click', function () { buscarEndereco(); });
+  $('c-usar-endereco').addEventListener('click', function () {
+    if (!enderecoAchado) { return; }
+    Object.keys(CAMPOS_ENDERECO).forEach(function (k) {
+      var achado = valorEndereco(k, enderecoAchado);
+      if (achado) { form.elements[k].value = achado; }
+    });
+    mostrarPendencias();
+    avisoEndereco('Endereço trocado pelo desta coordenada: ' + (enderecoAchado.completo || '') + '. Confira na fachada.', 'achou');
+  });
 
   // ------------------------------------------------------------ eventos
   document.querySelectorAll('.coleta-dialogo [data-fechar]').forEach(function (b) {

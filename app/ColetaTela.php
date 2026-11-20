@@ -104,14 +104,18 @@ function telaColeta(bool $noApp, bool $comEstado = true): string
       <section class="painel-coleta" data-painel-coleta="local" hidden>
         <div class="coleta-gps">
           <div class="gps-texto"><b>Coordenada</b><span id="c-gps-texto">Sem coordenada</span><small id="c-gps-quando"></small></div>
-          <button type="button" class="botao" id="c-gps"><?= icone('mapa') ?>Usar o GPS daqui</button>
+          <span class="gps-botoes">
+            <button type="button" class="botao" id="c-gps"><?= icone('mapa') ?>Usar o GPS daqui</button>
+            <button type="button" class="botao claro" id="c-buscar-endereco" title="Busca rua, número, bairro e CEP desta coordenada (precisa de internet)"><?= icone('busca') ?>Endereço desta coordenada</button>
+          </span>
           <input type="hidden" name="latitude" id="c-lat"><input type="hidden" name="longitude" id="c-lng">
         </div>
         <?php /* Com internet: o mapa (Google Maps incorporado, sem chave e sem
                  custo) e o endereço achado pela coordenada. Sem internet: só a
                  coordenada; nada de mapa guardado no aparelho. */ ?>
         <div class="mapa-online" id="c-mapa" hidden></div>
-        <p class="endereco-achado" id="c-endereco" hidden></p>
+        <div class="endereco-achado" id="c-endereco" hidden><span id="c-endereco-texto"></span>
+          <button type="button" class="botao mini" id="c-usar-endereco" hidden><?= icone('check') ?>Usar este endereço</button></div>
         <div class="grade">
           <div class="campo c-8"><label for="c-logradouro">Rua, rodovia ou linha</label><div class="entrada"><input type="text" id="c-logradouro" name="logradouro" maxlength="200" autocomplete="off"></div></div>
           <div class="campo c-4"><label for="c-numero">Número</label><div class="entrada"><input type="text" id="c-numero" name="numero" maxlength="20" inputmode="numeric" autocomplete="off"></div></div>

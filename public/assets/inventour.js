@@ -6411,3 +6411,59 @@ window.inventourMarcarNoFiltro = function (form, campo, ids, nome) {
     if (cab) { new ResizeObserver(medir).observe(cab); }
   }
 })();
+
+/*
+ * Ficha do item: endereço pela coordenada (latitude e longitude da ficha),
+ * pelo /api/endereco (OpenStreetMap, pelo servidor). Preenche o que está
+ * vazio e oferece trocar o que estiver diferente.
+ * Softsul Software
+ */
+(function () {
+  'use strict';
+  var caixa = document.querySelector('[data-endereco-coordenada]');
+  if (!caixa) { return; }
+  var botao = caixa.querySelector('[data-buscar-endereco]');
+  var aviso = caixa.querySelector('.endereco-achado');
+  var texto = caixa.querySelector('[data-endereco-texto]');
+  var usar = caixa.querySelector('[data-usar-endereco]');
+  var campos = { logradouro: 'rua', numero: 'número', bairro: 'bairro', cep: 'CEP' };
+  var achado = null;
+  function valor(k) { return k === 'cep' ? String(achado.cep || '').replace(/^(\d{5})(\d{3})$/, '$1-$2') : String(achado[k] || ''); }
+  function dizer(t, classe, oferecer) {
+    aviso.className = 'endereco-achado ' + (classe || '');
+    texto.textContent = t;
+    usar.hidden = !oferecer;
+    aviso.hidden = !t;
+  }
+  botao.addEventListener('click', function () {
+    var lat = parseFloat(String(document.getElementById('latitude').value).replace(',', '.'));
+    var lng = parseFloat(String(document.getElementById('longitude').value).replace(',', '.'));
+    if (!isFinite(lat) || !isFinite(lng)) { dizer('Preencha a latitude e a longitude primeiro (ou o plus code e grave).', 'nulo'); return; }
+    botao.disabled = true;
+    dizer('Buscando...', 'nulo');
+    fetch('/api/endereco?lat=' + lat.toFixed(6) + '&lng=' + lng.toFixed(6), { credentials: 'same-origin', cache: 'no-store' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        botao.disabled = false;
+        if (!d || !d.ok) { dizer('Não achei endereço para esta coordenada.', 'nulo'); return; }
+        achado = d;
+        var preenchi = [], diferentes = [];
+        Object.keys(campos).forEach(function (k) {
+          var el = document.getElementById(k);
+          var v = valor(k);
+          if (!el || !v) { return; }
+          if (!el.value.trim()) { el.value = v; preenchi.push(campos[k]); }
+          else if (el.value.trim().toLowerCase() !== v.toLowerCase()) { diferentes.push(campos[k]); }
+        });
+        dizer('Endereço desta coordenada: ' + (d.completo || '') + '.' + (preenchi.length ? ' Preenchi ' + preenchi.join(', ') + '.' : '')
+          + (diferentes.length ? ' Diferente da ficha: ' + diferentes.join(', ') + '.' : '') + (!preenchi.length && !diferentes.length ? ' A ficha já está igual.' : ''),
+          'achou', diferentes.length > 0);
+      })
+      .catch(function () { botao.disabled = false; dizer('O endereço não veio agora. Tente de novo.', 'nulo'); });
+  });
+  usar.addEventListener('click', function () {
+    if (!achado) { return; }
+    Object.keys(campos).forEach(function (k) { var el = document.getElementById(k); var v = valor(k); if (el && v) { el.value = v; } });
+    dizer('Endereço trocado. Confira e salve a ficha.', 'achou');
+  });
+})();

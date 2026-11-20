@@ -149,8 +149,27 @@
   $('campo-quem').appendChild(b); $('campo-quem').appendChild(s);
   $('campo-sobre-quem').textContent = (conexao.usuario || '') + ' em ' + (conexao.destino || '');
 
+  var VERSAO = parseInt(document.body.getAttribute('data-versao-codigo'), 10) || 0;
+
+  // Versão antiga: a tela fica bloqueada até instalar a nova (o servidor
+  // diz qual é a publicada no teste de conexão; coleta.js chama aqui).
+  function exigirAtualizacao(app) {
+    if (!app || !app.codigo || app.codigo <= VERSAO) { return; }
+    var caixa = $('campo-atualizar');
+    if (caixa.open) { return; }
+    $('campo-atualizar-nova').textContent = app.nome || String(app.codigo);
+    var ios = window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'ios';
+    $('campo-atualizar-baixar').hidden = ios;
+    $('campo-atualizar-ios').hidden = !ios;
+    $('campo-atualizar-baixar').href = app.android || (SERVIDOR + '/baixar/inventour-campo.apk');
+    caixa.addEventListener('cancel', function (ev) { ev.preventDefault(); });
+    caixa.showModal();
+  }
+
   window.INVENTOUR_CAMPO = {
     servidor: SERVIDOR,
+    versao: VERSAO,
+    exigirAtualizacao: exigirAtualizacao,
     chave: conexao.chave,
     token: function () { return conexao.token; },
     posicao: posicao,

@@ -44,6 +44,11 @@ foreach (['emblema.svg', 'marca.css'] as $a) {
 copy($raiz . '/mobile/campo/fonte/campo.js', $www . '/assets/campo.js');
 copy($raiz . '/mobile/campo/fonte/campo.css', $www . '/assets/campo.css');
 
+// Versão do app (a do build.gradle, que o gerar-versao.sh acabou de subir), para o menu.
+$gradle = (string) @file_get_contents($raiz . '/mobile/campo/android/app/build.gradle');
+$versaoApp = preg_match('/versionName "([^"]+)"/', $gradle, $m) ? $m[1] : '?';
+$codigoApp = preg_match('/versionCode (\d+)/', $gradle, $m) ? $m[1] : '?';
+
 ob_start();
 svgSprite();
 $sprite = (string) ob_get_clean();
@@ -64,7 +69,7 @@ $html = '<!doctype html>
 <link rel="stylesheet" href="assets/marca/marca.css">
 <link rel="stylesheet" href="assets/campo.css">
 </head>
-<body class="campo">
+<body class="campo" data-versao-codigo="' . e($codigoApp) . '" data-versao-nome="' . e($versaoApp) . '">
 ' . $sprite . '
 <header class="campo-topo">
   ' . $logo . '
@@ -109,7 +114,19 @@ $html = '<!doctype html>
       <button type="button" class="botao claro" data-fechar>Fechar</button>
       <button type="button" class="botao perigo" id="campo-desconectar">' . icone('sair') . 'Desconectar este aparelho</button>
     </div>
+    <p class="versao-app">InvenTour Campo <b>versão ' . e($versaoApp) . '</b> <span class="nulo">(código ' . e($codigoApp) . ')</span></p>
     <p class="nulo">Produto Softsul Software e Zapping Consultoria.</p>
+  </div>
+</dialog>
+
+<dialog class="coleta-dialogo pequeno atualizar-app" id="campo-atualizar" aria-labelledby="campo-atualizar-titulo">
+  <div class="corpo-dialogo">
+    <span class="atualizar-icone">' . icone('baixar') . '</span>
+    <h2 id="campo-atualizar-titulo">Atualize o InvenTour Campo</h2>
+    <p>Saiu a versão <b id="campo-atualizar-nova"></b>. Esta é a <b>' . e($versaoApp) . '</b>, que não pode mais ser usada.</p>
+    <p class="nulo">O que está gravado no aparelho não se perde: depois de instalar, abra o app e sincronize normalmente.</p>
+    <a class="botao" id="campo-atualizar-baixar" href="#" target="_blank" rel="noopener">' . icone('baixar') . 'Baixar e instalar a versão nova</a>
+    <p class="nulo" id="campo-atualizar-ios" hidden>No iPhone, atualize pelo TestFlight ou pela App Store.</p>
   </div>
 </dialog>
 
