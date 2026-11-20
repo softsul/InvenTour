@@ -4,7 +4,9 @@
  * Softsul Software
  */
 html, body{height:100%}
-body.campo{margin:0; background:var(--nuvem); color:var(--tinta); font-family:var(--ui);
+/* O body do tema é flex (a casca do painel): aqui é bloco, senão o main cresce
+   até o nome mais comprido da lista e a tela passa da largura do celular. */
+body.campo{display:block; min-width:0; overflow-x:hidden; margin:0; background:var(--nuvem); color:var(--tinta); font-family:var(--ui);
   padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
 .campo-topo{position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:12px; padding:10px 16px;
   background:var(--branco); border-bottom:1px solid var(--traco)}
@@ -16,7 +18,7 @@ body.campo{margin:0; background:var(--nuvem); color:var(--tinta); font-family:va
 .campo-topo .quem span{font-size:11.5px; color:var(--suave); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .campo-topo .menu-app{border:0; background:none; padding:8px; color:var(--suave); cursor:pointer; line-height:0}
 .campo-topo .menu-app svg{width:22px; height:22px}
-.campo-corpo{padding:16px 16px 96px; max-width:1200px; margin:0 auto}
+.campo-corpo{display:block; width:100%; min-width:0; box-sizing:border-box; padding:16px 12px 96px; max-width:1200px; margin:0 auto}
 
 /* Conectar: o código de 8 letras gerado no painel. */
 .campo-conectar{max-width:460px; margin:8vh auto 0; padding:28px 24px; background:var(--branco); border:1px solid var(--traco);

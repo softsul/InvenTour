@@ -1207,7 +1207,7 @@ details.tribo .caixas{margin:8px 0 4px 26px}
    (regra do Luiz: nunca rolagem dupla). No celular, a janela é a tela toda.
    ========================================================================== */
 .coleta{display:flex; flex-direction:column; gap:14px}
-.coleta-estado{display:flex; align-items:center; gap:10px 18px; flex-wrap:wrap; padding:12px 16px; border-radius:var(--r);
+.coleta-estado{display:flex; align-items:center; gap:8px 18px; flex-wrap:wrap; padding:12px 14px; box-sizing:border-box; border-radius:var(--r);
   background:var(--branco); border:1px solid var(--traco); font-size:13.5px; color:var(--suave)}
 .coleta-estado .sinal{display:inline-flex; align-items:center; gap:8px; font-weight:700; color:var(--tinta)}
 .coleta-estado .sinal i{width:10px; height:10px; border-radius:50%; background:var(--fraca)}
@@ -1225,7 +1225,11 @@ details.tribo .caixas{margin:8px 0 4px 26px}
 .sinc-progresso .barra i{display:block; height:100%; width:0; background:var(--gradiente); transition:width .25s}
 .coleta-filtros{margin:0}
 .coleta-conta{margin:0; font-size:12.5px}
-.coleta-lista{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:10px}
+.coleta{min-width:0}
+.coleta > *{min-width:0}
+.coleta-lista{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap:10px}
+.coleta-lista > li{min-width:0}
+.coleta-item{min-width:0}
 .coleta-item{display:flex; align-items:flex-start; gap:12px; width:100%; text-align:left; padding:12px 14px; border-radius:var(--r);
   background:var(--branco); border:1px solid var(--traco); font:inherit; color:inherit; cursor:pointer; min-height:72px;
   transition:border-color .12s, box-shadow .12s}
@@ -1312,12 +1316,20 @@ dialog.coleta-dialogo > form{display:flex; flex-direction:column; flex:1; min-he
 .app-campo-aparelhos svg{width:16px; height:16px; color:var(--fraca)}
 
 @media (max-width:640px){
-  .coleta-lista{grid-template-columns:1fr}
+  .coleta-lista{grid-template-columns:minmax(0, 1fr)}
+  .coleta-filtros > .entrada, .coleta-filtros > .entrada:has(> select){flex:1 1 100%; max-width:none; min-width:0}
+  .coleta-estado .quando{flex:1 1 100%; order:3}
+  .coleta-item{padding:12px}
+  .coleta-item-sinais .pilula{font-size:11px}
   .coleta-botoes{margin-left:0; width:100%}
   .coleta-botoes .botao{flex:1; padding:14px}
-  dialog.coleta-dialogo, dialog.coleta-dialogo.pequeno{width:100vw; height:100dvh; border-radius:0; margin:0}
-  .coleta-dialogo .abas-coleta{padding:0 4px}
-  .coleta-dialogo .abas-coleta button{padding:10px 10px; font-size:13px}
+  dialog.coleta-dialogo, dialog.coleta-dialogo.pequeno{width:100vw; height:100dvh; max-height:none; max-width:none; border-radius:0; margin:0; inset:0}
+  /* As cinco abas sempre à vista: ícone em cima, nome embaixo. */
+  .coleta-dialogo .abas-coleta{display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); gap:0; padding:0; overflow:visible}
+  .coleta-dialogo .abas-coleta button{position:relative; flex-direction:column; gap:3px; padding:8px 2px 7px; font-size:10.5px; white-space:nowrap;
+    overflow:hidden; text-overflow:ellipsis; justify-content:center}
+  .coleta-dialogo .abas-coleta button svg{width:19px; height:19px}
+  .coleta-dialogo .abas-coleta .conta-aba{position:absolute; top:3px; right:4px; padding:0 4px; font-size:9px}
   .coleta-dialogo .corpo-dialogo{padding:16px}
   .coleta-dialogo .pe-dialogo{padding:10px 12px; flex-wrap:wrap}
   .coleta-dialogo .pe-dialogo [data-fechar]{display:none}
