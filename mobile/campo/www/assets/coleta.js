@@ -605,7 +605,7 @@
         APP.foto(id === 'c-tirar-foto' ? 'camera' : 'galeria').then(function (r) {
           b.disabled = false;
           if (!r) { return; }
-          juntarFotos([r.arquivo], r.gps);
+          juntarFotos(r.arquivos || (r.arquivo ? [r.arquivo] : []), r.gps);
           // Sem coordenada no item ainda: a da primeira foto já serve.
           if (r.gps && !$('c-lat').value) {
             $('c-lat').value = r.gps.lat.toFixed(6);

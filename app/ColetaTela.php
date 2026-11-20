@@ -108,9 +108,9 @@ function telaColeta(bool $noApp): string
         <?php if ($noApp): ?>
           <div class="coleta-camera">
             <button type="button" class="botao" id="c-tirar-foto"><?= icone('camera') ?>Tirar foto</button>
-            <button type="button" class="botao claro" id="c-galeria"><?= icone('imagem') ?>Escolher da galeria</button>
+            <button type="button" class="botao claro" id="c-galeria"><?= icone('imagem') ?>Escolher da galeria (várias)</button>
           </div>
-          <p class="ajuda">Cada foto guarda o GPS do aparelho na hora em que foi tirada. Fachada, entrada, interior e o que o turista vê.</p>
+          <p class="ajuda">Cada foto tirada aqui guarda o GPS do aparelho na hora. Da galeria, marque quantas quiser de uma vez. Fachada, entrada, interior e o que o turista vê.</p>
         <?php else: ?>
           <div class="coleta-zona" id="c-zona-fotos"><?= zonaDeUpload('fotos_coleta', 'image/jpeg,image/png,image/webp', 'Tire ou arraste as fotos aqui',
             'Ficam no aparelho até sincronizar. O GPS da foto completa a coordenada.', false, true) ?></div>

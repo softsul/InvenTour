@@ -43,26 +43,38 @@
     });
   }
 
-  // Foto da câmera (com o GPS de agora) ou da galeria (sem GPS: pode ser antiga).
+  function arquivoDe(webPath, formato, n) {
+    return fetch(webPath).then(function (r) { return r.blob(); }).then(function (blob) {
+      var tipo = blob.type && /^image\//.test(blob.type) ? blob.type : 'image/jpeg';
+      var nome = 'campo-' + Date.now() + (n ? '-' + n : '') + '.' + (formato === 'png' ? 'png' : 'jpg');
+      return new File([blob], nome, { type: tipo });
+    });
+  }
+  function cancelou(e) {
+    if (String(e && (e.message || e)).toLowerCase().indexOf('cancel') !== -1) { return null; }
+    throw e;
+  }
+
+  // Foto da câmera (uma, com o GPS de agora) ou da galeria (várias de uma vez,
+  // sem GPS: podem ser antigas). Devolve {arquivos: [File], gps} ou null.
   function foto(origem) {
     if (!plugins.Camera) { return Promise.reject(new Error('sem-camera')); }
-    var gps = origem === 'camera' ? posicao().catch(function () { return null; }) : Promise.resolve(null);
+    if (origem !== 'camera') {
+      return plugins.Camera.pickImages({ quality: 85, width: 2400, correctOrientation: true, limit: 0 }).then(function (r) {
+        var fotos = (r && r.photos) || [];
+        return Promise.all(fotos.map(function (f, n) { return arquivoDe(f.webPath, f.format, n + 1); }))
+          .then(function (arquivos) { return arquivos.length ? { arquivos: arquivos, gps: null } : null; });
+      }).catch(cancelou);
+    }
+    var gps = posicao().catch(function () { return null; });
     return plugins.Camera.getPhoto({
-      quality: 85, width: 2400, resultType: 'uri', saveToGallery: false, correctOrientation: true,
-      source: origem === 'camera' ? 'CAMERA' : 'PHOTOS',
+      quality: 85, width: 2400, resultType: 'uri', saveToGallery: false, correctOrientation: true, source: 'CAMERA',
       promptLabelHeader: 'Foto', promptLabelCancel: 'Cancelar'
     }).then(function (f) {
-      return fetch(f.webPath).then(function (r) { return r.blob(); }).then(function (blob) {
-        var tipo = blob.type && /^image\//.test(blob.type) ? blob.type : 'image/jpeg';
-        var nome = 'campo-' + Date.now() + '.' + (f.format === 'png' ? 'png' : 'jpg');
-        var arquivo = new File([blob], nome, { type: tipo });
-        return gps.then(function (g) { return { arquivo: arquivo, gps: g }; });
+      return arquivoDe(f.webPath, f.format, 0).then(function (arquivo) {
+        return gps.then(function (g) { return { arquivos: [arquivo], gps: g }; });
       });
-    }).catch(function (e) {
-      // Cancelar a câmera não é erro.
-      if (String(e && (e.message || e)).toLowerCase().indexOf('cancel') !== -1) { return null; }
-      throw e;
-    });
+    }).catch(cancelou);
   }
 
   // ------------------------------------------------------------ conexão
