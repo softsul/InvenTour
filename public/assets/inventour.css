@@ -1267,3 +1267,21 @@ dialog.coleta-dialogo > form{display:flex; flex-direction:column; min-height:0; 
   .coleta-gps{grid-template-columns:1fr}
   .coleta-gps .botao{width:100%}
 }
+
+/* O destino: abas por seção e os indicadores da economia em linhas de
+   campos no padrão do painel (eram inputs crus dentro da tabela). */
+.abas-destino{margin:4px 0 18px}
+.abas-destino button svg{width:16px; height:16px}
+.abas-destino .conta-aba[title]{font-family:inherit}
+.indicadores{display:flex; flex-direction:column; gap:8px; margin-bottom:14px}
+.indicador{display:grid; grid-template-columns:minmax(220px, 1.4fr) minmax(110px, .8fr) minmax(160px, 1.2fr) 110px; gap:10px; align-items:center}
+.indicador.cab span{font-family:var(--dado); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--fraca); padding:0 2px}
+.indicador-nome{font-size:13.5px; color:var(--tinta)}
+.indicador .entrada{padding:0 12px; background:var(--branco)}
+.indicador .entrada input{padding:9px 0; font-size:14px}
+.indicador .entrada input[name^="ind_valor"], .indicador .entrada input[name^="ind_ano"]{font-family:var(--dado); font-variant-numeric:tabular-nums}
+@media (max-width:760px){
+  .indicador{grid-template-columns:1fr 1fr; padding:10px 0; border-top:1px solid var(--traco)}
+  .indicador.cab{display:none}
+  .indicador-nome{grid-column:1 / -1; font-weight:600}
+}

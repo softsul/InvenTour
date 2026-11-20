@@ -23,7 +23,6 @@ Auth::exigirPermissao('destino-textos.ver');
 $pdo = Database::conexao();
 $eid = (int) $empresa['id'];
 $podeEditar = Auth::pode('destino-textos.editar');
-$aba = ($_GET['aba'] ?? '') === 'linha' ? 'linha' : 'narrativas';
 
 const SECOES_NARRATIVA = [
     'apresentacao'   => 'Apresentação',
@@ -85,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             Auditoria::registrar('alterou', 'destino_narrativas', null, 'alterou a narrativa ' . SECOES_NARRATIVA[$secao], null, null, $eid);
             avisar(SECOES_NARRATIVA[$secao] . ' salvo.');
         }
-        redirecionar('/destino-textos#' . ($secao ?? ''));
+        redirecionar('/destino-textos' . (($secao ?? 'apresentacao') !== 'apresentacao' ? '#' . $secao : ''));
     } elseif ($acao === 'marco') {
         $precisao = array_key_exists((string) ($_POST['precisao'] ?? ''), PRECISOES) ? (string) $_POST['precisao'] : 'dia';
         $categoria = array_key_exists((string) ($_POST['categoria'] ?? ''), CATEGORIAS_MARCO) ? (string) $_POST['categoria'] : null;
@@ -142,15 +141,19 @@ paginaInicio('O destino', 'destino-textos');
     <p>O discurso oficial de <?= e($empresa['nome_fantasia']) ?>: os textos de abertura do caderno do inventário e das abas institucionais do portal, e a linha do tempo do turismo.</p>
   </div>
 </div>
-<nav class="abas-modal" aria-label="Seções">
-  <a href="/destino-textos" class="aba<?= $aba === 'narrativas' ? ' ativa' : '' ?>"<?= $aba === 'narrativas' ? ' aria-current="page"' : '' ?>>Narrativas</a>
-  <a href="/destino-textos?aba=linha" class="aba<?= $aba === 'linha' ? ' ativa' : '' ?>"<?= $aba === 'linha' ? ' aria-current="page"' : '' ?>>Linha do tempo (<?= count($marcos) ?>)</a>
+<?php /* Uma aba por seção e a linha do tempo: a tela inteira de uma vez ficava
+         comprida demais. A aba vem do endereço (#economia, ?aba=linha), que é
+         para onde o salvar de cada seção volta. */ ?>
+<nav class="abas-chamado abas-destino" role="tablist" aria-label="Seções">
+  <?php foreach (SECOES_NARRATIVA as $secao => $rotulo): $temTexto = trim(strip_tags((string) ($narrativas[$secao]['conteudo_html'] ?? ''))) !== ''; ?>
+    <button type="button" role="tab" data-aba="<?= $secao ?>" aria-selected="<?= $secao === 'apresentacao' ? 'true' : 'false' ?>"><?= e($rotulo) ?><?= $temTexto ? '' : '<span class="conta-aba" title="Ainda sem texto">vazio</span>' ?></button>
+  <?php endforeach; ?>
+  <button type="button" role="tab" data-aba="linha" aria-selected="false"><?= icone('calendario') ?>Linha do tempo<span class="conta-aba"><?= count($marcos) ?></span></button>
 </nav>
 
-<?php if ($aba === 'narrativas'): ?>
-  <p class="ajuda">Pode colar do Word ou do Google Docs: negrito, itálico, listas, títulos e tabelas ficam; cores, fontes e imagens coladas saem.</p>
   <?php foreach (SECOES_NARRATIVA as $secao => $rotulo): $n = $narrativas[$secao] ?? null; $ind = json_decode((string) ($n['indicadores'] ?? ''), true) ?: []; ?>
-    <form method="post" action="/destino-textos" class="cartao" id="<?= $secao ?>" data-com-editor>
+  <div class="painel-aba" data-painel="<?= $secao ?>"<?= $secao === 'apresentacao' ? '' : ' hidden' ?>>
+    <form method="post" action="/destino-textos" class="cartao" id="form-<?= $secao ?>" data-com-editor>
       <input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="acao" value="narrativa"><input type="hidden" name="secao" value="<?= $secao ?>">
       <div class="cab-cartao"><h2><?= e($rotulo) ?></h2>
         <?php if ($n && $n['atualizado_em']): ?><span class="nota">atualizado em <?= e(dataBr((string) $n['atualizado_em'], 'd/m/Y')) ?></span><?php endif; ?></div>
@@ -174,25 +177,28 @@ paginaInicio('O destino', 'destino-textos');
         <div class="editor-area texto-legal" <?= $podeEditar ? 'contenteditable="true"' : '' ?> role="textbox" aria-multiline="true" aria-label="Texto de <?= e($rotulo) ?>"><?= (string) ($n['conteudo_html'] ?? '') ?></div>
         <textarea name="conteudo" hidden><?= e((string) ($n['conteudo_html'] ?? '')) ?></textarea>
       </div>
+      <?php if ($podeEditar): ?><p class="ajuda">Pode colar do Word ou do Google Docs: negrito, itálico, listas, títulos e tabelas ficam; cores, fontes e imagens coladas saem.</p><?php endif; ?>
       <?php if ($secao === 'economia'): ?>
         <h3 class="sub-cartao">Indicadores (com a fonte e o ano)</h3>
-        <div class="rolagem"><table class="dados">
-          <thead><tr><th>Indicador</th><th>Valor</th><th>Fonte</th><th>Ano</th></tr></thead>
-          <tbody>
-          <?php foreach (INDICADORES_ECONOMIA as $k => $r): ?>
-            <tr><td><?= e($r) ?></td>
-              <td><input type="text" name="ind_valor[<?= $k ?>]" maxlength="40" aria-label="<?= e($r) ?>, valor" value="<?= e((string) ($ind[$k]['valor'] ?? '')) ?>"<?= $podeEditar ? '' : ' readonly' ?>></td>
-              <td><input type="text" name="ind_fonte[<?= $k ?>]" maxlength="120" aria-label="<?= e($r) ?>, fonte" placeholder="RAIS, Cadastur, IPARDES..." value="<?= e((string) ($ind[$k]['fonte'] ?? '')) ?>"<?= $podeEditar ? '' : ' readonly' ?>></td>
-              <td><input type="text" name="ind_ano[<?= $k ?>]" maxlength="10" aria-label="<?= e($r) ?>, ano" value="<?= e((string) ($ind[$k]['ano'] ?? '')) ?>"<?= $podeEditar ? '' : ' readonly' ?>></td></tr>
+        <div class="indicadores">
+          <div class="indicador cab" aria-hidden="true"><span>Indicador</span><span>Valor</span><span>Fonte</span><span>Ano</span></div>
+          <?php foreach (INDICADORES_ECONOMIA as $k => $r): $ro = $podeEditar ? '' : ' readonly'; ?>
+            <div class="indicador">
+              <span class="indicador-nome"><?= e($r) ?></span>
+              <div class="entrada"><input type="text" name="ind_valor[<?= $k ?>]" maxlength="40" inputmode="decimal" aria-label="<?= e($r) ?>, valor" placeholder="Valor" value="<?= e((string) ($ind[$k]['valor'] ?? '')) ?>"<?= $ro ?>></div>
+              <div class="entrada"><input type="text" name="ind_fonte[<?= $k ?>]" maxlength="120" aria-label="<?= e($r) ?>, fonte" placeholder="RAIS, Cadastur, IPARDES..." value="<?= e((string) ($ind[$k]['fonte'] ?? '')) ?>"<?= $ro ?>></div>
+              <div class="entrada"><input type="text" name="ind_ano[<?= $k ?>]" maxlength="10" inputmode="numeric" aria-label="<?= e($r) ?>, ano" placeholder="<?= date('Y') - 1 ?>" value="<?= e((string) ($ind[$k]['ano'] ?? '')) ?>"<?= $ro ?>></div>
+            </div>
           <?php endforeach; ?>
-          </tbody></table></div>
+        </div>
       <?php endif; ?>
       <label class="check"><input type="checkbox" name="no_portal" value="1"<?= !$n || $n['no_portal'] ? ' checked' : '' ?><?= $podeEditar ? '' : ' disabled' ?>><i></i>Publicar no portal (sem a marca, vai só para o caderno)</label>
       <?php if ($podeEditar): ?><div class="acoes"><button type="submit" class="botao"><?= icone('check') ?>Salvar <?= e(mb_strtolower($rotulo)) ?></button></div><?php endif; ?>
     </form>
+  </div>
   <?php endforeach; ?>
 
-<?php else: ?>
+<div class="painel-aba" data-painel="linha" hidden>
   <?php if ($podeEditar): ?>
   <form method="post" action="/destino-textos?aba=linha" class="cartao" id="form-marco">
     <input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="acao" value="marco">
@@ -247,5 +253,5 @@ paginaInicio('O destino', 'destino-textos');
       </ol>
     <?php endif; ?>
   </div>
-<?php endif; ?>
+</div>
 <?php paginaFim();
