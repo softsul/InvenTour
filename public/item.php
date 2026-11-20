@@ -148,7 +148,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $acaoFoto !== '' && !$novo) {
         Inventario::registrarHistorico($id, 'alterou', null, null, 'excluiu uma foto');
         avisar('Foto excluída.');
     }
-    fichaSalva(endereco('item', $id, (string) $item['nome']) . '#fotos');
+    // Foto (legenda, capa, excluir, enviar) não fecha o modal: volta para a
+    // própria ficha, na aba Fotos, com o aviso do que foi feito.
+    redirecionar(noPopup(endereco('item', $id, (string) $item['nome'])) . '#fotos');
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $acaoFoto === '' && $acaoEsteira === '') {
