@@ -39,6 +39,18 @@ if ($empresa) {
             . plural($inv['situacao']['em_conferencia'], 'em conferência', 'em conferência'), '/inventario'];
         $metricas[] = ['Leitos homologados', $inv['leitos'], plural($inv['uh'], 'unidade habitacional', 'unidades habitacionais'), '/inventario?ficha=' . (int) $pdo->query('SELECT id FROM inventario_fichas WHERE ordem = 20')->fetchColumn()];
     }
+    // Etapa 3: a esteira. Quem coordena vê a fila de conferência; quem
+    // coleta, o que tem para levantar e o que voltou da conferência.
+    require_once __DIR__ . '/../app/Esteira.php';
+    if (Auth::pode('homologacao.ver')) {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM inventario_itens WHERE empresa_id = ? AND situacao = 'homologada' AND homologado_em >= NOW() - INTERVAL 30 DAY");
+        $q->execute([$eid]);
+        $metricas[] = ['Fila de conferência', Esteira::naFila($eid), plural((int) $q->fetchColumn(), 'homologado', 'homologados') . ' nos últimos 30 dias', '/homologacao'];
+    }
+    if (Auth::pode('coleta.ver')) {
+        $metricas[] = ['Para coletar', Esteira::paraColetar($eid), plural(Esteira::devolvidos($eid), 'devolvido', 'devolvidos') . ' pela conferência'
+            . (Esteira::escopo() !== null ? ' · no seu escopo' : ''), '/coleta'];
+    }
     $metricas[] = ['Equipe', Painel::equipe($eid), 'pessoas com acesso ao destino', Auth::pode('usuarios.ver') ? '/configuracoes/usuarios' : null];
 } elseif ($u['softsul']) {
     $destinos = Painel::destinosPlataforma();

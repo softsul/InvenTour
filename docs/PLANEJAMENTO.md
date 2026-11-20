@@ -386,6 +386,15 @@ primeiro acesso do Luiz, que dependem da delegação do Registro.br.
 - Resumo no Início: fichas por situação e por categoria, fila de
   conferência no menu.
 
+Feito em 20/11/2026: módulos Coleta de campo (/coleta, com fila no
+IndexedDB, uuid por envio e service worker /sw-coleta.js) e Homologação
+(/homologacao, fila com o núcleo mínimo); esteira no topo do item (enviar,
+homologar, devolver com nota) em app/Esteira.php; escopo de fichas no
+vínculo do usuário com o destino (usuario_empresa.escopo_fichas); números no
+menu e no Início. Núcleo mínimo para homologar: tipo, endereço ou
+referência, coordenada, conservação e uma foto (ficha de município só pede o
+nome). A confirmar com o Baggio se o núcleo mínimo é esse.
+
 ### Etapa 4. Caderno oficial (2 semanas)
 
 - Configuração da encadernação (capa, apresentação, equipe técnica, ano).

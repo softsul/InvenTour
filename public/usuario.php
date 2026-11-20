@@ -102,6 +102,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     foreach ($papelIds as $pid) {
                         $ins->execute([$uid, $empresa, $pid]);
                     }
+                    // Escopo da coleta (só pesa no papel de pesquisador): os
+                    // códigos das fichas marcadas; nenhuma marcada é todas.
+                    $ids = array_values(array_filter(array_map('intval', (array) ($_POST['escopo_fichas'] ?? []))));
+                    $codigos = [];
+                    if ($ids) {
+                        $q = $pdo->prepare('SELECT codigo FROM inventario_fichas WHERE id IN (' . implode(',', array_fill(0, count($ids), '?')) . ') ORDER BY ordem');
+                        $q->execute($ids);
+                        $codigos = $q->fetchAll(PDO::FETCH_COLUMN);
+                    }
+                    $pdo->prepare('UPDATE usuario_empresa SET escopo_fichas = ? WHERE usuario_id = ? AND empresa_id = ?')
+                        ->execute([$codigos ? json_encode($codigos) : null, $uid, $empresa]);
                 };
                 $existe = $pdo->prepare('SELECT id, softsul FROM usuarios WHERE email = ? AND id <> ?');
                 $existe->execute([$email, $id]);
@@ -386,6 +397,23 @@ $ro = $podeConta ? '' : ' readonly';
           <?php endif; ?>
           <span class="ajuda"><?= $empresa ? 'As permissões somam as dos papéis escolhidos. ' : '' ?>Ninguém dá um papel acima do próprio.</span>
         </div>
+        <?php if ($empresa):
+          $escopoAtual = [];
+          if ($id) {
+              $qe = $pdo->prepare('SELECT escopo_fichas FROM usuario_empresa WHERE usuario_id = ? AND empresa_id = ?');
+              $qe->execute([$id, $empresa]);
+              $escopoAtual = json_decode((string) $qe->fetchColumn(), true) ?: [];
+          }
+          $fichasEscopo = $pdo->query('SELECT id, codigo, nome FROM inventario_fichas WHERE ativo = 1 ORDER BY ordem')->fetchAll();
+          $marcadasEscopo = $_SERVER['REQUEST_METHOD'] === 'POST' ? array_map('intval', (array) ($_POST['escopo_fichas'] ?? []))
+              : array_map('intval', array_column(array_filter($fichasEscopo, fn ($f) => in_array($f['codigo'], $escopoAtual, true)), 'id')); ?>
+        <div class="campo c-12">
+          <label id="rotulo-escopo">Fichas que coleta</label>
+          <?= multiEscolha('escopo_fichas', 'rotulo-escopo', array_map(fn ($f) => ['id' => $f['id'], 'nome' => $f['codigo'] . ' ' . $f['nome']], $fichasEscopo),
+                $marcadasEscopo, 'Todas as fichas', !$podeMexer) ?>
+          <span class="ajuda">Vale para o papel de pesquisador: a tela de campo só mostra estas fichas. Nenhuma marcada é todas.</span>
+        </div>
+        <?php endif; ?>
       </div>
       <?php if ($id): ?>
         <label class="check"><input type="checkbox" name="ativo" value="1" <?= $dados['vinculo_ativo'] ? 'checked' : '' ?><?= $podeMexer ? '' : ' disabled' ?>><i></i>Acesso ativo<?= $empresa ? ' neste destino' : '' ?></label>

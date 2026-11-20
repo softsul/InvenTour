@@ -11,14 +11,16 @@
  * específico aceita NA, NI ou NE, como manda a metodologia. O histórico do
  * item fica no fim.
  *
- * A mudança de situação pela esteira (envio à conferência, homologação) é da
- * etapa 3; aqui quem coordena pode ajustar a situação à mão.
+ * A esteira (app/Esteira.php) fica no topo: o pesquisador envia para a
+ * conferência, quem coordena homologa ou devolve com nota. Quem coordena
+ * ainda pode ajustar a situação à mão no campo Situação.
  */
 declare(strict_types=1);
 require_once __DIR__ . '/../app/layout.php';
 require_once __DIR__ . '/../app/Inventario.php';
 require_once __DIR__ . '/../app/Cnpj.php';
 require_once __DIR__ . '/../app/PlusCode.php';
+require_once __DIR__ . '/../app/Esteira.php';
 
 Auth::exigirLogin();
 $empresa = Empresa::exigir();
@@ -32,10 +34,19 @@ if (!$novo) {
     $item = Inventario::buscar($id) ?: negarRegistro();
     $ficha = Inventario::ficha((int) $item['ficha_id']) ?: negarRegistro();
 } else {
-    Auth::exigirPermissao('inventario.criar');
+    if (!Auth::pode('inventario.criar') && !Auth::pode('coleta.criar')) {
+        Auth::exigirPermissao('inventario.criar');
+    }
     $ficha = Inventario::ficha((int) ($_GET['ficha'] ?? $_POST['ficha_id'] ?? 0));
+    if ($ficha && !Esteira::dentroDoEscopo((string) $ficha['codigo'])) {
+        negarRegistro();
+    }
 }
-$podeEditar = $novo ? Auth::pode('inventario.criar') : Auth::pode('inventario.editar');
+// O pesquisador (coleta) altera o que está no escopo dele e ainda em coleta;
+// depois de enviado, só quem coordena mexe.
+$podeEditar = $novo ? (Auth::pode('inventario.criar') || Auth::pode('coleta.criar'))
+    : (Auth::pode('inventario.editar') || (Auth::pode('coleta.editar') && Esteira::dentroDoEscopo((string) $item['ficha_codigo'])
+        && in_array($item['situacao'], Esteira::EM_COLETA, true)));
 // Quem coordena ajusta a situação à mão; o pesquisador só envia à conferência.
 $coordena = Auth::ehSoftsul() || Auth::temPapel('gestor') || Auth::temPapel('consultor') || Auth::temPapel('coordenador');
 $situacoesPermitidas = $coordena ? array_keys(Inventario::SITUACOES) : ['pre_cadastro', 'em_campo', 'em_conferencia'];
@@ -82,6 +93,26 @@ $numero = function (string $c): ?float {
 };
 $doCatalogo = fn (string $c, array $validos): ?string => array_key_exists((string) ($_POST[$c] ?? ''), $validos) ? (string) $_POST[$c] : null;
 
+// Esteira: formulário próprio (form-esteira), só com o item salvo.
+$acaoEsteira = (string) ($_POST['acao_esteira'] ?? '');
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $acaoEsteira !== '' && !$novo) {
+    if (!Auth::conferirCsrf($_POST['csrf'] ?? null)) {
+        avisar('A página ficou aberta tempo demais. Tente de novo.', 'ruim');
+    } elseif ($acaoEsteira === 'enviar' && $podeEditar) {
+        Esteira::enviar($id) ? avisar($item['nome'] . ' foi para a conferência.') : avisar('Este item não está em coleta.', 'atencao');
+    } elseif ($acaoEsteira === 'homologar' && Esteira::coordena()) {
+        $falta = Esteira::homologar($id);
+        $falta ? avisar('Ainda falta: ' . implode(', ', $falta) . '.', 'atencao') : avisar($item['nome'] . ' homologado: pronto para o portal e para o EventCity.');
+    } elseif ($acaoEsteira === 'devolver' && Esteira::coordena()) {
+        Esteira::devolver($id, (string) ($_POST['devolucao_nota'] ?? ''))
+            ? avisar($item['nome'] . ' voltou para o campo com a sua nota.')
+            : avisar('Escreva o que acertar em campo para devolver.', 'atencao');
+    } else {
+        avisar('Você não pode fazer isso neste item.', 'ruim');
+    }
+    fichaSalva(endereco('item', $id, (string) $item['nome']));
+}
+
 // Fotos: formulário próprio (fora do formulário da ficha), só com o item salvo.
 $acaoFoto = (string) ($_POST['acao_foto'] ?? '');
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $acaoFoto !== '' && !$novo) {
@@ -120,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $acaoFoto !== '' && !$novo) {
     fichaSalva(endereco('item', $id, (string) $item['nome']) . '#fotos');
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && $acaoFoto === '') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $acaoFoto === '' && $acaoEsteira === '') {
     if (!Auth::conferirCsrf($_POST['csrf'] ?? null)) {
         $erro = 'A página ficou aberta tempo demais. Tente de novo.';
     } elseif (!$podeEditar) {
@@ -332,6 +363,46 @@ paginaFicha($titulo, 'inventario');
   </div>
   <?php if ($ficha['ajuda']): ?>
     <p class="aviso info"><?= icone('manual') ?><span><?= e((string) $ficha['ajuda']) ?></span></p>
+  <?php endif; ?>
+
+  <?php if (!$novo):
+    $pendencias = Esteira::pendencias($item);
+    $coordenaAqui = Esteira::coordena();
+    $emColeta = in_array($d['situacao'], Esteira::EM_COLETA, true); ?>
+    <?php if ($emColeta && !empty($item['devolucao_nota'])): ?>
+      <p class="aviso atencao"><?= icone('alerta') ?><span><strong>Devolvido pela conferência:</strong> <?= e((string) $item['devolucao_nota']) ?></span></p>
+    <?php endif; ?>
+    <?php if (($emColeta && $podeEditar) || ($d['situacao'] === 'em_conferencia' && $coordenaAqui)): ?>
+    <div class="esteira-item <?= $pendencias ? 'com-pendencia' : 'pronto' ?>">
+      <div class="esteira-texto">
+        <?php if ($pendencias): ?>
+          <b><?= icone('alerta') ?>Para homologar falta</b>
+          <span><?= e(implode(' · ', $pendencias)) ?></span>
+        <?php else: ?>
+          <b><?= icone('check') ?>Núcleo mínimo completo</b>
+          <span><?= $d['situacao'] === 'em_conferencia' ? 'Confira os dados e as fotos e homologue.' : 'Pronto para a conferência.' ?></span>
+        <?php endif; ?>
+      </div>
+      <div class="esteira-acoes">
+        <?php if ($emColeta && $podeEditar): ?>
+          <button type="submit" form="form-esteira" name="acao_esteira" value="enviar" class="botao claro"><?= icone('enviar') ?>Enviar para conferência</button>
+        <?php endif; ?>
+        <?php if ($d['situacao'] === 'em_conferencia' && $coordenaAqui): ?>
+          <details class="devolver">
+            <summary class="botao claro"><?= icone('trocar') ?>Devolver para o campo</summary>
+            <div class="devolver-caixa">
+              <label for="devolucao_nota">O que acertar em campo</label>
+              <div class="entrada"><textarea id="devolucao_nota" name="devolucao_nota" form="form-esteira" rows="3" maxlength="1000" placeholder="Ex.: falta foto da fachada; conferir o número de leitos."></textarea></div>
+              <button type="submit" form="form-esteira" name="acao_esteira" value="devolver" class="botao claro">Devolver</button>
+            </div>
+          </details>
+          <button type="submit" form="form-esteira" name="acao_esteira" value="homologar" class="botao"<?= $pendencias ? ' disabled title="Complete o núcleo mínimo antes"' : '' ?>><?= icone('certificado') ?>Homologar</button>
+        <?php endif; ?>
+      </div>
+    </div>
+    <?php elseif ($d['situacao'] === 'homologada' && !empty($item['homologado_em'])): ?>
+      <p class="aviso bom"><?= icone('certificado') ?><span>Homologado em <?= e(dataBr((string) $item['homologado_em'], 'd/m/Y')) ?>: pronto para o portal e para o EventCity.</span></p>
+    <?php endif; ?>
   <?php endif; ?>
 
   <?php
@@ -740,6 +811,9 @@ paginaFicha($titulo, 'inventario');
   </div>
   </div>
 </form>
+<?php if (!$novo): ?>
+<form method="post" action="<?= e($acao) ?>" id="form-esteira" hidden><input type="hidden" name="csrf" value="<?= e(Auth::tokenCsrf()) ?>"></form>
+<?php endif; ?>
 
 <?php if (!$novo): $eid = (int) $empresa['id']; $csrf = Auth::tokenCsrf(); ?>
 <div class="painel-aba" data-painel="fotos" hidden>

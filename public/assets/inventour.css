@@ -1158,3 +1158,112 @@ details.tribo .caixas{margin:8px 0 4px 26px}
 .tribos-colunas > h3.sub-cartao:first-child{margin-top:4px}
 .tribos-colunas > details{break-inside:avoid}
 @media (max-width:900px){ .tribos-colunas{column-count:1} }
+
+/* Esteira no topo do item: o que falta para homologar e os botões do passo. */
+.esteira-item{display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  margin:0 0 14px; padding:12px 16px; border-radius:var(--r); border:1px solid var(--traco); background:var(--branco)}
+.esteira-item.com-pendencia{border-color:#F1D3A6; background:var(--ambar-sup)}
+.esteira-item.pronto{border-color:var(--acento-borda); background:var(--indigo-sup)}
+.esteira-texto{display:flex; flex-direction:column; gap:3px; min-width:0}
+.esteira-texto b{display:flex; align-items:center; gap:7px; font-size:13.5px; color:var(--tinta)}
+.esteira-texto b svg{width:16px; height:16px}
+.esteira-item.com-pendencia .esteira-texto b svg{color:var(--ambar)}
+.esteira-item.pronto .esteira-texto b svg{color:var(--indigo)}
+.esteira-texto span{font-size:13px; color:var(--suave)}
+.esteira-acoes{display:flex; align-items:flex-start; gap:10px; flex-wrap:wrap}
+.esteira-acoes .botao{width:auto; padding:9px 14px; font-size:13.5px}
+.esteira-acoes details.devolver{position:relative}
+.esteira-acoes details.devolver > summary{list-style:none; cursor:pointer}
+.esteira-acoes details.devolver > summary::-webkit-details-marker{display:none}
+.devolver-caixa{position:absolute; right:0; top:calc(100% + 6px); z-index:5; width:min(380px, 80vw); padding:14px;
+  display:flex; flex-direction:column; gap:8px; background:var(--branco); border:1px solid var(--traco2); border-radius:var(--r); box-shadow:var(--sombra-alta)}
+.devolver-caixa label{font-size:12.5px; font-weight:600; color:var(--suave)}
+.devolver-caixa textarea{width:100%; border:0; background:transparent; padding:10px 0; font:inherit; font-size:14px; color:var(--tinta); outline:none; resize:vertical}
+.devolver-caixa .botao{align-self:flex-end}
+[data-tema="escuro"] .esteira-item.com-pendencia{border-color:#5A4316}
+
+/* ==========================================================================
+   Coleta de campo (public/coleta.php): celular primeiro. Barra de estado
+   (sinal e fila), lista em cartões grandes para o dedo e a ficha em
+   diálogo de tela cheia no celular.
+   ========================================================================== */
+.coleta{display:flex; flex-direction:column; gap:14px}
+.coleta-estado{display:flex; align-items:center; gap:10px 16px; flex-wrap:wrap; padding:10px 14px; border-radius:var(--r);
+  background:var(--branco); border:1px solid var(--traco); font-size:13px; color:var(--suave)}
+.coleta-estado .sinal{display:inline-flex; align-items:center; gap:7px; font-weight:700; color:var(--tinta)}
+.coleta-estado .sinal i{width:9px; height:9px; border-radius:50%; background:var(--fraca)}
+.coleta-estado .sinal.online i{background:var(--verde); box-shadow:0 0 0 3px var(--verde-sup)}
+.coleta-estado .sinal.offline i{background:var(--ambar); box-shadow:0 0 0 3px var(--ambar-sup)}
+.coleta-estado .fila-local.pendente{color:var(--ambar); font-weight:600}
+.coleta-estado .quando{font-family:var(--dado); font-size:11.5px; color:var(--fraca)}
+.coleta-botoes{display:flex; gap:8px; margin-left:auto}
+.coleta-botoes .botao{width:auto; padding:7px 12px; font-size:12.5px}
+.coleta.enviando .coleta-estado .fila-local::after{content:" · enviando"; color:var(--indigo)}
+.coleta-filtros{margin:0}
+.coleta-conta{margin:0; font-size:12.5px}
+.coleta-lista{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:10px}
+.coleta-item{display:flex; align-items:flex-start; gap:12px; width:100%; text-align:left; padding:12px 14px; border-radius:var(--r);
+  background:var(--branco); border:1px solid var(--traco); font:inherit; color:inherit; cursor:pointer; min-height:72px;
+  transition:border-color .12s, box-shadow .12s}
+.coleta-item:hover, .coleta-item:focus-visible{border-color:var(--acento-borda); box-shadow:var(--anel); outline:none}
+.coleta-item .ficha-codigo{flex:none; display:inline-flex; align-items:center; justify-content:center; min-width:38px; height:28px; padding:0 6px;
+  border-radius:8px; background:var(--indigo-sup); color:var(--indigo-fte); font-family:var(--dado); font-size:12px; font-weight:600}
+.coleta-item-txt{display:flex; flex-direction:column; gap:2px; min-width:0; flex:1}
+.coleta-item-txt b{font-size:14.5px; color:var(--tinta); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.coleta-item-txt span{font-size:12.5px; color:var(--suave); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.coleta-item-txt .devolucao{white-space:normal; color:#7A4808; background:var(--ambar-sup); border-radius:6px; padding:4px 7px; margin-top:4px}
+.coleta-item-sinais{display:flex; flex-direction:column; align-items:flex-end; gap:6px; flex:none}
+.coleta-item-sinais .pilula{white-space:nowrap}
+.mini-sinais{display:inline-flex; align-items:center; gap:5px; font-family:var(--dado); font-size:11.5px; color:var(--fraca)}
+.mini-sinais svg{width:14px; height:14px}
+#col-mais{align-self:center; width:auto}
+.coleta-fichas{max-height:60vh; overflow-y:auto}
+.coleta-fichas .como-link{text-align:left; font-size:14px; padding:6px 0}
+
+dialog.coleta-dialogo{width:min(760px, calc(100vw - 24px)); max-width:none; max-height:92vh; padding:0; border:0; border-radius:var(--r-g);
+  background:var(--nuvem); color:var(--tinta); box-shadow:var(--sombra-alta)}
+dialog.coleta-dialogo[open]{display:flex; flex-direction:column}
+dialog.coleta-dialogo::backdrop{background:rgba(10,16,30,.5)}
+dialog.coleta-dialogo > form{display:flex; flex-direction:column; min-height:0; flex:1}
+.coleta-dialogo .cab-dialogo{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:16px 20px 12px;
+  background:var(--branco); border-bottom:1px solid var(--traco)}
+.coleta-dialogo .cab-dialogo h2{margin:0; font-size:17px}
+.coleta-dialogo .cab-dialogo p{margin:2px 0 0; font-size:12.5px}
+.coleta-dialogo .fechar{border:0; background:none; color:var(--fraca); cursor:pointer; padding:6px; line-height:0}
+.coleta-dialogo .fechar svg{width:18px; height:18px}
+.coleta-dialogo .corpo-dialogo{padding:16px 20px; overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:14px}
+.coleta-dialogo .pe-dialogo{display:flex; justify-content:flex-end; gap:10px; padding:12px 20px; background:var(--branco); border-top:1px solid var(--traco)}
+.coleta-dialogo .pe-dialogo .botao{width:auto}
+.coleta-dialogo .entrada select, .coleta-dialogo .entrada textarea{flex:1; min-width:0; border:0; background:transparent; padding:12px 0;
+  font:inherit; font-size:14.5px; color:var(--tinta); outline:none}
+.coleta-dialogo .entrada textarea{resize:vertical}
+.coleta-gps{display:grid; grid-template-columns:1fr auto; gap:10px 14px; align-items:center; padding:12px 14px; border-radius:var(--r);
+  background:var(--branco); border:1px solid var(--traco)}
+.coleta-gps .gps-texto{display:flex; flex-direction:column; gap:2px}
+.coleta-gps .gps-texto b{font-size:12.5px; color:var(--suave)}
+.coleta-gps .gps-texto span{font-family:var(--dado); font-size:13px}
+.coleta-gps .botao{width:auto}
+.coleta-gps .campo{grid-column:1 / -1}
+.coleta-zona .zona-upload{margin-top:0; padding-top:0; border-top:0}
+.coleta-miniaturas{list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:8px}
+.coleta-miniaturas:empty{display:none}
+.coleta-miniaturas li{position:relative; width:84px; height:84px}
+.coleta-miniaturas img{width:100%; height:100%; object-fit:cover; border-radius:10px}
+.coleta-miniaturas button{position:absolute; top:4px; right:4px; width:24px; height:24px; border:0; border-radius:50%; background:rgba(0,0,0,.6);
+  color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0}
+.coleta-miniaturas button svg{width:12px; height:12px}
+.coleta-pendencias{display:flex; align-items:flex-start; gap:9px; padding:10px 12px; border-radius:var(--r); font-size:13px}
+.coleta-pendencias svg{width:16px; height:16px; flex:none; margin-top:1px}
+.coleta-pendencias.falta{background:var(--ambar-sup); color:#7A4808}
+.coleta-pendencias.pronto{background:var(--verde-sup); color:#0A6B4F}
+.coleta-enviar{font-weight:600; color:var(--tinta)}
+
+@media (max-width:640px){
+  .coleta-lista{grid-template-columns:1fr}
+  .coleta-botoes{margin-left:0; width:100%}
+  .coleta-botoes .botao{flex:1}
+  dialog.coleta-dialogo{width:100vw; height:100dvh; max-height:none; border-radius:0; margin:0}
+  .coleta-dialogo .pe-dialogo .botao{flex:1}
+  .coleta-gps{grid-template-columns:1fr}
+  .coleta-gps .botao{width:100%}
+}

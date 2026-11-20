@@ -30,6 +30,29 @@ if (isset($_GET['pp']) && Auth::usuarioOuNulo()) {
     Lista::ouvirTamanho(strtok($_SERVER['REQUEST_URI'] ?? '/', '?') ?: '/');
 }
 
+/**
+ * Os números do menu: fichas esperando conferência (Homologação) e fichas
+ * devolvidas para o campo no escopo da pessoa (Coleta de campo). O mesmo cálculo serve
+ * a tela e o /api/contadores.
+ */
+function contadoresDoMenu(): array
+{
+    $eid = Empresa::id();
+    if (!$eid) {
+        return [];
+    }
+    require_once __DIR__ . '/Esteira.php';
+    $n = [];
+    if (Auth::pode('homologacao.ver')) {
+        $n['homologacao'] = Esteira::naFila($eid);
+    }
+    if (Auth::pode('coleta.ver')) {
+        // Na coleta, só o que pede ação: o que a conferência devolveu.
+        $n['coleta'] = Esteira::devolvidos($eid);
+    }
+    return $n;
+}
+
 function paginaInicio(string $titulo, string $moduloAtivo = ''): void
 {
     $quem = Auth::usuarioOuNulo();
@@ -46,7 +69,7 @@ function paginaInicio(string $titulo, string $moduloAtivo = ''): void
     // Números ao lado de um item do menu (chave => quantidade), atualizados
     // pelo inventour.js em /api/contadores. Cada módulo novo que tenha fila
     // (fichas esperando homologação, por exemplo) entra aqui.
-    $contadoresDoMenu = [];
+    $contadoresDoMenu = contadoresDoMenu();
     $escuro    = Auth::temaEscuro();
     $recolhido = ($_COOKIE['inventour_menu'] ?? '') === 'recolhido';
     ?>

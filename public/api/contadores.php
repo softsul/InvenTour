@@ -19,6 +19,6 @@ if (!Auth::usuarioOuNulo()) {
     echo json_encode(['ok' => false]);
     exit;
 }
-$saida = ['ok' => true];
+$saida = ['ok' => true] + contadoresDoMenu();
 // Cada contagem tem o escopo do destino na consulta (empresa_id = Empresa::id()).
 echo json_encode($saida);
