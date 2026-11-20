@@ -229,6 +229,112 @@ final class Inventario
         return $id;
     }
 
+    // ---------------------------------------------------- PRÉ-CADASTRO CADASTUR
+
+    /**
+     * Atividade do Cadastur => ordem da ficha do MTur em que o prestador
+     * entra (docs/PLANEJAMENTO.md, 2.4). O pré-cadastro poupa a digitação do
+     * que a base oficial já tem; o pesquisador confere em campo.
+     */
+    public const CADASTUR_FICHAS = [
+        'Meio de Hospedagem'                                             => 20,
+        'Acampamento Turístico'                                          => 21,
+        'Restaurante, Cafeteria, Bar e Similares'                        => 22,
+        'Agência de Turismo'                                             => 23,
+        'Transportadora Turística'                                       => 24,
+        'Locadora de Veículos para Turistas'                             => 24,
+        'Centro de Convenções'                                           => 25,
+        'Organizadora de Eventos'                                        => 26,
+        'Prestador de Infraestrutura de Apoio para Eventos'              => 26,
+        'Parque Aquático e Empreendimento de Lazer'                      => 27,
+        'Parque Temático'                                                => 27,
+        'Empreendimento de Apoio ao Turismo Náutico ou à Pesca Desportiva' => 30,
+        'Casa de Espetáculos e Equipamento de Animação Turística'        => 31,
+        'Guia de Turismo'                                                => 35,
+        'Prestador Especializado em Segmentos Turísticos'                => 35,
+    ];
+
+    /** Prestadores do Cadastur no município do destino, por atividade, e quantos já estão no inventário. */
+    public static function resumoCadastur(int $empresaId): array
+    {
+        $q = self::pdo()->prepare("SELECT c.atividade, COUNT(*) total,
+                                          SUM(EXISTS (SELECT 1 FROM inventario_itens i WHERE i.empresa_id = e.id
+                                                      AND (i.cadastur_prestador_id = c.id OR (c.tipo_documento = 'cnpj' AND i.cnpj = c.documento)))) ja
+                                   FROM empresas e JOIN cadastur_prestadores c ON c.municipio_id = e.municipio_id
+                                   WHERE e.id = ? AND COALESCE(c.situacao_cadastral, 'Regular') <> 'Cancelado'
+                                   GROUP BY c.atividade ORDER BY total DESC");
+        $q->execute([$empresaId]);
+        return $q->fetchAll();
+    }
+
+    /**
+     * Cria um item em pré-cadastro para cada prestador das atividades
+     * escolhidas que ainda não está no inventário do destino. Guia pessoa
+     * física entra só com o nome: o CPF não vai para o inventário (LGPD).
+     * Devolve quantos entraram.
+     */
+    public static function preCadastrarCadastur(array $atividades): int
+    {
+        $eid = Empresa::id();
+        $pdo = self::pdo();
+        $fichaPorOrdem = $pdo->query('SELECT ordem, id FROM inventario_fichas')->fetchAll(PDO::FETCH_KEY_PAIR);
+        $atividades = array_values(array_intersect(array_keys(self::CADASTUR_FICHAS), $atividades));
+        if (!$atividades) {
+            return 0;
+        }
+        $q = $pdo->prepare('SELECT c.*, m.nome AS municipio_nome FROM cadastur_prestadores c
+                            JOIN empresas e ON e.municipio_id = c.municipio_id AND e.id = ?
+                            JOIN municipios m ON m.id = c.municipio_id
+                            WHERE c.atividade IN (' . implode(',', array_fill(0, count($atividades), '?')) . ")
+                              AND COALESCE(c.situacao_cadastral, 'Regular') <> 'Cancelado'
+                              AND NOT EXISTS (SELECT 1 FROM inventario_itens i WHERE i.empresa_id = e.id
+                                              AND (i.cadastur_prestador_id = c.id OR (c.tipo_documento = 'cnpj' AND i.cnpj = c.documento)))");
+        $q->execute([$eid, ...$atividades]);
+        $uid = Auth::usuarioOuNulo()['id'] ?? null;
+        $ins = $pdo->prepare("INSERT INTO inventario_itens (empresa_id, ficha_id, situacao, origem, nome, razao_social, cnpj, cadastur, cadastur_validade,
+                                     cadastur_prestador_id, logradouro, bairro, cep, telefone, email, site, capacidade_uh, capacidade_leitos, criado_em, criado_por)
+                              VALUES (?, ?, 'pre_cadastro', 'cadastur', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)");
+        $n = 0;
+        foreach ($q->fetchAll() as $c) {
+            $fichaId = (int) ($fichaPorOrdem[self::CADASTUR_FICHAS[$c['atividade']]] ?? 0);
+            if (!$fichaId) {
+                continue;
+            }
+            $pj = $c['tipo_documento'] === 'cnpj';
+            // "Av. Tupi 2566 Pato Branco Centro CEP: 85501065 PR": o que vem
+            // antes do município é o logradouro; entre ele e o CEP, o bairro.
+            $end = (string) $c['endereco'];
+            $cep = preg_match('/CEP:?\s*(\d{5})-?(\d{3})/', $end, $m) ? $m[1] . $m[2] : null;
+            $logradouro = $bairro = null;
+            $pos = mb_stripos($end, (string) $c['municipio_nome']);
+            if ($pos !== false) {
+                $logradouro = trim(mb_substr($end, 0, $pos)) ?: null;
+                $resto = trim(mb_substr($end, $pos + mb_strlen((string) $c['municipio_nome'])));
+                $bairro = trim((string) preg_replace('/\s*CEP:?.*$/', '', $resto)) ?: null;
+            } elseif ($end !== '') {
+                $logradouro = trim((string) preg_replace('/\s*CEP:?.*$/', '', $end));
+            }
+            $hosp = $c['atividade'] === 'Meio de Hospedagem';
+            $ins->execute([
+                $eid, $fichaId,
+                mb_substr((string) ($c['nome_fantasia'] ?: $c['nome_exibicao'] ?: $c['nome_juridico']), 0, 180),
+                $pj ? mb_substr((string) $c['nome_juridico'], 0, 180) : null,
+                $pj ? $c['documento'] : null,
+                $c['certificado'] ?: null, $c['validade'] ?: null, $c['id'],
+                $logradouro ? mb_substr($logradouro, 0, 200) : null, $bairro ? mb_substr($bairro, 0, 120) : null, $cep,
+                telefoneParaBanco($c['telefone'] ?? null), $c['email'] ? mb_strtolower(mb_substr((string) $c['email'], 0, 150)) : null,
+                $c['site'] ? mb_substr((string) $c['site'], 0, 255) : null,
+                $hosp && $c['unidades'] ? (int) $c['unidades'] : null, $hosp && $c['leitos'] ? (int) $c['leitos'] : null, $uid,
+            ]);
+            self::registrarHistorico((int) $pdo->lastInsertId(), 'importou', null, 'pre_cadastro', 'Cadastur: ' . $c['atividade']);
+            $n++;
+        }
+        if ($n) {
+            Auditoria::registrar('criou', 'inventario_itens', null, 'pré-cadastrou ' . $n . ' prestadores do Cadastur no inventário', null, null, $eid);
+        }
+        return $n;
+    }
+
     // ----------------------------------------------------------------- FOTOS
 
     /** Pasta das fotos do destino, servida por /midia/inventario/<empresa>/. */

@@ -145,7 +145,8 @@ paginaInicio('Inventário', 'inventario');
     <p>A oferta turística de <?= e($empresa['nome_fantasia']) ?> nas fichas do Ministério do Turismo: infraestrutura de apoio, serviços e equipamentos e atrativos.</p>
   </div>
   <?php if ($podeCriar): ?>
-    <div class="acoes"><a class="botao" href="<?= e(endereco('item', null)) ?>" data-ficha="Novo item do inventário" data-abre-novo><?= icone('mapa') ?>Novo item</a></div>
+    <div class="acoes"><a class="botao claro" href="/pre-cadastro"><?= icone('certificado') ?>Pré-cadastro pelo Cadastur</a>
+      <a class="botao" href="<?= e(endereco('item', null)) ?>" data-ficha="Novo item do inventário" data-abre-novo><?= icone('mapa') ?>Novo item</a></div>
   <?php endif; ?>
 </div>
 
