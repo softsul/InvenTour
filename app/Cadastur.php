@@ -141,6 +141,27 @@ final class Cadastur
         return $s->fetchAll();
     }
 
+    /**
+     * Os registros pelo número do certificado (nos dados abertos, quase
+     * sempre o próprio CNPJ ou CPF), para conferir o número digitado.
+     *
+     * @return list<array<string,mixed>>
+     */
+    public static function porCertificado(string $numero): array
+    {
+        $n = strtoupper((string) preg_replace('/[^0-9A-Za-z]/', '', $numero));
+        if ($n === '') {
+            return [];
+        }
+        $s = Database::leitura()->prepare(
+            'SELECT documento, tipo_documento, atividade, nome_juridico, nome_fantasia, situacao_cadastral,
+                    situacao_atividade, uf, municipio, certificado, validade, categorias
+             FROM cadastur_prestadores WHERE certificado = ? OR documento = ? ORDER BY validade DESC'
+        );
+        $s->execute([$n, $n]);
+        return $s->fetchAll();
+    }
+
     /** Regular e com certificado dentro da validade. */
     public static function vigente(array $registro): bool
     {

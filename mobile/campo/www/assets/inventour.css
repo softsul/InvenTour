@@ -1489,3 +1489,12 @@ dialog.coleta-dialogo.app-instalar{height:auto; max-height:calc(100vh - 32px)}
 #app-historico-dialogo{width:min(980px, calc(100vw - 32px)); height:min(780px, calc(100vh - 32px))}
 #app-historico > .cab-cartao{display:none}
 #app-historico .hist-lista{max-height:none; overflow:visible}
+
+/* Coleta: o resultado da consulta do CNPJ (Receita e Cadastur) e do Cadastur, embaixo do campo. */
+.consulta-doc{display:flex; align-items:flex-start; gap:9px; margin-top:8px; padding:10px 12px; border-radius:var(--r); font-size:13px; line-height:1.45;
+  background:var(--leve); color:var(--suave)}
+.consulta-doc > svg{width:16px; height:16px; flex:none; margin-top:2px}
+.consulta-doc > div{display:flex; flex-direction:column; align-items:flex-start; gap:8px; min-width:0}
+.consulta-doc.bom{background:var(--verde-sup); color:#0A6B4F}
+.consulta-doc.atencao{background:var(--ambar-sup); color:#7A4808}
+.consulta-doc .botao{width:auto; padding:7px 12px; font-size:12.5px}

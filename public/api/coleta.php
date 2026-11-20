@@ -58,6 +58,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ping'])) {
     responder(['ok' => true, 'em' => date('c'), 'app' => $versaoApp()]);
 }
 
+// Ao sair do campo CNPJ ou Cadastur na ficha (com internet): os dados da
+// Receita, o Cadastur (cópia local dos dados abertos do MTur) e se o CNPJ já
+// está no inventário do destino. Limite próprio: a Receita é serviço externo.
+//   GET /api/coleta?cnpj=12345678000190[&ficha=20&item=5]
+//   GET /api/coleta?cadastur=12345678000190
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && (isset($_GET['cnpj']) || isset($_GET['cadastur']))) {
+    require_once __DIR__ . '/../../app/Cnpj.php';
+    require_once __DIR__ . '/../../app/Cadastur.php';
+    $cadastur = function (array $registros): array {
+        return array_map(fn ($r) => ['atividade' => (string) $r['atividade'], 'situacao' => Cadastur::situacao($r), 'vigente' => Cadastur::vigente($r),
+            'certificado' => (string) ($r['certificado'] ?? ''), 'validade' => $r['validade'] ? (string) $r['validade'] : null,
+            'nome' => (string) ($r['nome_fantasia'] ?: $r['nome_juridico']), 'documento' => (string) $r['documento']], $registros);
+    };
+    if (isset($_GET['cadastur'])) {
+        Limite::porUsuario('coleta-cadastur', 30, 60);
+        responder(['ok' => true, 'cadastur' => $cadastur(Cadastur::porCertificado((string) $_GET['cadastur']))]);
+    }
+    Limite::porUsuario('coleta-cnpj', 20, 60);
+    $cnpj = Cnpj::normalizar((string) $_GET['cnpj']);
+    if (!Cnpj::valido($cnpj)) {
+        responder(['ok' => false, 'motivo' => 'invalido', 'erro' => 'CNPJ inválido. Confira os dígitos.']);
+    }
+    // Já no inventário deste destino, na mesma ficha (o painel recusa igual).
+    $dup = $pdo->prepare("SELECT id, nome FROM inventario_itens WHERE empresa_id = ? AND cnpj = ? AND ficha_id = ? AND id <> ? AND situacao <> 'arquivada' LIMIT 1");
+    $dup->execute([$eid, $cnpj, (int) ($_GET['ficha'] ?? 0), (int) ($_GET['item'] ?? 0)]);
+    $r = Cnpj::consultar($cnpj);
+    responder(['ok' => true, 'receita' => $r['ok'] ? $r['dados'] + ['fonte' => $r['fonte']] : null, 'erro_receita' => $r['ok'] ? null : $r['erro'],
+               'cadastur' => $cadastur(Cadastur::consultar($cnpj)), 'existente' => $dup->fetch() ?: null]);
+}
+
 // ------------------------------------------------------------------ DADOS
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     [$fe, $ae] = Esteira::filtroEscopo();

@@ -754,6 +754,10 @@
     var cep = form.elements.cep.value.replace(/\D/g, '');
     if (cep.length === 8) { form.elements.cep.value = cep.replace(/^(\d{5})(\d{3})$/, '$1-$2'); }
     if (form.elements.instagram.value) { form.elements.instagram.value = '@' + form.elements.instagram.value.replace(/^@/, ''); }
+    if (form.elements.cnpj.value) { form.elements.cnpj.value = mascaraCnpj(form.elements.cnpj.value); }
+    limparConsultas();
+    cnpjConsultado = limparCnpj(form.elements.cnpj.value);
+    cadasturConsultado = form.elements.cadastur.value.trim();
     semanaDaFicha();
     contarTribos();
     contarFicha();
@@ -1060,6 +1064,217 @@
     fotosNovas.splice(n, 1);
     desenharMiniaturas();
     mostrarPendencias();
+  });
+
+  // ------------------------------------------------------------ máscaras e documentos
+  // Máscara enquanto digita (CNPJ, CEP, telefone, Cadastur, plus code) e
+  // conferência ao sair do campo, com o erro embaixo dele. Com internet, o
+  // CNPJ válido busca a Receita e o Cadastur e preenche o que está vazio; o
+  // que já tem e é diferente fica para o botão "Usar".
+  function limparCnpj(v) {
+    var c = String(v || '').toUpperCase().replace(/[^0-9A-Z]/g, '').slice(0, 14);
+    return c.slice(0, 12) + c.slice(12).replace(/\D/g, '');
+  }
+  function mascaraCnpj(v) {
+    var c = limparCnpj(v), r = c.slice(0, 2);
+    if (c.length > 2) { r += '.' + c.slice(2, 5); }
+    if (c.length > 5) { r += '.' + c.slice(5, 8); }
+    if (c.length > 8) { r += '/' + c.slice(8, 12); }
+    if (c.length > 12) { r += '-' + c.slice(12); }
+    return r;
+  }
+  function mascaraCep(v) { var d = String(v || '').replace(/\D/g, '').slice(0, 8); return d.length > 5 ? d.slice(0, 5) + '-' + d.slice(5) : d; }
+  var MASCARAS = {
+    cnpj: mascaraCnpj,
+    cep: mascaraCep,
+    cadastur: function (v) { return String(v || '').toUpperCase().replace(/[^0-9A-Z]/g, '').slice(0, 30); },
+    plus_code: function (v) { return String(v || '').toUpperCase().replace(/[^0-9A-Z+ ]/g, '').slice(0, 16); },
+    funcionarios: function (v) { return String(v || '').replace(/\D/g, '').slice(0, 5); },
+    inicio_atividade: function (v) { return String(v || '').replace(/\D/g, '').slice(0, 4); }
+  };
+  Object.keys(MASCARAS).forEach(function (nome) {
+    var el = form.elements[nome];
+    if (!el) { return; }
+    el.addEventListener('input', function () {
+      var antes = el.value, novo = MASCARAS[nome](antes);
+      if (novo !== antes) { el.value = novo; }
+    });
+  });
+
+  // O erro do campo, embaixo dele (e a entrada em vermelho).
+  function erroDoCampo(el, texto) {
+    var bloco = el.closest('.campo');
+    var entrada = el.closest('.entrada');
+    if (!bloco) { return; }
+    var aviso = bloco.querySelector('.ajuda.erro');
+    if (texto && !aviso) { aviso = document.createElement('span'); aviso.className = 'ajuda erro'; bloco.appendChild(aviso); }
+    if (aviso) { if (texto) { aviso.textContent = texto; } else { aviso.remove(); } }
+    if (entrada) { entrada.classList.toggle('erro', !!texto); }
+  }
+  function conferirCampo(el) {
+    var v = el.value.trim();
+    var erro = '';
+    if (el.name === 'cnpj' && v) {
+      var c = limparCnpj(v);
+      erro = c.length !== 14 ? 'O CNPJ tem 14 caracteres; faltam ' + (14 - c.length) + '.' : (cnpjValido(c) ? '' : 'CNPJ inválido: os dígitos verificadores não batem.');
+    } else if (el.name === 'email' && v) {
+      el.value = v.toLowerCase();
+      erro = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? '' : 'E-mail inválido.';
+    } else if ((el.name === 'telefone' || el.name === 'whatsapp') && v) {
+      var d = soDigitosTel(v);
+      erro = d.length === 10 || d.length === 11 ? '' : 'Use DDD e número (10 ou 11 dígitos).';
+      if (!erro && el.name === 'whatsapp' && d.length === 10) { erro = 'WhatsApp é celular: DDD e 9 dígitos.'; }
+    } else if (el.name === 'cep' && v) {
+      erro = v.replace(/\D/g, '').length === 8 ? '' : 'O CEP tem 8 dígitos.';
+    } else if (el.name === 'instagram' && v) {
+      el.value = '@' + v.replace(/^@+/, '').replace(/^https?:\/\/(www\.)?instagram\.com\//i, '').replace(/\/.*$/, '');
+    } else if ((el.name === 'site' || el.name === 'maps_url') && v && !/^https?:\/\//i.test(v)) {
+      el.value = 'https://' + v;
+    } else if (el.name === 'inicio_atividade' && v) {
+      var ano = parseInt(v, 10);
+      erro = ano >= 1500 && ano <= new Date().getFullYear() ? '' : 'Ano entre 1500 e ' + new Date().getFullYear() + '.';
+    }
+    erroDoCampo(el, erro);
+    return !erro;
+  }
+  ['cnpj', 'email', 'telefone', 'whatsapp', 'cep', 'instagram', 'site', 'maps_url', 'inicio_atividade'].forEach(function (nome) {
+    var el = form.elements[nome];
+    if (el) { el.addEventListener('blur', function () { conferirCampo(el); }); }
+  });
+
+  // A caixa do resultado da consulta, embaixo do campo.
+  function caixaConsulta(el) {
+    var bloco = el.closest('.campo');
+    var caixa = bloco.querySelector('.consulta-doc');
+    if (!caixa) {
+      caixa = document.createElement('div');
+      caixa.className = 'consulta-doc';
+      bloco.appendChild(caixa);
+    }
+    return caixa;
+  }
+  function limparConsultas() {
+    form.querySelectorAll('.consulta-doc, .ajuda.erro').forEach(function (c) { c.remove(); });
+    form.querySelectorAll('.entrada.erro').forEach(function (c) { c.classList.remove('erro'); });
+  }
+  function mostrarConsulta(el, tom, html, usar) {
+    var caixa = caixaConsulta(el);
+    caixa.className = 'consulta-doc ' + tom;
+    caixa.innerHTML = icone(tom === 'bom' ? 'check' : (tom === 'nulo' ? 'relogio' : 'alerta')) + '<div>' + html
+      + (usar ? '<button type="button" class="botao mini" data-usar-consulta>' + icone('check') + esc(usar.rotulo) + '</button>' : '') + '</div>';
+    caixa.usar = usar ? usar.fazer : null;
+  }
+  form.addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-usar-consulta]');
+    if (!b) { return; }
+    var caixa = b.closest('.consulta-doc');
+    if (caixa && caixa.usar) { caixa.usar(); b.remove(); }
+  });
+
+  // Campo da ficha recebendo um valor da consulta: vazio é preenchido na
+  // hora; diferente vai para a lista do botão "Usar".
+  function valorConsulta(nome, valor) {
+    if (valor == null || valor === '') { return null; }
+    if (nome === 'telefone' || nome === 'whatsapp') { return telefoneLegivel(valor); }
+    if (nome === 'cep') { return mascaraCep(valor); }
+    return String(valor);
+  }
+  function aplicar(campos, sobrescrever) {
+    var preenchi = [], diferentes = [];
+    Object.keys(campos).forEach(function (nome) {
+      var el = form.elements[nome];
+      var v = valorConsulta(nome, campos[nome][0]);
+      if (!el || el.disabled || v === null) { return; }
+      var atualV = el.value.trim();
+      if (!atualV || sobrescrever) {
+        if (atualV !== v) { el.value = v; preenchi.push(campos[nome][1]); }
+      } else if (semAcento(atualV) !== semAcento(v) && soDigitosTel(atualV) !== soDigitosTel(v)) {
+        diferentes.push(campos[nome][1]);
+      }
+    });
+    mostrarPendencias();
+    return { preenchi: preenchi, diferentes: diferentes };
+  }
+  function naturezaDaReceita(t) {
+    t = semAcento(t || '');
+    if (!t) { return null; }
+    if (t.indexOf('economia mista') !== -1) { return 'mista'; }
+    if (/(autarquia|municipio|estado|uniao|orgao publico|poder|fundacao publica|empresa publica|consorcio publico|camara|assembleia|tribunal)/.test(t)) { return 'publica'; }
+    return 'privada';
+  }
+  function dataBr(iso) { return iso ? iso.split('-').reverse().join('/') : ''; }
+  function textoCadastur(lista) {
+    if (!lista || !lista.length) { return 'Sem registro no Cadastur (dados abertos do MTur).'; }
+    var vigente = lista.filter(function (r) { return r.vigente; })[0];
+    var r = vigente || lista[0];
+    return 'Cadastur: ' + r.atividade + ', ' + r.situacao.toLowerCase() + (r.validade ? ' até ' + dataBr(r.validade) : '') + (lista.length > 1 ? ' (e mais ' + (lista.length - 1) + ' atividade' + (lista.length > 2 ? 's' : '') + ')' : '') + '.';
+  }
+  function camposDoCadastur(lista) {
+    var r = (lista || []).filter(function (x) { return x.vigente; })[0] || (lista || [])[0];
+    return r ? { cadastur: [r.certificado, 'Cadastur'], cadastur_validade: [r.validade, 'validade do Cadastur'] } : {};
+  }
+
+  var cnpjConsultado = '';
+  function consultarCnpj(forcar) {
+    var el = form.elements.cnpj;
+    var c = limparCnpj(el.value);
+    if (!c || c.length !== 14 || !cnpjValido(c)) { var cx = el.closest('.campo').querySelector('.consulta-doc'); if (cx) { cx.remove(); } return; }
+    if (c === cnpjConsultado && !forcar) { return; }
+    if (!temInternet()) {
+      mostrarConsulta(el, 'nulo', '<span>CNPJ válido. Sem internet agora: os dados da Receita e do Cadastur aparecem quando houver sinal (saia do campo de novo).</span>');
+      return;
+    }
+    cnpjConsultado = c;
+    mostrarConsulta(el, 'nulo', '<span>Consultando a Receita e o Cadastur...</span>');
+    var q = '/api/coleta?cnpj=' + encodeURIComponent(c) + '&ficha=' + (atual ? atual.ficha_id : '') + '&item=' + (atual && atual.id ? atual.id : '');
+    pedir(q, { headers: cabecalhos(false), cache: 'no-store' }, 20000).then(function (r) { return r.json(); }).then(function (d) {
+      if (!d || !d.ok) { cnpjConsultado = ''; mostrarConsulta(el, 'atencao', '<span>' + esc((d && d.erro) || 'Não deu para consultar agora.') + '</span>'); return; }
+      var rec = d.receita;
+      var campos = {};
+      var partes = [];
+      if (rec) {
+        campos = {
+          razao_social: [rec.razao_social, 'razão social'], nome: [rec.nome_fantasia || rec.razao_social, 'nome'],
+          email: [rec.email ? rec.email.toLowerCase() : null, 'e-mail'], telefone: [rec.telefone, 'telefone'],
+          cep: [rec.cep, 'CEP'], logradouro: [rec.logradouro, 'rua'], numero: [rec.numero, 'número'], complemento: [rec.complemento, 'complemento'],
+          bairro: [rec.bairro, 'bairro'], inicio_atividade: [rec.inicio_atividade, 'início da atividade'], natureza: [naturezaDaReceita(rec.natureza_juridica), 'natureza']
+        };
+        partes.push('<b>Receita (' + esc(rec.fonte) + '):</b> ' + esc(rec.razao_social || '') + (rec.nome_fantasia ? ' (' + esc(rec.nome_fantasia) + ')' : '')
+          + ', ' + esc([rec.cidade, rec.uf].filter(Boolean).join('/')) + '. Situação: <b>' + esc(rec.situacao_cadastral || '?') + '</b>.');
+      } else {
+        partes.push(esc(d.erro_receita || 'A Receita não respondeu agora.'));
+      }
+      Object.assign(campos, camposDoCadastur(d.cadastur));
+      partes.push(esc(textoCadastur(d.cadastur)));
+      if (d.existente) { partes.push('<b>Atenção:</b> este CNPJ já está nesta ficha, em ' + esc(d.existente.nome) + '.'); }
+      var feito = aplicar(campos, false);
+      if (feito.preenchi.length) { partes.push('Preenchi ' + feito.preenchi.join(', ') + '.'); }
+      if (feito.diferentes.length) { partes.push('Diferente na ficha: ' + feito.diferentes.join(', ') + '.'); }
+      var ruim = d.existente || (rec && rec.situacao_cadastral && rec.situacao_cadastral.toUpperCase() !== 'ATIVA');
+      mostrarConsulta(el, ruim ? 'atencao' : 'bom', '<span>' + partes.join(' ') + '</span>', feito.diferentes.length ? {
+        rotulo: 'Usar os dados da Receita',
+        fazer: function () { aplicar(campos, true); mostrarConsulta(el, 'bom', '<span>Dados trocados pelos da Receita e do Cadastur. Confira na fachada.</span>'); }
+      } : null);
+    }).catch(function () { cnpjConsultado = ''; mostrarConsulta(el, 'atencao', '<span>A consulta não veio agora. Saia do campo de novo para tentar.</span>'); });
+  }
+  form.elements.cnpj.addEventListener('blur', function () { if (conferirCampo(form.elements.cnpj)) { consultarCnpj(false); } });
+
+  var cadasturConsultado = '';
+  form.elements.cadastur.addEventListener('blur', function () {
+    var el = form.elements.cadastur;
+    var n = el.value.trim();
+    if (!n) { var cx = el.closest('.campo').querySelector('.consulta-doc'); if (cx) { cx.remove(); } return; }
+    if (n === cadasturConsultado) { return; }
+    if (!temInternet()) { mostrarConsulta(el, 'nulo', '<span>Sem internet agora: o Cadastur é conferido quando houver sinal.</span>'); return; }
+    cadasturConsultado = n;
+    pedir('/api/coleta?cadastur=' + encodeURIComponent(n), { headers: cabecalhos(false), cache: 'no-store' }, 15000).then(function (r) { return r.json(); }).then(function (d) {
+      var lista = (d && d.cadastur) || [];
+      if (!lista.length) { mostrarConsulta(el, 'atencao', '<span>Não achei este número no Cadastur (dados abertos do MTur). Confira o certificado.</span>'); return; }
+      var r = lista.filter(function (x) { return x.vigente; })[0] || lista[0];
+      var feito = aplicar({ cadastur_validade: [r.validade, 'validade'] }, false);
+      mostrarConsulta(el, r.vigente ? 'bom' : 'atencao', '<span><b>' + esc(r.nome) + '</b>. ' + esc(textoCadastur(lista))
+        + (feito.preenchi.length ? ' Preenchi a validade.' : '') + '</span>');
+    }).catch(function () { cadasturConsultado = ''; mostrarConsulta(el, 'atencao', '<span>A consulta não veio agora. Saia do campo de novo para tentar.</span>'); });
   });
 
   // Antes de guardar no aparelho: o que o servidor recusaria (CNPJ, e-mail,

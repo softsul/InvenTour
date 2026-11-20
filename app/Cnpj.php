@@ -128,6 +128,7 @@ class Cnpj
             'natureza_juridica'  => self::limpar($r['natureza_juridica'] ?? null),
             'cnae_principal'     => trim(((string) ($r['cnae_fiscal'] ?? '')) . ' ' . ($r['cnae_fiscal_descricao'] ?? '')) ?: null,
             'situacao_cadastral' => self::limpar($r['descricao_situacao_cadastral'] ?? null),
+            'inicio_atividade'   => preg_match('/^(\d{4})-/', (string) ($r['data_inicio_atividade'] ?? ''), $m) ? (int) $m[1] : null,
         ];
     }
 
@@ -151,6 +152,7 @@ class Cnpj
                 ? trim(($r['atividade_principal'][0]['code'] ?? '') . ' ' . ($r['atividade_principal'][0]['text'] ?? ''))
                 : null,
             'situacao_cadastral' => self::limpar($r['situacao'] ?? null),
+            'inicio_atividade'   => preg_match('#/(\d{4})$#', (string) ($r['abertura'] ?? ''), $m) ? (int) $m[1] : null,
         ];
     }
 
