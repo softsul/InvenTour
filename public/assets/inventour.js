@@ -2459,13 +2459,16 @@ window.erpPerguntar = function (opcoes) {
       window.parent.postMessage({ inventourAbrirFicha: el.getAttribute('href'), titulo: window.inventourTituloDaFicha(el) }, location.origin);
     });
   }
-  document.addEventListener('submit', function (ev) {
-    var form = ev.target;
+  function marcarPopup(form) {
     if (form.target === '_top' || form.querySelector('input[name="popup"]')) { return; }
     var p = document.createElement('input');
     p.type = 'hidden'; p.name = 'popup'; p.value = '1';
     form.appendChild(p);
-  }, true);
+  }
+  // Já ao abrir: envio por form.submit() (zona de upload, chaves) não passa
+  // pelo evento submit, e voltava com o menu dentro do modal.
+  document.querySelectorAll('form').forEach(marcarPopup);
+  document.addEventListener('submit', function (ev) { marcarPopup(ev.target); }, true);
   // Salvar pode demorar (a foto do WhatsApp, o e-mail do convite): o botão
   // mostra que está salvando, senão parece que nada aconteceu. Desliga só
   // depois do envio sair, para o nome e o valor do botão irem junto.
@@ -6489,7 +6492,9 @@ window.inventourMarcarNoFiltro = function (form, campo, ids, nome) {
         var campo = document.createElement('input');
         campo.type = 'hidden'; campo.name = 'acao_esteira'; campo.value = acao;
         form.appendChild(campo);
-        form.submit();
+        // requestSubmit passa pelo evento submit, que mantém o modo modal
+        // (popup=1); o submit() direto voltava com o menu dentro do modal.
+        if (form.requestSubmit) { form.requestSubmit(); } else { form.submit(); }
       });
     });
   });
