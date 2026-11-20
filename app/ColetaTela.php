@@ -13,7 +13,11 @@
 declare(strict_types=1);
 require_once __DIR__ . '/Inventario.php';
 
-function telaColeta(bool $noApp): string
+/**
+ * A barra de sincronização (sinal, fila, Histórico, Sincronizar). No app fica
+ * no topo da coleta; no painel, na aba Aplicativo (lá gravar já envia).
+ */
+function telaEstadoColeta(): string
 {
     ob_start();
     ?>
@@ -27,6 +31,15 @@ function telaColeta(bool $noApp): string
   </span>
 </div>
 <div class="sinc-progresso" id="col-progresso" hidden><div class="barra"><i></i></div><span></span></div>
+<?php
+    return (string) ob_get_clean();
+}
+
+function telaColeta(bool $noApp, bool $comEstado = true): string
+{
+    ob_start();
+    ?>
+<?= $comEstado ? telaEstadoColeta() : '' ?>
 <p class="aviso atencao" id="col-sessao" hidden><?= icone('alerta') ?><span id="col-sessao-texto"></span></p>
 <p class="aviso ruim" id="col-erros" hidden></p>
 <p class="aviso bom" id="col-resultado" hidden></p>
@@ -141,7 +154,7 @@ function telaColeta(bool $noApp): string
       <button type="button" class="botao claro" id="c-proxima">Próxima<?= icone('seta') ?></button>
       <span class="espaco"></span>
       <button type="button" class="botao claro" data-fechar>Cancelar</button>
-      <button type="submit" class="botao" id="c-gravar"><?= icone('check') ?>Gravar no aparelho</button>
+      <button type="submit" class="botao" id="c-gravar"><?= icone('check') ?><?= $noApp ? 'Gravar no aparelho' : 'Gravar' ?></button>
     </div>
   </form>
 </dialog>

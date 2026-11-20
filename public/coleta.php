@@ -69,6 +69,13 @@ paginaInicio('Coleta de campo', 'coleta');
 </nav>
 
 <div class="painel-aba" data-painel="app"<?= $codigo ? '' : ' hidden' ?>>
+  <?php /* Sincronizar e Histórico ficam aqui no painel (pedido do Luiz): na
+           aba Coleta, gravar já envia, porque o painel está sempre online. */ ?>
+  <div class="cartao app-sinc">
+    <div class="cab-cartao"><h2>Sincronização deste navegador</h2></div>
+    <?= telaEstadoColeta() ?>
+    <p class="ajuda">Na aba Coleta, o que você grava aqui no painel já sobe na hora. No celular, quem envia é o botão Sincronizar do app.</p>
+  </div>
   <div class="app-campo-grade">
     <div class="cartao app-passo">
       <span class="app-passo-num">1</span>
@@ -103,7 +110,7 @@ paginaInicio('Coleta de campo', 'coleta');
 
 <div class="painel-aba" data-painel="coleta"<?= $codigo ? ' hidden' : '' ?>>
 <div class="coleta" id="coleta" data-csrf="<?= e($csrf) ?>" data-chave="<?= (int) $empresa['id'] ?>-<?= (int) $u['id'] ?>">
-<?= telaColeta(false) ?>
+<?= telaColeta(false, false) ?>
 </div>
 </div>
 <script src="/assets/coleta-app.js?v=<?= (int) @filemtime(__DIR__ . '/assets/coleta-app.js') ?>" defer></script>

@@ -1426,3 +1426,7 @@ dialog.visualizador.vis-pdf .vis-palco{padding:0 12px 12px}
 }
 .hist-cab > span:not(.pilula){font-size:12.5px; color:var(--suave)}
 #app-historico .hist-lista{max-height:640px; overflow-y:auto}
+/* Painel: a barra de sincronização dentro da aba Aplicativo. */
+.app-sinc{display:flex; flex-direction:column; gap:12px; margin-bottom:16px}
+.app-sinc .coleta-estado{border:0; padding:0; background:none}
+.app-sinc .ajuda{margin:0}

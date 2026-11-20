@@ -733,6 +733,11 @@
       fotosNovas.forEach(function (x) { URL.revokeObjectURL(x.url); });
       fotosNovas = [];
       dialogo.close();
+      if (!APP) {
+        // No painel não há fila para depois: gravou, envia.
+        mostrarResultado('Gravado. Enviando ao servidor...', 'bom');
+        return recarregarTela().then(sincronizar);
+      }
       mostrarResultado('Gravado no aparelho. Toque em Sincronizar quando tiver sinal.', 'bom');
       return recarregarTela();
     }).catch(function () {
