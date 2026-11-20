@@ -1,0 +1,46 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AcharAZonaEAcompanharAMudanca",
+      "Effect": "Allow",
+      "Action": [
+        "route53:ListHostedZones",
+        "route53:GetChange"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "SoODesafioDoCertificado",
+      "Effect": "Allow",
+      "Action": "route53:ChangeResourceRecordSets",
+      "Resource": "arn:aws:route53:::hostedzone/Z0590908OZURLMJKG35P",
+      "Condition": {
+        "ForAllValues:StringEquals": {
+          "route53:ChangeResourceRecordSetsNormalizedRecordNames": [
+            "_acme-challenge.eventcity.com.br"
+          ],
+          "route53:ChangeResourceRecordSetsRecordTypes": [
+            "TXT"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "SoODesafioDoCertificadoInvenTour",
+      "Effect": "Allow",
+      "Action": "route53:ChangeResourceRecordSets",
+      "Resource": "arn:aws:route53:::hostedzone/Z050184266MTTSZZLJML",
+      "Condition": {
+        "ForAllValues:StringEquals": {
+          "route53:ChangeResourceRecordSetsNormalizedRecordNames": [
+            "_acme-challenge.inventour.com.br"
+          ],
+          "route53:ChangeResourceRecordSetsRecordTypes": [
+            "TXT"
+          ]
+        }
+      }
+    }
+  ]
+}

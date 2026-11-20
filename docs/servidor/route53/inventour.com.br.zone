@@ -1,0 +1,34 @@
+; Zona inventour.com.br para importar no Route 53 (Import zone file).
+; Softsul Software, 20/11/2026.
+;
+; Copia do que esta no ar no Registro.br em 20/11/2026 (site e www no
+; CentOS 8), com o painel trocado para este servidor, mais o curinga dos
+; portais e o CAA. Sem SOA e sem NS: o Route 53 cria os dele. Mesmo modelo
+; do eventcity.com.br (docs/servidor/route53 do EventCity).
+;
+; TTL de 300 s durante a migracao. Depois de uma semana estavel, pode subir.
+$ORIGIN inventour.com.br.
+$TTL 300
+
+; Site de lancamento, no CentOS 8 (44.209.239.73).
+@        IN A     44.209.239.73
+@        IN AAAA  2600:1f18:a6b:2500:5fa2:e55d:44af:a944
+www      IN A     44.209.239.73
+www      IN AAAA  2600:1f18:a6b:2500:5fa2:e55d:44af:a944
+
+; Painel do InvenTour, neste servidor (52.202.44.196).
+app      IN A     52.202.44.196
+app      IN AAAA  2600:1f18:a6b:2500:8adb:a8c:f0b4:4908
+
+; Portais dos destinos: <slug>.inventour.com.br, neste servidor. Registro
+; explicito (www, app) sempre vence o curinga. Destino novo nao exige DNS.
+*        IN A     52.202.44.196
+*        IN AAAA  2600:1f18:a6b:2500:8adb:a8c:f0b4:4908
+
+; Quem pode emitir certificado: Google Trust Services, Let's Encrypt de
+; reserva; issuewild cobre o curinga.
+@        IN CAA   0 issue "pki.goog"
+@        IN CAA   0 issue "letsencrypt.org"
+@        IN CAA   0 issuewild "pki.goog"
+@        IN CAA   0 issuewild "letsencrypt.org"
+@        IN CAA   0 iodef "mailto:luiz@softsul.com"

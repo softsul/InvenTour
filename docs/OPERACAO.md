@@ -18,24 +18,15 @@ Para quem cuida do InvenTour no dia a dia (equipe Softsul). Escrito em
 
 ## 2. DNS e certificados
 
-O domínio `inventour.com.br` está no Registro.br, sem API. Por isso não há
-certificado curinga (decisão registrada em `docs/INTEGRACAO-INVENTOUR.md`):
+A zona `inventour.com.br` está no Route 53 desde 20/11/2026, com o curinga
+`*.inventour.com.br` apontando para este servidor; o Registro.br é só o
+registrador. Detalhes, nameservers, política IAM e o comando do certificado
+em `docs/servidor/route53/README.md`.
 
-- `app.inventour.com.br`: registro A para 52.202.44.196 e certificado próprio
-  pelo certbot com webroot (`/var/www/acme`), como o EventCity.
-- Portais: um registro A por destino (por exemplo `patobranco`) e um único
-  certificado `portal.inventour.com.br` com um nome por destino:
-
-```bash
-sudo certbot certonly --webroot -w /var/www/acme --cert-name portal.inventour.com.br --expand -d portal.inventour.com.br -d patobranco.inventour.com.br
-```
-
-Enquanto o DNS não aponta para cá, os vhosts de HTTPS usam o certificado
-provisório do Ubuntu (snakeoil); ao emitir o de verdade, trocar as linhas
-`SSLCertificate*` em `/etc/apache2/sites-available/inventour-*.conf` pelas
-de `docs/servidor/`, `sudo apachectl configtest` e `sudo systemctl reload apache2`.
-
-O site de lançamento `inventour.com.br` continua no CentOS 8.
+- Painel e portais usam o mesmo certificado curinga `inventour.com.br`
+  (`*.inventour.com.br`, Google Trust Services, DNS-01), que renova sozinho.
+- Destino novo não exige DNS nem certificado.
+- O site de lançamento `inventour.com.br` e o `www` continuam no CentOS 8.
 
 ## 3. O que roda sozinho (fila)
 
@@ -64,9 +55,7 @@ sudo -u www-data php scripts/conferir_escopo.php
 
 1. Plataforma, Destinos, novo: nome, CNPJ (a Receita preenche), município,
    subdomínio (o mesmo slug do EventCity, quando o destino estiver lá).
-2. Registro A do subdomínio no Registro.br e o nome no certificado do portal
-   (seção 2).
-3. Convidar o gestor (Configurações, Usuários).
+2. Convidar o gestor (Configurações, Usuários).
 
 ## 6. Primeiro acesso da equipe Softsul
 
