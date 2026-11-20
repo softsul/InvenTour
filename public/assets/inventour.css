@@ -1300,21 +1300,6 @@ dialog.coleta-dialogo > form{display:flex; flex-direction:column; flex:1; min-he
 .coleta-fichas{margin-top:6px}
 .coleta-fichas .como-link{text-align:left; font-size:14px; padding:7px 0}
 
-/* Cartão do app no painel. */
-.app-campo{display:grid; grid-template-columns:1fr auto; gap:14px 24px; align-items:center}
-.app-campo h2{display:flex; align-items:center; gap:8px; margin:0 0 6px; font-size:16px}
-.app-campo h2 svg{width:18px; height:18px; color:var(--indigo)}
-.app-campo p{margin:0 0 10px; color:var(--suave); font-size:13.5px}
-.app-campo-baixar{display:flex; align-items:center; gap:12px; flex-wrap:wrap; font-size:12.5px}
-.app-campo-baixar .botao{width:auto}
-.app-campo-codigo{display:flex; flex-direction:column; align-items:center; gap:4px; text-align:center}
-.app-campo-codigo .botao{width:auto}
-.app-campo-codigo .rotulo{font-size:12px; color:var(--suave)}
-.app-campo-codigo .codigo{font-size:30px; letter-spacing:.12em; color:var(--indigo-fte); padding:6px 16px; border-radius:var(--r); background:var(--indigo-sup)}
-.app-campo-aparelhos{grid-column:1 / -1; margin:0}
-.app-campo-aparelhos li{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
-.app-campo-aparelhos svg{width:16px; height:16px; color:var(--fraca)}
-
 @media (max-width:640px){
   .coleta-lista{grid-template-columns:minmax(0, 1fr)}
   .coleta-filtros > .entrada, .coleta-filtros > .entrada:has(> select){flex:1 1 100%; max-width:none; min-width:0}
@@ -1335,5 +1320,16 @@ dialog.coleta-dialogo > form{display:flex; flex-direction:column; flex:1; min-he
   .coleta-dialogo .pe-dialogo [data-fechar]{display:none}
   .coleta-dialogo .pe-dialogo #c-gravar{flex:1 1 100%; order:5}
   .coleta-gps .botao, .coleta-camera .botao{width:100%}
-  .app-campo{grid-template-columns:1fr}
 }
+
+/* Aba Aplicativo da Coleta de campo: os três passos lado a lado. */
+.app-campo-grade{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:16px; margin-bottom:16px}
+.app-passo{position:relative; display:flex; flex-direction:column; align-items:flex-start; gap:10px; padding-top:22px; margin:0}
+.app-passo h2{margin:0; font-size:16px}
+.app-passo p{margin:0; color:var(--suave); font-size:13.5px; line-height:1.5}
+.app-passo .botao{width:auto}
+.app-passo .nulo{font-size:12.5px}
+.app-passo-num{display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%;
+  background:var(--indigo-sup); color:var(--indigo-fte); font-weight:800; font-size:14px}
+.app-codigo{font-size:32px; letter-spacing:.14em; color:var(--indigo-fte); padding:8px 18px; border-radius:var(--r); background:var(--indigo-sup)}
+@media (max-width:900px){ .app-campo-grade{grid-template-columns:1fr} }

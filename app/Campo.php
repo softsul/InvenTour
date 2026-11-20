@@ -96,10 +96,37 @@ final class Campo
         return $q->fetchAll();
     }
 
-    public static function desconectar(int $id): void
+    /**
+     * Aparelhos conectados no destino atual: os da pessoa ou, para quem
+     * coordena a coleta, os de toda a equipe (para desligar o celular de
+     * quem saiu ou perdeu o aparelho).
+     */
+    public static function aparelhosDoDestino(bool $daEquipe): array
     {
-        Database::conexao()->prepare('UPDATE campo_aparelhos SET revogado_em = NOW() WHERE id = ? AND usuario_id = ? AND empresa_id = ?')
-            ->execute([$id, (int) Auth::usuarioOuNulo()['id'], Empresa::id()]);
+        $sql = 'SELECT a.id, a.nome, a.conectado_em, a.ultimo_uso_em, a.usuario_id, u.nome AS pessoa,
+                       (SELECT COUNT(*) FROM inventario_coletas c WHERE c.empresa_id = a.empresa_id AND c.usuario_id = a.usuario_id) AS envios
+                FROM campo_aparelhos a JOIN usuarios u ON u.id = a.usuario_id
+                WHERE a.empresa_id = ? AND a.token_hash IS NOT NULL AND a.revogado_em IS NULL';
+        $args = [Empresa::id()];
+        if (!$daEquipe) {
+            $sql .= ' AND a.usuario_id = ?';
+            $args[] = (int) Auth::usuarioOuNulo()['id'];
+        }
+        $q = Database::conexao()->prepare($sql . ' ORDER BY a.ultimo_uso_em DESC, a.conectado_em DESC');
+        $q->execute($args);
+        return $q->fetchAll();
+    }
+
+    /** Desliga o aparelho: o da própria pessoa, ou qualquer um do destino para quem coordena. */
+    public static function desconectar(int $id, bool $daEquipe = false): void
+    {
+        $sql = 'UPDATE campo_aparelhos SET revogado_em = NOW() WHERE id = ? AND empresa_id = ?';
+        $args = [$id, Empresa::id()];
+        if (!$daEquipe) {
+            $sql .= ' AND usuario_id = ?';
+            $args[] = (int) Auth::usuarioOuNulo()['id'];
+        }
+        Database::conexao()->prepare($sql)->execute($args);
         Auditoria::registrar('alterou', 'campo_aparelhos', $id, 'desconectou um aparelho do app InvenTour Campo');
     }
 }
