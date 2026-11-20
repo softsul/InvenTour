@@ -1,0 +1,3479 @@
+[
+  {
+    "ordem": 1,
+    "codigo": "A1",
+    "codigos_mtur": [
+      "A.1.1"
+    ],
+    "categoria": "A",
+    "grupo": "Informações básicas do município",
+    "nome": "Caracterização do município",
+    "forma": "municipio",
+    "eventcity": null,
+    "pagina": 1,
+    "tipos": [
+      {
+        "codigo": "A.1.1",
+        "nome": "Caracterização do município",
+        "definicao": "Dados relativos aos aspectos geopolíticos e administrativos do município, tais como área, população, limites, altitude, clima, atividades econômicas e outras."
+      }
+    ]
+  },
+  {
+    "ordem": 2,
+    "codigo": "A2",
+    "codigos_mtur": [
+      "A.2.1.1"
+    ],
+    "categoria": "A",
+    "grupo": "Meios de acesso ao município",
+    "nome": "Rodovia",
+    "forma": "linear",
+    "eventcity": null,
+    "pagina": 13,
+    "tipos": [
+      {
+        "codigo": "A.2.1",
+        "nome": "Rodoviário",
+        "definicao": "Os serviços rodoviários são constituídos por empresas que transportam passageiros e cargas por ônibus ou outro tipo de transporte terrestre."
+      },
+      {
+        "codigo": "A.2.1.1",
+        "nome": "Rodovia",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 3,
+    "codigo": "A2",
+    "codigos_mtur": [
+      "A.2.1.2",
+      "A.2.1.3"
+    ],
+    "categoria": "A",
+    "grupo": "Meios de acesso ao município",
+    "nome": "Estação rodoviária e terminal rodoviário",
+    "forma": "pontual",
+    "eventcity": null,
+    "pagina": 16,
+    "tipos": [
+      {
+        "codigo": "A.2.1",
+        "nome": "Rodoviário",
+        "definicao": "Os serviços rodoviários são constituídos por empresas que transportam passageiros e cargas por ônibus ou outro tipo de transporte terrestre."
+      },
+      {
+        "codigo": "A.2.1.2",
+        "nome": "Estação rodoviária",
+        "definicao": "Estações de embarque e desembarque de passageiros de linhas de ônibus interurbanos, interestaduais e internacionais."
+      },
+      {
+        "codigo": "A.2.1.3",
+        "nome": "Terminal rodoviário",
+        "definicao": "Estações de embarque e desembarque de passageiros de linhas de ônibus interurbanos, interestaduais e internacionais."
+      }
+    ]
+  },
+  {
+    "ordem": 4,
+    "codigo": "A2",
+    "codigos_mtur": [
+      "A.2.2.1",
+      "A.2.2.2"
+    ],
+    "categoria": "A",
+    "grupo": "Meios de acesso ao município",
+    "nome": "Ferrovia e metrovia",
+    "forma": "linear",
+    "eventcity": null,
+    "pagina": 24,
+    "tipos": [
+      {
+        "codigo": "A.2.2",
+        "nome": "Ferroviário",
+        "definicao": ""
+      },
+      {
+        "codigo": "A.2.2.1",
+        "nome": "Ferrovia",
+        "definicao": ""
+      },
+      {
+        "codigo": "A.2.2.2",
+        "nome": "Metrovia",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 5,
+    "codigo": "A2",
+    "codigos_mtur": [
+      "A.2.2.3",
+      "A.2.2.4"
+    ],
+    "categoria": "A",
+    "grupo": "Meios de acesso ao município",
+    "nome": "Estação ferroviária e estação metroviária",
+    "forma": "pontual",
+    "eventcity": null,
+    "pagina": 26,
+    "tipos": [
+      {
+        "codigo": "A.2.2",
+        "nome": "Ferroviário",
+        "definicao": ""
+      },
+      {
+        "codigo": "A.2.2.3",
+        "nome": "Estação ferroviária",
+        "definicao": "Estações de embarque e desembarque de passageiros e cargas transportados sobre trilhos, em trens, litorinas etc."
+      },
+      {
+        "codigo": "A.2.2.4",
+        "nome": "Estação metroviária",
+        "definicao": "Estações de embarque e desembarque de passageiros e cargas transportados sobre trilhos, em trens, litorinas etc."
+      }
+    ]
+  },
+  {
+    "ordem": 6,
+    "codigo": "A2",
+    "codigos_mtur": [
+      "A.2.3.1",
+      "A.2.3.2"
+    ],
+    "categoria": "A",
+    "grupo": "Meios de acesso ao município",
+    "nome": "Aeroporto e campo de pouso",
+    "forma": "pontual",
+    "eventcity": null,
+    "pagina": 43,
+    "tipos": [
+      {
+        "codigo": "A.2.3",
+        "nome": "Aeroviário",
+        "definicao": "Serviços aéreos ou aviação regular: sistema formado por empresas de transporte aéreo, com suas frotas, concessionárias de serviços de transporte regular de passageiros ou carga, em linhas e condições estabelecidas pela legislação."
+      },
+      {
+        "codigo": "A.2.3.1",
+        "nome": "Aeroporto",
+        "definicao": "Instalações e facilidades para o apoio de operações de aeronaves e de embarque e desembarque de passageiros e cargas."
+      },
+      {
+        "codigo": "A.2.3.2",
+        "nome": "Campo de pouso",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 7,
+    "codigo": "A2",
+    "codigos_mtur": [
+      "A.2.3.3",
+      "A.2.3.4"
+    ],
+    "categoria": "A",
+    "grupo": "Meios de acesso ao município",
+    "nome": "Heliporto e outros",
+    "forma": "pontual",
+    "eventcity": null,
+    "pagina": 35,
+    "tipos": [
+      {
+        "codigo": "A.2.3",
+        "nome": "Aeroviário",
+        "definicao": "Serviços aéreos ou aviação regular: sistema formado por empresas de transporte aéreo, com suas frotas, concessionárias de serviços de transporte regular de passageiros ou carga, em linhas e condições estabelecidas pela legislação."
+      },
+      {
+        "codigo": "A.2.3.3",
+        "nome": "Heliporto",
+        "definicao": ""
+      },
+      {
+        "codigo": "A.2.3.4",
+        "nome": "Outros",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 8,
+    "codigo": "A2",
+    "codigos_mtur": [
+      "A.2.4.1"
+    ],
+    "categoria": "A",
+    "grupo": "Meios de acesso ao município",
+    "nome": "Hidrovia",
+    "forma": "linear",
+    "eventcity": null,
+    "pagina": 52,
+    "tipos": [
+      {
+        "codigo": "A.2.4",
+        "nome": "Aquaviário",
+        "definicao": ""
+      },
+      {
+        "codigo": "A.2.4.1",
+        "nome": "Hidrovia",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 9,
+    "codigo": "A2",
+    "codigos_mtur": [
+      "A.2.4.2",
+      "A.2.4.3",
+      "A.2.4.4",
+      "A.2.4.5",
+      "A.2.4.6",
+      "A.2.4.7",
+      "A.2.4.8"
+    ],
+    "categoria": "A",
+    "grupo": "Meios de acesso ao município",
+    "nome": "Porto organizado, píer, cais, marina, terminal portuário de uso privativo em turismo, clube náutico e outros",
+    "forma": "pontual",
+    "eventcity": null,
+    "pagina": 54,
+    "tipos": [
+      {
+        "codigo": "A.2.4",
+        "nome": "Aquaviário",
+        "definicao": ""
+      },
+      {
+        "codigo": "A.2.4.2",
+        "nome": "Porto organizado",
+        "definicao": "Abrigos naturais ou artificiais na costa marítima ou junto a rios e lagos para navios e outras embarcações, providos de instalações indispensáveis ao embarque e desembarque de passageiros e cargas."
+      },
+      {
+        "codigo": "A.2.4.3",
+        "nome": "Píer",
+        "definicao": ""
+      },
+      {
+        "codigo": "A.2.4.4",
+        "nome": "Cais",
+        "definicao": ""
+      },
+      {
+        "codigo": "A.2.4.5",
+        "nome": "Marina",
+        "definicao": "Portos de recreio e pontos de atracação construídos para abrigar embarcações de pequeno e médio porte e oferecer equipamentos de lazer e serviços mecânicos aos velejadores em trânsito."
+      },
+      {
+        "codigo": "A.2.4.6",
+        "nome": "Terminal portuário de uso privativo em turismo",
+        "definicao": ""
+      },
+      {
+        "codigo": "A.2.4.7",
+        "nome": "Clube náutico",
+        "definicao": ""
+      },
+      {
+        "codigo": "A.2.4.8",
+        "nome": "Outros",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 10,
+    "codigo": "A3",
+    "codigos_mtur": [
+      "A.3.1",
+      "A.3.2",
+      "A.3.3",
+      "A.3.4",
+      "A.3.5",
+      "A.3.6",
+      "A.3.7"
+    ],
+    "categoria": "A",
+    "grupo": "Sistema de comunicação",
+    "nome": "Sistema de comunicação",
+    "forma": "pontual",
+    "eventcity": null,
+    "pagina": 63,
+    "tipos": [
+      {
+        "codigo": "A.3.1",
+        "nome": "Agência postal",
+        "definicao": "Repartições públicas ou privadas que recebem e expedem correspondências (cartas, cartões, telegramas, fax, sedex etc.) e encomendas."
+      },
+      {
+        "codigo": "A.3.2",
+        "nome": "Posto telefônico",
+        "definicao": "Repartições públicas e privadas ou dispositivos que facultam aos interessados a comunicação por telefone."
+      },
+      {
+        "codigo": "A.3.3",
+        "nome": "Emissora de rádio",
+        "definicao": "Centro produtor ou retransmissor de programas radiofônicos ou televisivos que possua escritório ou representantes na localidade."
+      },
+      {
+        "codigo": "A.3.4",
+        "nome": "Emissora de TV",
+        "definicao": "Centro produtor ou retransmissor de programas radiofônicos ou televisivos que possua escritório ou representantes na localidade."
+      },
+      {
+        "codigo": "A.3.5",
+        "nome": "Jornal",
+        "definicao": "Publicação periódica impressa sobre notícias, entrevistas, comentários, anúncios etc., de âmbito nacional, regional ou local, que possua escritório ou representantes na localidade."
+      },
+      {
+        "codigo": "A.3.6",
+        "nome": "Revista",
+        "definicao": "Publicação periódica impressa sobre notícias, entrevistas, comentários, anúncios etc., de âmbito nacional, regional ou local, que possua escritório ou representantes na localidade."
+      },
+      {
+        "codigo": "A.3.7",
+        "nome": "Outros",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 11,
+    "codigo": "A4",
+    "codigos_mtur": [
+      "A.4.1",
+      "A.4.2",
+      "A.4.3",
+      "A.4.4",
+      "A.4.5",
+      "A.4.6",
+      "A.4.7",
+      "A.4.8",
+      "A.4.9"
+    ],
+    "categoria": "A",
+    "grupo": "Sistema de segurança",
+    "nome": "Sistema de segurança",
+    "forma": "pontual",
+    "eventcity": null,
+    "pagina": 66,
+    "tipos": [
+      {
+        "codigo": "A.4.1",
+        "nome": "Polícia Civil",
+        "definicao": "Órgãos policiais encarregados de fazer cumprir as leis ou regras impostas aos cidadãos, para assegurar a moral, a ordem e a segurança pública e reprimir o crime e a violência."
+      },
+      {
+        "codigo": "A.4.2",
+        "nome": "Polícia Militar",
+        "definicao": "Órgãos policiais encarregados de fazer cumprir as leis ou regras impostas aos cidadãos, para assegurar a moral, a ordem e a segurança pública e reprimir o crime e a violência."
+      },
+      {
+        "codigo": "A.4.3",
+        "nome": "Polícia Rodoviária",
+        "definicao": "Órgãos policiais localizados nas margens das rodovias, com a função de patrulhar e vigiar as estradas."
+      },
+      {
+        "codigo": "A.4.4",
+        "nome": "Corpo de Bombeiros",
+        "definicao": "Corporação militar encarregada de proteger a população de incêndios, outros acidentes e calamidades públicas."
+      },
+      {
+        "codigo": "A.4.5",
+        "nome": "Serviços de busca e salvamento",
+        "definicao": "Equipamentos e profissionais especializados em busca e salvamento em locais de difícil acesso."
+      },
+      {
+        "codigo": "A.4.6",
+        "nome": "Serviços de Polícia Marítima/Aérea/de Fronteiras",
+        "definicao": "Serviços de proteção e fiscalização efetuados habitualmente pelas capitanias dos portos, ANAC e Ministério da Aeronáutica, e destacamentos de fronteiras."
+      },
+      {
+        "codigo": "A.4.7",
+        "nome": "Guarda Municipal",
+        "definicao": ""
+      },
+      {
+        "codigo": "A.4.8",
+        "nome": "Defesa Civil",
+        "definicao": ""
+      },
+      {
+        "codigo": "A.4.9",
+        "nome": "Outros",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 12,
+    "codigo": "A5",
+    "codigos_mtur": [
+      "A.5.1",
+      "A.5.2",
+      "A.5.3",
+      "A.5.4",
+      "A.5.5",
+      "A.5.6",
+      "A.5.7",
+      "A.5.8",
+      "A.5.9"
+    ],
+    "categoria": "A",
+    "grupo": "Sistemas de saúde",
+    "nome": "Sistemas de saúde",
+    "forma": "pontual",
+    "eventcity": null,
+    "pagina": 69,
+    "tipos": [
+      {
+        "codigo": "A.5.1",
+        "nome": "Pronto-socorro",
+        "definicao": "Hospitais de assistência pública e privada para atendimento de casos de emergência."
+      },
+      {
+        "codigo": "A.5.2",
+        "nome": "Hospital",
+        "definicao": "Estabelecimentos governamentais ou particulares onde se internam e tratam doentes."
+      },
+      {
+        "codigo": "A.5.3",
+        "nome": "Clínica médica",
+        "definicao": "Estabelecimentos de pequeno e médio porte destinados à prestação de serviços de saúde especializados."
+      },
+      {
+        "codigo": "A.5.4",
+        "nome": "Maternidade",
+        "definicao": "Estabelecimentos de assistência especializada para partos."
+      },
+      {
+        "codigo": "A.5.5",
+        "nome": "Posto de saúde",
+        "definicao": "Estabelecimento destinado ao atendimento público, com o objetivo de prestar serviços preventivos ou assistenciais da área de saúde."
+      },
+      {
+        "codigo": "A.5.6",
+        "nome": "Farmácia/drogaria",
+        "definicao": "Estabelecimento onde são preparados e/ou vendidos medicamentos."
+      },
+      {
+        "codigo": "A.5.7",
+        "nome": "Clínica odontológica",
+        "definicao": "Estabelecimento especializado em saúde bucal."
+      },
+      {
+        "codigo": "A.5.8",
+        "nome": "Clínica veterinária",
+        "definicao": ""
+      },
+      {
+        "codigo": "A.5.9",
+        "nome": "Outros",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 13,
+    "codigo": "A6",
+    "codigos_mtur": [
+      "A.6.1"
+    ],
+    "categoria": "A",
+    "grupo": "Sistema educacional",
+    "nome": "Caracterização do Sistema de Educação",
+    "forma": "municipio",
+    "eventcity": null,
+    "pagina": 73,
+    "tipos": [
+      {
+        "codigo": "A.6.1",
+        "nome": "Caracterização do Sistema de Educação",
+        "definicao": "Conjunto de instituições educacionais de um município, responsáveis pelo nível de instrução da população residente e pela qualidade da mão de obra disponível para a prestação dos serviços turísticos."
+      }
+    ]
+  },
+  {
+    "ordem": 14,
+    "codigo": "A7",
+    "codigos_mtur": [
+      "A.7.1"
+    ],
+    "categoria": "A",
+    "grupo": "Outros serviços e equipamentos de apoio",
+    "nome": "Locadoras de imóveis para temporada",
+    "forma": "pontual",
+    "eventcity": "servico_apoio",
+    "pagina": 80,
+    "tipos": [
+      {
+        "codigo": "A.7.1",
+        "nome": "Locadoras de imóveis para temporada",
+        "definicao": "Empresas de aluguel de imóvel (imobiliária) para uso cedido por prazo e preço convencionados, destinado à habitação temporária em locais turísticos."
+      }
+    ]
+  },
+  {
+    "ordem": 15,
+    "codigo": "A7",
+    "codigos_mtur": [
+      "A.7.2"
+    ],
+    "categoria": "A",
+    "grupo": "Outros serviços e equipamentos de apoio",
+    "nome": "Compras Especiais",
+    "forma": "pontual",
+    "eventcity": "servico_apoio",
+    "pagina": 83,
+    "tipos": [
+      {
+        "codigo": "A.7.2",
+        "nome": "Compras Especiais",
+        "definicao": ""
+      },
+      {
+        "codigo": "A.7.2.1",
+        "nome": "Feira/mercado",
+        "definicao": "Locais de compra e venda de produtos tradicionais da região (alimentação, vestuário, utensílios, adornos etc.), instalados em local fechado ou ao ar livre."
+      },
+      {
+        "codigo": "A.7.2.2",
+        "nome": "Galeria/rua comercial",
+        "definicao": ""
+      },
+      {
+        "codigo": "A.7.2.3",
+        "nome": "Shopping",
+        "definicao": "Edificações onde se concentram lojas de departamentos, butiques e outros serviços para venda de produtos e artigos que atraiam o turista, com segurança, conforto, estacionamento, ponto de táxi etc."
+      },
+      {
+        "codigo": "A.7.2.4",
+        "nome": "Plantas/flores/frutas",
+        "definicao": ""
+      },
+      {
+        "codigo": "A.7.2.5",
+        "nome": "Antiquário",
+        "definicao": "Estabelecimentos que expõem, vendem e comercializam obras de arte e antiguidades."
+      },
+      {
+        "codigo": "A.7.2.6",
+        "nome": "Cantina/cave",
+        "definicao": ""
+      },
+      {
+        "codigo": "A.7.2.7",
+        "nome": "Bodega/alambique",
+        "definicao": ""
+      },
+      {
+        "codigo": "A.7.2.8",
+        "nome": "Outras",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 16,
+    "codigo": "A7",
+    "codigos_mtur": [
+      "A.7.3"
+    ],
+    "categoria": "A",
+    "grupo": "Outros serviços e equipamentos de apoio",
+    "nome": "Comércio turístico",
+    "forma": "pontual",
+    "eventcity": "servico_apoio",
+    "pagina": 89,
+    "tipos": [
+      {
+        "codigo": "A.7.3",
+        "nome": "Comércio turístico",
+        "definicao": ""
+      },
+      {
+        "codigo": "A.7.3.1",
+        "nome": "Loja de artesanato/souvenir",
+        "definicao": "Estabelecimentos que vendem artesanato (trabalhos resultantes de atividade manual vinculada a um ofício tradicional ou a uma arte popular) e artigos típicos para lembranças de viagens."
+      },
+      {
+        "codigo": "A.7.3.2",
+        "nome": "Loja de artigos fotográficos",
+        "definicao": "Estabelecimentos que vendem materiais para fotografias e/ou revelam filmes fotográficos."
+      },
+      {
+        "codigo": "A.7.3.3",
+        "nome": "Antiquário/galeria de arte",
+        "definicao": "Estabelecimentos que expõem, vendem e comercializam obras de arte e antiguidades."
+      },
+      {
+        "codigo": "A.7.3.4",
+        "nome": "Outros",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 17,
+    "codigo": "A7",
+    "codigos_mtur": [
+      "A.7.4"
+    ],
+    "categoria": "A",
+    "grupo": "Outros serviços e equipamentos de apoio",
+    "nome": "Serviços bancários",
+    "forma": "pontual",
+    "eventcity": "servico_apoio",
+    "pagina": 95,
+    "tipos": [
+      {
+        "codigo": "A.7.4",
+        "nome": "Serviços bancários",
+        "definicao": "Estabelecimentos particulares ou estatais cujas atividades consistem na prestação de serviços financeiros diversos e na compra e venda de moedas estrangeiras."
+      },
+      {
+        "codigo": "A.7.4.1",
+        "nome": "Agência/posto bancário",
+        "definicao": "Estabelecimentos particulares ou estatais cujas atividades consistem na prestação de serviços financeiros diversos."
+      },
+      {
+        "codigo": "A.7.4.2",
+        "nome": "Casa de câmbio",
+        "definicao": "Estabelecimentos que realizam a compra e venda de moedas estrangeiras."
+      }
+    ]
+  },
+  {
+    "ordem": 18,
+    "codigo": "A7",
+    "codigos_mtur": [
+      "A.7.5",
+      "A.7.6"
+    ],
+    "categoria": "A",
+    "grupo": "Outros serviços e equipamentos de apoio",
+    "nome": "Serviços mecânicos e posto de combustível",
+    "forma": "pontual",
+    "eventcity": "servico_apoio",
+    "pagina": 98,
+    "tipos": [
+      {
+        "codigo": "A.7.5",
+        "nome": "Serviços mecânicos",
+        "definicao": "Estabelecimentos e serviços de oficina, guincho e outros serviços de atendimento a veículos."
+      },
+      {
+        "codigo": "A.7.6",
+        "nome": "Posto de combustível",
+        "definicao": "Estabelecimentos equipados para a venda de combustíveis para veículos automotores (álcool, gasolina, diesel, gás natural etc.)."
+      },
+      {
+        "codigo": "A.7.5.1",
+        "nome": "Automóvel",
+        "definicao": ""
+      },
+      {
+        "codigo": "A.7.5.2",
+        "nome": "Motocicleta",
+        "definicao": ""
+      },
+      {
+        "codigo": "A.7.5.3",
+        "nome": "Ônibus/caminhão",
+        "definicao": ""
+      },
+      {
+        "codigo": "A.7.5.4",
+        "nome": "Embarcações náuticas",
+        "definicao": ""
+      },
+      {
+        "codigo": "A.7.5.5",
+        "nome": "Outros",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 19,
+    "codigo": "A7",
+    "codigos_mtur": [
+      "A.7.7"
+    ],
+    "categoria": "A",
+    "grupo": "Outros serviços e equipamentos de apoio",
+    "nome": "Representações diplomáticas",
+    "forma": "pontual",
+    "eventcity": "servico_apoio",
+    "pagina": 102,
+    "tipos": [
+      {
+        "codigo": "A.7.7",
+        "nome": "Representações diplomáticas",
+        "definicao": "Corpo de representantes dos governos de outros países em um Estado ou organismo internacional."
+      },
+      {
+        "codigo": "A.7.7.1",
+        "nome": "Embaixada",
+        "definicao": "Missões de um país em outro país, com funções de representação, intermediação de negócios, proteção aos cidadãos de seus respectivos países e outros serviços."
+      },
+      {
+        "codigo": "A.7.7.2",
+        "nome": "Consulado",
+        "definicao": "Escritórios regionais de um país em outro país, onde são prestados serviços como expedição de vistos, intermediação de negócios e proteção aos cidadãos compatriotas."
+      },
+      {
+        "codigo": "A.7.7.3",
+        "nome": "Outras",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 20,
+    "codigo": "B1",
+    "codigos_mtur": [
+      "B.1.1"
+    ],
+    "categoria": "B",
+    "grupo": "Meios de hospedagem",
+    "nome": "Hoteleira e de apoio",
+    "forma": "pontual",
+    "eventcity": "hospedagem",
+    "pagina": 105,
+    "tipos": [
+      {
+        "codigo": "B.1.1",
+        "nome": "Hoteleira e de apoio",
+        "definicao": "Serviços remunerados prestados por estabelecimentos que oferecem alojamento e serviços necessários ao conforto do hóspede, como recepção, guarda de bagagem, conservação, arrumação e limpeza."
+      },
+      {
+        "codigo": "B.1.1.1",
+        "nome": "Hotel",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.1.1.2",
+        "nome": "Hotel histórico",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.1.1.3",
+        "nome": "Hotel fazenda",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.1.1.4",
+        "nome": "Resort",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.1.1.5",
+        "nome": "Pousada",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.1.1.6",
+        "nome": "Flat/apart-hotel",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.1.1.7",
+        "nome": "Cama e café",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.1.1.8",
+        "nome": "Albergue",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.1.1.9",
+        "nome": "Alojamento de floresta",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.1.1.10",
+        "nome": "Pensão",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.1.1.11",
+        "nome": "Motel",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.1.1.12",
+        "nome": "Colônia de férias",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.1.1.13",
+        "nome": "Estalagem/hospedaria",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.1.1.14",
+        "nome": "Alojamento coletivo",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.1.1.15",
+        "nome": "Hospedagem conventual (mosteiro/seminário/convento)",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.1.1.16",
+        "nome": "Hospedagem familiar",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.1.1.17",
+        "nome": "Hotel de trânsito",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.1.1.18",
+        "nome": "Spa",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.1.1.19",
+        "nome": "Outros",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 21,
+    "codigo": "B1",
+    "codigos_mtur": [
+      "B.1.2"
+    ],
+    "categoria": "B",
+    "grupo": "Meios de hospedagem",
+    "nome": "Outro tipo de acomodação",
+    "forma": "pontual",
+    "eventcity": "hospedagem",
+    "pagina": 115,
+    "tipos": [
+      {
+        "codigo": "B.1.2",
+        "nome": "Outro tipo de acomodação",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.1.2.1",
+        "nome": "Acampamento turístico/camping",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 22,
+    "codigo": "B2",
+    "codigos_mtur": [
+      "B.2.1",
+      "B.2.2",
+      "B.2.3",
+      "B.2.4",
+      "B.2.5",
+      "B.2.6",
+      "B.2.7",
+      "B.2.8",
+      "B.2.9"
+    ],
+    "categoria": "B",
+    "grupo": "Alimentos e bebidas",
+    "nome": "Alimentos e bebidas",
+    "forma": "pontual",
+    "eventcity": "gastronomia",
+    "pagina": 125,
+    "tipos": [
+      {
+        "codigo": "B.2.1",
+        "nome": "Restaurante",
+        "definicao": "Estabelecimentos que se destinam à prestação de serviços de alimentação e que podem oferecer culinária internacional, regional, local ou típica."
+      },
+      {
+        "codigo": "B.2.2",
+        "nome": "Bar",
+        "definicao": "Estabelecimentos que servem bebidas, sanduíches, petiscos e refeições ligeiras no balcão ou em pequenas mesas."
+      },
+      {
+        "codigo": "B.2.3",
+        "nome": "Lanchonete",
+        "definicao": "Estabelecimentos que servem bebidas, sanduíches, petiscos e refeições ligeiras no balcão ou em pequenas mesas."
+      },
+      {
+        "codigo": "B.2.4",
+        "nome": "Cafeteria",
+        "definicao": "Estabelecimentos que servem bebidas, sanduíches, petiscos e refeições ligeiras no balcão ou em pequenas mesas."
+      },
+      {
+        "codigo": "B.2.5",
+        "nome": "Quiosque",
+        "definicao": "Estabelecimentos geralmente pequenos, nos quais são comercializados produtos alimentícios, artesanatos e conveniências."
+      },
+      {
+        "codigo": "B.2.6",
+        "nome": "Barraca de praia",
+        "definicao": "Estabelecimentos geralmente pequenos, nos quais são comercializados produtos alimentícios, artesanatos e conveniências."
+      },
+      {
+        "codigo": "B.2.7",
+        "nome": "Sorveteria",
+        "definicao": "Locais onde são vendidos sorvetes e outras iguarias."
+      },
+      {
+        "codigo": "B.2.8",
+        "nome": "Confeitaria/padaria",
+        "definicao": "Estabelecimentos onde são fabricados e comercializados doces e salgados."
+      },
+      {
+        "codigo": "B.2.9",
+        "nome": "Outros",
+        "definicao": "Outros tipos de serviços de alimentação que, por suas características ou peculiaridades, atendam à demanda turística."
+      }
+    ]
+  },
+  {
+    "ordem": 23,
+    "codigo": "B3",
+    "codigos_mtur": [
+      "B.3.1",
+      "B.3.2",
+      "B.3.3",
+      "B.3.4"
+    ],
+    "categoria": "B",
+    "grupo": "Agências de turismo",
+    "nome": "Agências de turismo",
+    "forma": "pontual",
+    "eventcity": "servico_apoio",
+    "pagina": 132,
+    "tipos": [
+      {
+        "codigo": "B.3.1",
+        "nome": "Agência de viagem",
+        "definicao": "Agências que prestam serviços de agenciamento dentro do território nacional."
+      },
+      {
+        "codigo": "B.3.2",
+        "nome": "Operadora de turismo",
+        "definicao": "Agências que prestam serviços no Brasil e no exterior, também chamadas de operadoras."
+      },
+      {
+        "codigo": "B.3.3",
+        "nome": "Agência de receptivo",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.3.4",
+        "nome": "Agência consolidadora",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 24,
+    "codigo": "B4",
+    "codigos_mtur": [
+      "B.4.1",
+      "B.4.2",
+      "B.4.3"
+    ],
+    "categoria": "B",
+    "grupo": "Transporte turístico",
+    "nome": "Transporte turístico",
+    "forma": "pontual",
+    "eventcity": "servico_apoio",
+    "pagina": 142,
+    "tipos": [
+      {
+        "codigo": "B.4.1",
+        "nome": "Transportadora turística e similares",
+        "definicao": "Serviços e equipamentos para o deslocamento de pessoas por via terrestre e hidrovia, com a finalidade específica de realizar excursões, traslados e outras programações turísticas."
+      },
+      {
+        "codigo": "B.4.2",
+        "nome": "Locadoras de veículos",
+        "definicao": "Empresas que oferecem aluguel de automóveis, barcos, aeronaves etc., utilizados para fins turísticos."
+      },
+      {
+        "codigo": "B.4.3",
+        "nome": "Outros tipos de transporte",
+        "definicao": "Outros tipos de transportes que, por suas características ou peculiaridades, atendam à demanda turística."
+      }
+    ]
+  },
+  {
+    "ordem": 25,
+    "codigo": "B5",
+    "codigos_mtur": [
+      "B.5.1"
+    ],
+    "categoria": "B",
+    "grupo": "Serviços e equipamentos para eventos",
+    "nome": "Espaços para eventos",
+    "forma": "pontual",
+    "eventcity": "espaco_eventos",
+    "pagina": 149,
+    "tipos": [
+      {
+        "codigo": "B.5.1",
+        "nome": "Espaços para eventos",
+        "definicao": "Infraestrutura específica para a realização de congressos, convenções, exposições, feiras, shows e outros."
+      },
+      {
+        "codigo": "B.5.1.1",
+        "nome": "Centro de convenções e feiras",
+        "definicao": "Equipamentos com infraestrutura específica para a realização de congressos, convenções, exposições, feiras e outros."
+      },
+      {
+        "codigo": "B.5.1.2",
+        "nome": "Parque/pavilhão/centro de exposições",
+        "definicao": "Áreas permanentes, com instalações próprias, para a realização de exposições agrícolas, industriais, comerciais etc."
+      },
+      {
+        "codigo": "B.5.1.3",
+        "nome": "Auditório/salão para reuniões",
+        "definicao": "Salas ou conjuntos de salas acusticamente preparadas para a realização de palestras, conferências, cursos etc., normalmente integradas a meios de hospedagem."
+      },
+      {
+        "codigo": "B.5.1.4",
+        "nome": "Outros",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 26,
+    "codigo": "B5",
+    "codigos_mtur": [
+      "B.5.2"
+    ],
+    "categoria": "B",
+    "grupo": "Serviços e equipamentos para eventos",
+    "nome": "Serviços para eventos",
+    "forma": "pontual",
+    "eventcity": "servico_apoio",
+    "pagina": 158,
+    "tipos": [
+      {
+        "codigo": "B.5.2",
+        "nome": "Serviços para eventos",
+        "definicao": "Serviços específicos para a realização de congressos, convenções, exposições, feiras, shows e outros."
+      },
+      {
+        "codigo": "B.5.2.1",
+        "nome": "Organizadora",
+        "definicao": "Empresas que prestam serviços para a organização de congressos, convenções, seminários ou eventos congêneres."
+      },
+      {
+        "codigo": "B.5.2.2",
+        "nome": "Promotora",
+        "definicao": "Empresas que prestam serviços para a organização de congressos, convenções, seminários ou eventos congêneres."
+      },
+      {
+        "codigo": "B.5.2.3",
+        "nome": "Outros serviços especializados",
+        "definicao": "Outros tipos de serviços e equipamentos utilizados em eventos que, por suas características ou peculiaridades, atendam à demanda turística."
+      }
+    ]
+  },
+  {
+    "ordem": 27,
+    "codigo": "B6",
+    "codigos_mtur": [
+      "B.6.1"
+    ],
+    "categoria": "B",
+    "grupo": "Serviços e equipamentos de lazer",
+    "nome": "Parques",
+    "forma": "pontual",
+    "eventcity": "atrativo",
+    "pagina": 162,
+    "tipos": [
+      {
+        "codigo": "B.6.1",
+        "nome": "Parques",
+        "definicao": "Áreas delimitadas ou restritas, com serviços e equipamentos adequados para a animação e o lazer em uma localidade."
+      },
+      {
+        "codigo": "B.6.1.1",
+        "nome": "Aquático",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.6.1.2",
+        "nome": "Temático",
+        "definicao": "Parques desenvolvidos em torno de um tema específico."
+      },
+      {
+        "codigo": "B.6.1.3",
+        "nome": "Diversões",
+        "definicao": "Áreas delimitadas ou restritas, com serviços e equipamentos adequados para a animação e o lazer em uma localidade."
+      },
+      {
+        "codigo": "B.6.1.4",
+        "nome": "Outros",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 28,
+    "codigo": "B6",
+    "codigos_mtur": [
+      "B.6.2"
+    ],
+    "categoria": "B",
+    "grupo": "Serviços e equipamentos de lazer",
+    "nome": "Espaços livres e áreas verdes",
+    "forma": "pontual",
+    "eventcity": "atrativo",
+    "pagina": 170,
+    "tipos": [
+      {
+        "codigo": "B.6.2",
+        "nome": "Espaços livres e áreas verdes",
+        "definicao": "Áreas destinadas ao lazer, com tratamento paisagístico, podendo ou não ter instalações desportivas."
+      },
+      {
+        "codigo": "B.6.2.1",
+        "nome": "Praça",
+        "definicao": "Áreas destinadas ao lazer, com tratamento paisagístico, podendo ou não ter instalações desportivas."
+      },
+      {
+        "codigo": "B.6.2.2",
+        "nome": "Jardim",
+        "definicao": "Áreas destinadas ao lazer, com tratamento paisagístico, podendo ou não ter instalações desportivas."
+      },
+      {
+        "codigo": "B.6.2.3",
+        "nome": "Parque",
+        "definicao": "Áreas destinadas ao lazer, com tratamento paisagístico, podendo ou não ter instalações desportivas."
+      },
+      {
+        "codigo": "B.6.2.4",
+        "nome": "Mirante",
+        "definicao": "Pavilhões situados em lugares altos e bastante desabrigados, de onde se podem apreciar vistas panorâmicas."
+      },
+      {
+        "codigo": "B.6.2.5",
+        "nome": "Largo",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.6.2.6",
+        "nome": "Outros",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 29,
+    "codigo": "B6",
+    "codigos_mtur": [
+      "B.6.3"
+    ],
+    "categoria": "B",
+    "grupo": "Serviços e equipamentos de lazer",
+    "nome": "Instalações esportivas",
+    "forma": "pontual",
+    "eventcity": "atrativo",
+    "pagina": 177,
+    "tipos": [
+      {
+        "codigo": "B.6.3",
+        "nome": "Instalações esportivas",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.6.3.1",
+        "nome": "Estádio",
+        "definicao": "Campos de jogos desportivos; locais onde se realizam competições e jogos."
+      },
+      {
+        "codigo": "B.6.3.2",
+        "nome": "Ginásio",
+        "definicao": "Locais cobertos para a prática de ginástica e outros esportes."
+      },
+      {
+        "codigo": "B.6.3.3",
+        "nome": "Quadra",
+        "definicao": "Locais para a prática de esportes, onde se realizam competições e jogos."
+      },
+      {
+        "codigo": "B.6.3.4",
+        "nome": "Campo de golfe",
+        "definicao": "Locais específicos para a prática de golfe."
+      },
+      {
+        "codigo": "B.6.3.5",
+        "nome": "Campo de futebol",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.6.3.6",
+        "nome": "Campo de paintball",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.6.3.7",
+        "nome": "Autódromo",
+        "definicao": "Espaços adequados para corridas de automóveis."
+      },
+      {
+        "codigo": "B.6.3.8",
+        "nome": "Kartódromo",
+        "definicao": "Espaços adequados para corridas de karts."
+      },
+      {
+        "codigo": "B.6.3.9",
+        "nome": "Velódromo",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.6.3.10",
+        "nome": "Hipódromo",
+        "definicao": "Espaços adequados para corridas de cavalos."
+      },
+      {
+        "codigo": "B.6.3.11",
+        "nome": "Pista de equitação",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.6.3.12",
+        "nome": "Pista de boliche",
+        "definicao": "Locais específicos para a prática de jogos de boliche."
+      },
+      {
+        "codigo": "B.6.3.13",
+        "nome": "Pista de patinação",
+        "definicao": "Locais, pavimentados ou não, com graus de dificuldade adequados para a prática de patinação."
+      },
+      {
+        "codigo": "B.6.3.14",
+        "nome": "Pista de skate",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.6.3.15",
+        "nome": "Rampa para voo livre",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.6.3.16",
+        "nome": "Piscina",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.6.3.17",
+        "nome": "Outras",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 30,
+    "codigo": "B6",
+    "codigos_mtur": [
+      "B.6.4"
+    ],
+    "categoria": "B",
+    "grupo": "Serviços e equipamentos de lazer",
+    "nome": "Instalações náuticas",
+    "forma": "pontual",
+    "eventcity": "atrativo",
+    "pagina": 186,
+    "tipos": [
+      {
+        "codigo": "B.6.4",
+        "nome": "Instalações náuticas",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.6.4.1",
+        "nome": "Marina",
+        "definicao": "Portos de recreio e pontos de atracação construídos para abrigar embarcações de pequeno e médio porte e oferecer equipamentos de lazer e serviços mecânicos aos velejadores em trânsito."
+      },
+      {
+        "codigo": "B.6.4.2",
+        "nome": "Píer",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.6.4.3",
+        "nome": "Garagem náutica",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.6.4.4",
+        "nome": "Clube náutico",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.6.4.5",
+        "nome": "Cais",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.6.4.6",
+        "nome": "Outras",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 31,
+    "codigo": "B6",
+    "codigos_mtur": [
+      "B.6.5"
+    ],
+    "categoria": "B",
+    "grupo": "Serviços e equipamentos de lazer",
+    "nome": "Espaços de diversão e cultura",
+    "forma": "pontual",
+    "eventcity": "atrativo",
+    "pagina": 194,
+    "tipos": [
+      {
+        "codigo": "B.6.5",
+        "nome": "Espaços de diversão e cultura",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.6.5.1",
+        "nome": "Boate/discoteca",
+        "definicao": "Estabelecimentos de diversão que têm pista de dança e apresentam música ao vivo ou mecânica e, às vezes, shows artísticos."
+      },
+      {
+        "codigo": "B.6.5.2",
+        "nome": "Casa de espetáculos/shows",
+        "definicao": "Estabelecimentos de diversão noturna para shows artísticos."
+      },
+      {
+        "codigo": "B.6.5.3",
+        "nome": "Casa de dança",
+        "definicao": "Estabelecimentos de diversão noturna que têm pista de dança."
+      },
+      {
+        "codigo": "B.6.5.4",
+        "nome": "Cinema",
+        "definicao": "Salas de espetáculos onde se projetam filmes."
+      },
+      {
+        "codigo": "B.6.5.5",
+        "nome": "Clube social",
+        "definicao": "Associação, grêmio esportivo, cultural ou recreativo com instalações para prática esportiva, recreação e reuniões, franqueadas a seus associados; alguns podem ser utilizados também pelo turista."
+      },
+      {
+        "codigo": "B.6.5.6",
+        "nome": "Centro de tradições",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.6.5.7",
+        "nome": "Outros",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 32,
+    "codigo": "B6",
+    "codigos_mtur": [
+      "B.6.6"
+    ],
+    "categoria": "B",
+    "grupo": "Serviços e equipamentos de lazer",
+    "nome": "Outros espaços de recreação",
+    "forma": "pontual",
+    "eventcity": "atrativo",
+    "pagina": 201,
+    "tipos": [
+      {
+        "codigo": "B.6.6",
+        "nome": "Outros espaços de recreação",
+        "definicao": "Outras instalações onde seja possível a prática de atividades desportivas ou recreacionais, desde que abertas ao público em geral."
+      },
+      {
+        "codigo": "B.6.6.1",
+        "nome": "Pesque e pague",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.6.6.2",
+        "nome": "Pesque e solte",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.6.6.3",
+        "nome": "Colha e pague",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.6.6.4",
+        "nome": "Sítios/chácaras de lazer",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.6.6.5",
+        "nome": "Outros",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 33,
+    "codigo": "B7",
+    "codigos_mtur": [
+      "B.7.1"
+    ],
+    "categoria": "B",
+    "grupo": "Outros serviços e equipamentos turísticos",
+    "nome": "Informações turísticas",
+    "forma": "pontual",
+    "eventcity": "servico_apoio",
+    "pagina": 208,
+    "tipos": [
+      {
+        "codigo": "B.7.1",
+        "nome": "Informações turísticas",
+        "definicao": "Dados e especificações compilados e sistematizados com o objetivo de orientar e informar os turistas sobre atrativos, serviços e equipamentos turísticos de determinado local."
+      },
+      {
+        "codigo": "B.7.1.1",
+        "nome": "Posto",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.7.1.2",
+        "nome": "Centro de atendimento",
+        "definicao": "Local mantido por órgão oficial de turismo, associações ou particulares, com o objetivo de prestar informações ao turista, proporcionando-lhe melhor estada."
+      },
+      {
+        "codigo": "B.7.1.3",
+        "nome": "Central",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.7.1.4",
+        "nome": "Outros",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 34,
+    "codigo": "B7",
+    "codigos_mtur": [
+      "B.7.2"
+    ],
+    "categoria": "B",
+    "grupo": "Outros serviços e equipamentos turísticos",
+    "nome": "Entidades associativas e similares",
+    "forma": "pontual",
+    "eventcity": "servico_apoio",
+    "pagina": 214,
+    "tipos": [
+      {
+        "codigo": "B.7.2",
+        "nome": "Entidades associativas e similares",
+        "definicao": "Entidades públicas ou privadas que prestam serviços de interesse para a atividade turística local, como Convention Bureau e associações de classe."
+      }
+    ]
+  },
+  {
+    "ordem": 35,
+    "codigo": "B7",
+    "codigos_mtur": [
+      "B.7.3"
+    ],
+    "categoria": "B",
+    "grupo": "Outros serviços e equipamentos turísticos",
+    "nome": "Guiamento e condução turística",
+    "forma": "pontual",
+    "eventcity": "servico_apoio",
+    "pagina": 220,
+    "tipos": [
+      {
+        "codigo": "B.7.3",
+        "nome": "Guiamento e condução turística",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.7.3.1",
+        "nome": "Guia de turismo",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.7.3.2",
+        "nome": "Monitor",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.7.3.3",
+        "nome": "Condutor",
+        "definicao": ""
+      },
+      {
+        "codigo": "B.7.3.4",
+        "nome": "Outros",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 36,
+    "codigo": "C1",
+    "codigos_mtur": [
+      "C.1.1"
+    ],
+    "categoria": "C",
+    "grupo": "Atrativos naturais",
+    "nome": "Relevo continental",
+    "forma": "pontual",
+    "eventcity": "atrativo",
+    "pagina": 223,
+    "tipos": [
+      {
+        "codigo": "C.1.1",
+        "nome": "Relevo continental",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.1.1.1",
+        "nome": "Montanha",
+        "definicao": "Grandes elevações naturais do terreno, constituídas por agrupamento de morros, serras, escarpas etc."
+      },
+      {
+        "codigo": "C.1.1.2",
+        "nome": "Serra",
+        "definicao": "Conjunto de elevações com escarpas íngremes, apresentando algumas vezes elevações consideráveis."
+      },
+      {
+        "codigo": "C.1.1.3",
+        "nome": "Monte/morro/colina",
+        "definicao": "Conjunto de elevações menores que sofreram erosão, podendo se apresentar como morros isolados ou formando um conjunto de morros; montes e colinas são similares."
+      },
+      {
+        "codigo": "C.1.1.4",
+        "nome": "Pico/cume",
+        "definicao": "Pontos proeminentes do relevo montanhoso, assim como as formas arredondadas de cabeços e pontões, íngremes e sem vegetação, conhecidos como pães de açúcar."
+      },
+      {
+        "codigo": "C.1.1.5",
+        "nome": "Chapada",
+        "definicao": "Formas de relevo tabular constituídas por uma cobertura sedimentar antiga; são divisores de águas, onde nascem rios de diversas bacias."
+      },
+      {
+        "codigo": "C.1.1.6",
+        "nome": "Tabuleiro",
+        "definicao": "Faixas descontínuas de terras baixas ao longo do litoral; podem ocorrer também em áreas continentais."
+      },
+      {
+        "codigo": "C.1.1.7",
+        "nome": "Patamar",
+        "definicao": "Degraus mais ou menos altos, localizados nas encostas dos planaltos, que permitem a apreciação de vistas panorâmicas."
+      },
+      {
+        "codigo": "C.1.1.8",
+        "nome": "Matacão",
+        "definicao": "Blocos de granito não decompostos, de forma arredondada, produzidos pela esfoliação tipo casca de cebola, que se destacam na paisagem."
+      },
+      {
+        "codigo": "C.1.1.9",
+        "nome": "Vale",
+        "definicao": "Depressões que ocorrem entre duas elevações, correspondendo também a planícies à beira de um rio."
+      },
+      {
+        "codigo": "C.1.1.10",
+        "nome": "Planalto",
+        "definicao": "Superfícies elevadas, delimitadas por escarpas, sem grandes desníveis de saliências e reentrâncias, a qualquer altitude acima de 300 m."
+      },
+      {
+        "codigo": "C.1.1.11",
+        "nome": "Planície",
+        "definicao": "Área extensa e plana na qual os processos de sedimentação superam os de erosão; podem ser costeiras ou continentais."
+      },
+      {
+        "codigo": "C.1.1.12",
+        "nome": "Depressão",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.1.1.13",
+        "nome": "Outros",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 37,
+    "codigo": "C1",
+    "codigos_mtur": [
+      "C.1.2"
+    ],
+    "categoria": "C",
+    "grupo": "Atrativos naturais",
+    "nome": "Zona costeira",
+    "forma": "pontual",
+    "eventcity": "atrativo",
+    "pagina": 235,
+    "tipos": [
+      {
+        "codigo": "C.1.2",
+        "nome": "Zona costeira",
+        "definicao": "Zona de contato das águas (oceanos e mares) com a terra (continente e ilhas)."
+      },
+      {
+        "codigo": "C.1.2.1",
+        "nome": "Restinga",
+        "definicao": "Estreitas faixas arenosas que as correntes marinhas constroem por acumulação (cordões litorâneos), na entrada de baías ou estuários de rios, formando lagoas costeiras."
+      },
+      {
+        "codigo": "C.1.2.2",
+        "nome": "Duna",
+        "definicao": "Elevações arenosas cuja evolução e forma dependem do vento, da quantidade de areia e de agentes de fixação; podem ser costeiras ou continentais."
+      },
+      {
+        "codigo": "C.1.2.3",
+        "nome": "Barreira",
+        "definicao": "Formas de relevo litorâneo abruptas ou escarpadas, como paredões, nas quais a destruição marinha é ativa, com valor paisagístico e ecológico."
+      },
+      {
+        "codigo": "C.1.2.4",
+        "nome": "Praia",
+        "definicao": "Costas baixas resultantes de acumulação de areias, finas ou grosseiras, que sofrem o processo de regressão do mar e apresentam características diversas."
+      },
+      {
+        "codigo": "C.1.2.5",
+        "nome": "Mangue",
+        "definicao": "Lodaçais com vegetação halófila (resistente ao sal), encontrados em planícies costeiras e sujeitos a inundações da maré; são áreas de proteção ambiental."
+      },
+      {
+        "codigo": "C.1.2.6",
+        "nome": "Estuário",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.1.2.7",
+        "nome": "Falésia",
+        "definicao": "Formas de relevo litorâneo abruptas ou escarpadas, como paredões, nas quais a destruição marinha é ativa, com valor paisagístico e ecológico."
+      },
+      {
+        "codigo": "C.1.2.8",
+        "nome": "Baía/enseada/saco",
+        "definicao": "Reentrâncias da costa pelas quais o mar penetra o interior das terras; enseadas são curvaturas que formam uma baía aberta e sacos são pequenas reentrâncias de boca estreita."
+      },
+      {
+        "codigo": "C.1.2.9",
+        "nome": "Península/cabo/ponta",
+        "definicao": "Porções de terra que avançam sobre a água: penínsulas são cercadas de água por todos os lados menos um, cabos são menores que penínsulas e pontas são as menores."
+      },
+      {
+        "codigo": "C.1.2.10",
+        "nome": "Recife/atol",
+        "definicao": "Formações litorâneas próximas da costa, de origem mineral (arenito) ou biológica (corais); o atol tem formato circular, com uma laguna pouco profunda ao centro."
+      },
+      {
+        "codigo": "C.1.2.11",
+        "nome": "Ilha",
+        "definicao": "Porções de terras emersas, de tamanhos variados e de origens diferentes, circundadas por água doce ou salgada."
+      },
+      {
+        "codigo": "C.1.2.12",
+        "nome": "Arquipélago",
+        "definicao": "Agrupamento de ilhas concentradas em áreas de rios e oceanos ou formadas na foz deltaica dos rios por origem sedimentar."
+      },
+      {
+        "codigo": "C.1.2.13",
+        "nome": "Barra",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.1.2.14",
+        "nome": "Outros",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 38,
+    "codigo": "C1",
+    "codigos_mtur": [
+      "C.1.3"
+    ],
+    "categoria": "C",
+    "grupo": "Atrativos naturais",
+    "nome": "Relevo cárstico",
+    "forma": "pontual",
+    "eventcity": "atrativo",
+    "pagina": 247,
+    "tipos": [
+      {
+        "codigo": "C.1.3",
+        "nome": "Relevo cárstico",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.1.3.1",
+        "nome": "Caverna",
+        "definicao": "Cavidades de formas variadas que podem apresentar salões, galerias, degraus e sumidouros."
+      },
+      {
+        "codigo": "C.1.3.2",
+        "nome": "Gruta",
+        "definicao": "Cavidades de formas variadas que podem apresentar salões, galerias, degraus e sumidouros."
+      },
+      {
+        "codigo": "C.1.3.3",
+        "nome": "Furna",
+        "definicao": "Cavidades que aparecem em encostas de barrancos por desmoronamento ou dissolução das rochas."
+      },
+      {
+        "codigo": "C.1.3.4",
+        "nome": "Dolina",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 39,
+    "codigo": "C1",
+    "codigos_mtur": [
+      "C.1.4",
+      "C.1.5"
+    ],
+    "categoria": "C",
+    "grupo": "Atrativos naturais",
+    "nome": "Hidrografia e queda d'água",
+    "forma": "pontual",
+    "eventcity": "atrativo",
+    "pagina": 258,
+    "tipos": [
+      {
+        "codigo": "C.1.4",
+        "nome": "Hidrografia",
+        "definicao": "Conjunto das águas correntes ou estáveis de uma região."
+      },
+      {
+        "codigo": "C.1.5",
+        "nome": "Queda d'água",
+        "definicao": "Denominação genérica dos desnivelamentos do perfil de um rio, que dão origem a saltos, cachoeiras, cascatas, corredeiras e cataratas, conforme a altura da queda."
+      },
+      {
+        "codigo": "C.1.4.1",
+        "nome": "Rio",
+        "definicao": "Cursos de água doce existentes na superfície da terra, que se deslocam de um nível mais elevado para outro mais baixo."
+      },
+      {
+        "codigo": "C.1.4.2",
+        "nome": "Riacho",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.1.4.3",
+        "nome": "Córrego",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.1.4.4",
+        "nome": "Arroio",
+        "definicao": "Pequenos cursos d'água."
+      },
+      {
+        "codigo": "C.1.4.5",
+        "nome": "Lago/lagoa/laguna",
+        "definicao": "Grandes extensões de água concentradas em depressões do solo e cercadas de terra, incluindo açudes e reservatórios resultantes de represamento de rios."
+      },
+      {
+        "codigo": "C.1.4.6",
+        "nome": "Alagado",
+        "definicao": "Regiões inundadas formadas em terreno plano, constituindo baixadas inundáveis ou dessecadas."
+      },
+      {
+        "codigo": "C.1.4.7",
+        "nome": "Fonte",
+        "definicao": "Águas ricas em sais e minerais, caracterizadas por propriedades terapêuticas ou de revigoramento; são termais as que têm temperatura mais elevada que o ambiente."
+      },
+      {
+        "codigo": "C.1.4.8",
+        "nome": "Outros",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.1.5.1",
+        "nome": "Catarata",
+        "definicao": "Queda d'água de grande extensão e grande volume de água."
+      },
+      {
+        "codigo": "C.1.5.2",
+        "nome": "Cachoeira",
+        "definicao": "Queda d'água vertical ou muito íngreme no curso de um rio."
+      },
+      {
+        "codigo": "C.1.5.3",
+        "nome": "Salto",
+        "definicao": "Queda d'água menor que forma saltos nas saliências das rochas, assemelhando-se a degraus."
+      },
+      {
+        "codigo": "C.1.5.4",
+        "nome": "Cascata",
+        "definicao": "Queda d'água de pouca altura e volume reduzido."
+      },
+      {
+        "codigo": "C.1.5.5",
+        "nome": "Corredeira",
+        "definicao": "Trechos acidentados dos rios onde as águas têm maior velocidade, aproveitados pelo turismo para a prática do rafting."
+      },
+      {
+        "codigo": "C.1.5.6",
+        "nome": "Outras",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 40,
+    "codigo": "C1",
+    "codigos_mtur": [
+      "C.1.6"
+    ],
+    "categoria": "C",
+    "grupo": "Atrativos naturais",
+    "nome": "Unidades de conservação e similares",
+    "forma": "pontual",
+    "eventcity": "atrativo",
+    "pagina": 270,
+    "tipos": [
+      {
+        "codigo": "C.1.6",
+        "nome": "Unidades de conservação e similares",
+        "definicao": "Áreas delimitadas e protegidas por lei, dotadas de atributos naturais excepcionais, para resguardar amostra representativa dos ecossistemas do país (SNUC)."
+      },
+      {
+        "codigo": "C.1.6.1",
+        "nome": "Área de proteção ambiental",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.1.6.2",
+        "nome": "Área de relevante interesse ecológico",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.1.6.3",
+        "nome": "Estação ecológica",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.1.6.4",
+        "nome": "Floresta",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.1.6.5",
+        "nome": "Monumento natural",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.1.6.6",
+        "nome": "Parque",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.1.6.7",
+        "nome": "Refúgio de vida silvestre",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.1.6.8",
+        "nome": "Reserva biológica",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.1.6.9",
+        "nome": "Reserva extrativista",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.1.6.10",
+        "nome": "Reserva de desenvolvimento sustentável",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.1.6.11",
+        "nome": "Reserva de fauna",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.1.6.12",
+        "nome": "Reserva particular do patrimônio natural",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.1.6.13",
+        "nome": "Zoológico",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.1.6.14",
+        "nome": "Jardim botânico",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.1.6.15",
+        "nome": "Outras",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 41,
+    "codigo": "C2",
+    "codigos_mtur": [
+      "C.2.1"
+    ],
+    "categoria": "C",
+    "grupo": "Atrativos culturais",
+    "nome": "Conjuntos arquitetônicos",
+    "forma": "pontual",
+    "eventcity": "atrativo",
+    "pagina": 281,
+    "tipos": [
+      {
+        "codigo": "C.2.1",
+        "nome": "Conjuntos arquitetônicos",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.1.1",
+        "nome": "Urbano",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.1.2",
+        "nome": "Rural",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.1.3",
+        "nome": "Industrial",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.1.4",
+        "nome": "Ferroviário",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.1.5",
+        "nome": "Outros",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 42,
+    "codigo": "C2",
+    "codigos_mtur": [
+      "C.2.2",
+      "C.2.3",
+      "C.2.4",
+      "C.2.5",
+      "C.2.6"
+    ],
+    "categoria": "C",
+    "grupo": "Atrativos culturais",
+    "nome": "Comunidades tradicionais, sítios arqueológicos, sítios paleontológicos, itinerários culturais e parques históricos",
+    "forma": "pontual",
+    "eventcity": "atrativo",
+    "pagina": 290,
+    "tipos": [
+      {
+        "codigo": "C.2.2",
+        "nome": "Comunidades tradicionais",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.3",
+        "nome": "Sítios arqueológicos",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.4",
+        "nome": "Sítios paleontológicos",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.5",
+        "nome": "Itinerários culturais",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.6",
+        "nome": "Parques históricos",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.2.1",
+        "nome": "Quilombola",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.2.2",
+        "nome": "Indígena",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.2.3",
+        "nome": "Ribeirinha",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.2.4",
+        "nome": "De imigração",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.2.5",
+        "nome": "Extrativista",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.2.6",
+        "nome": "Outras",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.3.1",
+        "nome": "Lítico",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.3.2",
+        "nome": "Cerâmico",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.3.3",
+        "nome": "Lítico-cerâmico",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.3.4",
+        "nome": "Estrutura de pedra",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.3.5",
+        "nome": "Estrutura de terra",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.3.6",
+        "nome": "Arte rupestre",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.3.7",
+        "nome": "Sambaqui",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.3.8",
+        "nome": "Outros",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.4.1",
+        "nome": "Floresta fóssil",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.4.2",
+        "nome": "Restos fósseis ou em processo de fossilização",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.4.3",
+        "nome": "Moldes, rastros, pegadas",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.4.4",
+        "nome": "Outros",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.5.1",
+        "nome": "Histórico",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.5.2",
+        "nome": "Religioso/espiritual",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.5.3",
+        "nome": "Relacionado a lendas/mitos/narrativas associadas",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.5.4",
+        "nome": "Relacionado a fatos históricos",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.5.5",
+        "nome": "Outros",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.6.1",
+        "nome": "Arqueológico",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.6.2",
+        "nome": "Geoparque",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.6.3",
+        "nome": "Histórico",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.6.4",
+        "nome": "Outros",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 43,
+    "codigo": "C2",
+    "codigos_mtur": [
+      "C.2.7",
+      "C.2.8",
+      "C.2.9"
+    ],
+    "categoria": "C",
+    "grupo": "Atrativos culturais",
+    "nome": "Lugares de manifestações de fé, lugares de referências à memória e feiras/mercados de caráter cultural",
+    "forma": "pontual",
+    "eventcity": "atrativo",
+    "pagina": 299,
+    "tipos": [
+      {
+        "codigo": "C.2.7",
+        "nome": "Lugares de manifestações de fé",
+        "definicao": "Locais onde se invocam ou cultuam divindades, em qualquer religião."
+      },
+      {
+        "codigo": "C.2.8",
+        "nome": "Lugares de referências à memória",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.9",
+        "nome": "Feiras/mercados de caráter cultural",
+        "definicao": "Locais de compra e venda de produtos tradicionais da região (alimentação, vestuário, utensílios, adornos etc.), instalados em local fechado ou ao ar livre."
+      },
+      {
+        "codigo": "C.2.7.1",
+        "nome": "Romaria e procissão",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.7.2",
+        "nome": "Culto",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.7.3",
+        "nome": "Encontro para manifestação de fé",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.7.4",
+        "nome": "Referencial para mitos e narrativas de fé",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.7.5",
+        "nome": "Visitação de cunho religioso",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.7.6",
+        "nome": "Outros",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.8.1",
+        "nome": "Acontecimento histórico",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.8.2",
+        "nome": "Referencial para narrativa mítica",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.8.3",
+        "nome": "Ritual e celebração",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.8.4",
+        "nome": "Outros",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 44,
+    "codigo": "C2",
+    "codigos_mtur": [
+      "C.2.10"
+    ],
+    "categoria": "C",
+    "grupo": "Atrativos culturais",
+    "nome": "Arquitetura civil",
+    "forma": "pontual",
+    "eventcity": "atrativo",
+    "pagina": 308,
+    "tipos": [
+      {
+        "codigo": "C.2.10",
+        "nome": "Arquitetura civil",
+        "definicao": "Edificações públicas ou privadas, urbanas ou rurais, com funções de residência, ensino e pesquisa, serviço e comércio."
+      },
+      {
+        "codigo": "C.2.10.1",
+        "nome": "Casa/casarão/sobrado/solar",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.10.2",
+        "nome": "Casa de comércio",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.10.3",
+        "nome": "Educandário/colégio/escola",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.10.4",
+        "nome": "Liceu",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.10.5",
+        "nome": "Universidade",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.10.6",
+        "nome": "Coreto",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.10.7",
+        "nome": "Palácio/palacete",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.10.8",
+        "nome": "Chalé",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.10.9",
+        "nome": "Chafariz/fonte/bica",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.10.10",
+        "nome": "Hospital",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.10.11",
+        "nome": "Orfanato/creche",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.10.12",
+        "nome": "Asilo",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.10.13",
+        "nome": "Quinta",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.10.14",
+        "nome": "Outras",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 45,
+    "codigo": "C2",
+    "codigos_mtur": [
+      "C.2.11",
+      "C.2.12",
+      "C.2.13"
+    ],
+    "categoria": "C",
+    "grupo": "Atrativos culturais",
+    "nome": "Arquitetura oficial, arquitetura militar e arquitetura religiosa",
+    "forma": "pontual",
+    "eventcity": "atrativo",
+    "pagina": 318,
+    "tipos": [
+      {
+        "codigo": "C.2.11",
+        "nome": "Arquitetura oficial",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.12",
+        "nome": "Arquitetura militar",
+        "definicao": "Edificações construídas para suprir as funções de defesa e proteção do território nacional."
+      },
+      {
+        "codigo": "C.2.13",
+        "nome": "Arquitetura religiosa",
+        "definicao": "Edificações construídas para atender às funções de culto e a atividades assistenciais de proteção, amparo, serviço médico etc."
+      },
+      {
+        "codigo": "C.2.11.1",
+        "nome": "Casa de câmara e cadeia",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.11.2",
+        "nome": "Paço municipal",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.11.3",
+        "nome": "Cadeia",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.11.4",
+        "nome": "Casa de intendência",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.11.5",
+        "nome": "Casa de fundição",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.11.6",
+        "nome": "Casa de alfândega",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.11.7",
+        "nome": "Fórum/tribunal",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.11.8",
+        "nome": "Residência oficial",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.11.9",
+        "nome": "Sede do Poder Executivo/Legislativo/Judiciário",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.11.10",
+        "nome": "Outras",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.12.1",
+        "nome": "Bateria",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.12.2",
+        "nome": "Baluarte",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.12.3",
+        "nome": "Bastião",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.12.4",
+        "nome": "Fortim",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.12.5",
+        "nome": "Forte",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.12.6",
+        "nome": "Fortaleza",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.12.7",
+        "nome": "Quartel",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.12.8",
+        "nome": "Colégio",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.12.9",
+        "nome": "Vila militar",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.12.10",
+        "nome": "Outras",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.13.1",
+        "nome": "Igreja",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.13.2",
+        "nome": "Basílica",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.13.3",
+        "nome": "Catedral",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.13.4",
+        "nome": "Sé",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.13.5",
+        "nome": "Santuário",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.13.6",
+        "nome": "Capela",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.13.7",
+        "nome": "Ermida",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.13.8",
+        "nome": "Abadia",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.13.9",
+        "nome": "Oratório",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.13.10",
+        "nome": "Casa paroquial",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.13.11",
+        "nome": "Casa capitular",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.13.12",
+        "nome": "Casa da providência",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.13.13",
+        "nome": "Palácio arquiepiscopal",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.13.14",
+        "nome": "Mosteiro",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.13.15",
+        "nome": "Seminário",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.13.16",
+        "nome": "Convento",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.13.17",
+        "nome": "Outras",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 46,
+    "codigo": "C2",
+    "codigos_mtur": [
+      "C.2.14",
+      "C.2.15",
+      "C.2.16",
+      "C.2.17"
+    ],
+    "categoria": "C",
+    "grupo": "Atrativos culturais",
+    "nome": "Arquitetura industrial/agrícola, arquitetura funerária, marcos históricos e obras de infraestrutura",
+    "forma": "pontual",
+    "eventcity": "atrativo",
+    "pagina": 328,
+    "tipos": [
+      {
+        "codigo": "C.2.14",
+        "nome": "Arquitetura industrial/agrícola",
+        "definicao": "Edificações especialmente construídas para abrigar atividades industriais ou agrícolas."
+      },
+      {
+        "codigo": "C.2.15",
+        "nome": "Arquitetura funerária",
+        "definicao": "Monumentos erigidos para prestar homenagens fúnebres."
+      },
+      {
+        "codigo": "C.2.16",
+        "nome": "Marcos históricos",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.17",
+        "nome": "Obras de infraestrutura",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.14.1",
+        "nome": "Engenho",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.14.2",
+        "nome": "Moinho/usina",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.14.3",
+        "nome": "Celeiro",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.14.4",
+        "nome": "Alambique/vinícola",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.14.5",
+        "nome": "Fábrica",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.14.6",
+        "nome": "Casa de operários",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.14.7",
+        "nome": "Fazenda",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.14.8",
+        "nome": "Senzala",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.14.9",
+        "nome": "Casa de chácara/sítio/fazenda/engenho",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.14.10",
+        "nome": "Outras",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.15.1",
+        "nome": "Panteão",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.15.2",
+        "nome": "Mausoléu",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.15.3",
+        "nome": "Cruzeiro",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.15.4",
+        "nome": "Túmulo",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.15.5",
+        "nome": "Memorial",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.15.6",
+        "nome": "Cemitério",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.15.7",
+        "nome": "Outras",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.16.1",
+        "nome": "Divisão territorial",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.16.2",
+        "nome": "Referência à história",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.16.3",
+        "nome": "Relativos a festas e rituais",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.16.4",
+        "nome": "Outros",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.17.1",
+        "nome": "Viaduto/ponte",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.17.2",
+        "nome": "Túnel",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.17.3",
+        "nome": "Caixa d'água",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.17.4",
+        "nome": "Aqueduto",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.17.5",
+        "nome": "Trapiche/píer",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.17.6",
+        "nome": "Marina",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.17.7",
+        "nome": "Porto",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.17.8",
+        "nome": "Quebra-mar/molhe",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.17.9",
+        "nome": "Barragem/represa",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.17.10",
+        "nome": "Farol",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.17.11",
+        "nome": "Estrutura ferroviária",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.17.12",
+        "nome": "Estrutura rodoviária",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.17.13",
+        "nome": "Estrutura aeroportuária",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.17.14",
+        "nome": "Rotunda",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.17.15",
+        "nome": "Elevador/funicular",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.17.16",
+        "nome": "Viaduto",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.17.17",
+        "nome": "Torre",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.17.18",
+        "nome": "Outras",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 47,
+    "codigo": "C2",
+    "codigos_mtur": [
+      "C.2.18"
+    ],
+    "categoria": "C",
+    "grupo": "Atrativos culturais",
+    "nome": "Obras de interesse artístico",
+    "forma": "pontual",
+    "eventcity": "atrativo",
+    "pagina": 339,
+    "tipos": [
+      {
+        "codigo": "C.2.18",
+        "nome": "Obras de interesse artístico",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.18.1",
+        "nome": "Bens integrados à edificação",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.18.2",
+        "nome": "Bens integrados à paisagem ou ao espaço urbano",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.18.3",
+        "nome": "Outras",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 48,
+    "codigo": "C2",
+    "codigos_mtur": [
+      "C.2.19",
+      "C.2.20",
+      "C.2.21",
+      "C.2.22",
+      "C.2.23",
+      "C.2.24"
+    ],
+    "categoria": "C",
+    "grupo": "Atrativos culturais",
+    "nome": "Ruínas, museu/memorial, biblioteca, centros culturais/casas de cultura/galerias, teatros/anfiteatros e cines clube",
+    "forma": "pontual",
+    "eventcity": "atrativo",
+    "pagina": 348,
+    "tipos": [
+      {
+        "codigo": "C.2.19",
+        "nome": "Ruínas",
+        "definicao": "Remanescentes de antigas obras (arquitetura ou escultura), recuperáveis ou não, com interesse para visitação."
+      },
+      {
+        "codigo": "C.2.20",
+        "nome": "Museu/memorial",
+        "definicao": "Instituições permanentes, particulares ou públicas, abertas à visitação, que conservam e apresentam coleções de objetos de caráter cultural ou científico."
+      },
+      {
+        "codigo": "C.2.21",
+        "nome": "Biblioteca",
+        "definicao": "Instituição permanente, particular ou pública, aberta à visitação, com coleções de livros e documentos para facultar a leitura, a pesquisa e o estudo."
+      },
+      {
+        "codigo": "C.2.22",
+        "nome": "Centros culturais/casas de cultura/galerias",
+        "definicao": "Instituições permanentes, públicas ou particulares, em edificações de interesse histórico ou artístico, com bibliotecas, galerias para exposições, salas de cinema e vídeo, espaços para shows e programação cultural."
+      },
+      {
+        "codigo": "C.2.23",
+        "nome": "Teatros/anfiteatros",
+        "definicao": "Espaços e edificações para apresentação de peças teatrais, musicais etc."
+      },
+      {
+        "codigo": "C.2.24",
+        "nome": "Cines clube",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 49,
+    "codigo": "C2",
+    "codigos_mtur": [
+      "C.2.25",
+      "C.2.26",
+      "C.2.27"
+    ],
+    "categoria": "C",
+    "grupo": "Atrativos culturais",
+    "nome": "Gastronomia típica e preparação de alimentos, artesanato/trabalhos manuais e atividades tradicionais de trabalho",
+    "forma": "pontual",
+    "eventcity": "atrativo",
+    "pagina": 359,
+    "tipos": [
+      {
+        "codigo": "C.2.25",
+        "nome": "Gastronomia típica e preparação de alimentos",
+        "definicao": "Conjunto de alimentos e bebidas e seus rituais peculiares de elaboração, modo de servir e de consumir, com ingredientes próprios de uma região e com base nas suas tradições."
+      },
+      {
+        "codigo": "C.2.26",
+        "nome": "Artesanato/trabalhos manuais",
+        "definicao": "Objetos produzidos manualmente ou com equipamentos rudimentares, em pequena escala, que refletem a concepção espacial e formal dos artistas populares de uma área ou região."
+      },
+      {
+        "codigo": "C.2.27",
+        "nome": "Atividades tradicionais de trabalho",
+        "definicao": "Manifestações de conhecimento empírico, práticas de trabalho e práticas sociais."
+      },
+      {
+        "codigo": "C.2.25.1",
+        "nome": "Receitas típicas e tradicionais",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.25.2",
+        "nome": "Técnicas de produção e processamento de alimentos",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.25.3",
+        "nome": "Outras",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.26.1",
+        "nome": "Cerâmica",
+        "definicao": "Objetos que têm como matéria-prima fundamental a argila (barro)."
+      },
+      {
+        "codigo": "C.2.26.2",
+        "nome": "Escultura",
+        "definicao": "Obras de arte representadas pela matéria-prima trabalhada em relevo, segundo técnicas especiais para cada tipo de material."
+      },
+      {
+        "codigo": "C.2.26.3",
+        "nome": "Bordado",
+        "definicao": "Técnicas variadas em tecidos."
+      },
+      {
+        "codigo": "C.2.26.4",
+        "nome": "Cestaria",
+        "definicao": "Trançados de fibras ou talas vegetais e de palha."
+      },
+      {
+        "codigo": "C.2.26.5",
+        "nome": "Mosaico",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.26.6",
+        "nome": "Tricô/crochê",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.26.7",
+        "nome": "Entalhe",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.26.8",
+        "nome": "Renda",
+        "definicao": "Técnicas variadas tramadas com fios, como renda de bilros, de agulha (irlandesa, renascença), labirinto, crivo e frivolitê."
+      },
+      {
+        "codigo": "C.2.26.9",
+        "nome": "Fotografia",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.26.10",
+        "nome": "Tecelagem",
+        "definicao": "Técnicas que utilizam o tear, como fiação, tapeçaria etc."
+      },
+      {
+        "codigo": "C.2.26.11",
+        "nome": "Papel machê",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.26.12",
+        "nome": "Macramê",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.26.13",
+        "nome": "Plumária",
+        "definicao": "Elaboração com penas de aves tropicais, praticamente restrita aos indígenas, para compor coifas, coroas, diademas, máscaras, adornos e outros objetos."
+      },
+      {
+        "codigo": "C.2.26.14",
+        "nome": "Bijuteria",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.26.15",
+        "nome": "Dobradura",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.26.16",
+        "nome": "Marcenaria/marchetaria",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.26.17",
+        "nome": "Gravura",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.26.18",
+        "nome": "Pátina e texturização",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.26.19",
+        "nome": "Cartonagem",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.26.20",
+        "nome": "Pintura",
+        "definicao": "Obras de arte com utilização de tintas, realizadas em quadros, painéis ou outras composições planas, para representar figuras ou formas."
+      },
+      {
+        "codigo": "C.2.26.21",
+        "nome": "Découpage",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.26.22",
+        "nome": "Topiaria/arranjos florais",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.26.23",
+        "nome": "Outros",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.27.1",
+        "nome": "Agricultor",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.27.2",
+        "nome": "Pescador",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.27.3",
+        "nome": "Seringueiro",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.27.4",
+        "nome": "Garimpeiro",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.27.5",
+        "nome": "Quebrador de coco",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.27.6",
+        "nome": "Fotógrafo lambe-lambe",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.27.7",
+        "nome": "Carpinteiro",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.27.8",
+        "nome": "Peão",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.27.9",
+        "nome": "Outras",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 50,
+    "codigo": "C2",
+    "codigos_mtur": [
+      "C.2.28"
+    ],
+    "categoria": "C",
+    "grupo": "Atrativos culturais",
+    "nome": "Formas de expressão",
+    "forma": "pontual",
+    "eventcity": "atrativo",
+    "pagina": 365,
+    "tipos": [
+      {
+        "codigo": "C.2.28",
+        "nome": "Formas de expressão",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.28.1",
+        "nome": "Música",
+        "definicao": "Manifestações artísticas, folclóricas, profissionais, amadoras e outras que variam conforme a região."
+      },
+      {
+        "codigo": "C.2.28.2",
+        "nome": "Dança",
+        "definicao": "Manifestações artísticas, folclóricas, profissionais, amadoras e outras que variam conforme a região."
+      },
+      {
+        "codigo": "C.2.28.3",
+        "nome": "Literária/oral",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.28.4",
+        "nome": "Cênica/performática",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.2.28.5",
+        "nome": "Outras",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 51,
+    "codigo": "C2",
+    "codigos_mtur": [
+      "C.2.29"
+    ],
+    "categoria": "C",
+    "grupo": "Atrativos culturais",
+    "nome": "Personalidades",
+    "forma": "pontual",
+    "eventcity": "atrativo",
+    "pagina": 371,
+    "tipos": [
+      {
+        "codigo": "C.2.29",
+        "nome": "Personalidades",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 52,
+    "codigo": "C3",
+    "codigos_mtur": [
+      "C.3.1",
+      "C.3.2",
+      "C.3.3",
+      "C.3.4",
+      "C.3.5"
+    ],
+    "categoria": "C",
+    "grupo": "Atividades econômicas",
+    "nome": "Atividades econômicas",
+    "forma": "pontual",
+    "eventcity": "atrativo",
+    "pagina": 375,
+    "tipos": [
+      {
+        "codigo": "C.3.1",
+        "nome": "Extrativista",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.3.2",
+        "nome": "Agropecuária",
+        "definicao": "Produções agropecuárias e outras culturas capazes de atrair turistas pela atividade em si, pelas técnicas de produção ou outros fatores."
+      },
+      {
+        "codigo": "C.3.3",
+        "nome": "Comercial",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.3.4",
+        "nome": "Industrial",
+        "definicao": "Produções industriais que, pela atividade em si, pelas técnicas de produção ou outros fatores, são capazes de atrair turistas."
+      },
+      {
+        "codigo": "C.3.5",
+        "nome": "Tecnológica",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.3.1.1",
+        "nome": "Mineral",
+        "definicao": "Minas produtivas cuja atratividade reside nas técnicas de produção e no inusitado da atividade em si."
+      },
+      {
+        "codigo": "C.3.1.2",
+        "nome": "Vegetal",
+        "definicao": "Produção extrativista permitida legalmente, cuja atratividade reside nas técnicas de produção e no inusitado da atividade em si."
+      },
+      {
+        "codigo": "C.3.1.3",
+        "nome": "Animal",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.3.2.1",
+        "nome": "Agricultura",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.3.2.2",
+        "nome": "Pecuária",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.3.2.3",
+        "nome": "Aquicultura",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.3.2.4",
+        "nome": "Silvicultura",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.3.2.5",
+        "nome": "Outras",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.3.3.1",
+        "nome": "Atacadista",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.3.3.2",
+        "nome": "Varejista",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.3.4.1",
+        "nome": "Petrolífera",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.3.4.2",
+        "nome": "Automobilística",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.3.4.3",
+        "nome": "Têxtil",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.3.4.4",
+        "nome": "Alimentícia",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.3.4.5",
+        "nome": "Coureira",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.3.4.6",
+        "nome": "Joalheira",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.3.4.7",
+        "nome": "Madeireira",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.3.4.8",
+        "nome": "Ceramista",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.3.4.9",
+        "nome": "Outras",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 53,
+    "codigo": "C4",
+    "codigos_mtur": [
+      "C.4.1",
+      "C.4.2",
+      "C.4.3",
+      "C.4.4",
+      "C.4.5",
+      "C.4.6",
+      "C.4.7",
+      "C.4.8"
+    ],
+    "categoria": "C",
+    "grupo": "Realizações técnicas e científicas contemporâneas",
+    "nome": "Realizações técnicas e científicas contemporâneas",
+    "forma": "pontual",
+    "eventcity": "atrativo",
+    "pagina": 379,
+    "tipos": [
+      {
+        "codigo": "C.4.1",
+        "nome": "Parque tecnológico",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.4.2",
+        "nome": "Centro de pesquisa",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.4.3",
+        "nome": "Usinas e outras estruturas de geração de energia",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.4.4",
+        "nome": "Eclusa/açude",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.4.5",
+        "nome": "Planetário",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.4.6",
+        "nome": "Aquário",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.4.7",
+        "nome": "Viveiro",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.4.8",
+        "nome": "Outras",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.4.3.1",
+        "nome": "Hidrelétrica",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.4.3.2",
+        "nome": "Termoelétrica",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.4.3.3",
+        "nome": "Nuclear",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.4.3.4",
+        "nome": "Eólica",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.4.3.5",
+        "nome": "Solar",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.4.3.6",
+        "nome": "Outras",
+        "definicao": ""
+      }
+    ]
+  },
+  {
+    "ordem": 54,
+    "codigo": "C5",
+    "codigos_mtur": [
+      "C.5.1",
+      "C.5.2",
+      "C.5.3",
+      "C.5.4",
+      "C.5.5",
+      "C.5.6",
+      "C.5.7",
+      "C.5.8",
+      "C.5.9",
+      "C.5.10",
+      "C.5.11"
+    ],
+    "categoria": "C",
+    "grupo": "Eventos programados",
+    "nome": "Eventos programados",
+    "forma": "pontual",
+    "eventcity": null,
+    "pagina": 388,
+    "tipos": [
+      {
+        "codigo": "C.5.1",
+        "nome": "Feiras/exposições",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.5.2",
+        "nome": "Congressos",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.5.3",
+        "nome": "Convenções",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.5.4",
+        "nome": "Festivais/shows",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.5.5",
+        "nome": "Seminários",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.5.6",
+        "nome": "Oficinas/workshops",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.5.7",
+        "nome": "Competições",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.5.8",
+        "nome": "Desfiles/passeatas",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.5.9",
+        "nome": "Encontros temáticos",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.5.10",
+        "nome": "Festas/celebrações",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.5.11",
+        "nome": "Outros",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.5.10.1",
+        "nome": "Religiosa/manifestação de fé",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.5.10.2",
+        "nome": "Popular/folclórica",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.5.10.3",
+        "nome": "Referente ao trabalho ou ciclo produtivo",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.5.10.4",
+        "nome": "Festa cívica",
+        "definicao": ""
+      },
+      {
+        "codigo": "C.5.10.5",
+        "nome": "Outras",
+        "definicao": ""
+      }
+    ]
+  }
+]

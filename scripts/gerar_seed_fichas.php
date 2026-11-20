@@ -5,6 +5,9 @@
  *
  *   php scripts/gerar_seed_fichas.php [docs/especificacao/fichas-2011.json] [migracoes/006-fichas-e-tipos-do-mtur.sql]
  *
+ * Depois da 006, a 007 ligou cada subtipo ao tipo (pai_id). Uma carga nova
+ * precisa repetir aquele UPDATE.
+ *
  * O JSON foi montado em 20/11/2026 a partir do PDF oficial de 2011 (tipos) e
  * do manual de 2006 (definições). A migração gerada é a que vale: depois de
  * aplicada não se edita (o migrar.php confere o hash); correção entra numa
@@ -55,10 +58,13 @@ foreach ($fichas as $i => $f) {
     $linhas = [];
     foreach ((array) ($f['tipos'] ?? []) as $j => $t) {
         $nome = trim((string) ($t['nome'] ?? ''));
-        if ($nome === '' || isset($vistos[mb_strtolower($nome)])) {
+        // "Outros" se repete em tipos diferentes da mesma ficha: a chave é o
+        // código mais o nome (migração 007).
+        $chave = mb_strtolower(($t['codigo'] ?? '') . '|' . $nome);
+        if ($nome === '' || isset($vistos[$chave])) {
             continue;
         }
-        $vistos[mb_strtolower($nome)] = true;
+        $vistos[$chave] = true;
         $linhas[] = sprintf("(@f, %s, %s, %s, %d)", $s((string) ($t['codigo'] ?? '')), $s($semTravessao($nome)),
             $s($semTravessao((string) ($t['definicao'] ?? ''))), $j + 1);
     }

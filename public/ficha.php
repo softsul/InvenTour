@@ -25,7 +25,9 @@ $podeEditar = Auth::pode('fichas.editar');
 $erro = '';
 
 $tiposDaFicha = function () use ($pdo, $id): array {
-    $q = $pdo->prepare('SELECT * FROM inventario_tipos WHERE ficha_id = ? ORDER BY ordem, nome');
+    // Tipo e logo abaixo os subtipos dele (pai_id), na ordem da ficha.
+    $q = $pdo->prepare('SELECT t.*, p.nome AS pai_nome FROM inventario_tipos t LEFT JOIN inventario_tipos p ON p.id = t.pai_id
+                        WHERE t.ficha_id = ? ORDER BY COALESCE(p.ordem, t.ordem), t.pai_id IS NOT NULL, t.ordem');
     $q->execute([$id]);
     return $q->fetchAll();
 };
@@ -38,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erro = 'Você não pode alterar o catálogo de fichas.';
     } else {
         $novoNome = mb_substr(trim((string) ($_POST['novo_nome'] ?? '')), 0, 160);
-        $nomesExistentes = array_map(fn ($t) => mb_strtolower((string) $t['nome']), $tipos);
+        $nomesExistentes = array_map(fn ($t) => mb_strtolower((string) $t['nome']), array_filter($tipos, fn ($t) => !$t['pai_id']));
         if ($novoNome !== '' && in_array(mb_strtolower($novoNome), $nomesExistentes, true)) {
             $erro = 'Esta ficha já tem o tipo ' . $novoNome . '.';
         }
@@ -137,7 +139,7 @@ paginaFicha($f['nome'], 'fichas');
           <?php foreach ($tipos as $t): ?>
             <tr class="<?= $t['ativo'] ? '' : 'inativa' ?>">
               <td class="dado"><?= $t['codigo_mtur'] ? e((string) $t['codigo_mtur']) : '<span class="nulo">-</span>' ?></td>
-              <td><?= e((string) $t['nome']) ?></td>
+              <td><?= $t['pai_id'] ? '<span class="nulo">' . e((string) $t['pai_nome']) . ':</span> ' . e((string) $t['nome']) : '<b>' . e((string) $t['nome']) . '</b>' ?></td>
               <td class="elastica"><input type="text" name="definicao[<?= (int) $t['id'] ?>]" maxlength="1000" aria-label="Definição de <?= e((string) $t['nome']) ?>"
                      value="<?= e((string) $t['definicao']) ?>"<?= $ro ?>></td>
               <td><label class="check"><input type="checkbox" name="tipo_ativo[<?= (int) $t['id'] ?>]" value="1"<?= $t['ativo'] ? ' checked' : '' ?><?= $podeEditar ? '' : ' disabled' ?> aria-label="<?= e((string) $t['nome']) ?> em uso"><i></i></label></td>

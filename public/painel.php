@@ -35,7 +35,11 @@ if ($empresa) {
     $destinos = Painel::destinosPlataforma();
     $fila = Painel::filaPlataforma();
     [$devolvidos, $reclamacoes, $bloqueados] = SesAvisos::resumo();
-    $metricas[] = ['Destinos', count($destinos), 'ativos no InvenTour', '/destinos'];
+    $licenciados = count(array_filter($destinos, fn ($d) => $d['modo_operacao'] === 'ativo'));
+    $metricas[] = ['Destinos', count($destinos), plural($licenciados, 'licenciado', 'licenciados') . ', ' . plural(count($destinos) - $licenciados, 'em projeto ou avaliação', 'em projeto ou avaliação'), '/destinos'];
+    // O catálogo do MTur que os formulários do inventário usam.
+    [$totalFichas, $totalTipos] = Database::conexao()->query('SELECT (SELECT COUNT(*) FROM inventario_fichas WHERE ativo = 1), (SELECT COUNT(*) FROM inventario_tipos WHERE ativo = 1)')->fetch(PDO::FETCH_NUM);
+    $metricas[] = ['Fichas do MTur', (int) $totalFichas, plural((int) $totalTipos, 'tipo e subtipo', 'tipos e subtipos') . ' no catálogo', Auth::pode('fichas.ver') ? '/fichas' : null];
     $metricas[] = ['E-mails devolvidos', $devolvidos, plural($reclamacoes, 'reclamação', 'reclamações') . ' em 30 dias · ' . plural($bloqueados, 'bloqueado', 'bloqueados'), '/configuracoes/email'];
 }
 if (Auth::pode('cadastur.ver')) {
