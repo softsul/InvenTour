@@ -353,6 +353,7 @@
       return '<option value="' + f.id + '">' + esc(f.codigo + ' ' + f.nome) + '</option>';
     }).join('');
     sel.value = valor;
+    if (window.inventourSeletores) { window.inventourSeletores.atualizar(sel.parentNode); }
     desenharFichas();
     var novo = $('col-novo');
     if (novo) { novo.hidden = !base.pode_criar || !base.fichas.length; }
@@ -819,6 +820,7 @@
     semanaDaFicha();
     if (window.inventourCamposFicha) { window.inventourCamposFicha(form); }
     if (window.inventourSituarCampos) { window.inventourSituarCampos(form); }
+    if (window.inventourSeletores) { window.inventourSeletores.preparar(form); }
     contarTribos();
     contarFicha();
   }
@@ -865,7 +867,8 @@
   var semanaDaFicha = (function () {
     var dias = Array.prototype.slice.call(semana.querySelectorAll('.dia'));
     // [abre, fecha, volta da pausa, fecha de novo]
-    function horas(dia) { return dia.querySelectorAll('input[type=time]'); }
+    // As quatro horas do dia (no app são texto com máscara, não o relógio do Android).
+    function horas(dia) { return dia.querySelectorAll('.faixa input[name]'); }
     function marcar(dia) {
       var h = horas(dia);
       var aberto = !!(h[0].value && h[1].value);
@@ -1285,6 +1288,7 @@
       }
     });
     mostrarPendencias();
+    if (window.inventourSeletores) { window.inventourSeletores.atualizar(form); }
     return { preenchi: preenchi, diferentes: diferentes };
   }
   function naturezaDaReceita(t) {
@@ -1704,6 +1708,7 @@
     sel.classList.toggle('ausente', sem);
     campo.classList.toggle('respondido', ok);
     campo.classList.toggle('sem-resposta', sem);
+    if (window.inventourSeletores) { window.inventourSeletores.atualizar(campo); }
   }
   function campoDe(el) { return el.closest && el.closest('.campo'); }
   window.inventourSituarCampos = function (raiz) {
@@ -1720,4 +1725,179 @@
   } else {
     window.inventourSituarCampos();
   }
+})();
+
+/*
+ * Na coleta, nada de componente do Android: a lista (select) abre numa folha
+ * do próprio InvenTour, com busca quando é longa e os subtipos agrupados pelo
+ * tipo; data e hora são texto com máscara (dd/mm/aaaa e 00:00), sem o
+ * calendário e o relógio do sistema. O select continua no formulário (é ele
+ * que guarda o valor); o botão só o mostra e o troca.
+ * Softsul Software
+ */
+(function () {
+  'use strict';
+  var raiz = document.getElementById('coleta');
+  if (!raiz) { return; }
+  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function semAcento(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+  var ICONE_SETA = '<svg aria-hidden="true" focusable="false"><use href="#i-seta"></use></svg>';
+  var ICONE_CHECK = '<svg aria-hidden="true" focusable="false"><use href="#i-check"></use></svg>';
+
+  // ------------------------------------------------------------ a folha
+  var folha = document.createElement('dialog');
+  folha.className = 'coleta-dialogo folha-opcoes';
+  folha.setAttribute('aria-labelledby', 'folha-titulo');
+  folha.innerHTML = '<div class="cab-dialogo"><h2 id="folha-titulo"></h2><button type="button" class="fechar" data-fechar-folha aria-label="Fechar">'
+    + '<svg aria-hidden="true"><use href="#i-fechar"></use></svg></button></div>'
+    + '<div class="folha-busca" hidden><div class="entrada"><svg aria-hidden="true"><use href="#i-busca"></use></svg>'
+    + '<input type="search" placeholder="Buscar" aria-label="Buscar na lista" autocomplete="off"></div></div>'
+    + '<ul class="folha-lista" role="listbox"></ul>';
+  document.body.appendChild(folha);
+  var lista = folha.querySelector('.folha-lista');
+  var busca = folha.querySelector('.folha-busca input');
+  var atual = null;
+
+  function rotuloDo(sel) {
+    var campo = sel.closest('.campo, .dia, td');
+    var l = campo && campo.querySelector('label');
+    return sel.getAttribute('aria-label') || (l ? l.textContent.trim() : '') || 'Escolha';
+  }
+  function desenhar() {
+    var termo = semAcento(busca.value);
+    var grupo = null;
+    var html = '';
+    Array.prototype.forEach.call(atual.options, function (o, i) {
+      var texto = o.text;
+      // A opção vazia só aparece para limpar o que já foi escolhido.
+      if (o.value === '') {
+        if (atual.selectedIndex === i || termo) { return; }
+        texto = atual.classList.contains('ausencia') ? texto : 'Limpar a escolha';
+      }
+      if (termo && semAcento(texto).indexOf(termo) === -1) { return; }
+      // "Tipo: subtipo" vira um título de grupo e o subtipo embaixo.
+      var p = texto.indexOf(': ');
+      var titulo = p > 0 && o.value !== '' ? texto.slice(0, p) : null;
+      var nome = titulo ? texto.slice(p + 2) : texto;
+      if (titulo !== grupo && titulo) { html += '<li class="folha-grupo" role="presentation">' + esc(titulo) + '</li>'; }
+      grupo = titulo;
+      var marcado = atual.selectedIndex === i;
+      html += '<li role="option" aria-selected="' + marcado + '"><button type="button" class="folha-opcao' + (marcado ? ' marcada' : '') + (o.value === '' ? ' vazia' : '')
+        + (titulo ? ' sub' : '') + '" data-indice="' + i + '"><span>' + esc(nome) + '</span>' + (marcado ? ICONE_CHECK : '') + '</button></li>';
+    });
+    lista.innerHTML = html || '<li class="folha-nada">Nada encontrado.</li>';
+  }
+  function abrir(sel) {
+    if (sel.disabled) { return; }
+    atual = sel;
+    folha.querySelector('#folha-titulo').textContent = rotuloDo(sel);
+    busca.value = '';
+    folha.querySelector('.folha-busca').hidden = sel.options.length <= 8;
+    desenhar();
+    folha.showModal();
+    var m = lista.querySelector('.marcada');
+    if (m) { m.scrollIntoView({ block: 'center' }); }
+  }
+  lista.addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-indice]');
+    if (!b || !atual) { return; }
+    atual.selectedIndex = parseInt(b.getAttribute('data-indice'), 10);
+    atual.dispatchEvent(new Event('input', { bubbles: true }));
+    atual.dispatchEvent(new Event('change', { bubbles: true }));
+    folha.close();
+    var botao = atual.nextElementSibling;
+    if (botao && botao.focus) { botao.focus(); }
+  });
+  busca.addEventListener('input', desenhar);
+  folha.querySelector('[data-fechar-folha]').addEventListener('click', function () { folha.close(); });
+  folha.addEventListener('click', function (ev) { if (ev.target === folha) { folha.close(); } });
+
+  // ------------------------------------------------------------ o botão no lugar do select
+  function textoDo(sel) {
+    var o = sel.options[sel.selectedIndex];
+    var t = o ? o.text : '';
+    var p = t.indexOf(': ');
+    return p > 0 && o.value !== '' ? t.slice(p + 2) : t;
+  }
+  function preparar(sel) {
+    if (sel.dataset.seletor) { return; }
+    sel.dataset.seletor = '1';
+    sel.classList.add('select-escondido');
+    sel.tabIndex = -1;
+    sel.setAttribute('aria-hidden', 'true');
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'seletor' + (sel.classList.contains('ausencia') ? ' seletor-pilula' : '');
+    b.innerHTML = '<span></span>' + ICONE_SETA;
+    b.addEventListener('click', function () { abrir(sel); });
+    sel.insertAdjacentElement('afterend', b);
+    sel.addEventListener('change', function () { atualizar(sel); });
+  }
+  function atualizar(sel) {
+    var b = sel.nextElementSibling;
+    if (!b || !b.classList.contains('seletor')) { return; }
+    b.querySelector('span').textContent = textoDo(sel);
+    b.disabled = sel.disabled;
+    b.classList.toggle('vazio', sel.value === '');
+    b.classList.toggle('respondido', sel.classList.contains('respondido'));
+    b.classList.toggle('ausente', sel.classList.contains('ausente'));
+    b.setAttribute('aria-label', rotuloDo(sel) + ': ' + textoDo(sel));
+  }
+
+  // ------------------------------------------------------------ data e hora com máscara
+  function mascaraData(v) {
+    var d = String(v || '').replace(/\D/g, '').slice(0, 8);
+    return d.length > 4 ? d.slice(0, 2) + '/' + d.slice(2, 4) + '/' + d.slice(4) : d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : d;
+  }
+  function mascaraHora(v) {
+    var d = String(v || '').replace(/\D/g, '').slice(0, 4);
+    return d.length > 2 ? d.slice(0, 2) + ':' + d.slice(2) : d;
+  }
+  function trocarTipo(el, tipo) {
+    var v = el.value;
+    el.type = 'text';
+    el.inputMode = 'numeric';
+    el.autocomplete = 'off';
+    el.setAttribute('data-' + tipo, '1');
+    el.placeholder = tipo === 'data' ? 'dd/mm/aaaa' : '00:00';
+    el.maxLength = tipo === 'data' ? 10 : 5;
+    el.value = v;
+  }
+  function deIso(v) { var m = String(v || '').match(/^(\d{4})-(\d{2})-(\d{2})$/); return m ? m[3] + '/' + m[2] + '/' + m[1] : v; }
+  document.addEventListener('input', function (ev) {
+    var el = ev.target;
+    if (el.hasAttribute && el.hasAttribute('data-data')) { el.value = mascaraData(el.value); }
+    else if (el.hasAttribute && el.hasAttribute('data-hora')) { el.value = mascaraHora(el.value); }
+  });
+
+  // Data ou hora que não existe (31/02, 25:00) fica marcada ao sair do campo.
+  document.addEventListener('focusout', function (ev) {
+    var el = ev.target;
+    if (!el.hasAttribute || (!el.hasAttribute('data-data') && !el.hasAttribute('data-hora'))) { return; }
+    var v = el.value.trim(), ok = true;
+    if (v && el.hasAttribute('data-data')) {
+      var m = v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/), dt = m ? new Date(+m[3], +m[2] - 1, +m[1]) : null;
+      ok = !!(m && dt.getDate() === +m[1] && dt.getMonth() === +m[2] - 1);
+    } else if (v) {
+      var h = v.match(/^(\d{2}):(\d{2})$/);
+      ok = !!(h && +h[1] < 24 && +h[2] < 60);
+    }
+    var ent = el.closest('.entrada');
+    if (ent) { ent.classList.toggle('erro', !ok); }
+    el.title = ok ? '' : (el.hasAttribute('data-data') ? 'Data inválida: use dd/mm/aaaa.' : 'Hora inválida: use 00:00.');
+  });
+
+  // Prepara tudo o que estiver dentro de r (a tela da coleta e a ficha aberta).
+  window.inventourSeletores = {
+    preparar: function (r) {
+      r = r || document;
+      r.querySelectorAll('input[type=date]').forEach(function (el) { trocarTipo(el, 'data'); });
+      r.querySelectorAll('input[type=time]').forEach(function (el) { trocarTipo(el, 'hora'); });
+      r.querySelectorAll('input[data-data]').forEach(function (el) { el.value = deIso(el.value); });
+      r.querySelectorAll('select').forEach(function (s) { if (!s.closest('.folha-opcoes')) { preparar(s); atualizar(s); } });
+    },
+    atualizar: function (r) { (r || document).querySelectorAll('select[data-seletor]').forEach(atualizar); }
+  };
+  document.querySelectorAll('dialog.coleta-dialogo').forEach(function (d) { window.inventourSeletores.preparar(d); });
+  window.inventourSeletores.preparar(raiz);
 })();

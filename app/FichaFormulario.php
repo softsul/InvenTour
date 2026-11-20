@@ -80,7 +80,7 @@ final class FichaFormulario
             $set('atividade_economica', fn () => $texto('atividade_economica', 255));
             $set('inscricao_municipal', fn () => $texto('inscricao_municipal', 30));
             $set('cadastur', fn () => $texto('cadastur', 30));
-            $set('cadastur_validade', fn () => preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $texto('cadastur_validade', 10)) ? $texto('cadastur_validade', 10) : null);
+            $set('cadastur_validade', fn () => self::data($texto('cadastur_validade', 10)));
             $set('natureza', fn () => $doCatalogo('natureza', Inventario::NATUREZAS));
             $set('natureza_outra', fn () => $doCatalogo('natureza', Inventario::NATUREZAS) === 'outra' ? $texto('natureza_outra', 120) : null);
             $set('tipo_organizacao', fn () => $doCatalogo('tipo_organizacao', Inventario::TIPOS_ORGANIZACAO));

@@ -1561,3 +1561,38 @@ select.ausencia.ausente{color:var(--ambar); font-weight:700}
 .coleta-dialogo .caixas .check:has(input:checked)::before{content:"✓"; margin-right:2px; font-weight:700}
 .coleta-dialogo .caixas .check:has(input:disabled){opacity:.45}
 .coleta-dialogo .caixas .check:has(input:focus-visible){box-shadow:var(--anel)}
+
+/* Coleta sem componente do Android: o select fica escondido (guarda o valor)
+   e um botão do InvenTour mostra a escolha; a lista abre numa folha. */
+.select-escondido{position:absolute !important; width:1px !important; height:1px !important; opacity:0 !important; pointer-events:none; overflow:hidden; flex:none !important; padding:0 !important; margin:0 !important}
+.seletor{flex:1; min-width:0; display:flex; align-items:center; justify-content:space-between; gap:8px; border:0; background:transparent;
+  padding:12px 0; font:inherit; font-size:14.5px; color:var(--tinta); text-align:left; cursor:pointer}
+.seletor span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.seletor.vazio span{color:var(--fraca)}
+.seletor svg{flex:none; width:14px; height:14px; color:var(--fraca); transform:rotate(90deg)}
+.seletor:disabled{cursor:default}
+.seletor:disabled svg{display:none}
+.entrada.mini .seletor{padding:7px 0; font-size:13px}
+.seletor.seletor-pilula{flex:none; padding:5px 0; font-size:12px; color:var(--suave); gap:4px}
+.seletor.seletor-pilula svg{width:11px; height:11px}
+.seletor.seletor-pilula.respondido{color:var(--verde); font-weight:700}
+.seletor.seletor-pilula.ausente{color:var(--ambar); font-weight:700}
+
+dialog.folha-opcoes{width:min(560px, calc(100vw - 32px)); height:auto; max-height:min(640px, calc(100vh - 48px))}
+.folha-opcoes .folha-busca{flex:none; padding:4px 20px 10px; background:var(--branco); border-bottom:1px solid var(--traco)}
+.folha-opcoes .folha-busca[hidden]{display:none}
+.folha-lista{list-style:none; margin:0; padding:6px 0 12px; overflow-y:auto; flex:1; min-height:0; background:var(--branco)}
+.folha-lista .folha-grupo{padding:12px 20px 4px; font-size:11.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--fraca)}
+.folha-opcao{width:100%; display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:50px; padding:10px 20px; border:0;
+  background:none; font:inherit; font-size:15px; color:var(--tinta); text-align:left; cursor:pointer}
+.folha-opcao.sub{padding-left:32px}
+.folha-opcao.vazia{color:var(--fraca)}
+.folha-opcao:hover, .folha-opcao:focus-visible{background:var(--leve); outline:0}
+.folha-opcao.marcada{color:var(--indigo-fte); font-weight:700; background:var(--indigo-sup)}
+.folha-opcao svg{flex:none; width:18px; height:18px; color:var(--indigo)}
+.folha-lista .folha-nada{padding:20px; color:var(--fraca); font-size:14px}
+@media (max-width:640px){
+  /* No celular, a folha sobe do rodapé. */
+  dialog.coleta-dialogo.folha-opcoes{width:100vw; height:auto; max-height:78dvh; inset:auto 0 0 0; margin:auto 0 0 0;
+    border-radius:var(--r-g) var(--r-g) 0 0}
+}
