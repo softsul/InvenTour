@@ -6261,48 +6261,69 @@ window.inventourMarcarNoFiltro = function (form, campo, ids, nome) {
 
 /* ==========================================================================
    Funcionamento do item (item.php): a chave de cada dia limpa ou devolve as
-   horas (o servidor entende dia sem horas como fechado), "24 horas" esconde
-   a semana e os atalhos copiam a segunda para os outros dias.
+   horas (o servidor entende dia sem horas como fechado), "Pausa" divide o
+   dia em dois períodos (o almoço), "24 horas" esconde a semana e os atalhos
+   copiam a segunda para os outros dias. O mesmo código está no coleta.js.
    ========================================================================== */
 (function () {
   'use strict';
   document.querySelectorAll('[data-semana]').forEach(function (semana) {
     var dias = Array.prototype.slice.call(semana.querySelectorAll('.dia'));
+    // [abre, fecha, volta da pausa, fecha de novo]
     function horas(dia) { return dia.querySelectorAll('input[type=time]'); }
+    function marcar(dia) {
+      var h = horas(dia);
+      var aberto = !!(h[0].value && h[1].value);
+      dia.querySelector('[data-aberto]').checked = aberto;
+      dia.classList.toggle('fechado', !aberto);
+      dia.classList.toggle('com-pausa', aberto && !!(h[2].value && h[3].value));
+    }
     function abrir(dia, aberto, valores) {
       var h = horas(dia);
-      var chave = dia.querySelector('[data-aberto]');
-      chave.checked = aberto;
-      dia.classList.toggle('fechado', !aberto);
       if (aberto) {
-        var v = valores || [dia.getAttribute('data-abre') || '08:00', dia.getAttribute('data-fecha') || '18:00'];
-        h[0].value = v[0];
-        h[1].value = v[1];
+        var v = valores || (dia.getAttribute('data-memo') || '08:00|18:00||').split('|');
+        for (var i = 0; i < 4; i++) { h[i].value = v[i] || ''; }
       } else {
-        if (h[0].value) { dia.setAttribute('data-abre', h[0].value); }
-        if (h[1].value) { dia.setAttribute('data-fecha', h[1].value); }
-        h[0].value = '';
-        h[1].value = '';
+        if (h[0].value) { dia.setAttribute('data-memo', [h[0].value, h[1].value, h[2].value, h[3].value].join('|')); }
+        for (var k = 0; k < 4; k++) { h[k].value = ''; }
       }
+      marcar(dia);
+    }
+    // Pausa: 08:00 às 18:00 vira 08:00 às 12:00 e 13:30 às 18:00.
+    function pausar(dia) {
+      var h = horas(dia);
+      var fim = h[1].value || '18:00';
+      h[1].value = fim > '12:00' ? '12:00' : fim;
+      h[2].value = '13:30';
+      h[3].value = fim > '13:30' ? fim : '18:00';
+      marcar(dia);
+      h[1].focus();
+    }
+    function tirarPausa(dia) {
+      var h = horas(dia);
+      if (h[3].value) { h[1].value = h[3].value; }
+      h[2].value = ''; h[3].value = '';
+      marcar(dia);
     }
     dias.forEach(function (dia) {
       var chave = dia.querySelector('[data-aberto]');
-      chave.addEventListener('change', function () {
-        abrir(dia, chave.checked);
-        if (chave.checked) { horas(dia)[0].focus(); }
-      });
+      chave.addEventListener('change', function () { abrir(dia, chave.checked); if (chave.checked) { horas(dia)[0].focus(); } });
+      var p = dia.querySelector('[data-pausa]');
+      if (p) { p.addEventListener('click', function () { pausar(dia); }); }
+      var t = dia.querySelector('[data-tirar-pausa]');
+      if (t) { t.addEventListener('click', function () { tirarPausa(dia); }); }
+      Array.prototype.forEach.call(horas(dia), function (el) { el.addEventListener('change', function () { marcar(dia); }); });
     });
     var h24 = semana.querySelector('[data-h24]');
-    if (h24) {
-      h24.addEventListener('change', function () { semana.classList.toggle('dia-todo', h24.checked); });
-    }
-    semana.querySelectorAll('[data-copiar]').forEach(function (b) {
+    if (h24) { h24.addEventListener('change', function () { semana.classList.toggle('dia-todo', h24.checked); }); }
+    semana.querySelectorAll('[data-copiar-dias]').forEach(function (b) {
       b.addEventListener('click', function () {
-        var seg = dias[0];
-        var h = horas(seg);
-        var aberto = seg.querySelector('[data-aberto]').checked && h[0].value && h[1].value;
-        var alvo = b.getAttribute('data-copiar') === 'uteis' ? dias.slice(1, 5) : dias.slice(1);
-        alvo.forEach(function (dia) { abrir(dia, !!aberto, aberto ? [h[0].value, h[1].value] : null); });
+        var h = horas(dias[0]);
+        var aberto = dias[0].querySelector('[data-aberto]').checked && h[0].value && h[1].value;
+        var v = [h[0].value, h[1].value, h[2].value, h[3].value];
+        (b.getAttribute('data-copiar-dias') === 'uteis' ? dias.slice(1, 5) : dias.slice(1)).forEach(function (dia) {
+          abrir(dia, !!aberto, aberto ? v : null);
+        });
       });
     });
   });

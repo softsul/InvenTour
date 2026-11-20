@@ -1139,6 +1139,15 @@ details.tribo .caixas{margin:8px 0 4px 26px}
 .entrada.hora input::-webkit-calendar-picker-indicator:hover{opacity:.9}
 [data-tema="escuro"] .entrada.hora input::-webkit-calendar-picker-indicator{filter:invert(1)}
 .faixa .ate{font-size:12.5px; color:var(--fraca)}
+/* Dois períodos no dia (pausa do almoço): o segundo só com a pausa. */
+.faixa .periodo{display:inline-flex; align-items:center; gap:10px}
+.dia:not(.com-pausa) .periodo-2, .dia.com-pausa [data-pausa]{display:none}
+.faixa .pausa{display:inline-flex; align-items:center; gap:5px; font-size:12.5px; font-weight:600; color:var(--indigo); white-space:nowrap}
+.faixa .pausa svg{width:13px; height:13px}
+.faixa .tirar-pausa{display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; padding:0; border:0; border-radius:50%;
+  background:var(--leve); color:var(--suave); cursor:pointer}
+.faixa .tirar-pausa svg{width:12px; height:12px}
+.faixa .tirar-pausa:hover{background:var(--rubi-sup); color:var(--rubi)}
 
 @media (max-width:620px){
   .dia{grid-template-columns:1fr auto; gap:8px 12px; padding:10px 12px}
@@ -1146,6 +1155,8 @@ details.tribo .caixas{margin:8px 0 4px 26px}
   .faixa{grid-column:1 / -1}
   .dia.fechado .faixa{display:none}
   .entrada.hora{flex:1; width:auto}
+  .faixa .periodo{width:100%}
+  .faixa .periodo-2 .ate:first-child{min-width:12px}
 }
 
 /* Item do inventário em abas: a barra fica logo abaixo do cabeçalho. */

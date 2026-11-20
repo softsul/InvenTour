@@ -40,6 +40,64 @@ function telaEstadoColeta(string $botaoExtra = '', bool $historicoLocal = true):
     return (string) ob_get_clean();
 }
 
+/**
+ * O horário da semana, o mesmo no painel (item.php, data-semana, tratado
+ * pelo inventour.js) e na coleta (data-semana-coleta, pelo coleta.js). Cada
+ * dia tem um período e, com "Pausa", um segundo (o intervalo do almoço):
+ * h_abre[dia] e h_fecha[dia], h_abre2[dia] e h_fecha2[dia].
+ */
+function semanaDeHorario(array $horario, string $marca = 'data-semana', bool $soLeitura = false): string
+{
+    $ro = $soLeitura ? ' readonly' : '';
+    $dis = $soLeitura ? ' disabled' : '';
+    ob_start();
+    ?>
+<div class="semana<?= !empty($horario['24h']) ? ' dia-todo' : '' ?>" <?= $marca ?>>
+  <div class="semana-topo">
+    <label class="check"><input type="checkbox" name="h24" value="1" data-h24<?= !empty($horario['24h']) ? ' checked' : '' ?><?= $dis ?>><i></i>Funciona 24 horas</label>
+    <?php if (!$soLeitura): ?>
+    <span class="semana-atalhos">
+      <button type="button" class="como-link" data-copiar-dias="uteis"><?= icone('copiar') ?>Segunda para os dias úteis</button>
+      <button type="button" class="como-link" data-copiar-dias="todos"><?= icone('copiar') ?>Segunda para todos</button>
+    </span>
+    <?php endif; ?>
+  </div>
+  <p class="semana-24h"><?= icone('relogio') ?>Aberto todos os dias, a qualquer hora.</p>
+  <ul class="semana-dias">
+  <?php foreach (Inventario::DIAS as $dia => $rotulo):
+    $f1 = $horario[$dia][0] ?? ['', ''];
+    $f2 = $horario[$dia][1] ?? ['', ''];
+    $aberto = $f1[0] !== '' && $f1[1] !== '';
+    $pausa = $aberto && $f2[0] !== '' && $f2[1] !== ''; ?>
+    <li class="dia<?= $aberto ? '' : ' fechado' ?><?= $pausa ? ' com-pausa' : '' ?>" data-dia="<?= $dia ?>">
+      <span class="dia-nome"><b><?= e(mb_substr($rotulo, 0, 3)) ?></b><span><?= e($rotulo) ?></span></span>
+      <label class="liga" title="Aberto ou fechado">
+        <input type="checkbox" data-aberto<?= $aberto ? ' checked' : '' ?><?= $dis ?> aria-label="<?= e($rotulo) ?>, aberto">
+        <i></i><em class="liga-sim">Aberto</em><em class="liga-nao">Fechado</em>
+      </label>
+      <span class="faixa">
+        <span class="periodo">
+          <span class="entrada hora"><input type="time" name="h_abre[<?= $dia ?>]" value="<?= e((string) $f1[0]) ?>" aria-label="<?= e($rotulo) ?>, abre"<?= $ro ?>></span>
+          <span class="ate">às</span>
+          <span class="entrada hora"><input type="time" name="h_fecha[<?= $dia ?>]" value="<?= e((string) $f1[1]) ?>" aria-label="<?= e($rotulo) ?>, fecha"<?= $ro ?>></span>
+        </span>
+        <span class="periodo periodo-2">
+          <span class="ate">e</span>
+          <span class="entrada hora"><input type="time" name="h_abre2[<?= $dia ?>]" value="<?= e((string) $f2[0]) ?>" aria-label="<?= e($rotulo) ?>, volta da pausa"<?= $ro ?>></span>
+          <span class="ate">às</span>
+          <span class="entrada hora"><input type="time" name="h_fecha2[<?= $dia ?>]" value="<?= e((string) $f2[1]) ?>" aria-label="<?= e($rotulo) ?>, fecha de novo"<?= $ro ?>></span>
+          <?php if (!$soLeitura): ?><button type="button" class="tirar-pausa" data-tirar-pausa title="Sem pausa: um período só" aria-label="Tirar a pausa de <?= e($rotulo) ?>"><?= icone('fechar') ?></button><?php endif; ?>
+        </span>
+        <?php if (!$soLeitura): ?><button type="button" class="como-link pausa" data-pausa title="Fecha no almoço: dois períodos no dia"><?= icone('mais') ?>Pausa</button><?php endif; ?>
+      </span>
+    </li>
+  <?php endforeach; ?>
+  </ul>
+</div>
+<?php
+    return (string) ob_get_clean();
+}
+
 function telaColeta(bool $noApp, bool $comEstado = true): string
 {
     ob_start();
@@ -198,32 +256,7 @@ function telaColeta(bool $noApp, bool $comEstado = true): string
       </section>
 
       <section class="painel-coleta" data-painel-coleta="funcionamento" hidden>
-        <div class="semana" data-semana-coleta>
-          <div class="semana-topo">
-            <label class="check"><input type="checkbox" name="h24" value="1" data-h24-coleta><i></i>Funciona 24 horas</label>
-            <span class="semana-atalhos">
-              <button type="button" class="como-link" data-copiar-dias="uteis"><?= icone('copiar') ?>Segunda para os dias úteis</button>
-              <button type="button" class="como-link" data-copiar-dias="todos"><?= icone('copiar') ?>Segunda para todos</button>
-            </span>
-          </div>
-          <p class="semana-24h"><?= icone('relogio') ?>Aberto todos os dias, a qualquer hora.</p>
-          <ul class="semana-dias">
-          <?php foreach (Inventario::DIAS as $dia => $rotuloDia): ?>
-            <li class="dia fechado" data-dia="<?= $dia ?>">
-              <span class="dia-nome"><b><?= e(mb_substr($rotuloDia, 0, 3)) ?></b><span><?= e($rotuloDia) ?></span></span>
-              <label class="liga" title="Aberto ou fechado">
-                <input type="checkbox" data-aberto-coleta aria-label="<?= e($rotuloDia) ?>, aberto">
-                <i></i><em class="liga-sim">Aberto</em><em class="liga-nao">Fechado</em>
-              </label>
-              <span class="faixa">
-                <span class="entrada hora"><input type="time" name="h_abre[<?= $dia ?>]" aria-label="<?= e($rotuloDia) ?>, abre"></span>
-                <span class="ate">às</span>
-                <span class="entrada hora"><input type="time" name="h_fecha[<?= $dia ?>]" aria-label="<?= e($rotuloDia) ?>, fecha"></span>
-              </span>
-            </li>
-          <?php endforeach; ?>
-          </ul>
-        </div>
+        <?= semanaDeHorario([], 'data-semana-coleta') ?>
         <div class="grade">
           <?= $campo('h_feriados', 'Feriados', 'c-6', ['attrs' => ['maxlength' => 200]]) ?>
           <?= $campo('h_temporada', 'Temporada ou agendamento', 'c-6', ['attrs' => ['maxlength' => 200]]) ?>

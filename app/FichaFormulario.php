@@ -22,7 +22,7 @@ require_once __DIR__ . '/PlusCode.php';
 final class FichaFormulario
 {
     /** Teclas do funcionamento: chegando qualquer uma, o horário inteiro é regravado. */
-    private const CHAVES_HORARIO = ['h24', 'h_abre', 'h_fecha', 'h_feriados', 'h_temporada'];
+    private const CHAVES_HORARIO = ['h24', 'h_abre', 'h_fecha', 'h_abre2', 'h_fecha2', 'h_feriados', 'h_temporada'];
 
     /**
      * Lê o formulário e devolve o que gravar, já validado.
@@ -95,6 +95,12 @@ final class FichaFormulario
                     $fecha = (string) ($p['h_fecha'][$dia] ?? '');
                     if (preg_match('/^\d{2}:\d{2}$/', $abre) && preg_match('/^\d{2}:\d{2}$/', $fecha)) {
                         $h[$dia] = [[$abre, $fecha]];
+                        // O segundo período do dia (volta da pausa do almoço).
+                        $abre2 = (string) ($p['h_abre2'][$dia] ?? '');
+                        $fecha2 = (string) ($p['h_fecha2'][$dia] ?? '');
+                        if (preg_match('/^\d{2}:\d{2}$/', $abre2) && preg_match('/^\d{2}:\d{2}$/', $fecha2)) {
+                            $h[$dia][] = [$abre2, $fecha2];
+                        }
                     }
                 }
                 $n['horario'] = json_encode($h, JSON_UNESCAPED_UNICODE);
@@ -336,6 +342,10 @@ final class FichaFormulario
                 if (!empty($h[$dia][0][0])) {
                     $f['h_abre'][$dia] = (string) $h[$dia][0][0];
                     $f['h_fecha'][$dia] = (string) $h[$dia][0][1];
+                    if (!empty($h[$dia][1][0])) {
+                        $f['h_abre2'][$dia] = (string) $h[$dia][1][0];
+                        $f['h_fecha2'][$dia] = (string) $h[$dia][1][1];
+                    }
                 }
             }
             foreach (['formas_pagamento' => 'pagamentos', 'idiomas' => 'idiomas'] as $col => $chave) {

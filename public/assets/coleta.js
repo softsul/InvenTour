@@ -258,7 +258,7 @@
   }
   // O que está no aparelho por cima do que veio do servidor. Os campos da
   // ficha, a acessibilidade e as horas trocam um a um; o resto, inteiro.
-  var POR_PARTE = ['at', 'aus', 'acess', 'h_abre', 'h_fecha'];
+  var POR_PARTE = ['at', 'aus', 'acess', 'h_abre', 'h_fecha', 'h_abre2', 'h_fecha2'];
   function mesclarFicha(f, dados) {
     var r = JSON.parse(JSON.stringify(f || {}));
     Object.keys(dados || {}).forEach(function (k) {
@@ -765,7 +765,7 @@
 
   // O que mudou desde que a ficha abriu. Campo da ficha vai com a ausência;
   // o horário vai inteiro; a coordenada, em par.
-  var HORARIO = ['h24', 'h_abre', 'h_fecha', 'h_feriados', 'h_temporada'];
+  var HORARIO = ['h24', 'h_abre', 'h_fecha', 'h_abre2', 'h_fecha2', 'h_feriados', 'h_temporada'];
   function igual(a, b) { return JSON.stringify(a == null ? '' : a) === JSON.stringify(b == null ? '' : b); }
   function diferenca(antes, agora) {
     var mudou = {};
@@ -801,45 +801,67 @@
   // Funcionamento: a chave de cada dia limpa ou devolve as horas; 24 horas
   // esconde a semana; os atalhos copiam a segunda.
   var semana = form.querySelector('[data-semana-coleta]');
-  var dias = Array.prototype.slice.call(semana.querySelectorAll('.dia'));
-  function horasDo(dia) { return dia.querySelectorAll('input[type=time]'); }
-  function abrirDia(dia, aberto, valores) {
-    var h = horasDo(dia);
-    dia.querySelector('[data-aberto-coleta]').checked = aberto;
-    dia.classList.toggle('fechado', !aberto);
-    if (aberto) {
-      var v = valores || [dia.getAttribute('data-abre') || '08:00', dia.getAttribute('data-fecha') || '18:00'];
-      h[0].value = v[0]; h[1].value = v[1];
-    } else {
-      if (h[0].value) { dia.setAttribute('data-abre', h[0].value); }
-      if (h[1].value) { dia.setAttribute('data-fecha', h[1].value); }
-      h[0].value = ''; h[1].value = '';
-    }
-  }
-  function semanaDaFicha() {
-    dias.forEach(function (dia) {
-      var h = horasDo(dia);
+  var semanaDaFicha = (function () {
+    var dias = Array.prototype.slice.call(semana.querySelectorAll('.dia'));
+    // [abre, fecha, volta da pausa, fecha de novo]
+    function horas(dia) { return dia.querySelectorAll('input[type=time]'); }
+    function marcar(dia) {
+      var h = horas(dia);
       var aberto = !!(h[0].value && h[1].value);
-      dia.querySelector('[data-aberto-coleta]').checked = aberto;
+      dia.querySelector('[data-aberto]').checked = aberto;
       dia.classList.toggle('fechado', !aberto);
-      dia.removeAttribute('data-abre'); dia.removeAttribute('data-fecha');
+      dia.classList.toggle('com-pausa', aberto && !!(h[2].value && h[3].value));
+    }
+    function abrir(dia, aberto, valores) {
+      var h = horas(dia);
+      if (aberto) {
+        var v = valores || (dia.getAttribute('data-memo') || '08:00|18:00||').split('|');
+        for (var i = 0; i < 4; i++) { h[i].value = v[i] || ''; }
+      } else {
+        if (h[0].value) { dia.setAttribute('data-memo', [h[0].value, h[1].value, h[2].value, h[3].value].join('|')); }
+        for (var k = 0; k < 4; k++) { h[k].value = ''; }
+      }
+      marcar(dia);
+    }
+    // Pausa: 08:00 às 18:00 vira 08:00 às 12:00 e 13:30 às 18:00.
+    function pausar(dia) {
+      var h = horas(dia);
+      var fim = h[1].value || '18:00';
+      h[1].value = fim > '12:00' ? '12:00' : fim;
+      h[2].value = '13:30';
+      h[3].value = fim > '13:30' ? fim : '18:00';
+      marcar(dia);
+      h[1].focus();
+    }
+    function tirarPausa(dia) {
+      var h = horas(dia);
+      if (h[3].value) { h[1].value = h[3].value; }
+      h[2].value = ''; h[3].value = '';
+      marcar(dia);
+    }
+    dias.forEach(function (dia) {
+      var chave = dia.querySelector('[data-aberto]');
+      chave.addEventListener('change', function () { abrir(dia, chave.checked); if (chave.checked) { horas(dia)[0].focus(); } });
+      var p = dia.querySelector('[data-pausa]');
+      if (p) { p.addEventListener('click', function () { pausar(dia); }); }
+      var t = dia.querySelector('[data-tirar-pausa]');
+      if (t) { t.addEventListener('click', function () { tirarPausa(dia); }); }
+      Array.prototype.forEach.call(horas(dia), function (el) { el.addEventListener('change', function () { marcar(dia); }); });
     });
-    semana.classList.toggle('dia-todo', form.elements.h24.checked);
-  }
-  dias.forEach(function (dia) {
-    var chave = dia.querySelector('[data-aberto-coleta]');
-    chave.addEventListener('change', function () { abrirDia(dia, chave.checked); });
-  });
-  form.elements.h24.addEventListener('change', function () { semana.classList.toggle('dia-todo', form.elements.h24.checked); });
-  semana.querySelectorAll('[data-copiar-dias]').forEach(function (b) {
-    b.addEventListener('click', function () {
-      var h = horasDo(dias[0]);
-      var aberto = dias[0].querySelector('[data-aberto-coleta]').checked && h[0].value && h[1].value;
-      (b.getAttribute('data-copiar-dias') === 'uteis' ? dias.slice(1, 5) : dias.slice(1)).forEach(function (dia) {
-        abrirDia(dia, !!aberto, aberto ? [h[0].value, h[1].value] : null);
+    var h24 = semana.querySelector('[data-h24]');
+    if (h24) { h24.addEventListener('change', function () { semana.classList.toggle('dia-todo', h24.checked); }); }
+    semana.querySelectorAll('[data-copiar-dias]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var h = horas(dias[0]);
+        var aberto = dias[0].querySelector('[data-aberto]').checked && h[0].value && h[1].value;
+        var v = [h[0].value, h[1].value, h[2].value, h[3].value];
+        (b.getAttribute('data-copiar-dias') === 'uteis' ? dias.slice(1, 5) : dias.slice(1)).forEach(function (dia) {
+          abrir(dia, !!aberto, aberto ? v : null);
+        });
       });
     });
-  });
+    return function () { dias.forEach(marcar); dias.forEach(function (d) { d.removeAttribute('data-memo'); }); semana.classList.toggle('dia-todo', !!(h24 && h24.checked)); };
+  })();
 
   // Tribos: quantas marcadas em cada uma (duas ou mais dão o selo).
   function contarTribos() {
