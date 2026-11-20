@@ -173,6 +173,9 @@ body.em-popup main > form:has(> .cab-pag){display:contents}
 /* A busca das listas ocupa toda a largura que sobra na linha, e as pílulas
    de filtro ficam no canto. O botão de filtrar fica no tamanho dele. */
 .filtros > .entrada{flex:1 1 auto; max-width:none}
+/* Combo (ficha, etc.) não cresce sem fim: o nome longo da ficha empurrava o Limpar para a linha de baixo. */
+.filtros > .entrada:has(> select){flex:0 1 340px; min-width:200px}
+.filtros > .entrada:has(> select) select{min-width:0; width:100%; text-overflow:ellipsis}
 .filtros > .botao{flex:none; width:auto}
 .filtros-relatorio .botao{flex:none; width:auto}
 
