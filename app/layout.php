@@ -253,7 +253,7 @@ function explicacaoDoMenu(string $chave): string
         'mapa-turismo' => 'Municípios do Mapa do Turismo Brasileiro, com região turística, categoria e os números que o Ministério do Turismo usa para categorizar.',
         'cadastur' => 'Prestadores do Cadastur, do Ministério do Turismo, por município, região, UF, atividade e situação, com a soma de leitos.',
         'destinos' => 'Municípios, regiões turísticas e corporações que usam o InvenTour: o cadastro e a situação de cada um.',
-        'catalogos' => 'Categorias, tipos e atributos do inventário, que valem para todos os destinos.',
+        'fichas' => 'As 54 fichas do Inventário da Oferta Turística do Ministério do Turismo, com os tipos e subtipos de cada uma e as orientações de preenchimento. Valem para todos os destinos.',
         'usuarios' => 'Quem tem acesso ao painel e com que papel.',
         'auditoria' => 'Registro de quem fez o quê no painel, e quando.',
         'configuracoes' => $plataforma

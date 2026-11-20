@@ -6,11 +6,14 @@
  * O endereço é um só, /configuracoes/destino/12-pato-branco (endereco()
  * põe as telas de configuração nesse prefixo), e quem muda é o modo:
  * - equipe Softsul: visão da plataforma, cadastra e altera tudo, inclusive
- *   slug, domínio, tipo e situação, e cria destino novo em /configuracoes/destino;
- * - gestor, dentro de um destino: edita os dados do próprio destino
- *   (identidade, endereço, contato, cor, logo e segundo fator),
- *   sem mexer em slug, domínio, tipo e ativo, que são da plataforma porque
- *   mudam o endereço do portal e o acesso. Outro id responde 404.
+ *   slug, domínio, tipo, situação e a licença (modo de operação e
+ *   consultor), e cria destino novo em /configuracoes/destino; projeto de
+ *   consultoria sem subdomínio ganha o provisório proj-<id>;
+ * - gestor ou consultor, dentro de um destino: edita os dados do próprio
+ *   destino (identidade, governança do turismo, endereço, contato, cor, logo
+ *   e segundo fator), sem mexer em slug, domínio, tipo, licença e ativo, que
+ *   são da plataforma porque mudam o endereço do portal, o acesso e o
+ *   contrato. Outro id responde 404.
  *
  * No molde da ficha de cliente do Orbit: o CNPJ busca na Receita e preenche o
  * que estiver vazio, o CEP preenche o endereço, e o Salvar fica no cabeçalho
@@ -25,7 +28,20 @@ require_once __DIR__ . '/../app/Foto.php';
 require_once __DIR__ . '/../app/Imagem.php';
 require_once __DIR__ . '/../app/Tenant.php';
 
-const TIPOS_DE_DESTINO = ['municipio' => 'Município', 'regiao' => 'Região turística', 'corporativo' => 'Corporativo'];
+const TIPOS_DE_DESTINO = ['municipio' => 'Município', 'regiao' => 'Região turística', 'estado' => 'Estado'];
+// O ciclo comercial do destino (docs/PLANEJAMENTO.md, 2.2).
+const MODOS_DE_OPERACAO = [
+    'projeto'   => 'Projeto de consultoria',
+    'avaliacao' => 'Avaliação (30 dias)',
+    'ativo'     => 'Licenciado',
+    'suspenso'  => 'Suspenso',
+];
+const CUSTODIAS = [
+    'consultoria'   => 'Consultoria (fase de projeto)',
+    'prefeitura'    => 'Prefeitura',
+    'comtur'        => 'COMTUR',
+    'compartilhada' => 'Compartilhada (prefeitura e COMTUR)',
+];
 // Subdomínios que já têm dono (o painel, o site, o e-mail) ou que confundiriam.
 const SLUGS_RESERVADOS = ['app', 'www', 'api', 'portal', 'mail', 'smtp', 'imap', 'cdn', 'static', 'admin', 'inventour', 'softsul', 'zapping'];
 
@@ -64,7 +80,7 @@ $dominioPortal = (string) ($cfg['app']['dominio_portal'] ?? 'inventour.com.br');
 $d = ['id' => 0, 'nome' => '', 'nome_fantasia' => '', 'tipo' => 'municipio', 'cnpj' => '', 'slug' => '', 'dominio_proprio' => '',
       'email' => '', 'telefone' => '', 'whatsapp' => '', 'cep' => '', 'logradouro' => '', 'numero' => '', 'complemento' => '',
       'bairro' => '', 'cidade' => '', 'uf' => '', 'municipio_id' => null, 'cor_acento' => '', 'logo' => '', 'logo_no_portal' => 1, 'foto' => '',
-      'exigir_2fa_equipe' => 1, 'ativo' => 1];
+      'exigir_2fa_equipe' => 1, 'ativo' => 1, 'modo_operacao' => 'projeto', 'avaliacao_ate' => null, 'consultor_id' => null];
 if (!$novo) {
     $q = $pdo->prepare('SELECT * FROM empresas WHERE id = ?');
     $q->execute([$id]);
@@ -72,6 +88,33 @@ if (!$novo) {
 }
 $atual = $d;
 $erro = '';
+
+// Governança (1:1 com o destino): órgão de turismo, COMTUR, FUMTUR, custódia.
+$g = ['orgao_turismo_nome' => '', 'orgao_turismo_lei' => '', 'comtur_nome' => '', 'comtur_lei' => '', 'comtur_ativo' => 0,
+      'fumtur_lei' => '', 'plano_turismo_lei' => '', 'custodia' => 'consultoria', 'presidente_comtur_id' => null];
+if (!$novo) {
+    $q = $pdo->prepare('SELECT * FROM destino_governanca WHERE empresa_id = ?');
+    $q->execute([$id]);
+    $g = ($q->fetch() ?: []) + $g;
+}
+$governancaAtual = $g;
+// As pessoas do destino, para escolher o consultor e o presidente do COMTUR.
+$pessoas = [];
+$consultores = [];
+if (!$novo) {
+    $q = $pdo->prepare("SELECT u.id, u.nome, MAX(p.chave = 'consultor') AS consultor
+                        FROM usuario_empresa ue JOIN usuarios u ON u.id = ue.usuario_id AND u.ativo = 1
+                        LEFT JOIN usuario_empresa_papel uep ON uep.usuario_id = ue.usuario_id AND uep.empresa_id = ue.empresa_id
+                        LEFT JOIN papeis p ON p.id = uep.papel_id
+                        WHERE ue.empresa_id = ? AND ue.ativo = 1 GROUP BY u.id, u.nome ORDER BY u.nome");
+    $q->execute([$id]);
+    foreach ($q->fetchAll() as $p) {
+        $pessoas[(int) $p['id']] = (string) $p['nome'];
+        if ((int) $p['consultor']) {
+            $consultores[(int) $p['id']] = (string) $p['nome'];
+        }
+    }
+}
 
 /**
  * Guarda o logo enviado em storage/midias/marcas/, padronizado pela Imagem
@@ -172,6 +215,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $campos['tipo'] = array_key_exists((string) ($_POST['tipo'] ?? ''), TIPOS_DE_DESTINO) ? (string) $_POST['tipo'] : 'municipio';
             $campos['slug'] = mb_strtolower(trim((string) ($_POST['slug'] ?? ''))) ?: apelido((string) ($_POST['nome_fantasia'] ?? ''));
             $campos['dominio_proprio'] = mb_strtolower(trim((string) ($_POST['dominio_proprio'] ?? ''))) ?: null;
+            // O modo de operação e o consultor são da plataforma: é a licença.
+            $campos['modo_operacao'] = array_key_exists((string) ($_POST['modo_operacao'] ?? ''), MODOS_DE_OPERACAO) ? (string) $_POST['modo_operacao'] : 'projeto';
+            $ate = (string) ($_POST['avaliacao_ate'] ?? '');
+            $campos['avaliacao_ate'] = $campos['modo_operacao'] === 'avaliacao'
+                ? (preg_match('/^\d{4}-\d{2}-\d{2}$/', $ate) ? $ate : date('Y-m-d', strtotime('+30 days'))) : null;
+            $consultor = (int) ($_POST['consultor_id'] ?? 0);
+            $campos['consultor_id'] = isset($consultores[$consultor]) ? $consultor : null;
+            // Projeto de consultoria novo sem subdomínio ganha um provisório
+            // (proj-<id>), acertado depois de gravar.
+            if ($novo && $campos['modo_operacao'] === 'projeto' && trim((string) ($_POST['slug'] ?? '')) === '') {
+                $campos['slug'] = 'proj-novo-' . bin2hex(random_bytes(3));
+            }
         }
         $slugConferir = $proprio ? (string) $d['slug'] : (string) $campos['slug'];
         $dominioConferir = $proprio ? $d['dominio_proprio'] : $campos['dominio_proprio'];
@@ -188,6 +243,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $campos['municipio_id'] = $municipio ? (int) $municipio['id'] : null;
         $campos['cidade'] = $municipio['nome'] ?? null;
         $campos['uf'] = $municipio['uf'] ?? null;
+
+        $lei = fn (string $c): ?string => mb_substr(trim((string) ($_POST[$c] ?? '')), 0, 120) ?: null;
+        $gov = [
+            'orgao_turismo_nome'   => mb_substr(trim((string) ($_POST['orgao_turismo_nome'] ?? '')), 0, 150) ?: null,
+            'orgao_turismo_lei'    => $lei('orgao_turismo_lei'),
+            'comtur_nome'          => mb_substr(trim((string) ($_POST['comtur_nome'] ?? '')), 0, 150) ?: null,
+            'comtur_lei'           => $lei('comtur_lei'),
+            'comtur_ativo'         => empty($_POST['comtur_ativo']) ? 0 : 1,
+            'fumtur_lei'           => $lei('fumtur_lei'),
+            'plano_turismo_lei'    => $lei('plano_turismo_lei'),
+            'custodia'             => array_key_exists((string) ($_POST['custodia'] ?? ''), CUSTODIAS) ? (string) $_POST['custodia'] : (string) $g['custodia'],
+            'presidente_comtur_id' => isset($pessoas[(int) ($_POST['presidente_comtur_id'] ?? 0)]) ? (int) $_POST['presidente_comtur_id'] : null,
+        ];
+        $modoNovo = $campos['modo_operacao'] ?? (string) $d['modo_operacao'];
 
         if ($campos['nome'] === '' || $campos['nome_fantasia'] === '') {
             $erro = 'Nome institucional e nome no portal são obrigatórios.';
@@ -211,7 +280,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $erro = 'CEP com oito dígitos.';
         } elseif ($campos['cor_acento'] !== null && !preg_match('/^#[0-9A-F]{6}$/', $campos['cor_acento'])) {
             $erro = 'A cor de acento precisa estar no formato #RRGGBB.';
+        } elseif ($gov['custodia'] !== 'consultoria' && $modoNovo === 'projeto') {
+            $erro = 'Na fase de projeto a custódia é da consultoria. Ela passa à prefeitura ou ao COMTUR com a licença.';
         } else {
+            // Um município, um destino licenciado: dois projetos de
+            // consultoria convivem, mas só um vira o portal oficial.
+            if ($modoNovo === 'ativo' && ($campos['tipo'] ?? $d['tipo']) === 'municipio') {
+                $outroAtivo = $pdo->prepare("SELECT nome_fantasia FROM empresas WHERE municipio_id = ? AND tipo = 'municipio'
+                                             AND modo_operacao = 'ativo' AND ativo = 1 AND id <> ?");
+                $outroAtivo->execute([$campos['municipio_id'], $id]);
+                if ($nomeOutro = $outroAtivo->fetchColumn()) {
+                    $erro = 'O município já tem um destino licenciado: ' . $nomeOutro . '. Suspenda aquele antes de licenciar este.';
+                }
+            }
+        }
+        if ($erro === '') {
             $dup = $pdo->prepare('SELECT nome_fantasia FROM empresas WHERE (slug = ? OR (cnpj IS NOT NULL AND cnpj = ?)
                                   OR (dominio_proprio IS NOT NULL AND dominio_proprio = ?)) AND id <> ?');
             $dup->execute([$slugConferir, $campos['cnpj'], $dominioConferir, $id]);
@@ -225,12 +308,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $pdo->prepare('INSERT INTO empresas (' . implode(', ', $nomes) . ', ativo, criado_em) VALUES ('
                     . str_repeat('?, ', count($nomes)) . '1, NOW())')->execute(array_values($campos));
                 $id = (int) $pdo->lastInsertId();
+                if (str_starts_with((string) $campos['slug'], 'proj-novo-')) {
+                    $campos['slug'] = $slugConferir = 'proj-' . $id;
+                    $pdo->prepare('UPDATE empresas SET slug = ? WHERE id = ?')->execute([$campos['slug'], $id]);
+                }
                 Auditoria::registrar('criou', 'empresas', $id, 'criou o destino ' . $campos['nome_fantasia'], null, $campos, $id);
             } else {
                 $pdo->prepare('UPDATE empresas SET ' . implode(' = ?, ', $nomes) . ' = ?, atualizado_em = NOW() WHERE id = ?')
                     ->execute([...array_values($campos), $id]);
                 Auditoria::registrar('alterou', 'empresas', $id, 'alterou o destino ' . $campos['nome_fantasia'],
                     array_intersect_key($atual, $campos), $campos, $id);
+            }
+            // A governança vai junto, e a custódia é auditada à parte: é ela que
+            // decide quem destrava o destino numa troca de gestão.
+            $pdo->prepare('INSERT INTO destino_governanca (empresa_id, ' . implode(', ', array_keys($gov)) . ', atualizado_em, atualizado_por)
+                           VALUES (?' . str_repeat(', ?', count($gov)) . ', NOW(), ?)
+                           ON DUPLICATE KEY UPDATE ' . implode(', ', array_map(fn ($c) => "$c = VALUES($c)", array_keys($gov))) . ',
+                           atualizado_em = NOW(), atualizado_por = VALUES(atualizado_por)')
+                ->execute([$id, ...array_values($gov), (int) Auth::usuarioOuNulo()['id']]);
+            if (!$novo && array_diff_assoc(array_map('strval', $gov), array_map('strval', array_intersect_key($governancaAtual, $gov)))) {
+                Auditoria::registrar('alterou', 'destino_governanca', $id, 'alterou a governança de ' . $campos['nome_fantasia'],
+                    array_intersect_key($governancaAtual, $gov), $gov, $id);
             }
             $recado = '';
             if (($_FILES['logo']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
@@ -249,6 +347,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             fichaSalva(endereco('destino', $id, $campos['nome_fantasia']));
         }
         // O que foi digitado volta para a tela.
+        $g = array_merge($g, $gov);
         $d = array_merge($d, $campos, ['telefone' => $_POST['telefone'] ?? '', 'whatsapp' => $_POST['whatsapp'] ?? '',
             'cep' => $_POST['cep'] ?? '', 'cnpj' => $_POST['cnpj'] ?? '']);
     }
@@ -301,7 +400,7 @@ $acaoForm = endereco('destino', $novo ? null : $id, $novo ? null : $d['nome_fant
       <div>
         <h1><?= e($titulo) ?></h1>
         <p><?= $novo ? 'Digite o CNPJ da prefeitura ou da entidade e o resto vem da Receita.'
-              : e((TIPOS_DE_DESTINO[$d['tipo']] ?? $d['tipo']) . ($d['cidade'] ? ' · ' . $d['cidade'] . '/' . $d['uf'] : '')
+              : e((TIPOS_DE_DESTINO[$d['tipo']] ?? $d['tipo']) . ' · ' . (MODOS_DE_OPERACAO[$d['modo_operacao']] ?? $d['modo_operacao']) . ($d['cidade'] ? ' · ' . $d['cidade'] . '/' . $d['uf'] : '')
                   . ' · ' . ($d['dominio_proprio'] ?: $d['slug'] . '.' . $dominioPortal)) ?></p>
       </div>
     </div>
@@ -346,7 +445,7 @@ $acaoForm = endereco('destino', $novo ? null : $id, $novo ? null : $d['nome_fant
               <option value="<?= $chave ?>"<?= $d['tipo'] === $chave ? ' selected' : '' ?>><?= e($rotulo) ?></option>
             <?php endforeach; ?>
           </select></div>
-          <span class="ajuda">Município, região turística (IGR, consórcio) ou corporação.<?= $proprio ? ' Quem altera é a Softsul.' : '' ?></span>
+          <span class="ajuda">Município, região turística (IGR, consórcio) ou estado.<?= $proprio ? ' Quem altera é a Softsul.' : '' ?></span>
         </div>
         <div class="campo c-12">
           <label for="razao_social">Nome institucional <span class="obrig">obrigatório</span></label>
@@ -359,6 +458,95 @@ $acaoForm = endereco('destino', $novo ? null : $id, $novo ? null : $d['nome_fant
           <div class="entrada"><input type="text" id="nome_fantasia" name="nome_fantasia" required maxlength="100"
                  value="<?= e((string) $d['nome_fantasia']) ?>"<?= $ro ?>></div>
           <span class="ajuda">É o nome que o público e a equipe veem: Pato Branco.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cartao">
+      <h2 class="titulo-secao">Licença</h2>
+      <div class="grade">
+        <div class="campo c-6">
+          <label for="modo_operacao">Modo de operação <span class="obrig">obrigatório</span></label>
+          <div class="entrada"><select id="modo_operacao" name="modo_operacao"<?= $proprio || !$podeEditar ? ' disabled' : '' ?>>
+            <?php foreach (MODOS_DE_OPERACAO as $chave => $rotulo): ?>
+              <option value="<?= $chave ?>"<?= $d['modo_operacao'] === $chave ? ' selected' : '' ?>><?= e($rotulo) ?></option>
+            <?php endforeach; ?>
+          </select></div>
+          <span class="ajuda">No projeto de consultoria o portal fica fechado e o caderno sai com a chancela do InvenTour; licenciado, abre o portal, o trade e a ligação com o EventCity.<?= $proprio ? ' Quem altera é a Softsul.' : '' ?></span>
+        </div>
+        <div class="campo c-6">
+          <label for="avaliacao_ate">Avaliação até</label>
+          <div class="entrada"><input type="date" id="avaliacao_ate" name="avaliacao_ate" value="<?= e((string) $d['avaliacao_ate']) ?>"<?= $travado ?>></div>
+          <span class="ajuda">Só no modo avaliação. Em branco, 30 dias a partir de hoje.</span>
+        </div>
+        <div class="campo c-12">
+          <label for="consultor_id">Consultor responsável</label>
+          <?php if ($consultores): ?>
+            <div class="entrada"><select id="consultor_id" name="consultor_id"<?= $proprio || !$podeEditar ? ' disabled' : '' ?>>
+              <option value="">Nenhum</option>
+              <?php foreach ($consultores as $uid => $nomeConsultor): ?>
+                <option value="<?= $uid ?>"<?= (int) $d['consultor_id'] === $uid ? ' selected' : '' ?>><?= e($nomeConsultor) ?></option>
+              <?php endforeach; ?>
+            </select></div>
+          <?php else: ?>
+            <p class="ajuda">Nenhuma pessoa com o papel Consultor neste destino. Convide o turismólogo em Usuários e escolha aqui.</p>
+          <?php endif; ?>
+          <span class="ajuda">O turismólogo ou a consultoria dona do projeto de inventário.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cartao">
+      <h2 class="titulo-secao">Governança do turismo</h2>
+      <div class="grade">
+        <div class="campo c-8">
+          <label for="orgao_turismo_nome">Órgão oficial de turismo</label>
+          <div class="entrada"><input type="text" id="orgao_turismo_nome" name="orgao_turismo_nome" maxlength="150" value="<?= e((string) $g['orgao_turismo_nome']) ?>"<?= $ro ?>></div>
+          <span class="ajuda">Secretaria, departamento ou divisão que responde pelo turismo.</span>
+        </div>
+        <div class="campo c-4">
+          <label for="orgao_turismo_lei">Lei de criação</label>
+          <div class="entrada"><input type="text" id="orgao_turismo_lei" name="orgao_turismo_lei" maxlength="120" placeholder="Lei nº 0.000/0000" value="<?= e((string) $g['orgao_turismo_lei']) ?>"<?= $ro ?>></div>
+        </div>
+        <div class="campo c-8">
+          <label for="comtur_nome">Conselho Municipal de Turismo</label>
+          <div class="entrada"><input type="text" id="comtur_nome" name="comtur_nome" maxlength="150" value="<?= e((string) $g['comtur_nome']) ?>"<?= $ro ?>></div>
+          <label class="check"><input type="checkbox" name="comtur_ativo" value="1"<?= (int) $g['comtur_ativo'] ? ' checked' : '' ?><?= $podeEditar ? '' : ' disabled' ?>><i></i>Em funcionamento, com reuniões regulares</label>
+        </div>
+        <div class="campo c-4">
+          <label for="comtur_lei">Lei do COMTUR</label>
+          <div class="entrada"><input type="text" id="comtur_lei" name="comtur_lei" maxlength="120" placeholder="Lei nº 0.000/0000" value="<?= e((string) $g['comtur_lei']) ?>"<?= $ro ?>></div>
+        </div>
+        <div class="campo c-6">
+          <label for="fumtur_lei">Lei do Fundo Municipal de Turismo</label>
+          <div class="entrada"><input type="text" id="fumtur_lei" name="fumtur_lei" maxlength="120" value="<?= e((string) $g['fumtur_lei']) ?>"<?= $ro ?>></div>
+        </div>
+        <div class="campo c-6">
+          <label for="plano_turismo_lei">Plano ou política municipal de turismo</label>
+          <div class="entrada"><input type="text" id="plano_turismo_lei" name="plano_turismo_lei" maxlength="120" value="<?= e((string) $g['plano_turismo_lei']) ?>"<?= $ro ?>></div>
+        </div>
+        <div class="campo c-6">
+          <label for="custodia">Custódia dos dados</label>
+          <div class="entrada"><select id="custodia" name="custodia"<?= $podeEditar ? '' : ' disabled' ?>>
+            <?php foreach (CUSTODIAS as $chave => $rotulo): ?>
+              <option value="<?= $chave ?>"<?= $g['custodia'] === $chave ? ' selected' : '' ?>><?= e($rotulo) ?></option>
+            <?php endforeach; ?>
+          </select></div>
+          <span class="ajuda">Com o COMTUR na custódia, apagar fichas homologadas em lote pede a confirmação do gestor e do presidente do conselho: o inventário atravessa a troca de gestão.</span>
+        </div>
+        <div class="campo c-6">
+          <label for="presidente_comtur_id">Presidente do COMTUR</label>
+          <?php if ($pessoas): ?>
+            <div class="entrada"><select id="presidente_comtur_id" name="presidente_comtur_id"<?= $podeEditar ? '' : ' disabled' ?>>
+              <option value="">Não informado</option>
+              <?php foreach ($pessoas as $uid => $nomePessoa): ?>
+                <option value="<?= $uid ?>"<?= (int) $g['presidente_comtur_id'] === $uid ? ' selected' : '' ?>><?= e($nomePessoa) ?></option>
+              <?php endforeach; ?>
+            </select></div>
+          <?php else: ?>
+            <p class="ajuda">Convide o presidente em Usuários e escolha aqui.</p>
+          <?php endif; ?>
+          <span class="ajuda">Precisa ter acesso ao destino.</span>
         </div>
       </div>
     </div>
@@ -472,7 +660,7 @@ $acaoForm = endereco('destino', $novo ? null : $id, $novo ? null : $d['nome_fant
     <div class="cartao">
       <h2 class="titulo-secao">Segurança</h2>
       <label class="check"><input type="checkbox" name="exigir_2fa_equipe" value="1" <?= $d['exigir_2fa_equipe'] ? 'checked' : '' ?><?= $podeEditar ? '' : ' disabled' ?>><i></i>Exigir o segundo fator da equipe do destino</label>
-      <p class="ajuda">Gestor, técnico, pesquisador e leitor passam a precisar do código do autenticador, da digital ou do certificado para entrar.</p>
+      <p class="ajuda">Gestor, consultor, coordenador, pesquisador e leitor passam a precisar do código do autenticador, da digital ou do certificado para entrar.</p>
     </div>
   </div>
 </form>

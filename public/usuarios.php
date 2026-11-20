@@ -197,7 +197,7 @@ paginaInicio('Usuários', 'configuracoes');
 <div class="cab-pag">
   <div>
     <h1>Usuários</h1>
-    <p><?= $empresa ? 'Quem tem acesso a ' . e(Empresa::atual()['nome_fantasia']) . ': gestores, técnicos, pesquisadores, leitores e prestadores.' : 'A equipe Softsul, que alcança todos os destinos.' ?></p>
+    <p><?= $empresa ? 'Quem tem acesso a ' . e(Empresa::atual()['nome_fantasia']) . ': gestores, consultores, coordenadores, pesquisadores, leitores e prestadores.' : 'A equipe Softsul, que alcança todos os destinos.' ?></p>
   </div>
   <?php if (Auth::pode('usuarios.criar') && Usuarios::papeisAtribuiveis()): ?>
     <div class="acoes"><a class="botao" href="/configuracoes/usuario" data-ficha="Novo usuário" data-abre-novo><?= icone('pessoas') ?>Novo usuário</a></div>

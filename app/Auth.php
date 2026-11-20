@@ -121,7 +121,7 @@ final class Auth
     /**
      * Segundo fator obrigatório para a equipe Softsul sempre, e para a
      * equipe de um destino que exija (empresas.exigir_2fa_equipe): gestor,
-     * técnico, pesquisador e leitor. O prestador (o trade que mantém a
+     * consultor, coordenador, pesquisador e leitor. O prestador (o trade que mantém a
      * própria ficha) fica de fora, como o proponente do EventCity: um
      * cadastro difícil afasta justamente quem alimenta o inventário, e ele
      * não homologa nada nem vê dado de outros. Pode ligar o segundo fator na

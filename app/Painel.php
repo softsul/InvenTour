@@ -51,7 +51,7 @@ final class Painel
     public static function destinosPlataforma(): array
     {
         return self::pdo()->query(
-            "SELECT e.id, e.nome_fantasia, e.slug, e.dominio_proprio, e.cidade, e.uf, e.logo,
+            "SELECT e.id, e.nome_fantasia, e.slug, e.dominio_proprio, e.cidade, e.uf, e.logo, e.modo_operacao,
                     (SELECT COUNT(*) FROM usuario_empresa ue JOIN usuarios u ON u.id = ue.usuario_id AND u.ativo = 1 AND u.softsul = 0
                       WHERE ue.empresa_id = e.id AND ue.ativo = 1) AS equipe,
                     (SELECT MAX(a.criado_em) FROM auditoria a WHERE a.empresa_id = e.id) AS ultima_atividade

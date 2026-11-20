@@ -96,7 +96,7 @@ final class Tenant
         $raiz = '.' . $cfg['app']['dominio_portal'];
         $slug = str_ends_with($host, $raiz) ? substr($host, 0, -strlen($raiz)) : null;
         $s = Database::conexaoPortal()->prepare(
-            'SELECT id, slug, nome_fantasia, cor_acento, logo, logo_no_portal, cidade, uf, dominio_proprio
+            'SELECT id, slug, nome_fantasia, cor_acento, logo, logo_no_portal, cidade, uf, dominio_proprio, modo_operacao, avaliacao_ate
              FROM empresas
              WHERE ativo = 1 AND (slug = ? OR dominio_proprio = ?)
              LIMIT 1'

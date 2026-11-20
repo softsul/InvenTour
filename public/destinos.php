@@ -21,7 +21,8 @@ if (!Auth::ehSoftsul()) {
 }
 $pdo = Database::conexao();
 
-const TIPOS_DE_DESTINO = ['municipio' => 'Município', 'regiao' => 'Região turística', 'corporativo' => 'Corporativo'];
+const TIPOS_DE_DESTINO = ['municipio' => 'Município', 'regiao' => 'Região turística', 'estado' => 'Estado'];
+const MODOS_DE_OPERACAO = ['projeto' => ['Projeto', 'nu'], 'avaliacao' => ['Avaliação', 'at'], 'ativo' => ['Licenciado', 'ok'], 'suspenso' => ['Suspenso', 'ruim']];
 
 // Ações da linha: inativar e reativar, sem sair da lista.
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -53,6 +54,7 @@ $ordem = Lista::ordem([
     'tipo'     => ['e.tipo', 'e.nome_fantasia'],
     'cidade'   => ['e.cidade', 'e.uf'],
     'slug'     => 'e.slug',
+    'licenca'  => ['e.modo_operacao', 'e.nome_fantasia'],
     'pessoas'  => 'pessoas',
     'situacao' => ['e.ativo', 'e.nome_fantasia'],
 ], 'nome');
@@ -115,6 +117,7 @@ $lista = function () use ($destinos, $busca, $total, $pagina, $situacao, $ordem,
             <?= Lista::th('Tipo', 'tipo', $ordem, $comFiltro) ?>
             <?= Lista::th('Município', 'cidade', $ordem, $comFiltro) ?>
             <?= Lista::th('Portal', 'slug', $ordem, $comFiltro) ?>
+            <?= Lista::th('Licença', 'licenca', $ordem, $comFiltro) ?>
             <?= Lista::th('Pessoas', 'pessoas', $ordem, $comFiltro, 'num') ?>
             <?= Lista::th('Situação', 'situacao', $ordem, $comFiltro) ?>
             <th class="acao"></th>
@@ -128,6 +131,7 @@ $lista = function () use ($destinos, $busca, $total, $pagina, $situacao, $ordem,
               <td><?= e(TIPOS_DE_DESTINO[$d['tipo']] ?? $d['tipo']) ?></td>
               <td><?= $d['cidade'] ? e($d['cidade']) . ' <span class="dado">' . e((string) $d['uf']) . '</span>' : '<span class="nulo">-</span>' ?></td>
               <td class="dado"><a href="https://<?= e($portal) ?>" target="_blank" rel="noopener"><?= e($portal) ?></a></td>
+              <td><?php [$rotuloModo, $tomModo] = MODOS_DE_OPERACAO[$d['modo_operacao']] ?? [$d['modo_operacao'], 'nu']; ?><span class="pilula <?= $tomModo ?>"><?= e($rotuloModo) ?></span></td>
               <td class="num dado"><?= (int) $d['pessoas'] ?></td>
               <td><?= $d['ativo'] ? '<span class="pilula ok">Ativo</span>' : '<span class="pilula ruim">Inativo</span>' ?></td>
               <td class="acao">

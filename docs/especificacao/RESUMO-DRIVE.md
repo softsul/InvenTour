@@ -5,12 +5,20 @@ Leitura feita em 2026-11-20 pelo navegador (somente leitura).
 
 ## O que ficou sem ler ou foi lido parcialmente
 
-- **06c (xlsx da nota 71,63)**: a visualização do Drive só expõe texto nas primeiras ~40 linhas; o restante (cerca de 230 linhas na aba `12 12 2022`) foi lido por amostragem de imagem. As outras 3 abas (`05 12 2022`, `28 11 2022`, `27 09 2022`) não foram abertas. Os "valores intermediários por célula" citados no documento 00 não apareceram; a composição exata da nota 71,63 não foi reconstituída.
+- **06c (xlsx da nota 71,63)**: as 4 abas foram lidas por completo no complemento (seção 7.9). Não existe fórmula nem "valor intermediário por célula": o total é texto digitado. A composição exata de 71,63 continua sem reconstituição (depende do cálculo interno da ferramenta do Sebrae).
 - **06e (cartilha DTI)**: PDF só com imagens, sem camada de texto; visto parcialmente.
 - **03 e 04**: lidos por extração e análise de estrutura (sumários, fichas, seções, orientações), não transcritos página a página.
 - **06d (ABNT)**: lido o sumário completo e a apresentação, não o texto integral de cada requisito.
 - **Formulários 2019**: lidos o índice completo, A.1, A.2, B.1 e C.1.4; os demais formulários só pelo título e lista de tipos.
-- **Subpastas não abertas**: `Smart Tour`, `Projetos concorrentes - Centelha`, `Metodologia Inventariação`, `mais ideias`, `EventCity`, `centelha`, `Inventariação 2011`, `Inventariação 2006`, `Exemplos Inventário Pesquisa Demanda Plano`; arquivos `CanvasTurismo.pptx`, `CatalogoSoluesTecnolgicas_DTIBrasil...pdf`, `inventour.pptx`, `39 - CARTILHA TURISMO 360.pdf`.
+- **Subpastas e arquivos restantes**: abertos no complemento (seção 7). Ficaram sem leitura de conteúdo, só pelo título ou pela primeira página:
+  - `Smart Tour`: `Turismo & COVID-19.pdf`, `Clipagem.pdf`, `Apresentação smart Tracking.pdf` (fora do tema).
+  - `Projetos concorrentes - Centelha`: 46 PDFs lidos só pela primeira página (identificação do projeto); 068 e 066 sem identificação clara.
+  - `Metodologia Inventariação`: 21 arquivos `.doc` (fichas A1 a C5 de 2011) e `Manual A/B/C.pdf` só pela lista (mesmo conteúdo dos documentos 03 e 04).
+  - `Inventariação 2011` (PDFs por ficha) e `Inventariação 2006` (subpastas Formulários A, B, C e manuais a, b, c): só pela lista; duplicam 03 e 04.
+  - `Exemplos`: de Ilhabela, só o sumário do Volume II; Volumes I, III, IV, V, mapa e o `.docx` do link T4 (deu erro ao abrir) não lidos. Angra: só a primeira página.
+  - `EventCity`: subpastas `registro de marca`, `pitchdeck`, `papelaria`, `logo`, `master prompt` (3 prompts: Notícias, Eventos, Cards), `publicações` e `centelha` (só busca por "InvenTour", sem ocorrência).
+  - `39 - CARTILHA TURISMO 360.pdf`: só apresentação e sumário (64 páginas).
+  - `Catálogo de Soluções DTI Brasil`: lido o índice e a primeira linha de cada uma das ~55 fichas; detalhe só das relevantes.
 - **05 Pato Branco Inventário 2025**: pulado de propósito (há cópia local).
 - O documento 02 foi lido do ponto "REGRAS DE NEGÓCIO & CASOS DE BORDA" do Módulo 2 até o fim; a parte anterior já tinha sido lida.
 
@@ -21,6 +29,7 @@ Leitura feita em 2026-11-20 pelo navegador (somente leitura).
 4. Subpastas WebApp e InvenTour (manual da marca, formulários MTur 2019, notas)
 5. Documentos metodológicos (06a a 06f, 03, 04)
 6. Documento 00 (guia do pacote de especificação)
+7. Complemento: subpastas e arquivos restantes (Smart Tour, concorrentes Centelha, mais ideias, EventCity, centelha, exemplos, metodologia, Canvas, Catálogo DTI, Turismo 360, abas da 06c)
 
 ---
 
@@ -726,3 +735,141 @@ Arquivo `00 InvenTour - Pacote de Especificação Técnica e Negócio.docx` (ID 
   - 07 Tribos: 5 macrocategorias, 21 perfis, mais de 160 tags; **não é lista fechada**, precisa de curadoria; alimenta tags do trade, filtros e roteirização do portal e o BI.
 - **Observatório territorial (V1.5/V2)**: referência ao painel SITU-PR; reaproveitar conectores que a Softsul já tem no EventCity/Orbit (CADASTUR, Mapa do Turismo) para trazer RAIS/Novo CAGED (empregos por CNAE das ACTs), IBGE (população, PIB), ANAC/rodoviárias (passageiros), IPARDES; permitir dado municipal manual em paralelo ao oficial; tratar defasagem RAIS (anual) x CAGED (mensal); futuramente ISSQN e alvarás da prefeitura. Deixar o Módulo 6 preparado para esses conectores.
 - **Diretrizes de implementação**: isolamento por `empresa_id` do Orbit e mesma stack do EventCity; webhook HMAC enviando `inventour_id` compatível com `inventour_equipment_id` do EventCity e mapeamento de categorias **ATTRACTION, LODGING, GASTRONOMY, EVENT_CENTER, SUPPORT_SERVICE**; **V1 = Módulos 1 a 5**, Módulo 6 na sequência imediata, Módulo 7 só com ganchos no banco e feature flags.
+
+---
+
+## 7. Complemento: subpastas e arquivos restantes
+
+Leitura feita em 2026-11-20, somente leitura, pelo navegador. Estrutura real: `WebApp` contém `Smart Tour`, `Projetos concorrentes - Centelha`, `Metodologia Inventariação`, `mais ideias`, `EventCity`, `InvenTour` e os arquivos `CanvasTurismo.pptx` e o Catálogo DTI. `InvenTour` contém `pitchdeck` (com `inventour.pptx`), `inventário metodologia` (`Inventariação 2019`, `2011`, `2006`, `Exemplos...`) e `centelha`.
+
+### 7.1 Subpasta `Smart Tour` (concorrente direto mais próximo)
+
+Arquivos: `smart tour descrição.pdf` (caso de sucesso Sebrae/SC, 2019), `Produtos Smart Tour 4.pdf` (tabela de preços), `Apresentação 2 Smart Tour.pdf` (22 slides), `Contrato - Parceria Empresarial - modelo.docx`, `Apresentação smart Tracking.pdf`, `Turismo & COVID-19.pdf`, `Clipagem.pdf` (os três últimos não lidos).
+
+O que fazem:
+- Startup de Florianópolis (2017), foco em "geração e inteligência de dados para a gestão pública do turismo". Prêmios: finalista do Prêmio Nacional do Turismo (2018 e 2019), seleção OMT, Wakalua, Nest Portugal; incubada/acelerada por Sinapse da Inovação, StartupSC, Sebrae, InovAtiva, ReadWrite Labs, incubadora de Aveiro.
+- Tecnologia: **beacons Bluetooth (IoT)** instalados nos atrativos, alcance de 70 m, app próprio (TagCity) que entrega conteúdo multi-idioma e recurso para deficientes visuais; coleta localização, perfil e tempo de permanência.
+- Entregas ao gestor: pesquisa de demanda em tempo real (substitui a pesquisa com prancheta), cruzamento de dados (permanência, perfil), gestão de reputação online (reviews), "mapa turístico de deslocamento de fluxo em real time", relatórios por local e da região, redirecionamento de fluxo para locais menos visitados.
+- Casos: projeto DTI da AMFRI/Costa Verde & Mar com Sebrae/SC (10 cidades, 80 beacons, cerca de 400 mil pessoas impactadas); Lei de Inovação de Florianópolis (100 pontos). Alegam mais de 500 atrativos monitorados e mais de 10 milhões de visitantes impactados.
+
+**Preços (tabela "Produtos Smart Tour")**:
+| Produto | O que é | Preço | Mínimo | Implantação | Contratação |
+|---|---|---|---|---|---|
+| Smart Tour (Rotas Inteligentes) | beacons + conteúdo mobile multi-idioma + consultoria de turismólogos | R$ 4.500 por atrativo/ano | 10 atrativos (R$ 45 mil/ano) | 40 dias | inexigibilidade |
+| Smart Destination | o anterior + protocolo TOURQUAL 100% digital (qualidade de serviços) + coleta e análise de reviews | R$ 8.000 por atrativo/ano | 5 atrativos (R$ 40 mil/ano) | 30 dias | inexigibilidade |
+| Smart Survey | pesquisa de demanda por IoT, atrativo vira coletor de dados | R$ 1.500 por atrativo/ano | 5 atrativos (R$ 7,5 mil/ano) | 15 dias | inexigibilidade ou dispensa por valor |
+| Smart Tracking | rastreamento de contatos de Covid-19 | R$ 17.000/ano | | imediata | dispensa por valor |
+
+- Contrato de parceria (modelo): a Smart Tour fecha parceria com turismóloga como representante comercial, **remuneração de até 10% do valor do contrato fechado por ela**, não exclusividade, confidencialidade e propriedade intelectual da Smart Tour. É o mesmo canal "turismólogo vende para a prefeitura" do cavalo de Troia do InvenTour.
+- Diferença para o InvenTour: a Smart Tour mede a **demanda** (fluxo de visitantes, com hardware no atrativo); **não faz inventário da oferta** nem portal da oferta homologada. O InvenTour mede a demanda pelo phygital (QR Code) sem hardware a manter. Preço por atrativo encarece rápido; o InvenTour pode cobrar por porte do município.
+
+### 7.2 Subpasta `Projetos concorrentes - Centelha`
+
+46 PDFs numerados (061 a 120, com falhas na numeração), pitch decks de outros proponentes do **Programa Centelha Paraná 2026** (concorrentes no edital, não no mercado). Lidos pela primeira página.
+- **Nenhum projeto de turismo, inventário turístico ou DTI**. Busca por "turis" na primeira página não achou nada.
+- Mais próximos do espaço do InvenTour (B2G ou cidade):
+  - 067 **Guarapuava Digital**: "sistema operacional de cidades inteligentes", app único cidadão x prefeitura; módulo 1 Educação Conectada (merenda, notas, rotina escolar); alvarás e licenças.
+  - 100 **Gestão de Serviços Municipais via WhatsApp** (cidadão x prefeitura).
+  - 095 **MonteSeuEvento** (Curitiba): marketplace de fornecedores de eventos (buffet, DJ, decoração, espaços) com pagamento em custódia. Vizinho do EventCity, não do InvenTour.
+  - 069 **App Tudo Cidade**: marketplace do comércio local do interior; 113 **Preço Local**: compare preços do comércio local.
+- Demais: saúde (clínicas, diabetes, obesidade, pets, dengue, auditoria médica, parto), indústria e agro (manufatura distribuída, tilápia, rastreabilidade animal, AgroMesh, ETAs/ETEs, segurança elétrica), trânsito (Noxfort), RH, beleza, social, esporte, economia criativa (Dreamz), ESG com dados públicos (062), segurança de PME.
+- Leitura para o plano: no Centelha PR 2026 o InvenTour não disputa com outra solução de turismo; o argumento de inovação deve ser comparado com o mercado nacional (Smart Tour, catálogo DTI), não com esses projetos.
+
+### 7.3 Subpasta `mais ideias`
+
+- **`Apps Turismo - lista ideias.docx`**: três ideias de produto.
+  1. Agenda cultural para bares, restaurantes e casas de entretenimento, com monetização por percentual de cupons e reservas, banners e destaque (é o embrião do EventCity).
+  2. **Pesquisa de demanda** em pontos de movimentação turística (hospedagem, bilheteria de parques, restaurantes, receptivo de visita técnica, eventos): origem, classe social, instrução, motivação, permanência, gastos, frequência, próxima viagem, meio de locomoção, tipo de hospedagem, quem paga a viagem, "o que não encontrou".
+  3. **Pesquisa de satisfação** nos mesmos pontos, em 5 aspectos (tangíveis; cumprimento de contrato e prazos; cordialidade; segurança técnica; empatia), monetizada pela venda de relatórios de BI para empresas, grupos ou instituições. Observação: 2 e 3 poderiam ser um só.
+- **`Pato Branco Meta City.docx`** (Anery): cidade inteira no metaverso, com fachadas, zoneamento, sistema viário, locais turísticos (cardápios, visita a hotéis), eventos com check-in, avatares, apontamento de problemas urbanos, gamificação, NFTs de projetos de arquitetura, maratonas com universidades; receita por PPP, anúncios em fachadas e outdoors virtuais. Canvas incompleto (custos e recursos "a definir"). Fora do escopo do InvenTour; ideias reaproveitáveis: gamificação do cidadão que alimenta dados e apontamento de carências.
+
+### 7.4 Subpasta `EventCity` (o que interessa à integração)
+
+Conteúdo: subpastas `registro de marca`, `publicações` (artes e `EventCity - Publicações.docx`), `pitchdeck`, `papelaria`, `master prompt` (prompts de Notícias, Eventos e Cards), `logo`, `centelha` (inscrição e pitch do EventCity no Centelha); documentos `Proposta Comercial Chapecó`, `proposta comercial sem mudar o conceito`, `Níveis de Pacote de Valor`, `Formulário de Avaliação de Eventos`, `Conflitos de Sazonalidade`, `Ajustes`.
+
+**Pontos de integração com o InvenTour citados**:
+- `Ajustes` (capacidade hoteleira): "Na integração com o InvenTour pode puxar direto" leitos e UHs. Hoje o EventCity usa a soma do Cadastur ou parâmetros digitados (leitos, UHs, leitos ocupados por outros segmentos).
+- `Ajustes` (locais de evento): campos de ambientes, layouts, acústica, dimensões, pé direito, mobiliário, capacidade em auditório/banquete/show **"ficam para a V2, com o InvenTour"**. Hoje o EventCity calcula auditório = capacidade dos bombeiros x 0,4 e banquete = x 0,25, e tem as marcas "Assentos fixos" e "Espaço aberto". Isso é a ficha B5 (Espaços para Eventos) do InvenTour.
+- `Ajustes` ("Insights para futura integração InvenTour", referência caragua.tur.br/explorar): prever o EventCity como **aba integrada do futuro site de turismo**, com tag por tipo sob a imagem (evento, hospedagem, atrativo, gastronomia).
+- `Ajustes` (módulo Documentos do EventCity, desligado por padrão): categorias previstas incluem **"Inventário da Oferta Turística"**, leis do turismo, instruções de alvarás e modelo de projeto de evento.
+- `Proposta Chapecó`: o painel de conflitos calcula saturação "a partir do Cadastur, **ou de inserção de dados vindos do Inventário da Oferta Turística local**". O inventário já é vendido como fonte.
+- `Conflitos de Sazonalidade` (feito em 02/11 no EventCity): ocupação orgânica por perfil de demanda (Negócios, Lazer, Linear, Misto) em três blocos (segunda a quinta, sexta e sábado, domingo), meses de alta e baixa com ajuste em pontos, margem de segurança de 0% a 50% (sugestão 10%), ocupação final limitada a 95%; o sistema **avisa e não bloqueia**. Exemplo de Pato Branco: 1.671 leitos totais, dia útil a 85%. O InvenTour deve enviar leitos e UHs **homologados**; os parâmetros de ocupação continuam no EventCity.
+- Outros dados que o EventCity já tem e o InvenTour pode reaproveitar: público por perfil (residente, turista, excursionista) e gasto por perfil, impacto econômico estimado (alíquota de ISS sobre 30% da injeção econômica, chamado de "estimativa"), Mapa do Turismo já importado, consulta Cadastur, período eleitoral (tira do ar notícias e agenda institucional até a data informada, mantém a agenda de eventos), botão "Melhorar com IA" travado até o destino informar chave própria (Claude, GPT ou Gemini), domínio próprio (`dominio_proprio`), apps únicos nas lojas compartilhados por todos os destinos.
+
+**Comercial do EventCity (referência direta para precificar o InvenTour)**:
+- Faixa validada em Pato Branco e Chapecó: de cerca de R$ 4 mil/mês a R$ 150 mil/ano, "absorvida com naturalidade" pelos gestores.
+- Proposta real a Chapecó (12/11/2026): plataforma completa, sem limite de usuários nem de eventos; **R$ 4.500/mês, R$ 54.000/ano**, implantação de R$ 12.000 isenta (primeira fase); 12 meses prorrogáveis (Lei 14.133), reajuste IPCA, pagamento mensal, dados pertencem à prefeitura e são exportáveis; enquadramento por dispensa por valor (art. 75, II). Portal de demonstração no ar antes da venda (`chapeco.eventcity.com.br`).
+- `Níveis de Pacote de Valor`: o Gemini propôs 3 pacotes por corte de função (Essencial R$ 3.000 a 3.800/mês; DTI & Turismo R$ 5.500/mês até 100 mil hab. e R$ 8.500 a 10.000/mês de 100 a 300 mil; Platinum/Ghost City R$ 15.000 a 22.000/mês). A resposta da Softsul (documento "sem mudar o conceito") **rejeita cortar funções** (login único, conflitos fora do básico, brasão só no topo, white label, kit de placas, "software se paga com ISS", prefeitura vendendo anúncio, "custo zero") e propõe:
+  - assinatura completa por porte: até 50 mil hab. R$ 2.500/mês (R$ 30 mil/ano, dispensa); 50 a 150 mil R$ 4.000 (R$ 48 mil, dispensa); 150 a 300 mil R$ 7.500 (R$ 90 mil, pregão ou CPSI); acima de 300 mil R$ 12.500 (R$ 150 mil). Municípios categoria A e B do Mapa do Turismo sobem uma faixa;
+  - implantação única de R$ 8 mil a R$ 15 mil (cadastro inicial, carga do Cadastur, treinamento, cartazes de QR, domínio próprio);
+  - níveis como **serviço da Zapping**: Plataforma; Plataforma + Inteligência (Boletim de Inteligência mensal ou trimestral, hoje feito à mão pelo Anery); Plataforma + Gestão assistida (Zapping opera a curadoria);
+  - pacote regional para IGR ou consórcio (teto de dispensa dobrado, art. 75, §2º); opcionais (IA, WhatsApp oficial, kit físico por gráfica parceira, capacitações); receita do trade na V2 (destaque pago, assinatura do organizador);
+  - alertas jurídicos: teto de dispensa de cerca de R$ 62,7 mil em 2025, somando despesas de mesma natureza no ano; inexigibilidade é frágil com Smart Tour e outros no mercado; melhores caminhos são **CPSI (LC 182/2021)**, pregão com ata de registro de preços (adesão "carona") e consórcio público.
+- `Formulário de Avaliação de Eventos`: pesquisa de satisfação com 10 questões em 5 dimensões do modelo **ServQual** (tangibilidade, confiabilidade, responsividade, segurança, empatia), 2 por dimensão, termos genéricos para servir de feira a congresso. Mesmo modelo da ideia 3 de 7.3; reaproveitável no InvenTour (requisitos 91/92 do DTI MTur: satisfação de turistas e prestadores).
+- Outras decisões do `Ajustes` úteis ao InvenTour: termos de adesão editáveis por destino com nova versão e novo aceite; Anery quer 3 modelos de termo (rígido, moderado, suave); exigência de Cadastur pode entrar no termo; "Lei do Calendário" (o executivo é obrigado a divulgar o calendário até certa data) como gancho de venda; vender também para associações comerciais, grandes empresas e universidades; implantação básica x assistida x assessoria ao COMTUR; o Anery destaca que a página de cada organizador vira uma "mini página web" de quem nunca teve, argumento que vale igual para cada empreendimento inventariado.
+
+### 7.5 Subpasta `InvenTour/centelha`
+
+`inscrição/Centelha_InvenTour_ Inteligência em Informações Turísticas.pdf` (versão 1.0 postada em 21/06/2026, 2 páginas, área "TI e Telecom", maturidade declarada: **Ideia**):
+- Problema: "apagão de dados"; inventários entregues em Word/PDF começam a morrer no dia seguinte; troca de mandato apaga arquivos e a nova gestão leva até 2 anos para recomeçar; sites municipais saem do ar em ano eleitoral.
+- Solução em 3 camadas: back-office técnico (coleta em campo com geolocalização, trade insere e o município modera), Web App oficial, ecossistema phygital (QR Codes com BI, heatmaps e cliques).
+- Clientes: prefeituras por assinatura anual; alternativamente COMTUR e patrocinadores. Concorrentes "focam em inventários analógicos e sites comuns, não na governança de dados".
+- Diferencial: freemium técnico (cavalo de Troia) com licenças de coleta gratuitas a turismólogos; **custódia dos dados atrelada ao COMTUR** (órgão permanente) para blindar a continuidade do site; multi-tenant `cidade.inventour.com.br`; consolidação automática de portais regionais para IGRs.
+- Equipe: Anery (turismo, DTI, COMTUR, IGRs) e Luiz (TI B2G, LGPD, infraestrutura). Pretende usar bolsas CNPq para contratar um desenvolvedor full-stack.
+- A subpasta `EventCity/centelha` tem o equivalente do EventCity; não cita o InvenTour.
+
+### 7.6 Exemplos de inventário e pesquisa (`Exemplos Inventário Pesquisa Demanda Plano`)
+
+- **Ilhabela (SP), Plano Gestor de Turismo 2005** (T4 Consultoria, supervisão de Mário Carlos Beni), 5 volumes e um mapa: I Caracterização Geral; **II Inventariado da Oferta (355 páginas)**; III Estudo da Demanda; IV Planejamento Estratégico e Projetos; V Anexos e Glossário. Equipe com dezenas de estagiários (mostra o custo do modelo analógico).
+  - Sumário do Volume II: 1. Oferta Turística Original: 1.1 Natural (praias, trilhas, quedas d'água e poços, áreas de mergulho autônomo e livre, **capacidade de carga**, **atratividade**); 1.2 Cultural (santo padroeiro, lendas, eventos, bens materiais). 2. Oferta Turística Agregada: meios de hospedagem 1 e 2, alimentação, equipamentos de apoio, marinas, operadoras, **empregabilidade**, **qualificação da mão de obra**.
+  - Indicadores por segmento (índice de figuras): tipologia e evolução dos meios de hospedagem, estabelecimentos que fecham parte do ano e meses de fechamento, **leitos ofertados por mês**, taxa de ocupação percebida pelos proprietários, canais de distribuição, atratividade das áreas comuns e das UHs; na alimentação: tipologia, evolução, tipo de cozinha, clientes atendidos, atratividade; treinamento de funcionários.
+  - Para o sistema: o inventário "bom" tem camada analítica além da ficha (evolução no tempo, sazonalidade de oferta, percepção do proprietário, atratividade). Leitos ofertados por mês casa com a sazonalidade do EventCity.
+- **Angra dos Reis (RJ)**: `Pesquisa de Demanda Tur.pdf` (71 páginas), projeto "Caminhos Singulares do Turismo e Artesanato da Costa Verde", Instituto Genesis PUC-Rio. Modelo de relatório de pesquisa de demanda (não lido além da introdução).
+
+### 7.7 Metodologia de inventariação (`Metodologia Inventariação`, `Inventariação 2011`, `Inventariação 2006`)
+
+Lidas só as listas; o conteúdo é o mesmo dos documentos 03 (2011) e 04 (2006), já resumidos.
+- `Metodologia Inventariação`: `0_APRESENTAÇÃO_CLASSIFICAÇÃO.doc` e um `.doc` editável por ficha (A1 Informações básicas do município, A2 Meios de acesso, A3 Comunicações, A4 Segurança, A5 Médico-hospitalar, A6 Educacional, A7 Outros serviços de apoio; B1 Hospedagem, B2 Gastronomia, B3 Agenciamento, B4 Transportes, B5 Eventos, B6 Lazer e entretenimento, B7 Outros serviços turísticos; C1 Atrativos naturais, C2 Atividades culturais, C3 Atividades econômicas, C4 Atrações técnicas, científicas e artísticas, C5 Eventos permanentes) e `Manual A/B/C.pdf`.
+- `Inventariação 2011`: um PDF por ficha ou grupo (ex.: C.2.10 Arquitetura civil, C.2.11 a 13 Arquitetura oficial, militar e religiosa, C.2.29 Personalidades, C.3 Atividades econômicas, C.4 Atrações técnicas e científicas, C.5 Eventos programados).
+- `Inventariação 2006`: subpastas `Formulários A`, `B`, `C`, `manual_a/b/c` e `#Inventário Manual_do_Pesquisador ABC.pdf`.
+- Utilidade: os `.doc` editáveis por ficha são a fonte mais fácil para montar o seeder de `mtur_atributos_catalogo` (texto copiável, ao contrário dos PDFs).
+
+### 7.8 Arquivos soltos
+
+- **`CanvasTurismo.pptx`** (setembro de 2022, Anery e Luiz, 3 slides): Canvas do produto "**Best Guide**: Informação Turística, Inventário Turístico, BI Turismo", antecessor do InvenTour. Proposta: informação turística atualizada num só lugar (web e app), notificações por proximidade e interesse, check-ins e vantagens; ao gestor, "ferramenta de alimentação dinâmica do Inventário Turístico", **salvaguarda do inventário** e campos extras para planejamento; dados de demanda (acessos, buscas, check-ins, avaliações, origem e perfil). Público em Pato Branco: turismo de negócios, eventos, polo regional de compras, educação e saúde, visitas técnicas. Turista não paga. Receitas: prefeitura (taxa de implantação e renovação, anuidade, **Boletins BI Tour**, customizações, elaboração de inventário, produção de mapas, fotos e vídeos) e empresas (destaques, banners, anúncios, pop-ups). Parceiros: turismólogos (elaboram inventários e vendem), COMTUR, ACEs, IGRs.
+- **`Catálogo de Soluções Tecnológicas para DTI` (MTur, março de 2023, 81 páginas)**: catálogo de cerca de 55 soluções e casos, cada ficha com tipo de solução, tipo de destino e **eixo DTI** a que se aplica (governança, sustentabilidade, segurança, inovação, acessibilidade, mobilidade, criatividade, promoção e marketing, tecnologia).
+  - Relevantes ao InvenTour: **Smart Tour** (2 fichas); **Mabrian Technologies** (inteligência turística com big data e IA, Espanha); **Ciclops DTI** (consultoria espanhola com "primeiro software de gestão do sistema DTI", certificou destino na UNE 178501): concorrente do módulo de diagnóstico DTI; **Destinos 4.0** (Expert: guia turístico + controle de visitação por capacidade de carga); **Inguia** (acessibilidade da informação turística); **eTrilhas** (app de trilhas); **TrekkBR** (guia virtual/rede social de atrativos); **Glocal** (audioguias); **Natíz/DFP Tecnologia** (São Miguel do Oeste, SC: conecta aventureiros a destinos e empreendimentos); **Janoo** (Lençóis, BA: ingressos, portaria e gestão de atrativos, "ordenamento turístico"); **Hospeda Eventos** (hospedagem para participantes de eventos); **TOURQUAL** (avaliação de qualidade); Fator BLE (beacons), TemWiFi e Wifi Wiz (conteúdo por Wi-Fi); casos públicos (Santur/SC com o programa Inovatur, Prefeitura de São Luís, Treviso, AMAVI com "Caminhos do Campo").
+  - Achado: **nenhuma ficha oferece inventário da oferta digital e contínuo** (a palavra "inventário" só aparece no Inovatur). O espaço do InvenTour está vazio no catálogo oficial; vale inscrever o InvenTour (e o EventCity) na próxima edição.
+- **`inventour.pptx`** (pasta `pitchdeck`, 17 slides): versão editável do Pitch Deck (documento 01, já resumido na seção 2). Começa por "Destinos Turísticos 'Não Tão' Inteligentes" e o "modelo prancheta". Não traz conteúdo novo.
+- **`39 - CARTILHA TURISMO 360.pdf`** ("Turismo em 360°: Planejando o turismo no Município", CNM, gestão 2015 a 2018, 64 páginas, lido o sumário): roteiro do **Plano Municipal de Turismo** em passos: 1) Inventário da Oferta (Grupos A, B, C); 2) Conhecer a demanda; 3) Concorrência e competitividade; 4) Potencialidades, diagnóstico e metodologia; 5) Planejar (prognóstico); 6) Estratégias (objetivos, metas, planos, programas, projetos); 7) Aprovação do plano; 8) Implantação e operacionalização. Serve de roteiro para um futuro módulo "Plano Municipal de Turismo" que nasce do inventário, da pesquisa de demanda e do diagnóstico DTI, e de texto de ajuda para o gestor.
+
+### 7.9 Planilha 06c: as 4 abas e a nota
+
+Aberta no Google Planilhas em modo de compatibilidade com .xlsx (sem conversão, sem cópia, nada editado). Leitura pelos dados exportados de cada aba.
+
+| Aba | Linhas | Total registrado |
+|---|---|---|
+| `27 09 2022` | 216 | **62,25** |
+| `28 11 2022` | 229 | **76,60** |
+| `05 12 2022` | 231 | **72,34** |
+| `12 12 2022` | 232 | **71,63** (a do nome do arquivo) |
+
+- O total é **texto digitado** ("total 71,63" na célula A232; "Total: 72,34"; "TOTAL: 76,60"; "TOTAL: 62,25"), **sem fórmula**. Nas abas de 28/11 e 27/09 há linhas "Nota" vazias ao redor do total. Não existem valores intermediários, pesos ou notas por dimensão em nenhuma aba. Ou seja: a planilha é o registro das respostas digitadas na ferramenta do Sebrae, e o número é o resultado que a ferramenta devolveu.
+- Mudanças entre versões (comparação linha a linha): 27/09 para 28/11, 37 linhas mudaram (+14,35 pontos); 28/11 para 05/12, 18 linhas (-4,26: sinalização com QR "menos de 20%", Fundo Municipal "conselho recém instituído, sem recursos", cooperação regional detalhada); 05/12 para 12/12, 8 linhas (-0,71: itens do website, população ocupada passou de "45%" para a faixa "+40% a 45%", empregos em alojamento e alimentação de 1.074/38.610 para 1.013/31.651, percentual de empresas de A&A).
+- Respostas da versão final (base para o caso de teste), na leitura das regras do 06b:
+  - Tecnologia: "Não" em software de gestão, app/PWA, CAT com Wi-Fi, geolocalização e VR/AR; website e redes com detalhamento; QR em menos de 20% dos atrativos. Poucos "sim": nível 1 ou 2.
+  - Governança: "Sim" em COMTUR (deliberativo, mensal), Fundo, órgão de turismo, projetos regionais, cooperação, IGR, núcleos empresariais, turismólogos e capacitação; "Não" em consórcio. 9 ou mais "sim": nível 4 ou 5.
+  - Experiência: "Sim" nos 6 primeiros indicadores e reputação online marcada: nível 5.
+  - Ambiental: lixo, coleta seletiva, água, esgoto e LED nas faixas mais altas; frota alternativa "até 20%"; lei ambiental, áreas naturais e cooperativa "Sim" (SA8 = 5). Média cerca de 4,4.
+  - Social: IDHM "+0,76 até 0,80"; ocupados "+40% a 45%"; empregos A&A "+2% até 4%".
+  - Econômica: PIB per capita "+R$ 40.000"; empresas de A&A "+5% até 10%"; ISS "até 2,5%"; orçamento do turismo "até 1%"; turismo no PIB "até 2%".
+  - Acessibilidade: transporte adaptado +80%; sinais sonoros +20% a 40%; calçadas, atrativos, A&B e passeios +80%; hospedagem +40% a 60%; website adaptado "Não", CAT com Libras "Não", sanitários "Sim". Média cerca de 4,1.
+- **Como 1 a 5 vira 71,63 (hipótese, não confirmada)**: se o resultado do 06b (`(Tec x 2 + Gov x 2 + Exp x 2 + SAmb x 2 + SSoc + SEco x 2 + Acess) / 12`, de 1 a 5) for apresentado como percentual de 5, então 71,63% equivale a resultado 3,58 e soma ponderada de cerca de 43 pontos de 60. Com níveis inteiros a soma seria inteira e daria 71,67, não 71,63; logo a ferramenta deve usar médias brutas (não arredondadas) em algumas dimensões ou outra normalização (por exemplo, (R - 1) / 4, que daria R = 3,87). Não há dado na planilha para decidir. **Ação**: pedir ao Anery o relatório de devolutiva da Ferramenta de Diagnósticos do Sebrae de 12/12/2022 (que traz índice geral e níveis por dimensão) ou o PDF de resultado; sem ele, o teste de regressão "reproduzir 71,63" do documento 00 não é viável.
+
+### 7.10 Achados que mudam o plano de desenvolvimento
+
+1. **Preço e contratação já têm referência real**: a proposta de Chapecó (R$ 4.500/mês, R$ 54 mil/ano, implantação de R$ 12 mil) e a tabela por porte "sem cortar funções" (R$ 2.500 a R$ 12.500/mês) valem como base do InvenTour; os níveis viram serviço (Boletim de Inteligência, gestão assistida), não corte de módulo. Isso contraria a ideia de liberar módulos por plano e pede **feature flags por serviço/opcional, não por tier**. Caminho de contratação: dispensa até cerca de R$ 62,7 mil/ano somando tudo do mesmo objeto (atenção a vender InvenTour e EventCity à mesma prefeitura no mesmo ano), CPSI, ata de registro de preços e consórcio.
+2. **A integração com o EventCity tem dois contratos concretos**: (a) leitos e UHs homologados do InvenTour substituindo a soma do Cadastur no alerta de hospedagem (os parâmetros de sazonalidade ficam no EventCity); (b) ficha rica de **Local de Evento (B5)** no InvenTour, com ambientes, layouts, capacidades por formato, acústica e infraestrutura, consumida pelo EventCity no lugar dos multiplicadores 0,4 e 0,25. A B5 e a B1 devem ser prioridade no V1.
+3. **Concorrência**: no catálogo oficial do MTur e no Centelha PR não há inventário digital contínuo; o concorrente mais próximo (Smart Tour) mede demanda com beacons e cobra por atrativo, e o Ciclops DTI disputa o módulo de diagnóstico. Posicionar o InvenTour como "oferta homologada + phygital sem hardware" e prever inscrição no catálogo DTI.
+4. **Pesquisa de demanda e de satisfação (ServQual) deveriam entrar no plano**, não só o inventário da oferta: aparecem no Canvas Best Guide, na lista de ideias, no formulário do EventCity, no requisito 91/92 do DTI e no exemplo de Ilhabela/Angra. Um módulo único de formulários de pesquisa (demanda e satisfação, via QR no estabelecimento) reaproveita o phygital e alimenta o BI.
+5. **O caso de teste 71,63 não é reproduzível com o que está no Drive**: a 06c não tem fórmula. O motor de diagnóstico deve implementar a regra do 06b com testes próprios e tratar 71,63 como meta a confirmar após obter a devolutiva do Sebrae; até lá, não bloquear o V1 por isso.

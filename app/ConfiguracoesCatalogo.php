@@ -79,7 +79,7 @@ final class ConfiguracoesCatalogo
                 'grupo'     => 'Acesso e segurança',
                 'icone'     => 'pessoas',
                 'nome'      => 'Usuários e papéis',
-                'descricao' => 'Quem trabalha no destino (gestor, técnico, pesquisador, leitor, prestador) e o que cada '
+                'descricao' => 'Quem trabalha no destino (gestor, consultor, coordenador, pesquisador, leitor, prestador) e o que cada '
                              . 'papel pode abrir. Convite por link, segundo fator e passkey.',
                 'total'     => fn () => $conta('SELECT COUNT(DISTINCT ue.usuario_id) FROM usuario_empresa ue
                                                 JOIN usuario_empresa_papel up ON up.usuario_id = ue.usuario_id AND up.empresa_id = ue.empresa_id

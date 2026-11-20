@@ -412,6 +412,10 @@ function ce_alvosDaTela(string $tela, array $d): array
             $add('destino', 'destino', $A['empresa'], [], $A['tok']);
             $add('destino', 'destino', $B['empresa']);
             break;
+        case 'ficha':
+            // Ficha do catálogo do MTur: global, igual para todos os destinos,
+            // só da visão da plataforma.
+            break;
         case 'prestador':
             // Ficha do Cadastur: base pública do Ministério do Turismo, igual
             // para todos os destinos (o id é do Cadastur, não de destino).

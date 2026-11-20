@@ -30,10 +30,16 @@ final class Usuarios
             return $pdo->query("SELECT * FROM papeis WHERE escopo = 'softsul' ORDER BY ordem")->fetchAll();
         }
         $lista = $pdo->query("SELECT * FROM papeis WHERE escopo = 'destino' ORDER BY ordem")->fetchAll();
-        if ($u['softsul'] || Auth::temPapel('gestor')) {
+        if ($u['softsul']) {
             return $lista;
         }
-        return array_values(array_filter($lista, fn ($p) => $p['chave'] !== 'gestor'));
+        // O consultor é dado pela Softsul, que licencia o projeto; o gestor e
+        // o consultor dão os demais, inclusive gestor (no projeto de
+        // consultoria o consultor monta a equipe da prefeitura).
+        if (Auth::temPapel('gestor') || Auth::temPapel('consultor')) {
+            return array_values(array_filter($lista, fn ($p) => $p['chave'] !== 'consultor'));
+        }
+        return array_values(array_filter($lista, fn ($p) => !in_array($p['chave'], ['gestor', 'consultor'], true)));
     }
 
     public static function papelAtribuivel(int $papelId): ?array
