@@ -56,7 +56,10 @@ final class Campo
         $pdo->prepare('INSERT INTO campo_aparelhos (usuario_id, empresa_id, codigo_hash, codigo_expira, versao_sessao, criado_em)
                        VALUES (?, ?, ?, NOW() + INTERVAL 15 MINUTE, ?, NOW())')
             ->execute([(int) $u['id'], Empresa::id(), hash('sha256', $codigo), (int) $u['versao_sessao']]);
-        Auditoria::registrar('criou', 'campo_aparelhos', (int) $pdo->lastInsertId(), 'gerou um código para conectar o app InvenTour Campo');
+        $id = (int) $pdo->lastInsertId();
+        // A tela acompanha este código (assets/coleta-app.js): quando o app usar, ele some.
+        $_SESSION['campo_codigo_id'] = $id;
+        Auditoria::registrar('criou', 'campo_aparelhos', $id, 'gerou um código para conectar o app InvenTour Campo');
         return $codigo;
     }
 

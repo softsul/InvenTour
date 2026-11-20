@@ -14,6 +14,7 @@ require_once __DIR__ . '/../app/layout.php';
 require_once __DIR__ . '/../app/Esteira.php';
 require_once __DIR__ . '/../app/Campo.php';
 require_once __DIR__ . '/../app/ColetaTela.php';
+require_once __DIR__ . '/../app/AparelhosTela.php';
 
 Auth::exigirLogin();
 $empresa = Empresa::exigir();
@@ -42,6 +43,12 @@ $aparelhos = Campo::aparelhosDoDestino($daEquipe);
 $versaoApp = is_file(__DIR__ . '/baixar/versao-inventour-campo.json') ? (json_decode((string) file_get_contents(__DIR__ . '/baixar/versao-inventour-campo.json'), true) ?: []) : [];
 $baixar = is_file(__DIR__ . '/baixar/inventour-campo.apk');
 $csrf = Auth::tokenCsrf();
+// O código só aparece na resposta que o gerou (no banco fica o hash); depois
+// disso a tela mostra o que aconteceu com ele.
+$estado = $codigo ? ['estado' => 'pendente', 'aparelho' => null] : (estadoDoCodigo() ?? ['estado' => 'novo', 'aparelho' => null]);
+if (!$codigo && $estado['estado'] === 'pendente') {
+    $estado['estado'] = 'novo';
+}
 
 paginaInicio('Coleta de campo', 'coleta');
 ?>
@@ -58,7 +65,7 @@ paginaInicio('Coleta de campo', 'coleta');
          desconectar voltam. */ ?>
 <nav class="abas-chamado abas-destino" role="tablist" aria-label="Coleta de campo">
   <button type="button" role="tab" data-aba="coleta" aria-selected="<?= $codigo ? 'false' : 'true' ?>"><?= icone('lista') ?>Coleta</button>
-  <button type="button" role="tab" data-aba="app" aria-selected="<?= $codigo ? 'true' : 'false' ?>"><?= icone('camera') ?>Aplicativo<span class="conta-aba"><?= count($aparelhos) ?></span></button>
+  <button type="button" role="tab" data-aba="app" aria-selected="<?= $codigo ? 'true' : 'false' ?>"><?= icone('camera') ?>Aplicativo<span class="conta-aba" id="app-conta"><?= count($aparelhos) ?></span></button>
 </nav>
 
 <div class="painel-aba" data-painel="app"<?= $codigo ? '' : ' hidden' ?>>
@@ -76,14 +83,7 @@ paginaInicio('Coleta de campo', 'coleta');
     <div class="cartao app-passo">
       <span class="app-passo-num">2</span>
       <h2>Gere o código</h2>
-      <?php if ($codigo): ?>
-        <b class="app-codigo dado"><?= e(substr($codigo, 0, 4) . ' ' . substr($codigo, 4)) ?></b>
-        <span class="nulo">Vale 15 minutos e uma vez só.</span>
-      <?php else: ?>
-        <p>O código liga o aparelho a você (<b><?= e((string) $u['nome']) ?></b>) em <?= e((string) $empresa['nome_fantasia']) ?>, sem senha no celular.</p>
-        <form method="post" action="/coleta#app"><input type="hidden" name="csrf" value="<?= e($csrf) ?>">
-          <button type="submit" name="acao" value="codigo" class="botao"><?= icone('chave') ?>Gerar código de conexão</button></form>
-      <?php endif; ?>
+      <div id="app-passo-codigo" class="app-passo-codigo"><?= passoCodigo($estado['estado'], $codigo, $estado['aparelho'], $csrf, $u, $empresa) ?></div>
     </div>
     <div class="cartao app-passo">
       <span class="app-passo-num">3</span>
@@ -92,34 +92,8 @@ paginaInicio('Coleta de campo', 'coleta');
     </div>
   </div>
 
-  <div class="cartao">
-    <div class="cab-cartao"><h2>Aparelhos conectados<?= $daEquipe ? ' da equipe' : '' ?> (<?= count($aparelhos) ?>)</h2></div>
-    <?php if (!$aparelhos): ?>
-      <div class="vazio"><?= icone('digital') ?><p><strong>Nenhum aparelho conectado.</strong></p><p>Siga os três passos acima no celular de quem vai a campo.</p></div>
-    <?php else: ?>
-    <div class="rolagem">
-      <table class="dados">
-        <thead><tr><?= $daEquipe ? '<th>Pessoa</th>' : '' ?><th>Aparelho</th><th>Conectado em</th><th>Último uso</th><th>Envios</th><th class="acao"></th></tr></thead>
-        <tbody>
-        <?php foreach ($aparelhos as $a): ?>
-          <tr>
-            <?php if ($daEquipe): ?><td class="elastica"><span class="cli"><?= avatarIniciais((string) $a['pessoa'], 'avatar') ?><span class="txt"><b><?= e((string) $a['pessoa']) ?></b><span><?= (int) $a['usuario_id'] === (int) $u['id'] ? 'você' : 'equipe' ?></span></span></span></td><?php endif; ?>
-            <td<?= $daEquipe ? '' : ' class="elastica"' ?>><?= e((string) ($a['nome'] ?: 'Aparelho')) ?></td>
-            <td class="dado"><?= e(dataBr((string) $a['conectado_em'], 'd/m/Y H:i')) ?></td>
-            <td class="dado"><?= $a['ultimo_uso_em'] ? e(dataBr((string) $a['ultimo_uso_em'], 'd/m/Y H:i')) : '<span class="nulo">-</span>' ?></td>
-            <td class="dado"><?= (int) $a['envios'] ?></td>
-            <td class="acao"><div class="acoes-linha">
-              <form method="post" action="/coleta#app"><input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="id" value="<?= (int) $a['id'] ?>">
-                <button type="submit" name="acao" value="desconectar" title="Desconectar" aria-label="Desconectar <?= e((string) ($a['nome'] ?: 'aparelho')) ?>"
-                  data-confirmar="Desconectar este aparelho? O que estiver só nele não sobe mais."><?= icone('sair') ?></button></form>
-            </div></td>
-          </tr>
-        <?php endforeach; ?>
-        </tbody>
-      </table>
-    </div>
-    <?php endif; ?>
-    <p class="ajuda">Celular perdido ou pessoa que saiu da equipe: desconecte aqui. Trocar a senha também desliga todos os aparelhos da pessoa.</p>
+  <div class="cartao" id="app-aparelhos" data-codigo="<?= $codigo ? 'pendente' : e($estado['estado']) ?>">
+<?= cartaoAparelhos($aparelhos, $daEquipe, (int) $u['id'], $csrf) ?>
   </div>
 </div>
 
@@ -128,5 +102,6 @@ paginaInicio('Coleta de campo', 'coleta');
 <?= telaColeta(false) ?>
 </div>
 </div>
+<script src="/assets/coleta-app.js?v=<?= (int) @filemtime(__DIR__ . '/assets/coleta-app.js') ?>" defer></script>
 <script src="/assets/coleta.js?v=<?= (int) @filemtime(__DIR__ . '/assets/coleta.js') ?>" defer></script>
 <?php paginaFim();

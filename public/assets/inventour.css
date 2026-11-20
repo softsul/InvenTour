@@ -1333,3 +1333,13 @@ dialog.coleta-dialogo > form{display:flex; flex-direction:column; flex:1; min-he
   background:var(--indigo-sup); color:var(--indigo-fte); font-weight:800; font-size:14px}
 .app-codigo{font-size:32px; letter-spacing:.14em; color:var(--indigo-fte); padding:8px 18px; border-radius:var(--r); background:var(--indigo-sup)}
 @media (max-width:900px){ .app-campo-grade{grid-template-columns:1fr} }
+/* Os três cartões alinhados pelo topo (o .cartao + .cartao do tema empurrava os dois últimos). */
+.app-campo-grade > .cartao, .app-campo-grade > .cartao + .cartao{margin:0}
+.app-passo-codigo{display:flex; flex-direction:column; align-items:flex-start; gap:10px; width:100%}
+.app-passo-codigo form{margin:0}
+.app-passo-codigo .aviso{margin:0}
+.app-esperando, .app-ao-vivo{display:inline-flex; align-items:center; gap:7px}
+.pulso{width:8px; height:8px; border-radius:50%; background:var(--verde); box-shadow:0 0 0 0 rgba(14,143,106,.5); animation:pulso-app 1.6s infinite}
+@keyframes pulso-app{70%{box-shadow:0 0 0 7px rgba(14,143,106,0)} 100%{box-shadow:0 0 0 0 rgba(14,143,106,0)}}
+table.dados tr.recem-chegado td{animation:chegou 3s ease-out}
+@keyframes chegou{0%{background:var(--verde-sup)} 100%{background:transparent}}
