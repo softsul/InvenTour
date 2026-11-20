@@ -1,0 +1,108 @@
+# App do iPhone do InvenTour Campo: compila numa máquina macOS do GitHub e
+# envia ao App Store Connect (TestFlight). Sem Mac na Softsul; molde do
+# Centurion e do EventCity (softsul/eventcity, .github/workflows/ios.yml).
+# Softsul Software
+#
+# Rodar: GitHub, Actions, "InvenTour Campo iPhone", Run workflow.
+#
+# Antes da primeira vez (o Luiz):
+# - criar o app no App Store Connect com o pacote br.com.softsul.inventour.campo
+#   (o App ID o mobile/assinatura-ios.py registra sozinho, se faltar);
+# - colar os segredos do repositório (Settings, Secrets and variables,
+#   Actions), os mesmos do EventCity; nunca no Git:
+#     ASC_KEY_ID     ID da chave da API do App Store Connect (função Admin)
+#     ASC_ISSUER_ID  ID do emissor (Usuários e acesso, Integrações)
+#     ASC_KEY_P8     conteúdo do arquivo AuthKey_XXXX.p8
+#     IOS_DIST_KEY   chave privada do certificado Apple Distribution da equipe
+#                    (a mesma do Centurion: /opt/centurion-ios/distribuicao.key)
+#
+# A tela embutida (mobile/campo/www) vai no Git, gerada pelo
+# scripts/gerar_www_campo.php: rode o script e faça commit antes de compilar.
+
+name: InvenTour Campo iPhone
+
+on:
+  workflow_dispatch:
+    inputs:
+      versao:
+        description: 'Versão que aparece na loja (ex.: 1.0)'
+        required: true
+        default: '1.0'
+
+jobs:
+  testflight:
+    runs-on: macos-15
+    timeout-minutes: 60
+    env:
+      PACOTE: br.com.softsul.inventour.campo
+      PERFIL: InvenTour Campo App Store
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Xcode mais novo da máquina
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_*.app | grep -v -i beta | sort -V | tail -1)
+          echo "Usando $XCODE"
+          sudo xcode-select -s "$XCODE/Contents/Developer"
+          xcodebuild -version
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Projeto (Capacitor e CocoaPods)
+        working-directory: mobile/campo
+        run: |
+          npm ci
+          npx cap sync ios
+
+      - name: Chave da API do App Store Connect
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/chave"
+          printf '%s' "$ASC_KEY_P8" > "$RUNNER_TEMP/chave/AuthKey.p8"
+
+      - name: Certificado e perfil de distribuição
+        env:
+          IOS_DIST_KEY: ${{ secrets.IOS_DIST_KEY }}
+        run: |
+          C="$RUNNER_TEMP/chave"
+          printf '%s\n' "$IOS_DIST_KEY" > "$C/distribuicao.key"
+          pip3 install --quiet --break-system-packages pyjwt cryptography || pip3 install --quiet pyjwt cryptography
+          python3 mobile/assinatura-ios.py "$C/AuthKey.p8" "${{ secrets.ASC_KEY_ID }}" "${{ secrets.ASC_ISSUER_ID }}" "$C/distribuicao.key" "$C" "$PACOTE" "$PERFIL"
+          SENHA=$(openssl rand -hex 16)
+          openssl x509 -inform DER -in "$C/distribuicao.cer" -out "$C/distribuicao.pem"
+          openssl pkcs12 -export -legacy -inkey "$C/distribuicao.key" -in "$C/distribuicao.pem" -out "$C/distribuicao.p12" -passout pass:$SENHA 2>/dev/null \
+            || openssl pkcs12 -export -inkey "$C/distribuicao.key" -in "$C/distribuicao.pem" -out "$C/distribuicao.p12" -passout pass:$SENHA
+          K="$RUNNER_TEMP/assinatura.keychain-db"
+          security create-keychain -p "$SENHA" "$K"
+          security set-keychain-settings -lut 3600 "$K"
+          security unlock-keychain -p "$SENHA" "$K"
+          security import "$C/distribuicao.p12" -k "$K" -P "$SENHA" -T /usr/bin/codesign -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$SENHA" "$K" >/dev/null
+          security list-keychains -d user -s "$K" $(security list-keychains -d user | tr -d '"')
+          security find-identity -v -p codesigning "$K"
+
+      - name: Compilar (archive)
+        working-directory: mobile/campo/ios/App
+        run: |
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            MARKETING_VERSION="${{ inputs.versao }}" CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
+            archive
+
+      - name: Enviar ao App Store Connect
+        working-directory: mobile/campo/ios/App
+        run: |
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -exportOptionsPlist ExportOptions.plist -exportPath "$RUNNER_TEMP/saida" \
+            -authenticationKeyPath "$RUNNER_TEMP/chave/AuthKey.p8" \
+            -authenticationKeyID "${{ secrets.ASC_KEY_ID }}" \
+            -authenticationKeyIssuerID "${{ secrets.ASC_ISSUER_ID }}"
+
+      - name: Apagar a chave
+        if: always()
+        run: |
+          rm -rf "$RUNNER_TEMP/chave"
+          security delete-keychain "$RUNNER_TEMP/assinatura.keychain-db" 2>/dev/null || true

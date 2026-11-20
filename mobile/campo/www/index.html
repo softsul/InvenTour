@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob: capacitor: https://localhost; font-src 'self'; connect-src 'self' https://app.inventour.com.br blob: capacitor: https://localhost; object-src 'none'; base-uri 'self'">
+<title>InvenTour Campo</title>
+<link rel="stylesheet" href="assets/tema.css">
+<link rel="stylesheet" href="assets/inventour.css">
+<link rel="stylesheet" href="assets/marca/marca.css">
+<link rel="stylesheet" href="assets/campo.css">
+</head>
+<body class="campo">
+<svg class="sprite" width="0" height="0" aria-hidden="true" focusable="false"><symbol id="i-casa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 3l9 8"/><path d="M5 10v11h14V10"/><path d="M10 21v-6h4v6"/></symbol><symbol id="i-calendario" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M7.5 14h2M11 14h2M14.5 14h2M7.5 17.5h2M11 17.5h2"/></symbol><symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></symbol><symbol id="i-alerta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></symbol><symbol id="i-jornal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="15" height="14" rx="2"/><path d="M18 9h3v8a2 2 0 0 1-2 2"/><path d="M7 9h7M7 12h7M7 15h4"/></symbol><symbol id="i-imagem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-8 8"/></symbol><symbol id="i-contatos" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></symbol><symbol id="i-mapa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2.5"/></symbol><symbol id="i-camera" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol><symbol id="i-qrcode" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v3M17 20h3M14 20h.01"/></symbol><symbol id="i-manual" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h6a3 3 0 0 1 2 1 3 3 0 0 1 2-1h6v14h-6a3 3 0 0 0-2 1 3 3 0 0 0-2-1H4z"/><path d="M12 5v14"/></symbol><symbol id="i-pessoas" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M2 20a7 7 0 0 1 14 0"/><path d="M16 5.5a3 3 0 0 1 0 5.5M18 20a6 6 0 0 0-2-4.5"/></symbol><symbol id="i-lista" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></symbol><symbol id="i-engrenagem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 8.9 19a1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 8.9a1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol><symbol id="i-predio" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v16"/><path d="M15 10h4a1 1 0 0 1 1 1v10"/><path d="M8 8h3M8 12h3M8 16h3M3 21h18"/></symbol><symbol id="i-etiqueta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12V4h8l9 9-8 8z"/><circle cx="7.5" cy="8.5" r="1.5"/></symbol><symbol id="i-relogio" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol><symbol id="i-rede" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5V12M12 12l-5.3 5M12 12l5.3 5"/></symbol><symbol id="i-financeiro" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18v12H3z"/><path d="M3 10h18"/><circle cx="7" cy="14" r="1"/></symbol><symbol id="i-cupom" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16v3a2 2 0 0 0 0 4v3H4v-3a2 2 0 0 0 0-4z"/><path d="M10 9v1M10 12v1M10 15v1"/></symbol><symbol id="i-megafone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4h3l7 4V6l-7 4z"/><path d="M17 9a4 4 0 0 1 0 6"/></symbol><symbol id="i-configuracoes" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 8.9 19a1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 8.9a1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol><symbol id="i-equipe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M2 20a7 7 0 0 1 14 0"/><path d="M16 5.5a3 3 0 0 1 0 5.5M18 20a6 6 0 0 0-2-4.5"/></symbol><symbol id="i-destino" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v16"/><path d="M15 10h4a1 1 0 0 1 1 1v10"/><path d="M8 8h3M8 12h3M8 16h3M3 21h18"/></symbol><symbol id="i-usuarios" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></symbol><symbol id="i-auditoria" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></symbol><symbol id="i-painel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></symbol><symbol id="i-busca" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol><symbol id="i-seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></symbol><symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></symbol><symbol id="i-sair" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></symbol><symbol id="i-cadeado" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol><symbol id="i-escudo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol><symbol id="i-digital" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 11v4M8.5 8.5A5 5 0 0117 12v2M7 12v1a5 5 0 001.4 3.5M12 7a5 5 0 00-5 5"/><path d="M5 5.5A9 9 0 0121 12v1M3 12a9 9 0 011.2-4.5M16 20a9 9 0 001-2.5"/></symbol><symbol id="i-certificado" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M7 9h10M7 12h6"/><circle cx="16" cy="17" r="2.5"/><path d="M14.8 19l-.8 3 2-1 2 1-.8-3"/></symbol><symbol id="i-chave" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3"/></symbol><symbol id="i-sino" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M10.5 21a2 2 0 0 0 3 0"/></symbol><symbol id="i-emails" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></symbol><symbol id="i-whatsapp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.7-5A8.5 8.5 0 1 1 8 19.3z"/></symbol><symbol id="i-enviar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></symbol><symbol id="i-fechar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></symbol><symbol id="i-lixeira" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 4h4M6 7l1 13h10l1-13"/><path d="M10 11v6M14 11v6"/></symbol><symbol id="i-lapis" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L20 8a2.8 2.8 0 0 0-4-4L4 16z"/><path d="m14 6 4 4"/></symbol><symbol id="i-mais" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></symbol><symbol id="i-baixar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 20h16"/></symbol><symbol id="i-olho" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-olho-fechado" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7c2 0 3.7.7 5.1 1.6M22 12s-3.5 7-10 7c-2 0-3.7-.7-5.1-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="M3 3l18 18"/></symbol><symbol id="i-copiar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 00-1-1H5a1 1 0 00-1 1v10a1 1 0 001 1h3"/></symbol><symbol id="i-trocar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13l-3-3M20 16H7l3 3"/></symbol><symbol id="i-arquivo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h8l4 4v16H6z"/><path d="M14 2v4h4"/><path d="M9 13h6M9 17h4"/></symbol><symbol id="i-contratos" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h8l4 4v16H6z"/><path d="M14 2v4h4"/><path d="M9 13h6M9 17h4"/></symbol><symbol id="i-sol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></symbol><symbol id="i-lua" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol><symbol id="i-gastronomia" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v6a3 3 0 0 0 6 0V3M7 3v18"/><path d="M19 21V3c-2.5 1-4 3.5-4 7v4h4"/></symbol><symbol id="i-cultura" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v7a8 8 0 0 1-16 0z"/><path d="M8 9h2M14 9h2"/><path d="M9 14.5a4 4 0 0 0 6 0"/></symbol><symbol id="i-religioso" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6M9.5 4.5h5"/><path d="M5 21v-8l7-5 7 5v8z"/><path d="M10 21v-4a2 2 0 0 1 4 0v4"/></symbol><symbol id="i-esporte" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4"/><path d="M12 13v5M8 21h8"/></symbol><symbol id="i-natureza" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20 9 8l4 6 2-3 7 9z"/><circle cx="17" cy="5" r="2"/></symbol><symbol id="i-rural" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V10l9-6 9 6v11z"/><path d="M8 21v-8h8v8M8 13l8 8M16 13l-8 8"/></symbol><symbol id="i-lazer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 18 0z"/><path d="M12 3v1M12 12v7a2 2 0 0 0 4 0"/></symbol><symbol id="i-academico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 9 10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/><path d="M22 9v6"/></symbol><symbol id="i-negocios" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="M3 13h18"/></symbol><symbol id="i-compras" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1 13H6z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/></symbol><symbol id="i-libras" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 14V7a1.5 1.5 0 0 1 3 0v4M10 11V5a1.5 1.5 0 0 1 3 0v6M13 11V6a1.5 1.5 0 0 1 3 0v5M16 11V9a1.5 1.5 0 0 1 3 0v5a7 7 0 0 1-7 7h-1a6 6 0 0 1-4.5-2l-2.9-3.4a1.5 1.5 0 0 1 2.3-1.9L7 15"/></symbol><symbol id="i-audiodescricao" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2.5 17 3-10 3 10M3.7 13.5h3.6"/><path d="M10.5 7v10h1a5 5 0 0 0 0-10z"/><path d="M18.5 9a5 5 0 0 1 0 6M21 7a8.5 8.5 0 0 1 0 10"/></symbol><symbol id="i-cadeirante" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="4" r="1.5"/><path d="M10 7v6h6l2 5h2M10 10h5"/><path d="M7 11.5a5 5 0 1 0 7.5 6"/></symbol><symbol id="i-banheiro" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h5v7H5z"/><path d="M4 10h16a7 7 0 0 1-7 7h-2a7 7 0 0 1-7-7"/><path d="M9 17l-1 4h8l-1-4"/></symbol><symbol id="i-carro" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17H3v-5h18v5h-2M9.5 17h5"/><path d="m5 12 2-5h10l2 5"/><circle cx="7.5" cy="17" r="2"/><circle cx="16.5" cy="17" r="2"/></symbol><symbol id="i-coberto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 14 10-7 10 7"/><path d="M5 12v9M19 12v9"/><path d="M7 2v2M12 1v2M17 2v2"/></symbol><symbol id="i-ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M3.3 7l17.4 10M3.3 17 20.7 7"/><path d="m9 3.5 3 2 3-2M9 20.5l3-2 3 2"/></symbol><symbol id="i-kids" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 1 6 6c0 4-3 7-6 7s-6-3-6-7a6 6 0 0 1 6-6z"/><path d="m11 18 1-2 1 2zM12 18c0 2-2 2-2 4"/></symbol><symbol id="i-pet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="11" r="2"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="6" r="2"/><circle cx="18.5" cy="11" r="2"/><path d="M12 12c-3 0-5.5 3.5-5.5 6a2.5 2.5 0 0 0 3 2.5c1-.2 1.7-.5 2.5-.5s1.5.3 2.5.5a2.5 2.5 0 0 0 3-2.5c0-2.5-2.5-6-5.5-6z"/></symbol><symbol id="i-coracao" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7.5-4.6-9-9.2A4.7 4.7 0 0 1 12 7.5a4.7 4.7 0 0 1 9 3.3C19.5 15.4 12 20 12 20z"/></symbol><symbol id="i-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l5.5 3.5-5.5 3.5z"/></symbol><symbol id="i-maiores-18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M7.5 9.5 9.5 8v8"/><circle cx="14.5" cy="10" r="2"/><circle cx="14.5" cy="14" r="2"/></symbol><symbol id="i-arrastar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></symbol><symbol id="i-alfabetica" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 6 3l3 7M4 7.7h4"/><path d="M3 14h6l-6 7h6"/><path d="M17 4v16M13.5 16.5 17 20l3.5-3.5"/></symbol><symbol id="i-filtro" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16l-6 7.5V19l-4-2v-4.5L4 5z"/></symbol></svg>
+<header class="campo-topo">
+  <span class="marca-svg marca-logo" aria-hidden="true"><img class="marca-emblema-img" src="/assets/marca/emblema.svg" alt="" width="446" height="446"><svg class="marca-nome-svg" viewBox="0 0 480 100" aria-hidden="true" focusable="false"><text x="0" y="80" textLength="480" lengthAdjust="spacingAndGlyphs" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="100"><tspan fill="currentColor">inven</tspan><tspan>tour</tspan></text></svg></span>
+  <div class="quem" id="campo-quem"></div>
+  <button type="button" class="menu-app" id="campo-menu" aria-label="Menu" hidden><svg aria-hidden="true" focusable="false"><use href="#i-menu"/></svg></button>
+</header>
+
+<main class="campo-corpo">
+  <section id="campo-conectar" hidden>
+    <form class="campo-conectar" id="campo-form" novalidate>
+      <span class="marca-svg marca-logo" aria-hidden="true"><img class="marca-emblema-img" src="/assets/marca/emblema.svg?v=1795199410" alt="" width="446" height="446"><svg class="marca-nome-svg" viewBox="0 0 480 100" aria-hidden="true" focusable="false"><text x="0" y="80" textLength="480" lengthAdjust="spacingAndGlyphs" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="100"><tspan fill="currentColor">inven</tspan><tspan>tour</tspan></text></svg></span>
+      <h1>Conectar este aparelho</h1>
+      <ol>
+        <li>No computador, entre no painel do InvenTour.</li>
+        <li>Abra Coleta de campo e toque em Gerar código de conexão.</li>
+        <li>Digite aqui o código de 8 letras.</li>
+      </ol>
+      <div class="entrada"><input type="text" id="campo-codigo" maxlength="9" placeholder="ABCD 2345" autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Código de conexão"></div>
+      <p class="aviso ruim" id="campo-erro" hidden></p>
+      <button type="submit" class="botao" id="campo-entrar">Conectar</button>
+      <p class="rodape">Precisa de internet só para conectar. Depois, a coleta funciona sem sinal e sobe no botão Sincronizar.<br>Produto Softsul Software e Zapping Consultoria.</p>
+    </form>
+  </section>
+
+  <section id="campo-coleta" hidden>
+    <div class="coleta" id="coleta">
+<div class="coleta-estado" aria-live="polite">
+  <span class="sinal" id="col-sinal"><i></i><span>Verificando</span></span>
+  <span class="fila-local" id="col-fila">Nada esperando envio</span>
+  <span class="quando" id="col-quando"></span>
+  <span class="coleta-botoes">
+    <button type="button" class="botao" id="col-sincronizar"><svg aria-hidden="true" focusable="false"><use href="#i-trocar"/></svg><span>Sincronizar</span></button>
+  </span>
+</div>
+<div class="sinc-progresso" id="col-progresso" hidden><div class="barra"><i></i></div><span></span></div>
+<p class="aviso atencao" id="col-sessao" hidden><svg aria-hidden="true" focusable="false"><use href="#i-alerta"/></svg><span id="col-sessao-texto"></span></p>
+<p class="aviso ruim" id="col-erros" hidden></p>
+<p class="aviso bom" id="col-resultado" hidden></p>
+
+<div class="filtros coleta-filtros">
+  <div class="entrada"><svg aria-hidden="true" focusable="false"><use href="#i-busca"/></svg><input type="search" id="col-busca" placeholder="Nome, rua ou bairro" aria-label="Buscar na coleta" autocomplete="off"></div>
+  <div class="entrada"><svg aria-hidden="true" focusable="false"><use href="#i-manual"/></svg><select id="col-ficha-filtro" aria-label="Ficha"><option value="">Todas as fichas</option></select></div>
+  <label class="check"><input type="checkbox" id="col-so-devolvidos"><i></i>Só os devolvidos</label>
+  <label class="check"><input type="checkbox" id="col-so-fila"><i></i>Só o que está no aparelho</label>
+</div>
+
+<p class="coleta-conta nulo" id="col-conta"></p>
+<ul class="coleta-lista" id="col-lista"></ul>
+<div class="vazio" id="col-vazio" hidden><svg aria-hidden="true" focusable="false"><use href="#i-camera"/></svg><p><strong id="col-vazio-titulo">Carregando.</strong></p><p id="col-vazio-texto"></p></div>
+<button type="button" class="botao claro" id="col-mais" hidden>Mostrar mais</button>
+
+<dialog class="coleta-dialogo pequeno" id="col-escolha" aria-labelledby="col-escolha-titulo">
+  <div class="cab-dialogo"><h2 id="col-escolha-titulo">Qual ficha?</h2>
+    <button type="button" class="fechar" data-fechar aria-label="Fechar"><svg aria-hidden="true" focusable="false"><use href="#i-fechar"/></svg></button></div>
+  <div class="corpo-dialogo">
+    <div class="entrada"><svg aria-hidden="true" focusable="false"><use href="#i-busca"/></svg><input type="search" id="col-fichas-busca" placeholder="Hotel, cachoeira, praça..." aria-label="Buscar a ficha" autocomplete="off"></div>
+    <ul class="lista-simples coleta-fichas" id="col-fichas"></ul>
+  </div>
+</dialog>
+
+<dialog class="coleta-dialogo" id="col-dialogo" aria-labelledby="col-titulo">
+  <form method="dialog" id="col-form" novalidate>
+    <div class="cab-dialogo">
+      <div><h2 id="col-titulo">Item</h2><p class="nulo" id="col-subtitulo"></p></div>
+      <button type="button" class="fechar" data-fechar aria-label="Fechar"><svg aria-hidden="true" focusable="false"><use href="#i-fechar"/></svg></button>
+    </div>
+    <nav class="abas-chamado abas-coleta" role="tablist" aria-label="Partes da ficha">
+      <button type="button" role="tab" data-aba-coleta="ident" aria-selected="true"><svg aria-hidden="true" focusable="false"><use href="#i-etiqueta"/></svg>Identificação</button>
+      <button type="button" role="tab" data-aba-coleta="local" aria-selected="false"><svg aria-hidden="true" focusable="false"><use href="#i-mapa"/></svg>Localização<span class="conta-aba" id="aba-gps-sinal" hidden>GPS</span></button>
+      <button type="button" role="tab" data-aba-coleta="contato" aria-selected="false"><svg aria-hidden="true" focusable="false"><use href="#i-whatsapp"/></svg>Contato</button>
+      <button type="button" role="tab" data-aba-coleta="fotos" aria-selected="false"><svg aria-hidden="true" focusable="false"><use href="#i-camera"/></svg>Fotos<span class="conta-aba" id="aba-fotos-conta">0</span></button>
+      <button type="button" role="tab" data-aba-coleta="conferencia" aria-selected="false"><svg aria-hidden="true" focusable="false"><use href="#i-certificado"/></svg>Conferência<span class="conta-aba alerta-aba" id="aba-falta" hidden></span></button>
+    </nav>
+    <div class="corpo-dialogo">
+      <p class="aviso atencao" id="col-devolucao" hidden><svg aria-hidden="true" focusable="false"><use href="#i-alerta"/></svg><span></span></p>
+
+      <section class="painel-coleta" data-painel-coleta="ident">
+        <div class="grade">
+          <div class="campo c-12"><label for="c-nome">Nome</label><div class="entrada"><input type="text" id="c-nome" name="nome" maxlength="180" required autocomplete="off"></div>
+            <span class="ajuda">Nome fantasia ou denominação oficial, como está na fachada ou na placa.</span></div>
+          <div class="campo c-6" id="c-tipo-campo"><label for="c-tipo">Tipo</label><div class="entrada"><select id="c-tipo" name="tipo_id"><option value="">Escolha</option></select></div></div>
+          <div class="campo c-6"><label for="c-zona">Zona</label><div class="entrada"><select id="c-zona" name="zona"><option value="">Não informada</option>
+            <option value="urbana">Urbana</option><option value="rural">Rural</option></select></div></div>
+        </div>
+      </section>
+
+      <section class="painel-coleta" data-painel-coleta="local" hidden>
+        <div class="coleta-gps">
+          <div class="gps-texto"><b>Coordenada</b><span id="c-gps-texto">Sem coordenada</span><small id="c-gps-quando"></small></div>
+          <button type="button" class="botao" id="c-gps"><svg aria-hidden="true" focusable="false"><use href="#i-mapa"/></svg>Usar o GPS daqui</button>
+          <input type="hidden" name="latitude" id="c-lat"><input type="hidden" name="longitude" id="c-lng">
+        </div>
+        <div class="grade">
+          <div class="campo c-8"><label for="c-logradouro">Rua, rodovia ou linha</label><div class="entrada"><input type="text" id="c-logradouro" name="logradouro" maxlength="200" autocomplete="off"></div></div>
+          <div class="campo c-4"><label for="c-numero">Número</label><div class="entrada"><input type="text" id="c-numero" name="numero" maxlength="20" inputmode="numeric" autocomplete="off"></div></div>
+          <div class="campo c-6"><label for="c-bairro">Bairro ou distrito</label><div class="entrada"><input type="text" id="c-bairro" name="bairro" maxlength="120" autocomplete="off"></div></div>
+          <div class="campo c-6"><label for="c-plus">Plus code</label><div class="entrada"><input type="text" id="c-plus" name="plus_code" maxlength="16" placeholder="Q8FF+VM" autocapitalize="characters" autocomplete="off"></div></div>
+          <div class="campo c-12"><label for="c-referencia">Ponto de referência</label><div class="entrada"><input type="text" id="c-referencia" name="referencia" maxlength="255" placeholder="Em frente à praça, depois da ponte..." autocomplete="off"></div></div>
+        </div>
+      </section>
+
+      <section class="painel-coleta" data-painel-coleta="contato" hidden>
+        <div class="grade">
+          <div class="campo c-6"><label for="c-telefone">Telefone</label><div class="entrada"><input type="tel" id="c-telefone" name="telefone" inputmode="tel" placeholder="(46) 3220-0000" data-telefone autocomplete="off"></div></div>
+          <div class="campo c-6"><label for="c-whatsapp">WhatsApp</label><div class="entrada"><input type="tel" id="c-whatsapp" name="whatsapp" inputmode="tel" placeholder="(46) 99999-0000" data-telefone autocomplete="off"></div></div>
+          <div class="campo c-6"><label for="c-instagram">Instagram</label><div class="entrada"><input type="text" id="c-instagram" name="instagram" maxlength="100" placeholder="@perfil" autocapitalize="none" autocomplete="off"></div></div>
+          <div class="campo c-6"><label for="c-site">Site</label><div class="entrada"><input type="url" id="c-site" name="site" maxlength="255" placeholder="https://" autocapitalize="none" autocomplete="off"></div></div>
+        </div>
+        <p class="ajuda">Contato que o turista vê. O dado pessoal de quem atendeu não vai aqui.</p>
+      </section>
+
+      <section class="painel-coleta" data-painel-coleta="fotos" hidden>
+                  <div class="coleta-camera">
+            <button type="button" class="botao" id="c-tirar-foto"><svg aria-hidden="true" focusable="false"><use href="#i-camera"/></svg>Tirar foto</button>
+            <button type="button" class="botao claro" id="c-galeria"><svg aria-hidden="true" focusable="false"><use href="#i-imagem"/></svg>Escolher da galeria</button>
+          </div>
+          <p class="ajuda">Cada foto guarda o GPS do aparelho na hora em que foi tirada. Fachada, entrada, interior e o que o turista vê.</p>
+                <ul class="coleta-miniaturas" id="c-miniaturas"></ul>
+        <p class="nulo" id="c-fotos-servidor"></p>
+      </section>
+
+      <section class="painel-coleta" data-painel-coleta="conferencia" hidden>
+        <div class="grade">
+          <div class="campo c-12"><label for="c-conservacao">Estado de conservação</label><div class="entrada"><select id="c-conservacao" name="conservacao"><option value="">Não avaliado</option>
+            <option value="muito_bom">Muito bom</option><option value="bom">Bom</option><option value="ruim">Ruim</option><option value="nao_aplicavel">Não se aplica</option></select></div></div>
+          <div class="campo c-12"><label for="c-nota">Observação de campo</label><div class="entrada"><textarea id="c-nota" name="nota" rows="4" maxlength="2000" placeholder="O que viu, com quem falou, o que conferir depois"></textarea></div></div>
+        </div>
+        <div class="coleta-pendencias" id="c-pendencias"></div>
+        <label class="check coleta-enviar"><input type="checkbox" id="c-enviar" name="enviar"><i></i>Enviar para a conferência na próxima sincronização</label>
+      </section>
+    </div>
+    <div class="pe-dialogo">
+      <button type="button" class="botao claro" id="c-anterior" hidden><svg class="seta-voltar" aria-hidden="true" focusable="false"><use href="#i-seta"/></svg>Anterior</button>
+      <button type="button" class="botao claro" id="c-proxima">Próxima<svg aria-hidden="true" focusable="false"><use href="#i-seta"/></svg></button>
+      <span class="espaco"></span>
+      <button type="button" class="botao claro" data-fechar>Cancelar</button>
+      <button type="submit" class="botao" id="c-gravar"><svg aria-hidden="true" focusable="false"><use href="#i-check"/></svg>Gravar no aparelho</button>
+    </div>
+  </form>
+</dialog>
+
+    </div>
+  </section>
+</main>
+
+<button type="button" class="botao flutuante" id="col-novo" hidden><svg aria-hidden="true" focusable="false"><use href="#i-mais"/></svg>Novo item</button>
+
+<dialog class="coleta-dialogo pequeno" id="campo-sobre" aria-labelledby="campo-sobre-titulo">
+  <div class="cab-dialogo"><h2 id="campo-sobre-titulo">InvenTour Campo</h2>
+    <button type="button" class="fechar" data-fechar aria-label="Fechar"><svg aria-hidden="true" focusable="false"><use href="#i-fechar"/></svg></button></div>
+  <div class="corpo-dialogo">
+    <p>Conectado como <b id="campo-sobre-quem"></b>.</p>
+    <p class="nulo">As gravações ficam neste aparelho até você tocar em Sincronizar. Para trocar de pessoa ou de destino, desconecte e conecte com um código novo.</p>
+    <div class="acoes-app">
+      <button type="button" class="botao claro" data-fechar>Fechar</button>
+      <button type="button" class="botao perigo" id="campo-desconectar"><svg aria-hidden="true" focusable="false"><use href="#i-sair"/></svg>Desconectar este aparelho</button>
+    </div>
+    <p class="nulo">Produto Softsul Software e Zapping Consultoria.</p>
+  </div>
+</dialog>
+
+<script src="assets/campo.js"></script>
+</body>
+</html>

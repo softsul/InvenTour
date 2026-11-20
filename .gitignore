@@ -20,3 +20,7 @@
 
 # Material do Drive (zip e arquivos extraídos): grande e com documentos de terceiros.
 /docs/material-original/
+
+# Downloads do app (APK e AAB gerados pelo mobile/campo/publicar-apk.sh).
+/public/baixar/
+__pycache__/

@@ -48,8 +48,10 @@ if ($empresa) {
         $metricas[] = ['Fila de conferência', Esteira::naFila($eid), plural((int) $q->fetchColumn(), 'homologado', 'homologados') . ' nos últimos 30 dias', '/homologacao'];
     }
     if (Auth::pode('coleta.ver')) {
-        $metricas[] = ['Para coletar', Esteira::paraColetar($eid), plural(Esteira::devolvidos($eid), 'devolvido', 'devolvidos') . ' pela conferência'
-            . (Esteira::escopo() !== null ? ' · no seu escopo' : ''), '/coleta'];
+        $q = $pdo->prepare('SELECT COUNT(*) FROM campo_aparelhos WHERE empresa_id = ? AND token_hash IS NOT NULL AND revogado_em IS NULL');
+        $q->execute([$eid]);
+        $metricas[] = ['Para coletar', Esteira::paraColetar($eid), plural(Esteira::devolvidos($eid), 'devolvido', 'devolvidos') . ' pela conferência · '
+            . plural((int) $q->fetchColumn(), 'aparelho com o app', 'aparelhos com o app') . (Esteira::escopo() !== null ? ' · no seu escopo' : ''), '/coleta'];
     }
     $metricas[] = ['Equipe', Painel::equipe($eid), 'pessoas com acesso ao destino', Auth::pode('usuarios.ver') ? '/configuracoes/usuarios' : null];
 } elseif ($u['softsul']) {

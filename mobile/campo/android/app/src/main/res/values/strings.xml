@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">InvenTour Campo</string>
+    <string name="title_activity_main">InvenTour Campo</string>
+    <string name="package_name">br.com.softsul.inventour.campo</string>
+    <string name="custom_url_scheme">br.com.softsul.inventour.campo</string>
+</resources>

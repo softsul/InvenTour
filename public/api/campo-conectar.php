@@ -26,5 +26,5 @@ if (!$r) {
     echo json_encode(['ok' => false, 'motivo' => 'codigo'], JSON_UNESCAPED_UNICODE);
     exit;
 }
-[$token, $nome, $destino] = $r;
-echo json_encode(['ok' => true, 'token' => $token, 'usuario' => $nome, 'destino' => $destino], JSON_UNESCAPED_UNICODE);
+[$token, $nome, $destino, $chave] = $r;
+echo json_encode(['ok' => true, 'token' => $token, 'usuario' => $nome, 'destino' => $destino, 'chave' => $chave], JSON_UNESCAPED_UNICODE);

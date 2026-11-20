@@ -61,7 +61,7 @@ final class Campo
     }
 
     /**
-     * Troca o código pelo token do aparelho. Devolve [token, usuário, destino]
+     * Troca o código pelo token do aparelho. Devolve [token, usuário, destino, chave do banco local]
      * ou null (código errado, vencido ou já usado).
      */
     public static function conectar(string $codigo, string $nomeAparelho): ?array
@@ -83,7 +83,7 @@ final class Campo
         $pdo->prepare('UPDATE campo_aparelhos SET token_hash = ?, codigo_hash = NULL, codigo_expira = NULL, nome = ?, conectado_em = NOW(), ultimo_uso_em = NOW()
                        WHERE id = ?')
             ->execute([hash('sha256', $token), mb_substr(trim($nomeAparelho), 0, 80) ?: null, (int) $a['id']]);
-        return [$token, (string) $a['nome'], (string) $a['nome_fantasia']];
+        return [$token, (string) $a['nome'], (string) $a['nome_fantasia'], (int) $a['empresa_id'] . '-' . (int) $a['usuario_id']];
     }
 
     /** Aparelhos conectados da pessoa no destino atual. */

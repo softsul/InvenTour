@@ -317,8 +317,11 @@
       });
     }).then(function () {
       if (!falhou) {
-        mostrarResultado(enviadas || fotosEnviadas
-          ? 'Sincronizado: ' + (enviadas === 1 ? '1 gravação' : enviadas + ' gravações') + (fotosEnviadas ? ' e ' + (fotosEnviadas === 1 ? '1 foto' : fotosEnviadas + ' fotos') : '') + ' enviadas, lista atualizada.'
+        var partes = [];
+        if (enviadas) { partes.push(enviadas === 1 ? '1 gravação' : enviadas + ' gravações'); }
+        if (fotosEnviadas) { partes.push(fotosEnviadas === 1 ? '1 foto' : fotosEnviadas + ' fotos'); }
+        mostrarResultado(partes.length
+          ? 'Sincronizado: ' + partes.join(' e ') + (enviadas + fotosEnviadas > 1 ? ' enviadas' : (enviadas ? ' enviada' : ' enviada')) + ', lista atualizada.'
           : 'Sincronizado: nada a enviar, lista atualizada.', 'bom');
       } else if (navigator.onLine) {
         mostrarResultado('A conexão caiu no meio do envio. O que não subiu continua no aparelho; sincronize de novo.', 'atencao');
