@@ -683,10 +683,10 @@ paginaFicha($titulo, 'inventario');
               </select><?= $ausencia($aid, $aus) ?></div>
               <?= $outroTexto($aid, $at, $outro) ?>
             <?php break; case 'multipla': ?>
-              <div data-maximo="<?= $podeEditar ? (int) ($cfg['maximo'] ?? 0) : 0 ?>"><?= $caixas('at[' . $aid . ']', $at['opcoes'], json_decode((string) $txt, true) ?: []) ?></div>
+              <div data-maximo="<?= $podeEditar ? (int) ($cfg['maximo'] ?? 0) : 0 ?>"<?= count($at['opcoes']) > 30 ? ' data-etiquetas="' . (preg_match('/pa[ií]s/iu', (string) $at['rotulo']) ? 'Adicionar país' : 'Adicionar') . '"' : '' ?>><?= $caixas('at[' . $aid . ']', $at['opcoes'], json_decode((string) $txt, true) ?: []) ?></div>
               <?= $outroTexto($aid, $at, $outro) ?>
               <div class="entrada estreita"><?= $ausencia($aid, $aus) ?></div>
-              <?php if (!empty($cfg['maximo'])): ?><span class="ajuda">Marque até <?= (int) $cfg['maximo'] ?>.</span><?php endif; ?>
+              <?php if (!empty($cfg['maximo']) && count($at['opcoes']) <= 30): ?><span class="ajuda">Marque até <?= (int) $cfg['maximo'] ?>.</span><?php endif; ?>
             <?php break; case 'tabela':
               $colunas = FichaFormulario::colunas($at);
               $linhas = json_decode((string) $txt, true) ?: [];

@@ -6646,3 +6646,120 @@ window.inventourMarcarNoFiltro = function (form, campo, ids, nome) {
     window.inventourSituarCampos();
   }
 })();
+
+/*
+ * Lista longa de marcar (os países, por exemplo) em etiquetas: as escolhidas
+ * aparecem como etiquetas com o x para tirar, e "Adicionar" abre uma folha
+ * com busca. As caixas continuam no formulário (escondidas): são elas que
+ * guardam o valor. Respeita o "até N" (data-maximo). Painel e app.
+ * Softsul Software. O mesmo código está no inventour.js e no coleta.js.
+ */
+(function () {
+  'use strict';
+  if (window.inventourEtiquetas) { return; }
+  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function semAcento(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+  function icone(n) { return '<svg aria-hidden="true" focusable="false"><use href="#i-' + n + '"></use></svg>'; }
+  var folha = null, caixaAtual = null;
+
+  function caixas(box) { return Array.prototype.slice.call(box.querySelectorAll('input[type=checkbox]')); }
+  function maximo(box) { return parseInt(box.getAttribute('data-maximo'), 10) || 0; }
+  function travado(box) { return box.getAttribute('data-trava') === '1'; }
+
+  function desenhar(box) {
+    var lista = box.querySelector('.etiquetas-lista');
+    var marcadas = caixas(box).filter(function (c) { return c.checked; });
+    var max = maximo(box);
+    var cheio = max && marcadas.length >= max;
+    var rotulo = box.getAttribute('data-etiquetas') || 'Adicionar';
+    lista.innerHTML = marcadas.map(function (c) {
+      return '<span class="etiqueta">' + esc(c.value) + (travado(box) ? '' : '<button type="button" data-tirar-etiqueta="' + esc(c.value) + '" aria-label="Tirar ' + esc(c.value) + '">' + icone('fechar') + '</button>') + '</span>';
+    }).join('')
+      + (travado(box) || cheio ? '' : '<button type="button" class="etiqueta-mais" data-pegar-etiqueta>' + icone('mais') + esc(rotulo) + '</button>')
+      + (max ? '<span class="etiquetas-conta">' + marcadas.length + ' de ' + max + '</span>' : '');
+  }
+  function montar(box) {
+    if (!box.querySelector('.etiquetas-lista')) {
+      var l = document.createElement('div');
+      l.className = 'etiquetas-lista';
+      box.insertBefore(l, box.firstChild);
+      // Painel sem permissão de editar: as caixas já vêm desligadas.
+      var cs = caixas(box);
+      box.setAttribute('data-trava', cs.length && cs.every(function (c) { return c.disabled; }) ? '1' : '0');
+    }
+    desenhar(box);
+  }
+
+  function criarFolha() {
+    folha = document.createElement('dialog');
+    folha.className = 'coleta-dialogo folha-opcoes folha-etiquetas';
+    folha.setAttribute('aria-labelledby', 'etq-titulo');
+    folha.innerHTML = '<div class="cab-dialogo"><div><h2 id="etq-titulo"></h2><p class="nulo" id="etq-conta"></p></div>'
+      + '<button type="button" class="fechar" data-fechar-etq aria-label="Fechar">' + icone('fechar') + '</button></div>'
+      + '<div class="folha-busca"><div class="entrada">' + icone('busca') + '<input type="search" placeholder="Buscar pelo nome" aria-label="Buscar" autocomplete="off"></div></div>'
+      + '<ul class="folha-lista" role="listbox" aria-multiselectable="true"></ul>'
+      + '<div class="pe-dialogo"><span class="espaco"></span><button type="button" class="botao" data-fechar-etq>' + icone('check') + 'Pronto</button></div>';
+    document.body.appendChild(folha);
+    folha.querySelector('input').addEventListener('input', listar);
+    folha.addEventListener('click', function (ev) {
+      if (ev.target === folha || (ev.target.closest && ev.target.closest('[data-fechar-etq]'))) { folha.close(); return; }
+      var b = ev.target.closest && ev.target.closest('[data-valor-etq]');
+      if (!b || !caixaAtual) { return; }
+      var c = caixas(caixaAtual).filter(function (x) { return x.value === b.getAttribute('data-valor-etq'); })[0];
+      if (!c) { return; }
+      var max = maximo(caixaAtual);
+      if (!c.checked && max && caixas(caixaAtual).filter(function (x) { return x.checked; }).length >= max) { return; }
+      c.checked = !c.checked;
+      c.dispatchEvent(new Event('change', { bubbles: true }));
+      desenhar(caixaAtual);
+      listar();
+    });
+  }
+  function listar() {
+    var termo = semAcento(folha.querySelector('input').value);
+    var cs = caixas(caixaAtual);
+    var max = maximo(caixaAtual);
+    var n = cs.filter(function (c) { return c.checked; }).length;
+    folha.querySelector('#etq-conta').textContent = max ? n + ' de ' + max + ' escolhidos' + (n >= max ? '. Tire um para trocar.' : '') : n + ' escolhidos';
+    var html = cs.filter(function (c) { return !termo || semAcento(c.value).indexOf(termo) !== -1; }).map(function (c) {
+      var bloqueado = !c.checked && max && n >= max;
+      return '<li role="option" aria-selected="' + c.checked + '"><button type="button" class="folha-opcao' + (c.checked ? ' marcada' : '') + (bloqueado ? ' bloqueada' : '')
+        + '" data-valor-etq="' + esc(c.value) + '"' + (bloqueado ? ' disabled' : '') + '><span>' + esc(c.value) + '</span>' + (c.checked ? icone('check') : '') + '</button></li>';
+    }).join('');
+    folha.querySelector('.folha-lista').innerHTML = html || '<li class="folha-nada">Nada encontrado.</li>';
+  }
+  function abrir(box) {
+    if (!folha) { criarFolha(); }
+    caixaAtual = box;
+    var campo = box.closest('.campo');
+    var l = campo && campo.querySelector('label, h3');
+    folha.querySelector('#etq-titulo').textContent = l ? l.textContent.replace(/(Respondido|Pendente|N[AIE] · .*)$/, '').trim() : 'Escolha';
+    folha.querySelector('input').value = '';
+    listar();
+    folha.showModal();
+  }
+
+  document.addEventListener('click', function (ev) {
+    if (!ev.target.closest) { return; }
+    var mais = ev.target.closest('[data-pegar-etiqueta]');
+    if (mais) { abrir(mais.closest('[data-etiquetas]')); return; }
+    var tirar = ev.target.closest('[data-tirar-etiqueta]');
+    if (tirar) {
+      var box = tirar.closest('[data-etiquetas]');
+      var c = caixas(box).filter(function (x) { return x.value === tirar.getAttribute('data-tirar-etiqueta'); })[0];
+      if (c) { c.checked = false; c.dispatchEvent(new Event('change', { bubbles: true })); desenhar(box); }
+    }
+  });
+  document.addEventListener('change', function (ev) {
+    var box = ev.target.closest && ev.target.closest('[data-etiquetas]');
+    if (box && box.querySelector('.etiquetas-lista')) { desenhar(box); }
+  });
+  window.inventourEtiquetas = function (raiz) {
+    (raiz || document).querySelectorAll('[data-etiquetas]').forEach(montar);
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { window.inventourEtiquetas(); });
+  } else {
+    window.inventourEtiquetas();
+  }
+})();

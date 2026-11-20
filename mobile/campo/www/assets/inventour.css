@@ -1568,7 +1568,7 @@ select.ausencia.ausente{color:var(--ambar); font-weight:700}
 .seletor{flex:1; min-width:0; display:flex; align-items:center; justify-content:space-between; gap:8px; border:0; background:transparent;
   padding:12px 0; font:inherit; font-size:14.5px; color:var(--tinta); text-align:left; cursor:pointer}
 .seletor span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-.seletor.vazio span{color:var(--fraca)}
+.seletor.sem-escolha span{color:var(--fraca)}
 .seletor svg{flex:none; width:14px; height:14px; color:var(--fraca); transform:rotate(90deg)}
 .seletor:disabled{cursor:default}
 .seletor:disabled svg{display:none}
@@ -1596,3 +1596,37 @@ dialog.folha-opcoes{width:min(560px, calc(100vw - 32px)); height:auto; max-heigh
   dialog.coleta-dialogo.folha-opcoes{width:100vw; height:auto; max-height:78dvh; inset:auto 0 0 0; margin:auto 0 0 0;
     border-radius:var(--r-g) var(--r-g) 0 0}
 }
+
+/* Etiquetas: lista longa (países) com as escolhidas em etiquetas; as caixas
+   ficam escondidas, guardando o valor. */
+[data-etiquetas] > .caixas{display:none}
+.etiquetas-lista{display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:4px 0 8px}
+.etiqueta{display:inline-flex; align-items:center; gap:6px; padding:7px 6px 7px 13px; border-radius:999px; background:var(--indigo-sup);
+  border:1px solid var(--indigo); color:var(--indigo-fte); font-size:13.5px; font-weight:600; line-height:1.2}
+.etiqueta button{display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; padding:0; border:0; border-radius:50%;
+  background:transparent; color:var(--indigo-fte); cursor:pointer}
+.etiqueta button:hover{background:rgba(59,68,230,.12)}
+.etiqueta button svg{width:12px; height:12px}
+.etiqueta-mais{display:inline-flex; align-items:center; gap:6px; min-height:38px; padding:8px 14px; border:1px dashed var(--indigo); border-radius:999px;
+  background:var(--branco); color:var(--indigo); font:inherit; font-size:13.5px; font-weight:600; cursor:pointer}
+.etiqueta-mais svg{width:14px; height:14px}
+.etiquetas-conta{font-size:12px; color:var(--fraca); margin-left:2px}
+.folha-etiquetas .pe-dialogo{flex:none}
+.folha-opcao.bloqueada{opacity:.4; cursor:not-allowed}
+
+/* Horário no celular: o dia e a chave na primeira linha; cada período numa
+   linha própria, com as duas horas dividindo a largura. */
+@media (max-width:620px){
+  .dia{grid-template-columns:minmax(0, 1fr) auto}
+  .dia > *{min-width:0}
+  .faixa{display:flex; flex-direction:column; align-items:stretch; gap:8px; min-width:0}
+  .faixa .periodo{display:grid; grid-template-columns:minmax(0, 1fr) auto minmax(0, 1fr); align-items:center; gap:8px; width:100%}
+  .faixa .periodo-2{grid-template-columns:auto minmax(0, 1fr) auto minmax(0, 1fr) auto}
+  .dia:not(.com-pausa) .periodo-2{display:none}
+  .entrada.hora{width:auto; min-width:0; padding:0 12px}
+  .entrada.hora input{width:100%; min-width:0; text-align:center}
+  .faixa .pausa{align-self:flex-start}
+  .dia-nome span{display:inline}
+}
+/* Na pílula de situação, o texto segue a cor da pílula (verde, âmbar ou neutra). */
+.seletor.seletor-pilula span, .seletor.seletor-pilula.sem-escolha span{color:inherit}
