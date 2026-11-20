@@ -1,0 +1,11 @@
+[Unit]
+Description=InvenTour - dispara o processador da fila a cada minuto
+
+[Timer]
+OnBootSec=2min
+# Oneshot: OnUnitActiveSec nao dispara de novo; OnUnitInactiveSec conta do fim.
+OnUnitInactiveSec=1min
+AccuracySec=10s
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,39 @@
+# Portal público de cada destino (<slug>.inventour.com.br ou domínio próprio).
+# Softsul Software
+#
+# Na fundação só existe a página provisória e a política de privacidade. As
+# rotas do web app do destino (oferta, atrativos, mapa, QR) entram aqui
+# quando o módulo ficar pronto.
+
+Options -Indexes +FollowSymLinks
+DirectoryIndex index.php
+RewriteEngine On
+
+# Endereço com .php vira o limpo.
+RewriteCond %{THE_REQUEST} \s/+([^?\s]+)\.php[\s?] [NC]
+RewriteRule ^ /%1 [R=301,L,NE]
+
+# /pagina serve pagina.php, desde que o arquivo exista.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}/$1.php -f
+RewriteRule ^(.+?)/?$ /$1.php [L]
+
+# Qualquer outro endereço cai na página inicial do destino.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.php [L]
+
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=()"
+</IfModule>
+
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/css text/javascript application/javascript image/svg+xml application/json
+</IfModule>

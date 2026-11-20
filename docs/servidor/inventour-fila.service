@@ -1,0 +1,16 @@
+[Unit]
+Description=InvenTour - processador da fila
+After=network.target mysql.service
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+WorkingDirectory=/home/www/app.inventour.com.br
+ExecStart=/usr/bin/php /home/www/app.inventour.com.br/scripts/processar_jobs.php --limite 10
+# Geracao de card e PDF em lote leva minutos; a importacao trimestral do
+# Cadastur (cerca de 150 mil linhas) levou 18 minutos na primeira vez.
+TimeoutStartSec=3600
+Nice=10
+PrivateTmp=true
+NoNewPrivileges=true

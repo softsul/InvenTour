@@ -1,0 +1,98 @@
+<?php
+/**
+ * Processador da fila.
+ * Softsul Software
+ *
+ *   php scripts/processar_jobs.php [--limite 10]
+ *
+ * Roda pelo timer inventour-fila.timer, de minuto em minuto, como www-data.
+ * Cada execução pega o que estiver pendente e sai; não fica residente. No
+ * fim, reagenda os jobs recorrentes que não estão pendentes: é o "cron
+ * dentro da fila", um lugar só para olhar quando algo não acontecer.
+ *
+ * Cada tipo de job é uma closure em $tratadores. Os módulos do inventário
+ * só acrescentam entradas aqui.
+ */
+declare(strict_types=1);
+require_once __DIR__ . '/../app/Fila.php';
+
+$limite = 10;
+foreach ($argv as $i => $a) {
+    if ($a === '--limite' && isset($argv[$i + 1])) {
+        $limite = max(1, (int) $argv[$i + 1]);
+    }
+}
+
+$tratadores = [
+    // Faxina diária: tentativas de login, limites e passes de certificado
+    // velhos, jobs concluídos com mais de 30 dias, cache de página vencido.
+    'faxina' => function (array $payload): void {
+        $pdo = Database::conexao();
+        $pdo->exec('DELETE FROM tentativas_login WHERE criado_em < NOW() - INTERVAL 2 DAY');
+        $pdo->exec('DELETE FROM limites WHERE janela < NOW() - INTERVAL 1 DAY');
+        $pdo->exec('DELETE FROM certificado_passes_usados WHERE usado_em < NOW() - INTERVAL 1 DAY');
+        $pdo->exec('DELETE FROM jobs WHERE status IN ("concluido", "falhou") AND concluido_em < NOW() - INTERVAL 30 DAY');
+        // LGPD (política de privacidade): aviso de devolução já liberado sai em um ano.
+        $pdo->exec('DELETE FROM email_ocorrencias WHERE liberado_em < NOW() - INTERVAL 1 YEAR');
+        $cfg = require __DIR__ . '/../app/config.php';
+        foreach (glob($cfg['caminhos']['cache'] . '/*/*.html') ?: [] as $arquivo) {
+            if (filemtime($arquivo) < time() - 3600) {
+                @unlink($arquivo);
+            }
+        }
+    },
+
+    // Semanal: traz a planilha nova do Cadastur quando o Ministério publica
+    // (a cada trimestre). O que já entrou não é baixado de novo.
+    'importar_cadastur' => function (array $payload): void {
+        require_once __DIR__ . '/../app/Cadastur.php';
+        foreach (Cadastur::importarTudo() as $linha) {
+            echo "\n   {$linha}";
+        }
+        echo "\n";
+    },
+
+    // Mensal: o Mapa do Turismo (regiões turísticas e categorias) muda uma
+    // vez por ano; importar de novo só regrava o ano corrente.
+    'importar_mapa_turismo' => function (array $payload): void {
+        require_once __DIR__ . '/../app/MapaTurismo.php';
+        echo MapaTurismo::importar() . ' ';
+    },
+
+];
+
+$feitos = 0;
+while ($feitos < $limite && ($job = Fila::proximo())) {
+    $feitos++;
+    echo date('H:i:s') . " #{$job['id']} {$job['tipo']} ";
+    if (!isset($tratadores[$job['tipo']])) {
+        Fila::falhar((int) $job['id'], 'tipo de job desconhecido');
+        echo "desconhecido\n";
+        continue;
+    }
+    try {
+        $tratadores[$job['tipo']]($job['payload']);
+        Fila::concluir((int) $job['id']);
+        echo "ok\n";
+    } catch (Throwable $e) {
+        Fila::falhar((int) $job['id'], get_class($e) . ': ' . $e->getMessage());
+        echo 'falhou: ' . $e->getMessage() . "\n";
+    }
+}
+
+// Reagenda os recorrentes. Um por tipo: se já há um pendente, não cria outro.
+$pendentes = Database::conexao()
+    ->query('SELECT DISTINCT tipo FROM jobs WHERE status IN ("pendente", "processando")')
+    ->fetchAll(PDO::FETCH_COLUMN);
+
+if (!in_array('faxina', $pendentes, true)) {
+    Fila::enfileirar('faxina', [], date('Y-m-d H:i:s', strtotime('tomorrow 03:00')));
+}
+// Domingo de madrugada, longe do uso: são cerca de 200 mil linhas quando
+// há planilha nova.
+if (!in_array('importar_cadastur', $pendentes, true)) {
+    Fila::enfileirar('importar_cadastur', [], date('Y-m-d H:i:s', strtotime('next sunday 04:00')));
+}
+if (!in_array('importar_mapa_turismo', $pendentes, true)) {
+    Fila::enfileirar('importar_mapa_turismo', [], date('Y-m-d H:i:s', strtotime('first day of next month 05:00')));
+}

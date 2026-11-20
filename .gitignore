@@ -1,0 +1,19 @@
+# Configuração real, com senha do banco e chave de cifra. O modelo sem
+# segredos é o app/config.exemplo.php.
+/app/config.php
+
+# Tudo que a aplicação escreve em tempo de execução: sessões, mídias,
+# cache de página, PDFs, logs.
+/storage/
+/logs/
+
+# Pacotes do composer (SDK da IA, travada até o destino pôr o token dele).
+/vendor/
+
+# Versão gerada pelo gancho do git (scripts/gerar-versao.sh).
+/public/versao.json
+/public/.versao.json.tmp
+
+*.swp
+*~
+.DS_Store

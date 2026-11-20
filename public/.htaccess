@@ -1,0 +1,105 @@
+# URLs amigáveis e cabeçalhos de segurança do painel do InvenTour.
+# Softsul Software
+#
+# /login em vez de /login.php. O vhost define AllowOverride All para esta
+# pasta, então este arquivo é obrigatório para as URLs funcionarem.
+
+Options -Indexes +FollowSymLinks
+DirectoryIndex index.php
+
+RewriteEngine On
+
+# 1. Quem chegar em /pagina.php vai uma vez para /pagina: a mesma tela não
+#    responde em dois endereços.
+RewriteCond %{THE_REQUEST} \s/+([^?\s]+)\.php[\s?] [NC]
+RewriteRule ^ /%1 [R=301,L,NE]
+
+# 1b. As telas de Configurações moram em /configuracoes/...: o endereço
+#     curto (/usuarios, /usuario/12) vai uma vez para o novo. A lista é a
+#     mesma de TELAS_DE_CONFIGURACOES em app/svg.php.
+RewriteCond %{THE_REQUEST} \s/+(usuarios|usuario|auditoria|destino|email|modulos)[/?\s] [NC]
+RewriteRule ^([a-z-]+)(/.*)?$ /configuracoes/$1$2 [R=301,L,NE]
+
+# 1c. /configuracoes/usuario/12-apelido e /configuracoes/usuarios servem a tela.
+RewriteCond %{DOCUMENT_ROOT}/$1.php -f
+RewriteRule ^configuracoes/([a-z][a-z0-9-]*)/([0-9]+)(?:-[^/]*)?/?$ /$1.php?id=$2 [QSA,L]
+RewriteCond %{DOCUMENT_ROOT}/$1.php -f
+RewriteRule ^configuracoes/([a-z][a-z0-9-]*)/?$ /$1.php [QSA,L]
+
+# 2. Registro individual em /recurso/id-apelido, sem query string. Só os
+#    dígitos do começo valem como id: mudar o nome não quebra link antigo.
+RewriteCond %{DOCUMENT_ROOT}/$1.php -f
+RewriteRule ^([a-z][a-z0-9-]*)/([0-9]+)(?:-[^/]*)?/?$ /$1.php?id=$2 [QSA,L]
+
+# 2b. Foto em /foto/tipo/id/tamanho, sem query string. Exige login; a mídia
+#     pública dos eventos não passa por aqui (Alias /midia/ no vhost).
+RewriteRule ^foto/(usuario|empresa)/([0-9]+)(?:/([0-9]+))?/?$ /foto.php?tipo=$1&id=$2&tam=$3 [QSA,L]
+
+# 3. API: /api/recurso vai para api/recurso.php.
+RewriteCond %{DOCUMENT_ROOT}/api/$1.php -f
+RewriteRule ^api/(.+?)/?$ /api/$1.php [L]
+
+
+# 4. /pagina serve pagina.php, desde que o arquivo exista.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}/$1.php -f
+RewriteRule ^(.+?)/?$ /$1.php [L]
+
+ErrorDocument 404 /404.php
+ErrorDocument 403 /404.php
+
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# Nada de script inline nem de outro domínio: todo JavaScript sai de
+# /assets. Assim uma injeção de HTML que escape do e() ainda não executa.
+# Moldura só do próprio site (a ficha de cadastro abre num iframe do modal).
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'self'; media-src 'self'; frame-ancestors 'self'"
+    Header always set Referrer-Policy "same-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=()"
+    Header always set Cross-Origin-Opener-Policy "same-origin"
+</IfModule>
+
+<IfModule mod_mime.c>
+    AddType application/manifest+json .webmanifest
+</IfModule>
+
+# O manifesto não fica guardado: o endereço é sempre o mesmo, porque é por
+# ele que o navegador reconhece o aplicativo já instalado.
+<IfModule mod_headers.c>
+    <FilesMatch "\.webmanifest$">
+        Header always set Cache-Control "no-cache, must-revalidate"
+    </FilesMatch>
+</IfModule>
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 30 days"
+    ExpiresByType application/javascript "access plus 30 days"
+    ExpiresByType image/svg+xml "access plus 30 days"
+</IfModule>
+
+# Desempenho (etapa 7): arquivo de assets com ?v= (a versão muda a cada
+# deploy) fica um ano no navegador; sem versão, um dia. O SVG da marca e o
+# manifesto também saem comprimidos.
+<IfModule mod_deflate.c>
+    # A lista inteira: aqui ela substitui a do servidor, não soma.
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/x-javascript application/xml image/svg+xml application/manifest+json application/json text/calendar
+</IfModule>
+<IfModule mod_headers.c>
+    <FilesMatch "\.(css|js|svg|png|webp|jpe?g|woff2|ico)$">
+        Header set Cache-Control "public, max-age=31536000, immutable" "expr=%{QUERY_STRING} =~ /^v=/"
+        Header set Cache-Control "public, max-age=86400" "expr=%{QUERY_STRING} !~ /^v=/"
+    </FilesMatch>
+</IfModule>
+
+# Digital (passkey) no app do iPhone (InvenTour Gestão): a Apple lê este
+# arquivo, sem extensão, como JSON.
+<Files "apple-app-site-association">
+    ForceType application/json
+</Files>

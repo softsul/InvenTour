@@ -1,0 +1,17 @@
+/* Portal provisório do destino. Softsul Software */
+:root { --acento: #0E7C66; --texto: #1B2430; --suave: #5E6780; --fundo: #F6F8FA; }
+@media (prefers-color-scheme: dark) { :root { --texto: #E8ECF2; --suave: #A4ADBD; --fundo: #12161C; } }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--texto); background: var(--fundo);
+       min-height: 100vh; display: flex; flex-direction: column; line-height: 1.55; }
+.palco { flex: 1; width: 100%; max-width: 760px; margin: 0 auto; padding: 72px 16px 48px; }
+.sobre { text-transform: uppercase; letter-spacing: .08em; font-size: .8rem; color: var(--acento); font-weight: 600; margin: 0 0 8px; }
+h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: 1.1; margin: 0 0 16px; }
+h2 { font-size: 1.15rem; margin: 28px 0 8px; }
+.lead { font-size: 1.15rem; color: var(--suave); margin: 0 0 24px; }
+.cta { display: inline-block; background: var(--acento); color: #fff; padding: 12px 20px; border-radius: 10px; text-decoration: none; font-weight: 600; }
+a { color: var(--acento); }
+.texto-legal li { margin-bottom: 8px; }
+.texto-legal-data { color: var(--suave); font-size: .9rem; margin-top: 32px; }
+.rodape { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; padding: 20px 16px; font-size: .85rem; color: var(--suave); }

@@ -1,0 +1,10 @@
+# InvenTour: acrescentado a jail.local do servidor em 20/11/2026 (Softsul).
+# A aplicacao ja bloqueia o e-mail com 5 erros e o IP com 20 em 15 minutos;
+# o fail2ban so entra acima disso, porque uma prefeitura inteira sai pelo
+# mesmo IP e nao pode ser banida por engano.
+[inventour]
+enabled  = true
+port     = http,https
+filter   = inventour
+logpath  = /home/www/app.inventour.com.br/logs/seguranca.log
+maxretry = 30
