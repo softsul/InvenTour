@@ -1430,3 +1430,6 @@ dialog.visualizador.vis-pdf .vis-palco{padding:0 12px 12px}
 .app-sinc{display:flex; flex-direction:column; gap:12px; margin-bottom:16px}
 .app-sinc .coleta-estado{border:0; padding:0; background:none}
 .app-sinc .ajuda{margin:0}
+.coleta-fixo{display:flex; flex-direction:column; gap:12px}
+.coleta-estado .sinal.lenta i{background:var(--ambar); box-shadow:0 0 0 3px var(--ambar-sup)}
+.coleta-estado .sinal{cursor:help}

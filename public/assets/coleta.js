@@ -112,9 +112,35 @@
     $('col-sessao').hidden = false;
     if (APP && APP.desconectado) { APP.desconectado(); }
   }
+  // A conexão de verdade: o servidor respondeu, e em quanto tempo. O
+  // "online" do aparelho só diz que há wi-fi ou dados ligados, não que a
+  // internet chega ao InvenTour.
+  var conexao = { estado: null, ms: null, quando: null };
   function testarConexao() {
+    var inicio = Date.now();
     return pedir('/api/coleta?ping=1', { headers: cabecalhos(false), cache: 'no-store' }, 8000)
-      .then(function (r) { return r.ok; }).catch(function (e) { if (e && e.message === 'sessao') { throw e; } return false; });
+      .then(function (r) {
+        conexao = { estado: r.ok ? 'ok' : 'falhou', ms: Date.now() - inicio, quando: Date.now() };
+        return r.ok;
+      }).catch(function (e) {
+        if (e && e.message === 'sessao') { throw e; }
+        conexao = { estado: 'falhou', ms: null, quando: Date.now() };
+        return false;
+      });
+  }
+  function medirConexao() {
+    if (!navigator.onLine) { conexao = { estado: 'sem-rede', ms: null, quando: Date.now() }; mostrarEstado(); return Promise.resolve(false); }
+    return testarConexao().then(function (ok) { mostrarEstado(); return ok; }, function () { mostrarEstado(); return false; });
+  }
+  function textoConexao() {
+    if (!navigator.onLine || conexao.estado === 'sem-rede') { return ['Sem internet no aparelho', 'offline', 'O aparelho está sem wi-fi e sem dados móveis.'] ; }
+    if (conexao.estado === 'ok') {
+      var lenta = conexao.ms > 2500;
+      return [(lenta ? 'Servidor lento' : 'Servidor respondeu') + ' · ' + (conexao.ms < 1000 ? conexao.ms + ' ms' : (conexao.ms / 1000).toFixed(1).replace('.', ',') + ' s'),
+        lenta ? 'lenta' : 'online', 'Teste feito às ' + new Date(conexao.quando).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) + ': o InvenTour respondeu em ' + conexao.ms + ' milissegundos.'];
+    }
+    if (conexao.estado === 'falhou') { return ['Sem resposta do servidor', 'offline', 'Há rede ligada, mas o InvenTour não respondeu em 8 segundos (sinal fraco ou internet sem saída).']; }
+    return ['Testando a conexão', 'testando', ''];
   }
   function baixarLista() {
     return pedir('/api/coleta', { headers: cabecalhos(false), cache: 'no-store' }, 60000)
@@ -142,8 +168,12 @@
   // ------------------------------------------------------------ estado e lista
   function mostrarEstado(texto, classe) {
     var sinal = $('col-sinal');
-    sinal.className = 'sinal ' + (classe || (navigator.onLine ? 'online' : 'offline'));
-    sinal.querySelector('span').textContent = texto || (navigator.onLine ? 'Rede ligada' : 'Sem rede');
+    var medida = textoConexao();
+    sinal.className = 'sinal ' + (classe || medida[1]);
+    sinal.querySelector('span').textContent = texto || medida[0];
+    sinal.title = texto ? '' : medida[2];
+    var mc = $('campo-menu-conta');
+    if (mc) { mc.textContent = String(filaAtual.length); mc.hidden = !filaAtual.length; }
     var n = filaAtual.length;
     var nFotos = filaAtual.reduce(function (s, c) { return s + (c.fotos || 0); }, 0);
     $('col-fila').textContent = n ? (n === 1 ? '1 gravação' : n + ' gravações') + (nFotos ? ' e ' + (nFotos === 1 ? '1 foto' : nFotos + ' fotos') : '') + ' no aparelho'
@@ -319,12 +349,12 @@
     return testarConexao().then(function (ok) {
       if (!ok) {
         falhou = true;
-        mostrarEstado('Sem conexão', 'offline');
+        mostrarEstado();
         progresso(0, null);
         mostrarResultado('Sem conexão com o servidor agora. Os dados continuam no aparelho; tente de novo com sinal.', 'atencao');
         return null;
       }
-      mostrarEstado('Conectado', 'online');
+      mostrarEstado();
       return todos('fila').then(function (fila) {
         fila.sort(function (a, b) { return a.ordem - b.ordem; });
         var pendentes = fila.filter(function (c) { return !c.erro; });
@@ -792,8 +822,8 @@
   $('col-mais').addEventListener('click', function () { mostrar += POR_PAGINA; desenharLista(); });
   $('col-sincronizar').addEventListener('click', sincronizar);
   $('col-historico').addEventListener('click', abrirHistorico);
-  window.addEventListener('online', function () { mostrarEstado(); });
-  window.addEventListener('offline', function () { mostrarEstado(); });
+  window.addEventListener('online', function () { medirConexao(); });
+  window.addEventListener('offline', function () { conexao = { estado: 'sem-rede', ms: null, quando: Date.now() }; mostrarEstado(); });
 
   // Para o app: o novo item vem do botão dele, e a primeira sincronização é logo depois de conectar.
   window.inventourColeta = { sincronizar: sincronizar, novo: function () { if (botaoNovo) { botaoNovo.click(); } }, recarregar: recarregarTela };
@@ -811,10 +841,10 @@
   }
   recarregarTela().then(function () {
     if (!base && navigator.onLine) { return sincronizar(); }
-    return atualizarLista();
+    return medirConexao().then(function (ok) { return ok ? atualizarLista() : null; });
   });
   document.addEventListener('visibilitychange', function () {
-    if (!document.hidden && Date.now() - ultimaBaixa > 120000) { atualizarLista(); }
+    if (!document.hidden && Date.now() - ultimaBaixa > 120000) { medirConexao().then(function (ok) { return ok ? atualizarLista() : null; }); }
   });
 
   // Painel: a página e os arquivos guardados para abrir sem sinal (no app já vêm dentro dele).

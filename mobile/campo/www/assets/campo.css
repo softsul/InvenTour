@@ -49,3 +49,21 @@ body.campo .coleta-estado{position:sticky; top:57px; z-index:10}
    o entalhe e a barra de baixo entram aqui (no Android a casca já põe a
    página entre as barras e estes valores são zero). */
 body.campo dialog.coleta-dialogo{box-sizing:border-box; padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom)}
+
+/* Menu do app: sincronizar, histórico e a medida da conexão ficam aqui;
+   o ícone do menu mostra quantas gravações esperam envio. */
+.campo-topo .menu-app{position:relative}
+.menu-conta{position:absolute; top:2px; right:0; min-width:18px; height:18px; padding:0 5px; border-radius:999px; background:var(--ambar);
+  color:#fff; font-size:11px; font-weight:800; line-height:18px; text-align:center}
+.menu-sinc{display:flex; flex-direction:column; gap:10px; padding:14px; border-radius:var(--r); background:var(--branco); border:1px solid var(--traco)}
+.menu-sinc .coleta-estado{position:static; flex-direction:column; align-items:stretch; gap:10px; border:0; padding:0; background:none}
+.menu-sinc .coleta-botoes{width:100%; margin:0; flex-direction:column-reverse; gap:8px}
+.menu-sinc .coleta-botoes .botao{width:100%; padding:14px}
+.menu-sinc .quando{order:2}
+
+/* Busca e situações fixas no topo, abaixo da barra do app. */
+body.campo .coleta-fixo{position:sticky; top:57px; z-index:9; display:flex; flex-direction:column; gap:10px;
+  margin:0 -12px; padding:10px 12px; background:var(--nuvem); border-bottom:1px solid var(--traco)}
+body.campo .coleta-estado{position:static}
+.menu-sinc .coleta-estado > *{min-width:0; max-width:100%}
+.menu-sinc .coleta-estado .quando{flex:none; order:0; align-self:flex-start; white-space:normal}

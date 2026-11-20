@@ -69,7 +69,7 @@ $html = '<!doctype html>
 <header class="campo-topo">
   ' . $logo . '
   <div class="quem" id="campo-quem"></div>
-  <button type="button" class="menu-app" id="campo-menu" aria-label="Menu" hidden>' . icone('menu') . '</button>
+  <button type="button" class="menu-app" id="campo-menu" aria-label="Menu: sincronizar, histórico e conexão" hidden>' . icone('menu') . '<span class="menu-conta" id="campo-menu-conta" hidden>0</span></button>
 </header>
 
 <main class="campo-corpo">
@@ -91,7 +91,7 @@ $html = '<!doctype html>
 
   <section id="campo-coleta" hidden>
     <div class="coleta" id="coleta">
-' . telaColeta(true) . '
+' . telaColeta(true, false) . '
     </div>
   </section>
 </main>
@@ -99,9 +99,10 @@ $html = '<!doctype html>
 <button type="button" class="botao flutuante" id="col-novo" hidden>' . icone('mais') . 'Novo item</button>
 
 <dialog class="coleta-dialogo pequeno" id="campo-sobre" aria-labelledby="campo-sobre-titulo">
-  <div class="cab-dialogo"><h2 id="campo-sobre-titulo">InvenTour Campo</h2>
+  <div class="cab-dialogo"><h2 id="campo-sobre-titulo">Menu</h2>
     <button type="button" class="fechar" data-fechar aria-label="Fechar">' . icone('fechar') . '</button></div>
   <div class="corpo-dialogo">
+    <div class="menu-sinc">' . telaEstadoColeta() . '</div>
     <p>Conectado como <b id="campo-sobre-quem"></b>.</p>
     <p class="nulo">As gravações ficam neste aparelho até você tocar em Sincronizar. Para trocar de pessoa ou de destino, desconecte e conecte com um código novo.</p>
     <div class="acoes-app">

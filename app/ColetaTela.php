@@ -44,6 +44,7 @@ function telaColeta(bool $noApp, bool $comEstado = true): string
 <p class="aviso ruim" id="col-erros" hidden></p>
 <p class="aviso bom" id="col-resultado" hidden></p>
 
+<div class="coleta-fixo">
 <div class="filtros coleta-filtros">
   <div class="entrada"><?= icone('busca') ?><input type="search" id="col-busca" placeholder="Nome, rua ou bairro" aria-label="Buscar na coleta" autocomplete="off"></div>
   <div class="entrada"><?= icone('manual') ?><select id="col-ficha-filtro" aria-label="Ficha"><option value="">Todas as fichas</option></select></div>
@@ -51,6 +52,7 @@ function telaColeta(bool $noApp, bool $comEstado = true): string
 <?php /* Situação em fichas com a contagem: o devolvido pela conferência é o
          que a pessoa mais precisa achar, e fica à vista (e no topo da lista). */ ?>
 <div class="coleta-situacoes" id="col-situacoes" role="group" aria-label="Situação"></div>
+</div>
 <p class="aviso atencao coleta-devolvidos" id="col-aviso-devolvidos" hidden><?= icone('alerta') ?><span></span></p>
 
 <p class="coleta-conta nulo" id="col-conta"></p>
