@@ -44,3 +44,8 @@ body.campo{display:block; min-width:0; overflow-x:hidden; margin:0; background:v
 
 /* No app a lista ocupa a largura toda e a barra de estado gruda no topo. */
 body.campo .coleta-estado{position:sticky; top:57px; z-index:10}
+
+/* As janelas ficam por cima de tudo e não herdam o recuo do body: no iPhone,
+   o entalhe e a barra de baixo entram aqui (no Android a casca já põe a
+   página entre as barras e estes valores são zero). */
+body.campo dialog.coleta-dialogo{box-sizing:border-box; padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom)}
