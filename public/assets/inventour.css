@@ -1065,3 +1065,16 @@ table.tabela-campo td input{width:100%; min-width:90px}
 .galeria-item figcaption{padding:8px; display:flex; flex-wrap:wrap; gap:6px; align-items:center}
 .galeria-item .legenda-foto{display:grid; gap:6px; width:100%}
 .galeria-item .legenda-foto input{width:100%}
+/* Editor das narrativas e linha do tempo do destino. */
+.editor-texto{border:1px solid var(--traco); border-radius:12px; overflow:hidden; margin:6px 0 12px}
+.editor-barra{display:flex; gap:4px; padding:6px; border-bottom:1px solid var(--traco); background:var(--nuvem)}
+.editor-barra button{min-width:32px; height:30px; border:1px solid transparent; border-radius:8px; background:transparent; color:var(--tinta); cursor:pointer; font-size:14px}
+.editor-barra button:hover{border-color:var(--traco); background:var(--branco)}
+.editor-area{min-height:160px; max-height:520px; overflow:auto; padding:12px 14px; outline:none; line-height:1.6}
+.editor-area:focus{box-shadow:inset var(--anel)}
+.editor-area table{border-collapse:collapse}
+.editor-area td, .editor-area th{border:1px solid var(--traco); padding:4px 8px}
+.linha-tempo{list-style:none; margin:0; padding:0}
+.linha-tempo li{display:grid; grid-template-columns:96px 1fr auto; gap:12px; padding:10px 0; border-bottom:1px solid var(--traco); align-items:start}
+.linha-tempo li p{margin:4px 0 0; color:var(--suave)}
+.linha-tempo .data{font-weight:600; color:var(--indigo-fte)}

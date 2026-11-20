@@ -6215,3 +6215,41 @@ window.inventourMarcarNoFiltro = function (form, campo, ids, nome) {
   });
   conta();
 })();
+
+/* ==========================================================================
+   Editor de texto das narrativas do destino (O destino). A área é
+   contenteditable; a barra usa execCommand (negrito, itálico, título,
+   listas, limpar). Ao enviar, o HTML vai para o textarea oculto, e o
+   servidor limpa (app/HtmlLimpo.php): o que vier colado do Word perde estilo,
+   imagem e script lá. Também alterna os campos de data do marco da linha do
+   tempo conforme a precisão (dia, mês, ano).
+   ========================================================================== */
+(function () {
+  'use strict';
+  document.querySelectorAll('[data-editor]').forEach(function (ed) {
+    var area = ed.querySelector('.editor-area');
+    var campo = ed.querySelector('textarea[name="conteudo"]');
+    if (!area || !campo) { return; }
+    ed.querySelectorAll('[data-cmd]').forEach(function (b) {
+      b.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+      b.addEventListener('click', function () {
+        area.focus();
+        document.execCommand(b.getAttribute('data-cmd'), false, b.getAttribute('data-valor') || null);
+      });
+    });
+    var form = ed.closest('form');
+    if (form) {
+      form.addEventListener('submit', function () { campo.value = area.innerHTML; });
+    }
+  });
+  document.querySelectorAll('[data-precisao]').forEach(function (sel) {
+    var form = sel.closest('form');
+    function mostra() {
+      form.querySelectorAll('[data-quando]').forEach(function (c) {
+        c.hidden = c.getAttribute('data-quando') !== sel.value;
+      });
+    }
+    sel.addEventListener('change', mostra);
+    mostra();
+  });
+})();
