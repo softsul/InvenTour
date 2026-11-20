@@ -1056,7 +1056,7 @@ body:has(main.conteudo.arrastando), body:has(main.conteudo.saindo), body:has(mai
 .entrada select.ausencia{flex:none; width:auto; min-width:0; margin-left:8px; font-size:12.5px; color:var(--suave)}
 .entrada.estreita{max-width:150px; margin-top:4px}
 .entrada.estreita select.ausencia{margin-left:0; width:100%}
-table.horario td input[type=time]{width:110px}
+/* (horário: ver "Funcionamento" no fim do arquivo) */
 table.tabela-campo td{padding:4px 6px}
 table.tabela-campo td input{width:100%; min-width:90px}
 .lista-simples{margin:0; padding-left:18px}
@@ -1086,3 +1086,63 @@ details.tribo summary{cursor:pointer; display:flex; align-items:center; gap:8px;
 details.tribo summary::-webkit-details-marker{display:none}
 details.tribo summary svg{width:18px; height:18px; color:var(--indigo)}
 details.tribo .caixas{margin:8px 0 4px 26px}
+
+/* ==========================================================================
+   Funcionamento do item: uma linha por dia, chave de aberto e fechado,
+   hora no mesmo campo arredondado do painel. Fechado esconde as horas;
+   24 horas esconde a semana inteira.
+   ========================================================================== */
+.semana{display:flex; flex-direction:column; gap:12px; margin-bottom:16px}
+.semana-topo{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
+.semana-atalhos{display:flex; gap:14px; flex-wrap:wrap}
+.semana-atalhos .como-link{display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:600; color:var(--indigo)}
+.semana-atalhos .como-link svg{font-size:14px}
+.semana-24h{display:none; align-items:center; gap:10px; margin:0; padding:14px 16px; border-radius:var(--r);
+  background:var(--indigo-sup); border:1px solid var(--acento-borda); color:var(--indigo-fte); font-weight:600; font-size:13.5px}
+.semana-24h svg{font-size:18px}
+.semana.dia-todo .semana-24h{display:flex}
+.semana.dia-todo .semana-dias,
+.semana.dia-todo .semana-atalhos{display:none}
+
+.semana-dias{list-style:none; margin:0; padding:0; border:1px solid var(--traco); border-radius:var(--r); overflow:hidden; background:var(--branco)}
+.dia{display:grid; grid-template-columns:120px 118px 1fr; align-items:center; gap:14px; padding:8px 14px; min-height:54px}
+.dia + .dia{border-top:1px solid var(--traco)}
+.dia:nth-child(6), .dia:nth-child(7){background:var(--leve)}
+.dia-nome{display:flex; align-items:center; gap:10px; font-size:13.5px; color:var(--tinta)}
+.dia-nome b{display:inline-flex; align-items:center; justify-content:center; width:38px; height:28px; border-radius:8px;
+  background:var(--indigo-sup); color:var(--indigo-fte); font-size:11.5px; font-weight:800; letter-spacing:.04em; text-transform:uppercase}
+.dia.fechado .dia-nome b{background:var(--leve); color:var(--fraca)}
+.dia.fechado .dia-nome span{color:var(--fraca)}
+
+/* chave aberto/fechado */
+.liga{display:inline-flex; align-items:center; gap:9px; cursor:pointer; font-size:12.5px; font-weight:600; user-select:none}
+.liga input{position:absolute; opacity:0; width:0; height:0}
+.liga i{position:relative; width:34px; height:20px; border-radius:20px; background:var(--traco2); flex:none; transition:background .15s}
+.liga i::after{content:""; position:absolute; left:3px; top:3px; width:14px; height:14px; border-radius:50%; background:#fff;
+  box-shadow:0 1px 2px rgba(21,29,51,.25); transition:transform .15s}
+.liga input:checked + i{background:var(--indigo)}
+.liga input:checked + i::after{transform:translateX(14px)}
+.liga input:focus-visible + i{box-shadow:var(--anel)}
+.liga input:disabled + i{opacity:.55}
+.liga em{font-style:normal}
+.liga .liga-sim{display:none; color:var(--indigo)}
+.liga .liga-nao{color:var(--fraca)}
+.liga input:checked ~ .liga-sim{display:inline}
+.liga input:checked ~ .liga-nao{display:none}
+
+.faixa{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.dia.fechado .faixa{visibility:hidden}
+.entrada.hora{padding:0 12px; gap:8px; background:var(--branco); width:112px}
+.entrada.hora input{padding:8px 0; font-family:var(--dado); font-size:14px; font-variant-numeric:tabular-nums}
+.entrada.hora input::-webkit-calendar-picker-indicator{opacity:.45; cursor:pointer}
+.entrada.hora input::-webkit-calendar-picker-indicator:hover{opacity:.9}
+[data-tema="escuro"] .entrada.hora input::-webkit-calendar-picker-indicator{filter:invert(1)}
+.faixa .ate{font-size:12.5px; color:var(--fraca)}
+
+@media (max-width:620px){
+  .dia{grid-template-columns:1fr auto; gap:8px 12px; padding:10px 12px}
+  .dia-nome span{display:none}
+  .faixa{grid-column:1 / -1}
+  .dia.fechado .faixa{display:none}
+  .entrada.hora{flex:1; width:auto}
+}

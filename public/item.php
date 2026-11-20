@@ -513,19 +513,34 @@ paginaFicha($titulo, 'inventario');
 
     <div class="cartao">
       <h2 class="titulo-secao">Funcionamento</h2>
-      <div class="rolagem">
-        <table class="dados horario">
-          <thead><tr><th>Dia</th><th>Abre</th><th>Fecha</th></tr></thead>
-          <tbody>
-          <?php foreach (Inventario::DIAS as $dia => $rotuloDia): $faixa = $horario[$dia][0] ?? ['', '']; ?>
-            <tr><td><?= e($rotuloDia) ?></td>
-              <td><input type="time" name="h_abre[<?= $dia ?>]" value="<?= e((string) $faixa[0]) ?>" aria-label="<?= e($rotuloDia) ?>, abre"<?= $ro ?>></td>
-              <td><input type="time" name="h_fecha[<?= $dia ?>]" value="<?= e((string) $faixa[1]) ?>" aria-label="<?= e($rotuloDia) ?>, fecha"<?= $ro ?>></td></tr>
-          <?php endforeach; ?>
-          </tbody>
-        </table>
+      <div class="semana<?= !empty($horario['24h']) ? ' dia-todo' : '' ?>" data-semana>
+        <div class="semana-topo">
+          <label class="check"><input type="checkbox" name="h24" value="1" data-h24<?= !empty($horario['24h']) ? ' checked' : '' ?><?= $dis ?>><i></i>Funciona 24 horas</label>
+          <?php if (!$ro): ?>
+          <span class="semana-atalhos">
+            <button type="button" class="como-link" data-copiar="uteis"><?= icone('copiar') ?>Segunda para os dias úteis</button>
+            <button type="button" class="como-link" data-copiar="todos"><?= icone('copiar') ?>Segunda para todos</button>
+          </span>
+          <?php endif; ?>
+        </div>
+        <p class="semana-24h"><?= icone('relogio') ?>Aberto todos os dias, a qualquer hora.</p>
+        <ul class="semana-dias">
+        <?php foreach (Inventario::DIAS as $dia => $rotuloDia): $faixa = $horario[$dia][0] ?? ['', '']; $aberto = $faixa[0] !== '' && $faixa[1] !== ''; ?>
+          <li class="dia<?= $aberto ? '' : ' fechado' ?>" data-dia="<?= $dia ?>">
+            <span class="dia-nome"><b><?= e(mb_substr($rotuloDia, 0, 3)) ?></b><span><?= e($rotuloDia) ?></span></span>
+            <label class="liga" title="Aberto ou fechado">
+              <input type="checkbox" data-aberto<?= $aberto ? ' checked' : '' ?><?= $dis ?> aria-label="<?= e($rotuloDia) ?>, aberto">
+              <i></i><em class="liga-sim">Aberto</em><em class="liga-nao">Fechado</em>
+            </label>
+            <span class="faixa">
+              <span class="entrada hora"><input type="time" name="h_abre[<?= $dia ?>]" value="<?= e((string) $faixa[0]) ?>" aria-label="<?= e($rotuloDia) ?>, abre"<?= $ro ?>></span>
+              <span class="ate">às</span>
+              <span class="entrada hora"><input type="time" name="h_fecha[<?= $dia ?>]" value="<?= e((string) $faixa[1]) ?>" aria-label="<?= e($rotuloDia) ?>, fecha"<?= $ro ?>></span>
+            </span>
+          </li>
+        <?php endforeach; ?>
+        </ul>
       </div>
-      <label class="check"><input type="checkbox" name="h24" value="1"<?= !empty($horario['24h']) ? ' checked' : '' ?><?= $dis ?>><i></i>Funciona 24 horas</label>
       <div class="grade">
         <div class="campo c-6">
           <label for="h_feriados">Feriados</label>
