@@ -253,6 +253,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $acaoFoto === '') {
         }
         if ($erro === '') {
             $id = Inventario::salvar($novo ? null : $id, $fichaId, $nucleo, $especificos, $acessNovo);
+            if ($ficha['forma'] !== 'municipio') {
+                Inventario::salvarFacilidades($id, (array) ($_POST['facilidades'] ?? []));
+            }
             avisar(($novo ? $nucleo['nome'] . ' entrou no inventário.' : $nucleo['nome'] . ' salvo.'));
             fichaSalva(endereco('item', $id, $nucleo['nome']));
         }
@@ -596,6 +599,26 @@ paginaFicha($titulo, 'inventario');
   </div>
   <?php endif; ?>
 
+  <?php if ($ficha['forma'] !== 'municipio'): $tribos = Inventario::tribos();
+    $marcadas = $_SERVER['REQUEST_METHOD'] === 'POST' ? array_map('intval', (array) ($_POST['facilidades'] ?? [])) : ($novo ? [] : Inventario::facilidades($id)); ?>
+  <div class="cartao">
+    <h2 class="titulo-secao">Tribos de consumo</h2>
+    <p class="ajuda">Marque só o que o lugar comprovadamente oferece. Com duas facilidades ou mais, ganha o selo da tribo no portal (Bike Friendly, Pet Friendly...).</p>
+    <?php $macroAtual = null; foreach ($tribos as $tid => $t):
+      $nMarcadas = count(array_intersect(array_keys($t['facilidades']), $marcadas)); ?>
+      <?php if ($t['macro'] !== $macroAtual): $macroAtual = $t['macro']; ?><h3 class="sub-cartao"><?= e((string) $macroAtual) ?></h3><?php endif; ?>
+      <details class="tribo"<?= $nMarcadas ? ' open' : '' ?>>
+        <summary><?= icone((string) $t['icone']) ?><b><?= e((string) $t['nome']) ?></b><?= $nMarcadas >= 2 ? ' <span class="pilula ok">selo</span>' : ($nMarcadas ? ' <span class="pilula nu">' . $nMarcadas . '</span>' : '') ?></summary>
+        <div class="caixas">
+          <?php foreach ($t['facilidades'] as $fid => $nomeFac): ?>
+            <label class="check"><input type="checkbox" name="facilidades[]" value="<?= $fid ?>"<?= in_array($fid, $marcadas, true) ? ' checked' : '' ?><?= $dis ?>><i></i><?= e((string) $nomeFac) ?></label>
+          <?php endforeach; ?>
+        </div>
+      </details>
+    <?php endforeach; ?>
+  </div>
+  <?php endif; ?>
+
   <div class="colunas">
     <div class="cartao">
       <h2 class="titulo-secao">Conservação e textos</h2>
@@ -691,6 +714,26 @@ paginaFicha($titulo, 'inventario');
       </div>
       <?= zonaDeUpload('fotos', 'image/jpeg,image/png,image/webp', 'Arraste as fotos aqui', 'ou clique para escolher (JPG, PNG ou WebP; a do celular traz a coordenada)', true, true) ?>
     </form>
+  <?php endif; ?>
+</div>
+<?php endif; ?>
+
+<?php if (!$novo && $ficha['forma'] !== 'municipio'):
+  $qx = $pdo->prepare('SELECT id, titulo, situacao FROM inventario_experiencias WHERE item_id = ? AND empresa_id = ? ORDER BY id');
+  $qx->execute([$id, (int) $empresa['id']]);
+  $experiencias = $qx->fetchAll();
+  $situacoesX = ['rascunho' => ['Rascunho', 'nu'], 'aguardando' => ['Aguardando curadoria', 'at'], 'aprovada' => ['Aprovada', 'ok'], 'ajuste' => ['Ajuste pedido', 'at'], 'reprovada' => ['Reprovada', 'ruim']]; ?>
+<div class="cartao" id="experiencias">
+  <div class="cab-cartao"><h2>Experiências turísticas (<?= count($experiencias) ?>)</h2>
+    <?php if ($podeEditar): ?><a href="/experiencia?item=<?= $id ?>" data-ficha="Nova experiência"><?= icone('mais') ?> Nova experiência</a><?php endif; ?></div>
+  <?php if (!$experiencias): ?>
+    <p class="ajuda">Vivências que o lugar oferece (colheita, oficina, degustação, visita técnica). Passam pela curadoria antes de ir para a aba Experiências do portal.</p>
+  <?php else: ?>
+    <ul class="lista-simples">
+      <?php foreach ($experiencias as $ex): [$r, $t] = $situacoesX[$ex['situacao']] ?? [$ex['situacao'], 'nu']; ?>
+        <li><a href="<?= e(endereco('experiencia', (int) $ex['id'], (string) $ex['titulo'])) ?>" data-ficha="<?= e((string) $ex['titulo']) ?>"><?= e((string) $ex['titulo']) ?></a> <span class="pilula <?= $t ?>"><?= e($r) ?></span></li>
+      <?php endforeach; ?>
+    </ul>
   <?php endif; ?>
 </div>
 <?php endif; ?>

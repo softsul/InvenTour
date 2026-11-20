@@ -1078,3 +1078,8 @@ table.tabela-campo td input{width:100%; min-width:90px}
 .linha-tempo li{display:grid; grid-template-columns:96px 1fr auto; gap:12px; padding:10px 0; border-bottom:1px solid var(--traco); align-items:start}
 .linha-tempo li p{margin:4px 0 0; color:var(--suave)}
 .linha-tempo .data{font-weight:600; color:var(--indigo-fte)}
+details.tribo{border-bottom:1px solid var(--traco); padding:6px 0}
+details.tribo summary{cursor:pointer; display:flex; align-items:center; gap:8px; list-style:none}
+details.tribo summary::-webkit-details-marker{display:none}
+details.tribo summary svg{width:18px; height:18px; color:var(--indigo)}
+details.tribo .caixas{margin:8px 0 4px 26px}

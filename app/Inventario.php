@@ -229,6 +229,53 @@ final class Inventario
         return $id;
     }
 
+    // ------------------------------------------------------- TRIBOS DE CONSUMO
+
+    /** Tribos ativas com as facilidades, para o formulário do item. */
+    public static function tribos(): array
+    {
+        $tribos = [];
+        foreach (self::pdo()->query('SELECT t.id AS tribo_id, t.macro, t.nome AS tribo, t.icone, f.id, f.nome
+                                     FROM tribos t JOIN tribo_facilidades f ON f.tribo_id = t.id AND f.ativo = 1
+                                     WHERE t.ativo = 1 ORDER BY t.ordem, f.ordem') as $l) {
+            $tribos[(int) $l['tribo_id']] ??= ['macro' => $l['macro'], 'nome' => $l['tribo'], 'icone' => $l['icone'], 'facilidades' => []];
+            $tribos[(int) $l['tribo_id']]['facilidades'][(int) $l['id']] = $l['nome'];
+        }
+        return $tribos;
+    }
+
+    /** Ids das facilidades marcadas no item. */
+    public static function facilidades(int $itemId): array
+    {
+        [$f, $a] = Empresa::filtro();
+        $q = self::pdo()->prepare("SELECT facilidade_id FROM inventario_item_facilidades WHERE item_id = ?{$f}");
+        $q->execute([$itemId, ...$a]);
+        return array_map('intval', $q->fetchAll(PDO::FETCH_COLUMN));
+    }
+
+    public static function salvarFacilidades(int $itemId, array $ids): void
+    {
+        $eid = Empresa::id();
+        $validos = array_map('intval', self::pdo()->query('SELECT id FROM tribo_facilidades WHERE ativo = 1')->fetchAll(PDO::FETCH_COLUMN));
+        $ids = array_values(array_intersect($validos, array_map('intval', $ids)));
+        self::pdo()->prepare('DELETE FROM inventario_item_facilidades WHERE item_id = ? AND empresa_id = ?')->execute([$itemId, $eid]);
+        $ins = self::pdo()->prepare('INSERT INTO inventario_item_facilidades (item_id, facilidade_id, empresa_id) VALUES (?, ?, ?)');
+        foreach ($ids as $fid) {
+            $ins->execute([$itemId, $fid, $eid]);
+        }
+    }
+
+    /** Tribos cujo selo o item ganha: pelo menos 2 facilidades marcadas. */
+    public static function selosDeTribo(int $itemId): array
+    {
+        [$f, $a] = Empresa::filtro('i');
+        $q = self::pdo()->prepare("SELECT t.nome, t.icone, COUNT(*) n FROM inventario_item_facilidades i
+                                   JOIN tribo_facilidades f ON f.id = i.facilidade_id JOIN tribos t ON t.id = f.tribo_id
+                                   WHERE i.item_id = ?{$f} GROUP BY t.id HAVING n >= 2 ORDER BY t.ordem");
+        $q->execute([$itemId, ...$a]);
+        return $q->fetchAll();
+    }
+
     // ---------------------------------------------------- PRÉ-CADASTRO CADASTUR
 
     /**

@@ -416,6 +416,18 @@ function ce_alvosDaTela(string $tela, array $d): array
             // Ficha do catálogo do MTur: global, igual para todos os destinos,
             // só da visão da plataforma.
             break;
+        case 'item':
+            if (!empty($A['item'])) {
+                $add('item do inventário', 'item', $A['item'], [], $A['tok']);
+                $add('item do inventário', 'item', $B['item']);
+            }
+            break;
+        case 'experiencia':
+            if (!empty($A['experiencia'])) {
+                $add('experiência', 'experiencia', $A['experiencia'], [], $A['tok']);
+                $add('experiência', 'experiencia', $B['experiencia']);
+            }
+            break;
         case 'prestador':
             // Ficha do Cadastur: base pública do Ministério do Turismo, igual
             // para todos os destinos (o id é do Cadastur, não de destino).
@@ -519,6 +531,22 @@ function ce_criarDados(PDO $pdo, array $cfg, array &$fotosCriadas): array
             $x[$tipo] = $uid;
             $d['nomes']["usuario:{$uid}"] = $nome;
         }
+        // Um item do inventário (hotel, ficha B1) e uma experiência dele,
+        // com a marca no nome: é o que a busca e as fichas não podem vazar.
+        $fichaHotel = (int) $pdo->query('SELECT id FROM inventario_fichas WHERE ordem = 20')->fetchColumn();
+        if ($fichaHotel) {
+            $x['item'] = ce_inserir($pdo, 'inventario_itens', [
+                'empresa_id' => $x['empresa'], 'ficha_id' => $fichaHotel, 'situacao' => 'em_campo', 'origem' => 'painel',
+                'nome' => "Hotel Escopo {$tok}", 'criado_em' => date('Y-m-d H:i:s'),
+            ]);
+            $d['nomes']["item:{$x['item']}"] = "Hotel Escopo {$tok}";
+            $x['experiencia'] = ce_inserir($pdo, 'inventario_experiencias', [
+                'empresa_id' => $x['empresa'], 'item_id' => $x['item'], 'situacao' => 'rascunho', 'titulo' => "Vivência Escopo {$tok}",
+                'dimensoes' => '{}', 'narrativa' => "Narrativa {$tok}", 'duracao_minutos' => 60, 'pessoas_max' => 10, 'faixa_valor' => 'gratuita',
+                'criado_em' => date('Y-m-d H:i:s'),
+            ]);
+            $d['nomes']["experiencia:{$x['experiencia']}"] = "Vivência Escopo {$tok}";
+        }
         // Uma linha de auditoria do destino, para a busca da auditoria ter o
         // que (não) achar.
         $pdo->prepare('INSERT INTO auditoria (usuario_id, usuario_nome, empresa_id, acao, entidade, resumo, ip, criado_em) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())')
@@ -562,6 +590,8 @@ function ce_retrato(PDO $pdo, array $d, string $qual): string
     if ($qual === 'B') {
         $B = $d['B'];
         $pega('SELECT * FROM empresas WHERE id = ?', [$B['empresa']]);
+        $pega('SELECT * FROM inventario_itens WHERE empresa_id = ? ORDER BY id', [$B['empresa']]);
+        $pega('SELECT * FROM inventario_experiencias WHERE empresa_id = ? ORDER BY id', [$B['empresa']]);
         $pega('SELECT * FROM usuario_empresa WHERE empresa_id = ? ORDER BY id', [$B['empresa']]);
         $pega('SELECT id, nome, email, ativo, versao_sessao, duplo_fator_confirmado, duplo_fator_segredo FROM usuarios WHERE id IN (?, ?) ORDER BY id', [$B['gestor'], $B['prestador']]);
     }

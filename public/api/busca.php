@@ -4,8 +4,9 @@
  * respeitando permissão e o destino em que a pessoa está.
  * Softsul Software
  *
- * Acha destinos e Cadastur (só a plataforma), Mapa do Turismo, pessoas e
- * os cartões de Configurações. Toda rotina nova entra aqui (e em comandos.php), para o
+ * Acha destinos e Cadastur (só a plataforma), itens e experiências do
+ * inventário (do destino atual), Mapa do Turismo, pessoas e os cartões de
+ * Configurações. Toda rotina nova entra aqui (e em comandos.php), para o
  * Ctrl+K achar o que ela cadastra: é a regra da casa. A paleta mostra tudo
  * o que vier, com rolagem; o teto de cada grupo (MAX) só protege a tecla.
  */
@@ -66,8 +67,20 @@ $doDestino = function (string $permissao, string $titulo, string $icone, string 
     $juntar($titulo, $icone, array_map($item, $s->fetchAll()));
 };
 
-// Os cadastros do inventário entram aqui quando as telas deles existirem,
-// cada um com $doDestino (permissão, título, ícone, consulta com empresa_id).
+// O inventário do destino: item pelo nome, nome popular, bairro, tipo ou
+// CNPJ. O prestador não tem inventario.ver até a etapa 6 (escopo dele).
+$doDestino('inventario.ver', 'Inventário', 'mapa',
+    'SELECT i.id, i.nome, i.bairro, i.situacao, f.codigo, t.nome AS tipo FROM inventario_itens i
+     JOIN inventario_fichas f ON f.id = i.ficha_id LEFT JOIN inventario_tipos t ON t.id = i.tipo_id
+     WHERE i.empresa_id = ? AND (i.nome LIKE ? OR i.nome_popular LIKE ? OR i.bairro LIKE ? OR t.nome LIKE ?' . ($digitos !== '' ? ' OR i.cnpj LIKE ?' : '') . ')
+     ORDER BY (i.nome LIKE ?) DESC, i.nome',
+    $digitos !== '' ? [$eid, $como, $como, $como, $como, $digitos . '%', $como] : [$eid, $como, $como, $como, $como, $como],
+    fn ($i) => ['nome' => $i['nome'], 'url' => endereco('item', (int) $i['id'], $i['nome']),
+                'onde' => trim($i['codigo'] . ' · ' . ($i['tipo'] ?? '') . ' · ' . ($i['bairro'] ?? ''), ' ·')]);
+$doDestino('inventario.ver', 'Experiências', 'coracao',
+    'SELECT x.id, x.titulo, x.situacao, i.nome AS item FROM inventario_experiencias x JOIN inventario_itens i ON i.id = x.item_id
+     WHERE x.empresa_id = ? AND (x.titulo LIKE ? OR x.narrativa LIKE ?) ORDER BY x.titulo', [$eid, $como, $como],
+    fn ($x) => ['nome' => $x['titulo'], 'url' => endereco('experiencia', (int) $x['id'], $x['titulo']), 'onde' => (string) $x['item']]);
 
 // Mapa do Turismo: os municípios e as regiões turísticas com esse nome.
 if (Auth::ehSoftsul() && Auth::pode('mapa-turismo.ver')) {

@@ -45,6 +45,10 @@ if (Empresa::id() || Auth::ehSoftsul()) {
     $por('usuarios.criar', 'Criar', 'Novo usuário', '/configuracoes/usuarios#novo', 'pessoas');
 }
 if (Empresa::id()) {
+    $por('inventario.criar', 'Criar', 'Novo item do inventário', '/inventario#novo', 'mapa');
+    $por('inventario.criar', 'Ir para', 'Pré-cadastro pelo Cadastur', '/pre-cadastro', 'certificado', 'Inventário');
+}
+if (Empresa::id()) {
     $atual = Empresa::atual();
     $por('configuracoes.ver', 'Ir para', 'Dados do destino', endereco('destino', Empresa::id(), (string) ($atual['nome_fantasia'] ?? '')), 'predio', 'Configurações');
     $por('auditoria.ver', 'Ir para', 'Auditoria do destino', '/configuracoes/auditoria', 'lista', 'Configurações');

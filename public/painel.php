@@ -22,6 +22,7 @@ require_once __DIR__ . '/../app/Email.php';
 $u = Auth::exigirPermissao('painel.ver');
 $empresa = Empresa::atual();
 $eid = (int) Empresa::id();
+$pdo = Database::conexao();
 $hora = (int) date('G');
 $saudacao = $hora < 12 ? 'Bom dia' : ($hora < 18 ? 'Boa tarde' : 'Boa noite');
 $dias = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
@@ -30,6 +31,14 @@ $portalDe = fn (array $d): string => 'https://' . ($d['dominio_proprio'] ?: $d['
 
 $metricas = [];
 if ($empresa) {
+    if (Auth::pode('inventario.ver')) {
+        require_once __DIR__ . '/../app/Inventario.php';
+        $inv = Inventario::resumo($eid);
+        $homologados = $inv['situacao']['homologada'] + $inv['situacao']['desatualizada'];
+        $metricas[] = ['Inventário', $inv['total'] - $inv['situacao']['arquivada'], plural($homologados, 'homologado', 'homologados') . ', '
+            . plural($inv['situacao']['em_conferencia'], 'em conferência', 'em conferência'), '/inventario'];
+        $metricas[] = ['Leitos homologados', $inv['leitos'], plural($inv['uh'], 'unidade habitacional', 'unidades habitacionais'), '/inventario?ficha=' . (int) $pdo->query('SELECT id FROM inventario_fichas WHERE ordem = 20')->fetchColumn()];
+    }
     $metricas[] = ['Equipe', Painel::equipe($eid), 'pessoas com acesso ao destino', Auth::pode('usuarios.ver') ? '/configuracoes/usuarios' : null];
 } elseif ($u['softsul']) {
     $destinos = Painel::destinosPlataforma();
@@ -78,9 +87,29 @@ paginaInicio('Início', 'painel');
 <?php endif; ?>
 
 <?php if ($empresa): ?>
-<p class="aviso info"><?= icone('mapa') ?><span><strong>O inventário de <?= e($empresa['nome_fantasia']) ?> está a caminho.</strong>
-As fichas da oferta turística, a coleta de campo, a homologação e o caderno oficial entram aqui assim que cada módulo ficar pronto.</span></p>
+<?php if (isset($inv) && $inv['total'] === 0): ?>
+<p class="aviso info"><?= icone('mapa') ?><span><strong>Para começar o inventário de <?= e($empresa['nome_fantasia']) ?>:</strong>
+faça o <a href="/pre-cadastro">pré-cadastro pelo Cadastur</a>, que traz hotéis, restaurantes e agências que a base oficial já conhece, e escreva os textos em <a href="/destino-textos">O destino</a>. Os atrativos e a infraestrutura de apoio entram pelo Novo item do Inventário.</span></p>
+<?php endif; ?>
 <div class="painel-colunas painel-graficos">
+  <?php if (isset($inv) && $inv['total'] > 0): ?>
+  <div class="cartao">
+    <div class="cab-cartao"><h2>Esteira do inventário</h2><a href="/inventario">Ver o inventário</a></div>
+    <?= Graficos::faixa([
+        ['rotulo' => 'Pré-cadastro', 'valor' => $inv['situacao']['pre_cadastro'], 'cor' => '#9AA3B2', 'link' => '/inventario?situacao=pre_cadastro'],
+        ['rotulo' => 'Em campo', 'valor' => $inv['situacao']['em_campo'], 'cor' => '#63B6E5', 'link' => '/inventario?situacao=em_campo'],
+        ['rotulo' => 'Em conferência', 'valor' => $inv['situacao']['em_conferencia'], 'cor' => '#F3B137', 'link' => '/inventario?situacao=em_conferencia'],
+        ['rotulo' => 'Homologado', 'valor' => $inv['situacao']['homologada'], 'cor' => '#20B295', 'link' => '/inventario?situacao=homologada'],
+        ['rotulo' => 'Desatualizado', 'valor' => $inv['situacao']['desatualizada'], 'cor' => '#E2620B', 'link' => '/inventario?situacao=desatualizada'],
+    ]) ?>
+    <h3 class="sub-cartao">Por categoria</h3>
+    <?= Graficos::barras([
+        ['rotulo' => 'A. Infraestrutura de apoio', 'valor' => $inv['categoria']['A'], 'cor' => '#1E6EA7', 'link' => '/inventario?categoria=A'],
+        ['rotulo' => 'B. Serviços e equipamentos', 'valor' => $inv['categoria']['B'], 'cor' => '#20B295', 'link' => '/inventario?categoria=B'],
+        ['rotulo' => 'C. Atrativos', 'valor' => $inv['categoria']['C'], 'cor' => '#F3B137', 'link' => '/inventario?categoria=C'],
+    ]) ?>
+  </div>
+  <?php endif; ?>
   <div class="cartao">
     <div class="cab-cartao"><h2>Atividade no painel</h2><?= Auth::pode('auditoria.ver') ? '<a href="/configuracoes/auditoria">Auditoria</a>' : '' ?></div>
     <?= Graficos::colunas(Painel::atividade($eid), [['chave' => 'acoes', 'nome' => 'Ações registradas', 'cor' => '#2E8B3E']], 'Ações registradas na auditoria por dia') ?>
