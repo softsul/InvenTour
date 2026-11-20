@@ -28,6 +28,8 @@ final class PortalLayout
 <title><?= e($titulo === $nome ? $nome . ' | InvenTour' : $titulo . ' | ' . $nome) ?></title>
 <?php if (!$indexar): ?><meta name="robots" content="noindex"><?php endif; ?>
 <meta name="theme-color" content="<?= e($cor) ?>">
+<link rel="icon" href="/assets/icone.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/icone-180.png">
 <link rel="stylesheet" href="<?= e($css) ?>">
 </head>
 <body data-acento="<?= e($cor) ?>">
