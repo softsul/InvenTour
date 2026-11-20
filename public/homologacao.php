@@ -53,7 +53,7 @@ paginaInicio('Homologação', 'homologacao');
       <?php foreach ($fila as $i): $url = endereco('item', (int) $i['id'], $i['nome']); $falta = Esteira::pendencias($i); ?>
         <tr>
           <td class="elastica"><span class="cli">
-            <?php if ($i['foto']): ?><img class="avatar" src="/midia/inventario/<?= $eid ?>/<?= e(rawurlencode(basename((string) $i['foto']))) ?>" alt="" loading="lazy"><?php else: ?><?= avatarIniciais((string) $i['nome'], 'avatar') ?><?php endif; ?>
+            <?php if ($i['foto']): ?><img class="avatar com-foto" src="/midia/inventario/<?= $eid ?>/<?= e(rawurlencode(basename((string) $i['foto']))) ?>" alt="" loading="lazy"><?php else: ?><?= avatarIniciais((string) $i['nome'], 'avatar') ?><?php endif; ?>
             <span class="txt"><b><a href="<?= e($url) ?>" data-ficha="<?= e($i['nome']) ?>"><?= e($i['nome']) ?></a></b>
             <span><?= e((string) ($i['tipo_nome'] ?: $i['ficha_nome'])) ?></span></span></span></td>
           <td class="dado"><?= e((string) $i['ficha_codigo']) ?></td>
