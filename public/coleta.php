@@ -73,7 +73,8 @@ paginaInicio('Coleta de campo', 'coleta');
            aba Coleta, gravar já envia, porque o painel está sempre online. */ ?>
   <div class="cartao app-sinc">
     <div class="cab-cartao"><h2>Sincronização deste navegador</h2></div>
-    <?= telaEstadoColeta('<button type="button" class="botao claro" data-abre-dialogo="app-instalar">' . icone('baixar') . 'Baixar / validar app</button>') ?>
+    <?php /* No painel, o Histórico é o da equipe (o do aparelho fica só no app). */ ?>
+    <?= telaEstadoColeta('<button type="button" class="botao claro" data-abre-dialogo="app-instalar">' . icone('baixar') . 'Baixar / validar app</button>', false) ?>
     <p class="ajuda">Na aba Coleta, o que você grava aqui no painel já sobe na hora. No celular, quem envia é o botão Sincronizar do app.</p>
   </div>
   <?php /* Os três passos (instalar, gerar o código, digitar no app) num

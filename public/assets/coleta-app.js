@@ -58,6 +58,17 @@
  */
 (function () {
   'use strict';
+  // Histórico do painel: leva ao cartão do histórico da equipe e o destaca.
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest && ev.target.closest('[data-ir-para]');
+    if (!b) { return; }
+    var alvo = document.getElementById(b.getAttribute('data-ir-para'));
+    if (!alvo) { return; }
+    alvo.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    alvo.classList.remove('destaque-chegou');
+    void alvo.offsetWidth;
+    alvo.classList.add('destaque-chegou');
+  });
   document.addEventListener('click', function (ev) {
     var b = ev.target.closest && ev.target.closest('[data-abre-dialogo]');
     if (!b) { return; }

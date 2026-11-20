@@ -949,7 +949,7 @@
   });
   $('col-mais').addEventListener('click', function () { mostrar += POR_PAGINA; desenharLista(); });
   $('col-sincronizar').addEventListener('click', sincronizar);
-  $('col-historico').addEventListener('click', abrirHistorico);
+  if ($('col-historico')) { $('col-historico').addEventListener('click', abrirHistorico); }
   window.addEventListener('online', function () { medirConexao(); });
   window.addEventListener('offline', function () { conexao = { estado: 'sem-rede', ms: null, quando: Date.now() }; mostrarEstado(); });
 

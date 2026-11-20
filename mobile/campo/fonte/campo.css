@@ -79,3 +79,9 @@ dialog.coleta-dialogo.atualizar-app{height:fit-content; max-height:calc(100vh - 
 .atualizar-icone{display:inline-flex; width:56px; height:56px; border-radius:50%; align-items:center; justify-content:center; background:var(--indigo-sup); color:var(--indigo)}
 .atualizar-icone svg{width:26px; height:26px}
 @media (max-width:640px){ dialog.coleta-dialogo.atualizar-app{height:fit-content; width:calc(100vw - 24px); margin:auto; border-radius:var(--r-g)} }
+
+/* Aviso de atualização: só o tamanho do conteúdo, no centro da tela
+   (o id vence as regras de janela de tela cheia do celular). */
+#campo-atualizar{width:min(400px, calc(100vw - 32px)); height:fit-content; max-height:calc(100dvh - 32px);
+  inset:0; margin:auto; border-radius:var(--r-g)}
+#campo-atualizar .corpo-dialogo{flex:none; padding:26px 22px 22px}

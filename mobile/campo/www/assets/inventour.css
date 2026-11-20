@@ -1461,3 +1461,7 @@ dialog.coleta-dialogo.app-instalar{height:auto; max-height:calc(100vh - 32px)}
 .app-instalar .corpo-dialogo{flex:none}
 #app-instalar{height:fit-content; max-height:calc(100vh - 32px)}
 #app-instalar .corpo-dialogo{flex:none}
+/* Histórico da equipe destacado ao chegar pelo botão Histórico. */
+#app-historico{scroll-margin-top:calc(var(--topo-abas, 0px) + 60px)}
+.destaque-chegou{animation:chegou-cartao 1.6s ease-out}
+@keyframes chegou-cartao{0%{box-shadow:0 0 0 4px var(--acento-borda)} 100%{box-shadow:0 0 0 0 transparent}}
