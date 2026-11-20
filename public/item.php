@@ -201,7 +201,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $acaoFoto === '' && $acaoEsteira ==
             }
         }
         if ($erro === '') {
-            $id = Inventario::salvar($novo ? null : $id, $fichaId, $nucleo, $especificos, $acessNovo);
+            $id = Inventario::salvar($novo ? null : $id, $fichaId, $nucleo, $especificos, $acessNovo, $lido['acess_outro']);
             if ($ficha['forma'] !== 'municipio') {
                 Inventario::salvarFacilidades($id, (array) ($_POST['facilidades'] ?? []));
             }
@@ -574,9 +574,15 @@ paginaFicha($titulo, 'inventario');
       <h2 class="titulo-secao">Funcionamento</h2>
       <?= semanaDeHorario($horario, 'data-semana', !$podeEditar) ?>
       <div class="grade">
-        <div class="campo c-6">
-          <label for="h_feriados">Feriados</label>
-          <div class="entrada"><input type="text" id="h_feriados" name="h_feriados" maxlength="200" value="<?= e((string) ($horario['feriados'] ?? '')) ?>"<?= $ro ?>></div>
+        <div class="campo c-3">
+          <label for="h_feriados_abre">Funciona em feriados</label>
+          <div class="entrada"><select id="h_feriados_abre" name="h_feriados_abre"<?= $dis ?>><option value="">Não informado</option>
+            <option value="1"<?= ($horario['feriados_abre'] ?? null) === true ? ' selected' : '' ?>>Sim</option>
+            <option value="0"<?= ($horario['feriados_abre'] ?? null) === false ? ' selected' : '' ?>>Não</option></select></div>
+        </div>
+        <div class="campo c-3">
+          <label for="h_feriados">Feriados (detalhe)</label>
+          <div class="entrada"><input type="text" id="h_feriados" name="h_feriados" maxlength="200" placeholder="Só nacionais, fecha no Natal..." value="<?= e((string) ($horario['feriados'] ?? '')) ?>"<?= $ro ?>></div>
         </div>
         <div class="campo c-6">
           <label for="h_temporada">Temporada ou agendamento</label>
@@ -585,8 +591,11 @@ paginaFicha($titulo, 'inventario');
       </div>
       <h3 class="sub-cartao">Formas de pagamento</h3>
       <?= $caixas('pagamentos', Inventario::PAGAMENTOS, $pagamentos) ?>
+      <div class="campo">
       <h3 class="sub-cartao">Atendimento em</h3>
       <?= $caixas('idiomas', Inventario::IDIOMAS, $idiomas) ?>
+      <div class="entrada outro-texto" data-outro-at="idiomas"><input type="text" name="idiomas_outro" maxlength="120" placeholder="Qual idioma?" aria-label="Outro idioma: qual" value="<?= e((string) ($d['idiomas_outro'] ?? '')) ?>"<?= $ro ?>></div>
+      </div>
     </div>
     <?php endif; ?>
   </div>
@@ -624,6 +633,8 @@ paginaFicha($titulo, 'inventario');
                       . (in_array($mes, $marcados, true) ? ' checked' : '') . $dis . '><i></i>' . e(mb_substr($mes, 0, 3)) . '</label>';
               }
               $h .= '</div>';
+          } elseif ($col['tipo'] === 'data') {
+              $h .= '<div class="entrada mini"><input type="date" name="' . $nome . '" aria-label="' . $rot . '" value="' . e(is_scalar($v) ? (string) $v : '') . '"' . $ro . '></div>';
           } elseif ($col['tipo'] === 'sim_nao' || $col['tipo'] === 'escolha') {
               $ops = $col['tipo'] === 'sim_nao' ? ['1' => 'Sim', '0' => 'Não'] : array_combine($col['opcoes'], $col['opcoes']);
               $h .= '<div class="entrada mini"><select name="' . $nome . '" aria-label="' . $rot . '"' . $dis . '><option value=""></option>';
@@ -722,9 +733,23 @@ paginaFicha($titulo, 'inventario');
       </div>
     </div>
     <p class="ajuda">Os subitens da seção 6 da ficha oficial. O portal resume em cinco selos simples para o turista.</p>
-    <?php foreach ($subitensAcess as $s): ?>
+    <?php $acessOutros = $_SERVER['REQUEST_METHOD'] === 'POST' ? array_filter((array) ($_POST['acess_outro'] ?? []), 'is_scalar') : ($novo ? [] : Inventario::acessibilidadeOutros($id));
+    foreach ($subitensAcess as $s): $marc = (array) ($acess[$s['chave']] ?? []); $txt = (string) ($acessOutros[$s['chave']] ?? ''); ?>
+      <div class="campo">
       <h3 class="sub-cartao"><?= e((string) $s['rotulo']) ?></h3>
-      <?= $caixas('acess[' . $s['chave'] . ']', (array) $s['opcoes'], (array) ($acess[$s['chave']] ?? [])) ?>
+      <?php if (!empty($s['texto'])): ?>
+        <div class="entrada"><input type="text" name="acess_outro[<?= e($s['chave']) ?>]" maxlength="255" placeholder="Quais? Especifique" aria-label="<?= e((string) $s['rotulo']) ?>" value="<?= e($txt) ?>"<?= $ro ?>></div>
+      <?php elseif (array_key_exists('multipla', $s) && !$s['multipla']): ?>
+        <div class="entrada"><select name="acess[<?= e($s['chave']) ?>]" aria-label="<?= e((string) $s['rotulo']) ?>"<?= $dis ?>><option value="">Não informado</option>
+          <?php foreach ((array) $s['opcoes'] as $op): ?><option<?= in_array($op, $marc, true) ? ' selected' : '' ?>><?= e((string) $op) ?></option><?php endforeach; ?>
+        </select></div>
+      <?php else: ?>
+        <?= $caixas('acess[' . $s['chave'] . ']', (array) $s['opcoes'], $marc) ?>
+        <?php if (!empty($s['outros'])): ?>
+          <div class="entrada outro-texto" data-outro-at="acess-<?= e($s['chave']) ?>"><input type="text" name="acess_outro[<?= e($s['chave']) ?>]" maxlength="255" placeholder="Quais? Especifique" aria-label="<?= e((string) $s['rotulo']) ?>: especifique" value="<?= e($txt) ?>"<?= $ro ?>></div>
+        <?php endif; ?>
+      <?php endif; ?>
+      </div>
     <?php endforeach; ?>
   </div>
   </div>

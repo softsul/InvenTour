@@ -258,7 +258,7 @@
   }
   // O que está no aparelho por cima do que veio do servidor. Os campos da
   // ficha, a acessibilidade e as horas trocam um a um; o resto, inteiro.
-  var POR_PARTE = ['at', 'aus', 'outro', 'acess', 'h_abre', 'h_fecha', 'h_abre2', 'h_fecha2'];
+  var POR_PARTE = ['at', 'aus', 'outro', 'acess', 'acess_outro', 'h_abre', 'h_fecha', 'h_abre2', 'h_fecha2'];
   function mesclarFicha(f, dados) {
     var r = JSON.parse(JSON.stringify(f || {}));
     Object.keys(dados || {}).forEach(function (k) {
@@ -644,6 +644,9 @@
           return '<label class="check mes" title="' + m + '"><input type="checkbox" name="' + nome + '[]" value="' + m + '"><i></i>' + m.slice(0, 3) + '</label>';
         }).join('') + '</div></td>';
       }
+      if (col.tipo === 'data') {
+        return '<td><div class="entrada mini"><input type="date" name="' + nome + '" aria-label="' + rot + '"' + pad + '></div></td>';
+      }
       if (col.tipo === 'sim_nao' || col.tipo === 'escolha') {
         var ops = col.tipo === 'sim_nao' ? [['1', 'Sim'], ['0', 'Não']] : (col.opcoes || []).map(function (o) { return [o, o]; });
         return '<td><div class="entrada mini"><select name="' + nome + '" aria-label="' + rot + '"' + pad + '><option value=""></option>'
@@ -724,8 +727,21 @@
     $('c-especificos').innerHTML = html;
     $('aba-ficha-rotulo').textContent = f ? 'Ficha ' + f.codigo : 'Ficha';
     form.querySelector('[data-aba-coleta="ficha"]').hidden = !f || (!atributos.length && !f.capacidade && !!cat);
+    // Acessibilidade: múltipla, escolha única (Sim ou Não) ou só texto (Outras).
     $('c-acess').innerHTML = municipio || !cat ? '' : cat.acessibilidade.map(function (s) {
-      return '<h3 class="sub-cartao">' + esc(s.rotulo) + '</h3>' + caixasHtml('acess[' + s.chave + ']', s.opcoes);
+      var corpo;
+      var outro = '<div class="entrada outro-texto" data-outro-at="acess-' + esc(s.chave) + '"' + (s.texto ? '' : ' hidden') + '><input type="text" name="acess_outro['
+        + esc(s.chave) + ']" maxlength="255" placeholder="Quais? Especifique" aria-label="' + esc(s.rotulo) + ': especifique"></div>';
+      if (s.texto) {
+        corpo = outro.replace(' data-outro-at="acess-' + esc(s.chave) + '"', '');
+      } else if (s.unica) {
+        corpo = '<div class="sim-nao">' + s.opcoes.map(function (o) {
+          return '<label class="opcao-sn"><input type="radio" name="acess[' + esc(s.chave) + ']" value="' + esc(o) + '"><span>' + esc(o) + '</span></label>';
+        }).join('') + '</div>';
+      } else {
+        corpo = caixasHtml('acess[' + s.chave + ']', s.opcoes) + (s.outros ? outro : '');
+      }
+      return '<div class="campo"><h3 class="sub-cartao">' + esc(s.rotulo) + '</h3>' + corpo + '</div>';
     }).join('');
     var macro = null;
     $('c-tribos').innerHTML = municipio || !cat ? '' : cat.tribos.map(function (t) {
@@ -786,7 +802,7 @@
       if (el.type === 'checkbox') {
         el.checked = /\[\]$/.test(el.name) ? Array.isArray(v) && v.map(String).indexOf(el.value) !== -1 : !!v && v !== '0';
       } else if (el.type === 'radio') {
-        el.checked = v != null && String(v) === el.value;
+        el.checked = v != null && (Array.isArray(v) ? v.map(String).indexOf(el.value) !== -1 : String(v) === el.value);
       } else {
         el.value = v == null || typeof v === 'object' ? (el.getAttribute('data-padrao') || '') : String(v);
       }
@@ -809,7 +825,7 @@
 
   // O que mudou desde que a ficha abriu. Campo da ficha vai com a ausência;
   // o horário vai inteiro; a coordenada, em par.
-  var HORARIO = ['h24', 'h_abre', 'h_fecha', 'h_abre2', 'h_fecha2', 'h_feriados', 'h_temporada'];
+  var HORARIO = ['h24', 'h_abre', 'h_fecha', 'h_abre2', 'h_fecha2', 'h_feriados', 'h_feriados_abre', 'h_temporada'];
   function igual(a, b) { return JSON.stringify(a == null ? '' : a) === JSON.stringify(b == null ? '' : b); }
   function diferenca(antes, agora) {
     var mudou = {};
@@ -820,10 +836,10 @@
     Object.keys(chaves).forEach(function (k) {
       if (k === 'at' || k === 'aus' || k === 'outro') { return; }
       if (HORARIO.indexOf(k) !== -1) { if (!igual(antes[k], agora[k])) { horario = true; } return; }
-      if (k === 'acess') {
-        var a = antes.acess || {}, b = agora.acess || {};
+      if (k === 'acess' || k === 'acess_outro') {
+        var a = antes[k] || {}, b = agora[k] || {};
         Object.keys(Object.assign({}, a, b)).forEach(function (c) {
-          if (!igual(a[c] || [], b[c] || [])) { (mudou.acess = mudou.acess || {})[c] = b[c] || []; n++; }
+          if (!igual(a[c] || '', b[c] || '')) { (mudou[k] = mudou[k] || {})[c] = b[c] == null ? '' : b[c]; n++; }
         });
         return;
       }

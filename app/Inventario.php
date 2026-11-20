@@ -138,6 +138,15 @@ final class Inventario
         return $b ??= json_decode((string) file_get_contents(__DIR__ . '/dados/blocos-comuns-2011.json'), true) ?: [];
     }
 
+    /** O texto do "Outras ____" de cada subitem de acessibilidade do item. */
+    public static function acessibilidadeOutros(int $itemId): array
+    {
+        [$f, $a] = Empresa::filtro();
+        $q = self::pdo()->prepare("SELECT chave, outro FROM inventario_item_acessibilidade WHERE item_id = ? AND outro IS NOT NULL{$f}");
+        $q->execute([$itemId, ...$a]);
+        return $q->fetchAll(PDO::FETCH_KEY_PAIR);
+    }
+
     public static function acessibilidade(int $itemId): array
     {
         [$f, $a] = Empresa::filtro();
@@ -192,7 +201,7 @@ final class Inventario
      * @param array<int,array{texto:?string,numero:?float,ausencia:?string}> $especificos por atributo_id
      * @param array<string,list<string>> $acess por chave do subitem
      */
-    public static function salvar(?int $id, int $fichaId, array $nucleo, array $especificos, array $acess): int
+    public static function salvar(?int $id, int $fichaId, array $nucleo, array $especificos, array $acess, array $acessOutro = []): int
     {
         $pdo = self::pdo();
         $eid = Empresa::id();
@@ -221,10 +230,10 @@ final class Inventario
                 }
             }
             $pdo->prepare('DELETE FROM inventario_item_acessibilidade WHERE item_id = ? AND empresa_id = ?')->execute([$id, $eid]);
-            $insA = $pdo->prepare('INSERT INTO inventario_item_acessibilidade (item_id, empresa_id, chave, opcoes) VALUES (?, ?, ?, ?)');
+            $insA = $pdo->prepare('INSERT INTO inventario_item_acessibilidade (item_id, empresa_id, chave, opcoes, outro) VALUES (?, ?, ?, ?, ?)');
             foreach ($acess as $chave => $opcoes) {
-                if ($opcoes) {
-                    $insA->execute([$id, $eid, $chave, json_encode(array_values($opcoes), JSON_UNESCAPED_UNICODE)]);
+                if ($opcoes || !empty($acessOutro[$chave])) {
+                    $insA->execute([$id, $eid, $chave, json_encode(array_values($opcoes), JSON_UNESCAPED_UNICODE), $acessOutro[$chave] ?? null]);
                 }
             }
             $pdo->commit();

@@ -38,7 +38,8 @@
     "Piso regular e antiderrapante",
     "Livre de obstáculos",
     "Outras"
-   ]
+   ],
+   "outros": true
   },
   {
    "chave": "simbolo_acesso",
@@ -263,7 +264,8 @@
    "rotulo": "Outras",
    "multipla": false,
    "opcoes": [],
-   "tipo": "texto"
+   "tipo": "texto",
+   "texto": true
   }
  ],
  "funcionamento": {

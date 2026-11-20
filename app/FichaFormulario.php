@@ -22,7 +22,7 @@ require_once __DIR__ . '/PlusCode.php';
 final class FichaFormulario
 {
     /** Teclas do funcionamento: chegando qualquer uma, o horário inteiro é regravado. */
-    private const CHAVES_HORARIO = ['h24', 'h_abre', 'h_fecha', 'h_abre2', 'h_fecha2', 'h_feriados', 'h_temporada'];
+    private const CHAVES_HORARIO = ['h24', 'h_abre', 'h_fecha', 'h_abre2', 'h_fecha2', 'h_feriados', 'h_feriados_abre', 'h_temporada'];
 
     /**
      * Lê o formulário e devolve o que gravar, já validado.
@@ -104,7 +104,9 @@ final class FichaFormulario
             }
             $horarioVeio = !$parcial || array_intersect(self::CHAVES_HORARIO, array_keys($p));
             if ($horarioVeio) {
-                $h = ['24h' => !empty($p['h24']), 'feriados' => $texto('h_feriados', 200), 'temporada' => $texto('h_temporada', 200)];
+                $h = ['24h' => !empty($p['h24']), 'feriados' => $texto('h_feriados', 200), 'temporada' => $texto('h_temporada', 200),
+                      // Funciona em feriados: Sim, Não ou sem resposta (a ficha pergunta assim).
+                      'feriados_abre' => $simNao('h_feriados_abre') === null ? null : (bool) $simNao('h_feriados_abre')];
                 foreach (Inventario::DIAS as $dia => $_) {
                     $abre = (string) ($p['h_abre'][$dia] ?? '');
                     $fecha = (string) ($p['h_fecha'][$dia] ?? '');
@@ -122,6 +124,7 @@ final class FichaFormulario
             }
             $set('formas_pagamento', fn () => json_encode(array_values(array_intersect(Inventario::PAGAMENTOS, (array) ($p['pagamentos'] ?? []))), JSON_UNESCAPED_UNICODE), 'pagamentos');
             $set('idiomas', fn () => json_encode(array_values(array_intersect(Inventario::IDIOMAS, (array) ($p['idiomas'] ?? []))), JSON_UNESCAPED_UNICODE));
+            $set('idiomas_outro', fn () => in_array('Outros', (array) ($p['idiomas'] ?? []), true) ? $texto('idiomas_outro', 120) : null);
             $set('conservacao', fn () => $doCatalogo('conservacao', Inventario::CONSERVACAO));
             $set('possui_experiencia', fn () => empty($p['possui_experiencia']) ? 0 : 1);
         }
@@ -148,14 +151,26 @@ final class FichaFormulario
             }
         }
 
+        // Acessibilidade: múltipla (acess[chave][]), escolha única (acess[chave])
+        // ou só texto (o subitem Outras); o "Outras ____" em acess_outro[chave].
         $acess = [];
+        $acessOutro = [];
         if (!$municipio) {
             $vindos = (array) ($p['acess'] ?? []);
+            $outros = (array) ($p['acess_outro'] ?? []);
             foreach ((array) (Inventario::blocosComuns()['acessibilidade'] ?? []) as $s) {
-                if ($parcial && !array_key_exists($s['chave'], $vindos)) {
+                $c = $s['chave'];
+                if ($parcial && !array_key_exists($c, $vindos) && !array_key_exists($c, $outros)) {
                     continue;
                 }
-                $acess[$s['chave']] = array_values(array_intersect((array) $s['opcoes'], (array) ($vindos[$s['chave']] ?? [])));
+                $marcadas = array_values(array_intersect((array) $s['opcoes'], array_map('strval', array_filter((array) ($vindos[$c] ?? []), 'is_scalar'))));
+                if (array_key_exists('multipla', $s) && !$s['multipla']) {
+                    $marcadas = array_slice($marcadas, 0, 1);
+                }
+                $acess[$c] = $marcadas;
+                $abre = !empty($s['texto']) || (!empty($s['outros']) && array_filter($marcadas, fn ($o) => self::ehOutros((string) $o)));
+                $t = mb_substr(trim(is_scalar($outros[$c] ?? null) ? (string) $outros[$c] : ''), 0, 255);
+                $acessOutro[$c] = $abre && $t !== '' ? $t : null;
             }
         }
         $facilidades = !$municipio && $veio('facilidades') ? array_map('intval', (array) ($p['facilidades'] ?? [])) : null;
@@ -172,7 +187,7 @@ final class FichaFormulario
                 $erros[$c] = $rotulo . ' incompleto. Use DDD e número.';
             }
         }
-        return ['nucleo' => $n, 'especificos' => $esp, 'acess' => $acess, 'facilidades' => $facilidades, 'erros' => $erros];
+        return ['nucleo' => $n, 'especificos' => $esp, 'acess' => $acess, 'acess_outro' => $acessOutro, 'facilidades' => $facilidades, 'erros' => $erros];
     }
 
     /**
@@ -292,6 +307,10 @@ final class FichaFormulario
                         $c = in_array((string) (is_scalar($c) ? $c : ''), ['1', '0'], true) ? (string) $c : '';
                         $algo = $algo || $c !== '';
                         break;
+                    case 'data':
+                        $c = self::data($c) ?? '';
+                        $algo = $algo || $c !== '';
+                        break;
                     case 'escolha':
                         $c = is_scalar($c) && in_array((string) $c, $col['opcoes'], true) ? (string) $c : '';
                         $algo = $algo || $c !== '';
@@ -335,7 +354,7 @@ final class FichaFormulario
      * vieram (a coleta parcial), sem apagar os outros. Roda dentro da
      * transação de quem chama. Devolve as colunas de capacidade a atualizar.
      */
-    public static function gravarParcial(int $itemId, array $ficha, array $especificos, array $acess, ?array $facilidades): array
+    public static function gravarParcial(int $itemId, array $ficha, array $especificos, array $acess, ?array $facilidades, array $acessOutro = []): array
     {
         $pdo = Database::conexao();
         $eid = Empresa::id();
@@ -348,11 +367,11 @@ final class FichaFormulario
             }
         }
         $delA = $pdo->prepare('DELETE FROM inventario_item_acessibilidade WHERE item_id = ? AND chave = ? AND empresa_id = ?');
-        $insA = $pdo->prepare('INSERT INTO inventario_item_acessibilidade (item_id, empresa_id, chave, opcoes) VALUES (?, ?, ?, ?)');
+        $insA = $pdo->prepare('INSERT INTO inventario_item_acessibilidade (item_id, empresa_id, chave, opcoes, outro) VALUES (?, ?, ?, ?, ?)');
         foreach ($acess as $chave => $opcoes) {
             $delA->execute([$itemId, $chave, $eid]);
-            if ($opcoes) {
-                $insA->execute([$itemId, $eid, $chave, json_encode(array_values($opcoes), JSON_UNESCAPED_UNICODE)]);
+            if ($opcoes || !empty($acessOutro[$chave])) {
+                $insA->execute([$itemId, $eid, $chave, json_encode(array_values($opcoes), JSON_UNESCAPED_UNICODE), $acessOutro[$chave] ?? null]);
             }
         }
         if ($facilidades !== null) {
@@ -392,7 +411,8 @@ final class FichaFormulario
             $tribos[] = ['macro' => $t['macro'], 'nome' => $t['nome'], 'icone' => $t['icone'], 'facilidades' => $fac];
         }
         return ['atributos' => $atributos,
-                'acessibilidade' => array_map(fn ($s) => ['chave' => $s['chave'], 'rotulo' => $s['rotulo'], 'opcoes' => array_values((array) $s['opcoes'])],
+                'acessibilidade' => array_map(fn ($s) => ['chave' => $s['chave'], 'rotulo' => $s['rotulo'], 'opcoes' => array_values((array) $s['opcoes']),
+                    'unica' => array_key_exists('multipla', $s) && !$s['multipla'], 'outros' => !empty($s['outros']), 'texto' => !empty($s['texto'])],
                     (array) (Inventario::blocosComuns()['acessibilidade'] ?? [])),
                 'tribos' => $tribos];
     }
@@ -420,10 +440,14 @@ final class FichaFormulario
         foreach ($q as $l) {
             $vals[(int) $l['item_id']][] = $l;
         }
-        $q = $pdo->prepare("SELECT item_id, chave, opcoes FROM inventario_item_acessibilidade WHERE empresa_id = ? AND item_id IN ({$marcas})");
+        $q = $pdo->prepare("SELECT item_id, chave, opcoes, outro FROM inventario_item_acessibilidade WHERE empresa_id = ? AND item_id IN ({$marcas})");
         $q->execute([$eid, ...$ids]);
+        $acsOutro = [];
         foreach ($q as $l) {
             $acs[(int) $l['item_id']][$l['chave']] = json_decode((string) $l['opcoes'], true) ?: [];
+            if ($l['outro'] !== null && $l['outro'] !== '') {
+                $acsOutro[(int) $l['item_id']][$l['chave']] = (string) $l['outro'];
+            }
         }
         $q = $pdo->prepare("SELECT item_id, facilidade_id FROM inventario_item_facilidades WHERE empresa_id = ? AND item_id IN ({$marcas})");
         $q->execute([$eid, ...$ids]);
@@ -436,7 +460,7 @@ final class FichaFormulario
             $id = (int) $i['id'];
             $f = [];
             foreach (['nome', 'nome_popular', 'razao_social', 'inscricao_municipal', 'cadastur', 'cadastur_validade', 'natureza', 'natureza_outra',
-                      'tipo_organizacao', 'tipo_organizacao_outro', 'cnae', 'atividade_economica', 'jurisdicao', 'rede',
+                      'tipo_organizacao', 'tipo_organizacao_outro', 'cnae', 'atividade_economica', 'jurisdicao', 'rede', 'idiomas_outro',
                       'inicio_atividade', 'funcionarios', 'funcionarios_temporarios', 'zona', 'cep', 'logradouro', 'numero', 'complemento', 'bairro',
                       'distrito', 'ramal', 'plus_code', 'maps_url', 'acessibilidade_possui',
                       'referencia', 'sinalizacao_acesso', 'sinalizacao_turistica', 'email', 'site', 'capacidade_publico', 'conservacao',
@@ -481,6 +505,9 @@ final class FichaFormulario
             if (!empty($h['temporada'])) {
                 $f['h_temporada'] = (string) $h['temporada'];
             }
+            if (isset($h['feriados_abre']) && $h['feriados_abre'] !== null) {
+                $f['h_feriados_abre'] = $h['feriados_abre'] ? '1' : '0';
+            }
             foreach (Inventario::DIAS as $dia => $_) {
                 if (!empty($h[$dia][0][0])) {
                     $f['h_abre'][$dia] = (string) $h[$dia][0][0];
@@ -514,6 +541,9 @@ final class FichaFormulario
             }
             if (!empty($acs[$id])) {
                 $f['acess'] = $acs[$id];
+            }
+            if (!empty($acsOutro[$id])) {
+                $f['acess_outro'] = $acsOutro[$id];
             }
             if (!empty($facs[$id])) {
                 $f['facilidades'] = $facs[$id];

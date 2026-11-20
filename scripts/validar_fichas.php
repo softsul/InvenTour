@@ -21,7 +21,7 @@ $NUCLEO = ['nome','nome_popular','razao_social','cnpj','cnae','atividade_economi
   'acessibilidade_possui','acessibilidade','descricao_tecnica','descricao_promocional','observacoes','referencias','equipe','tipo_id',
   'cadastur','cadastur_validade','extensao_km','plus_code','maps_url'];
 $TIPOS = ['texto','texto_longo','numero','sim_nao','escolha','multipla','tabela','data'];
-$COLT = ['texto','numero','sim_nao','escolha','meses'];
+$COLT = ['texto','numero','sim_nao','escolha','meses','data'];
 $pdfs = [1=>'A1 - Informaçõees básicas do município',2=>'A2.1.1 - Rodoviário_Rodovia',3=>'A2.1.2 - Rodoviário Estação rodoviária',
  4=>'A2.2.1 - Ferroviário Ferrovia e Metrovia',5=>'A2.2.2 - Ferroviário Estação ferroviária',6=>'A2.3.1 a .2 - Aeroviário Aeroporto e Campo de pouso',
  7=>'A2.3.3 - Aeroviário Heliporto',8=>'A2.4.1 - Aquaviário Hidrovia',9=>'A2.4.2 - Aquaviário Porto Píer Cais etc',10=>'A3 - Sistema de comunicação',

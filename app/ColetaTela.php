@@ -271,13 +271,17 @@ function telaColeta(bool $noApp, bool $comEstado = true): string
       <section class="painel-coleta" data-painel-coleta="funcionamento" hidden>
         <?= semanaDeHorario([], 'data-semana-coleta') ?>
         <div class="grade">
-          <?= $campo('h_feriados', 'Feriados', 'c-6', ['attrs' => ['maxlength' => 200]]) ?>
+          <?= $campo('h_feriados_abre', 'Funciona em feriados', 'c-6', ['opcoes' => ['1' => 'Sim', '0' => 'Não'], 'vazio' => 'Não informado']) ?>
+          <?= $campo('h_feriados', 'Feriados (detalhe)', 'c-6', ['attrs' => ['maxlength' => 200, 'placeholder' => 'Só nacionais, fecha no Natal...']]) ?>
           <?= $campo('h_temporada', 'Temporada ou agendamento', 'c-6', ['attrs' => ['maxlength' => 200]]) ?>
         </div>
         <h3 class="sub-cartao">Formas de pagamento</h3>
         <?= $caixas('pagamentos', Inventario::PAGAMENTOS) ?>
+        <div class="campo">
         <h3 class="sub-cartao">Atendimento em</h3>
         <?= $caixas('idiomas', Inventario::IDIOMAS) ?>
+        <div class="entrada outro-texto" data-outro-at="idiomas" hidden><input type="text" name="idiomas_outro" maxlength="120" placeholder="Qual idioma?" aria-label="Outro idioma: qual"></div>
+        </div>
       </section>
 
       <section class="painel-coleta" data-painel-coleta="ficha" hidden>

@@ -272,7 +272,7 @@ try {
         $itemId = (int) $pdo->lastInsertId();
         Inventario::registrarHistorico($itemId, 'criou', null, 'em_campo', 'coleta em campo', $aquiLat, $aquiLng);
     }
-    $capacidades = FichaFormulario::gravarParcial($itemId, $fichaRow, $lido['especificos'], $lido['acess'], $lido['facilidades']);
+    $capacidades = FichaFormulario::gravarParcial($itemId, $fichaRow, $lido['especificos'], $lido['acess'], $lido['facilidades'], $lido['acess_outro']);
     if ($capacidades) {
         $pdo->prepare('UPDATE inventario_itens SET ' . implode(' = ?, ', array_keys($capacidades)) . ' = ? WHERE id = ? AND empresa_id = ?')
             ->execute([...array_values($capacidades), $itemId, $eid]);

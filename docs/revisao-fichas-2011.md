@@ -5,6 +5,49 @@ Softsul Software. Revisão de 20/11/2026: as 55 fichas em PDF do pacote do Drive
 que o painel e o app de campo têm (núcleo comum, campos específicos de cada
 ficha em inventario_atributos, acessibilidade e tribos).
 
+## Situação depois da correção (20/11/2026)
+
+As faltas desta revisão foram corrigidas com um levantamento novo, feito do
+zero: cada uma das 54 fichas foi especificada item a item a partir do PDF
+(docs/especificacao/fichas-2011, um JSON por ficha), e um script confere que
+todo número do PDF tem destino. Daí saíram as migrações 015 (núcleo e tipos
+novos), 016 (catálogo: 1.320 campos novos, 361 ajustados, 41 desligados,
+nada apagado) e 017.
+
+Uma segunda revisão, independente (revisores que não viram a especificação,
+comparando cada PDF com o formulário final), não achou nenhum campo de ficha
+faltando. Achou faltas no núcleo comum, corrigidas na migração 017:
+
+- o subitem de acessibilidade "Outras" (6.1.21) não tinha campo; o "Outras"
+  da rota externa não tinha texto; a sinalização de atendimento preferencial
+  (Sim/Não) aceitava as duas respostas;
+- o idioma "Outras" não tinha texto para dizer qual;
+- "Funcionamento em feriados" não tinha Sim/Não próprio;
+- premiação e reconhecimento (C.2.29) eram escolha única;
+- datas exatas dentro de tabela (feriados da A1, inauguração dos monumentos
+  da B.6.2);
+- a esfera ou o instrumento "Outros" da proteção não tinha onde dizer qual;
+- veículos "próprio ou de terceiros" não aceitavam os dois;
+- a linha "MTur: outros" faltava nos cadastros das fichas B6.
+
+### Decisões tomadas que vale o coordenador confirmar
+
+1. Data da edificação e da confecção (fichas C2) ficam como texto que aceita
+   data, ano ou século, porque bem histórico raramente tem data exata.
+2. Entrada paga: o PDF só marca Inteira e Meia; o sistema guarda o valor em
+   R$ de cada uma (marcar continua possível, basta pôr o valor).
+3. B.6.3 Instalações esportivas: a ficha repete piso, área e quantidade por
+   tipo de instalação; todos os blocos aparecem, e a pessoa preenche o do
+   seu subtipo.
+4. Opções que a Softsul já tinha desligado continuam desligadas: fax,
+   cheque, telefone público, internet discada e 3G, aparelho de vídeo e
+   retroprojetor.
+5. Dia do padroeiro é data completa, como as outras datas da A1.
+6. A Hidrovia não tem entidade mantenedora e a C.2.14 a .17 não tem
+   transporte fretado, como no PDF oficial.
+7. NA, NI e NE valem para todo campo da ficha; os campos do núcleo (nome,
+   endereço, contato) ficam vazios quando não há resposta.
+
 ## Resumo
 
 - Tipos e subtipos: completos nas 54 fichas.
