@@ -21,6 +21,7 @@ require_once __DIR__ . '/../app/Inventario.php';
 require_once __DIR__ . '/../app/Cnpj.php';
 require_once __DIR__ . '/../app/PlusCode.php';
 require_once __DIR__ . '/../app/Esteira.php';
+require_once __DIR__ . '/../app/FichaFormulario.php';
 
 Auth::exigirLogin();
 $empresa = Empresa::exigir();
@@ -91,12 +92,6 @@ $pagamentos = json_decode((string) ($d['formas_pagamento'] ?? ''), true) ?: [];
 $idiomas = json_decode((string) ($d['idiomas'] ?? ''), true) ?: [];
 $erro = '';
 
-$texto = fn (string $c, int $max = 255): ?string => ($v = mb_substr(trim((string) ($_POST[$c] ?? '')), 0, $max)) !== '' ? $v : null;
-$numero = function (string $c): ?float {
-    $v = str_replace(',', '.', trim((string) ($_POST[$c] ?? '')));
-    return is_numeric($v) ? (float) $v : null;
-};
-$doCatalogo = fn (string $c, array $validos): ?string => array_key_exists((string) ($_POST[$c] ?? ''), $validos) ? (string) $_POST[$c] : null;
 
 // Esteira: formulário próprio (form-esteira), só com o item salvo.
 $acaoEsteira = (string) ($_POST['acao_esteira'] ?? '');
@@ -169,63 +164,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $acaoFoto === '' && $acaoEsteira ==
         $erro = 'Você não pode alterar o inventário.';
     } else {
         $situacao = in_array($_POST['situacao'] ?? '', $situacoesPermitidas, true) ? (string) $_POST['situacao'] : (string) $d['situacao'];
-        $tipoId = (int) ($_POST['tipo_id'] ?? 0);
-        $horarioNovo = ['24h' => !empty($_POST['h24']), 'feriados' => $texto('h_feriados', 200), 'temporada' => $texto('h_temporada', 200)];
-        foreach (Inventario::DIAS as $dia => $_) {
-            $abre = (string) ($_POST['h_abre'][$dia] ?? '');
-            $fecha = (string) ($_POST['h_fecha'][$dia] ?? '');
-            if (preg_match('/^\d{2}:\d{2}$/', $abre) && preg_match('/^\d{2}:\d{2}$/', $fecha)) {
-                $horarioNovo[$dia] = [[$abre, $fecha]];
-            }
-        }
-        $nucleo = [
-            'tipo_id'               => in_array($tipoId, array_map('intval', array_column($tipos, 'id')), true) ? $tipoId : null,
-            'situacao'              => $situacao,
-            'nome'                  => (string) $texto('nome', 180),
-            'nome_popular'          => $texto('nome_popular', 180),
-            'razao_social'          => $texto('razao_social', 180),
-            'cnpj'                  => Cnpj::normalizar((string) ($_POST['cnpj'] ?? '')) ?: null,
-            'inscricao_municipal'   => $texto('inscricao_municipal', 30),
-            'cadastur'              => $texto('cadastur', 30),
-            'cadastur_validade'     => preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) ($_POST['cadastur_validade'] ?? '')) ? (string) $_POST['cadastur_validade'] : null,
-            'natureza'              => $doCatalogo('natureza', Inventario::NATUREZAS),
-            'jurisdicao'            => $doCatalogo('jurisdicao', Inventario::JURISDICOES),
-            'rede'                  => $texto('rede', 120),
-            'inicio_atividade'      => ($a = (int) ($_POST['inicio_atividade'] ?? 0)) >= 1500 && $a <= (int) date('Y') ? $a : null,
-            'funcionarios'          => ($n = (int) ($_POST['funcionarios'] ?? 0)) > 0 ? min($n, 65000) : null,
-            'zona'                  => $doCatalogo('zona', Inventario::ZONAS),
-            'cep'                   => strlen($cep = soDigitos($_POST['cep'] ?? '')) === 8 ? $cep : null,
-            'logradouro'            => $texto('logradouro', 200),
-            'numero'                => $texto('numero', 20),
-            'complemento'           => $texto('complemento', 80),
-            'bairro'                => $texto('bairro', 120),
-            'latitude'              => ($la = $numero('latitude')) !== null && abs($la) <= 90 ? $la : null,
-            'longitude'             => ($lo = $numero('longitude')) !== null && abs($lo) <= 180 ? $lo : null,
-            'plus_code'             => PlusCode::valido($pc = strtoupper((string) $texto('plus_code', 16))) ? $pc : null,
-            'maps_url'              => $texto('maps_url', 500),
-            'referencia'            => $texto('referencia', 255),
-            'sinalizacao_acesso'    => ($_POST['sinalizacao_acesso'] ?? '') === '' ? null : (int) ($_POST['sinalizacao_acesso'] === '1'),
-            'sinalizacao_turistica' => ($_POST['sinalizacao_turistica'] ?? '') === '' ? null : (int) ($_POST['sinalizacao_turistica'] === '1'),
-            'extensao_km'           => $ficha['forma'] === 'linear' ? $numero('extensao_km') : null,
-            'telefone'              => telefoneParaBanco($_POST['telefone'] ?? null),
-            'whatsapp'              => telefoneParaBanco($_POST['whatsapp'] ?? null),
-            'email'                 => ($em = mb_strtolower((string) $texto('email', 150))) !== '' ? $em : null,
-            'site'                  => $texto('site', 255),
-            'instagram'             => ($ig = ltrim((string) $texto('instagram', 100), '@')) !== '' ? $ig : null,
-            'horario'               => json_encode($horarioNovo, JSON_UNESCAPED_UNICODE),
-            'formas_pagamento'      => json_encode(array_values(array_intersect(Inventario::PAGAMENTOS, (array) ($_POST['pagamentos'] ?? []))), JSON_UNESCAPED_UNICODE),
-            'idiomas'               => json_encode(array_values(array_intersect(Inventario::IDIOMAS, (array) ($_POST['idiomas'] ?? []))), JSON_UNESCAPED_UNICODE),
-            'capacidade_publico'    => ($cp = (int) ($_POST['capacidade_publico'] ?? 0)) > 0 ? $cp : null,
-            'conservacao'           => $doCatalogo('conservacao', Inventario::CONSERVACAO),
-            'descricao_tecnica'     => $texto('descricao_tecnica', 20000),
-            'descricao_promocional' => $texto('descricao_promocional', 5000),
-            'observacoes'           => $texto('observacoes', 10000),
-            'referencias'           => $texto('referencias', 10000),
-            'possui_experiencia'    => empty($_POST['possui_experiencia']) ? 0 : 1,
-        ];
+        // A mesma leitura da coleta de campo (app/FichaFormulario.php).
+        $lido = FichaFormulario::ler($_POST, $ficha);
+        $nucleo = ['situacao' => $situacao] + $lido['nucleo'];
+        $especificos = $lido['especificos'];
+        $acessNovo = $lido['acess'];
+        $horarioNovo = json_decode((string) ($nucleo['horario'] ?? ''), true) ?: [];
         // Sem coordenada, mas com plus code: o código vira latitude e longitude
         // (o curto se recupera pela posição do município do destino).
-        if ($nucleo['plus_code'] && $nucleo['latitude'] === null) {
+        if (!empty($nucleo['plus_code']) && ($nucleo['latitude'] ?? null) === null) {
             $ref = $pdo->prepare('SELECT m.latitude, m.longitude FROM empresas e JOIN municipios m ON m.id = e.municipio_id WHERE e.id = ?');
             $ref->execute([Empresa::id()]);
             $r = $ref->fetch() ?: [];
@@ -237,66 +184,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $acaoFoto === '' && $acaoEsteira ==
             $nucleo['origem'] = 'painel';
             $nucleo['pesquisador_id'] = (int) Auth::usuarioOuNulo()['id'];
         }
-        // Campos específicos da ficha, com a ausência quando não há resposta.
-        $especificos = [];
-        foreach ($atributos as $grupo => $lista) {
-            foreach ($lista as $at) {
-                $aid = (int) $at['id'];
-                $bruto = $_POST['at'][$aid] ?? null;
-                $aus = array_key_exists((string) ($_POST['aus'][$aid] ?? ''), Inventario::AUSENCIAS) ? (string) $_POST['aus'][$aid] : null;
-                $v = ['texto' => null, 'numero' => null, 'ausencia' => $aus];
-                switch ($at['tipo']) {
-                    case 'numero':
-                        $n = str_replace(',', '.', trim((string) $bruto));
-                        $v['numero'] = is_numeric($n) ? (float) $n : null;
-                        break;
-                    case 'sim_nao':
-                        $v['numero'] = $bruto === '1' ? 1.0 : ($bruto === '0' ? 0.0 : null);
-                        break;
-                    case 'multipla':
-                        $marcadas = array_values(array_intersect($at['opcoes'], (array) $bruto));
-                        $v['texto'] = $marcadas ? json_encode($marcadas, JSON_UNESCAPED_UNICODE) : null;
-                        break;
-                    case 'escolha':
-                        $v['texto'] = in_array((string) $bruto, $at['opcoes'], true) ? (string) $bruto : null;
-                        break;
-                    case 'tabela':
-                        $linhas = [];
-                        foreach ((array) $bruto as $linha) {
-                            $linha = array_map(fn ($c) => mb_substr(trim((string) $c), 0, 200), array_slice(array_values((array) $linha), 0, count($at['opcoes'])));
-                            if (implode('', $linha) !== '') {
-                                $linhas[] = $linha;
-                            }
-                        }
-                        $v['texto'] = $linhas ? json_encode($linhas, JSON_UNESCAPED_UNICODE) : null;
-                        break;
-                    default:
-                        $v['texto'] = ($t = mb_substr(trim((string) $bruto), 0, $at['tipo'] === 'texto_longo' ? 10000 : 500)) !== '' ? $t : null;
-                }
-                if ($v['texto'] !== null || $v['numero'] !== null) {
-                    $v['ausencia'] = null;
-                }
-                $especificos[$aid] = $v;
-            }
-        }
-        $acessNovo = [];
-        foreach ($subitensAcess as $s) {
-            $acessNovo[$s['chave']] = array_values(array_intersect((array) $s['opcoes'], (array) ($_POST['acess'][$s['chave']] ?? [])));
-        }
-
         if ($nucleo['nome'] === '') {
             $erro = 'Dê o nome do item.';
         } elseif ($tipos && $nucleo['tipo_id'] === null) {
             $erro = 'Escolha o tipo na ficha ' . $ficha['codigo'] . '.';
-        } elseif ($nucleo['cnpj'] !== null && !Cnpj::valido($nucleo['cnpj'])) {
-            $erro = 'CNPJ inválido. Confira os dígitos.';
-        } elseif ($nucleo['email'] !== null && !filter_var($nucleo['email'], FILTER_VALIDATE_EMAIL)) {
-            $erro = 'E-mail inválido.';
-        } elseif (trim((string) ($_POST['telefone'] ?? '')) !== '' && $nucleo['telefone'] === null) {
-            $erro = 'Telefone incompleto. Use DDD e número.';
-        } elseif (trim((string) ($_POST['whatsapp'] ?? '')) !== '' && $nucleo['whatsapp'] === null) {
-            $erro = 'WhatsApp incompleto. Use DDD e número.';
-        } elseif ($nucleo['cnpj'] !== null) {
+        } elseif ($lido['erros']) {
+            $erro = (string) reset($lido['erros']);
+        } elseif (!empty($nucleo['cnpj'])) {
             // O mesmo CNPJ pode ter mais de uma ficha (hotel e o restaurante
             // aberto ao público), mas não na mesma ficha.
             $dup = $pdo->prepare("SELECT nome FROM inventario_itens WHERE empresa_id = ? AND cnpj = ? AND ficha_id = ? AND id <> ? AND situacao <> 'arquivada'");
@@ -316,8 +210,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $acaoFoto === '' && $acaoEsteira ==
         // O que foi digitado volta para a tela.
         $d = array_merge($d, $nucleo, ['cnpj' => $_POST['cnpj'] ?? '', 'telefone' => $_POST['telefone'] ?? '', 'whatsapp' => $_POST['whatsapp'] ?? '']);
         $horario = $horarioNovo;
-        $pagamentos = json_decode((string) $nucleo['formas_pagamento'], true);
-        $idiomas = json_decode((string) $nucleo['idiomas'], true);
+        $pagamentos = json_decode((string) ($nucleo['formas_pagamento'] ?? ''), true) ?: [];
+        $idiomas = json_decode((string) ($nucleo['idiomas'] ?? ''), true) ?: [];
         foreach ($especificos as $aid => $v) {
             $valores[$aid] = ['valor_texto' => $v['texto'], 'valor_numero' => $v['numero'], 'ausencia' => $v['ausencia']];
         }
@@ -488,6 +382,10 @@ paginaFicha($titulo, 'inventario');
         <div class="campo c-6">
           <label for="razao_social">Razão social</label>
           <div class="entrada"><input type="text" id="razao_social" name="razao_social" maxlength="180" value="<?= e((string) ($d['razao_social'] ?? '')) ?>"<?= $ro ?>></div>
+        </div>
+        <div class="campo c-6">
+          <label for="inscricao_municipal">Inscrição municipal</label>
+          <div class="entrada"><input type="text" id="inscricao_municipal" name="inscricao_municipal" maxlength="30" value="<?= e((string) ($d['inscricao_municipal'] ?? '')) ?>"<?= $ro ?>></div>
         </div>
         <div class="campo c-6">
           <label for="cadastur">Cadastur</label>

@@ -161,6 +161,26 @@ final class Inventario
     }
 
     /**
+     * O campo da ficha que também é capacidade (UH, leitos, assentos,
+     * público) alimenta a coluna do núcleo. Só as que vieram em $especificos.
+     *
+     * @return array<string,?int> coluna => valor
+     */
+    public static function colunasDeCapacidade(array $ficha, array $especificos): array
+    {
+        $colunas = [];
+        foreach (self::CAPACIDADES[(int) ($ficha['ordem'] ?? 0)] ?? [] as $chave => $coluna) {
+            $q = self::pdo()->prepare('SELECT id FROM inventario_atributos WHERE ficha_id = ? AND chave = ?');
+            $q->execute([(int) ($ficha['id'] ?? 0), $chave]);
+            $aid = (int) $q->fetchColumn();
+            if ($aid && isset($especificos[$aid])) {
+                $colunas[$coluna] = $especificos[$aid]['numero'] !== null ? (int) $especificos[$aid]['numero'] : null;
+            }
+        }
+        return $colunas;
+    }
+
+    /**
      * Grava o item (novo ou existente) com os campos do núcleo, os
      * específicos e a acessibilidade, numa transação. Devolve o id.
      *
@@ -174,15 +194,7 @@ final class Inventario
         $eid = Empresa::id();
         $uid = (int) (Auth::usuarioOuNulo()['id'] ?? 0) ?: null;
         $ficha = self::ficha($fichaId);
-        // O campo da ficha que também é capacidade alimenta a coluna.
-        foreach (self::CAPACIDADES[(int) ($ficha['ordem'] ?? 0)] ?? [] as $chave => $coluna) {
-            $q = $pdo->prepare('SELECT id FROM inventario_atributos WHERE ficha_id = ? AND chave = ?');
-            $q->execute([$fichaId, $chave]);
-            $aid = (int) $q->fetchColumn();
-            if ($aid && isset($especificos[$aid])) {
-                $nucleo[$coluna] = $especificos[$aid]['numero'] !== null ? (int) $especificos[$aid]['numero'] : null;
-            }
-        }
+        $nucleo = self::colunasDeCapacidade($ficha ?? [], $especificos) + $nucleo;
         $pdo->beginTransaction();
         try {
             if ($id) {

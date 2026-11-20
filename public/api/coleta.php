@@ -4,7 +4,10 @@
  * Softsul Software
  *
  *   GET  /api/coleta            o que levar para o campo: fichas do escopo,
- *                               com tipos, e os itens em coleta
+ *                               com tipos, o catálogo da ficha completa
+ *                               (campos específicos, acessibilidade, tribos)
+ *                               e os itens em coleta, cada um com a ficha
+ *                               inteira em f (o formato do formulário)
  *   POST /api/coleta            {acao: salvar|enviar, uuid, ...} em JSON
  *
  * O celular guarda tudo na fila dele e manda quando tem sinal. Cada envio
@@ -18,6 +21,7 @@ require_once __DIR__ . '/../../app/Esteira.php';
 require_once __DIR__ . '/../../app/Limite.php';
 require_once __DIR__ . '/../../app/Campo.php';
 require_once __DIR__ . '/../../app/PlusCode.php';
+require_once __DIR__ . '/../../app/FichaFormulario.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
@@ -57,34 +61,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ping'])) {
 // ------------------------------------------------------------------ DADOS
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     [$fe, $ae] = Esteira::filtroEscopo();
-    $q = $pdo->prepare("SELECT f.id, f.codigo, f.nome, f.categoria, f.forma FROM inventario_fichas f WHERE f.ativo = 1{$fe} ORDER BY f.ordem");
+    $q = $pdo->prepare("SELECT f.id, f.codigo, f.nome, f.categoria, f.forma, f.eventcity, f.ajuda FROM inventario_fichas f WHERE f.ativo = 1{$fe} ORDER BY f.ordem");
     $q->execute($ae);
     $fichas = [];
     foreach ($q->fetchAll() as $f) {
         $fichas[] = ['id' => (int) $f['id'], 'codigo' => $f['codigo'], 'nome' => $f['nome'], 'categoria' => $f['categoria'], 'forma' => $f['forma'],
-                     'tipos' => array_map(fn ($t) => ['id' => (int) $t['id'], 'nome' => $t['nome']], Inventario::tipos((int) $f['id']))];
+                     'capacidade' => in_array($f['eventcity'], ['espaco_eventos', 'atrativo'], true), 'ajuda' => $f['ajuda'] ?: null,
+                     'tipos' => array_map(fn ($t) => ['id' => (int) $t['id'], 'nome' => ($t['pai_nome'] ? $t['pai_nome'] . ': ' : '') . $t['nome']],
+                         Inventario::tipos((int) $f['id']))];
     }
-    $q = $pdo->prepare("SELECT i.id, i.ficha_id, i.tipo_id, i.situacao, i.nome, i.logradouro, i.numero, i.bairro, i.cep, i.referencia, i.zona,
-                               i.latitude, i.longitude, i.plus_code, i.telefone, i.whatsapp, i.instagram, i.site, i.conservacao,
-                               i.devolucao_nota, f.codigo AS ficha_codigo,
+    $q = $pdo->prepare("SELECT i.*, f.codigo AS ficha_codigo,
                                (SELECT COUNT(*) FROM inventario_midias m WHERE m.item_id = i.id AND m.experiencia_id IS NULL) AS fotos
                         FROM inventario_itens i JOIN inventario_fichas f ON f.id = i.ficha_id
                         WHERE i.empresa_id = ? AND i.situacao IN ('pre_cadastro', 'em_campo'){$fe}
                         ORDER BY i.devolucao_nota IS NULL, i.nome");
     $q->execute([$eid, ...$ae]);
-    $itens = array_map(function ($i) {
-        foreach (['id', 'ficha_id', 'tipo_id', 'fotos'] as $c) {
-            $i[$c] = $i[$c] === null ? null : (int) $i[$c];
-        }
-        $i['latitude'] = $i['latitude'] === null ? null : (float) $i['latitude'];
-        $i['longitude'] = $i['longitude'] === null ? null : (float) $i['longitude'];
-        return $i;
-    }, $q->fetchAll());
+    $linhas = $q->fetchAll();
+    $fichasDosItens = FichaFormulario::paraOAparelho($linhas);
+    // Na lista, só o que ela mostra; a ficha inteira vai em f.
+    $itens = array_map(function ($i) use ($fichasDosItens) {
+        return ['id' => (int) $i['id'], 'ficha_id' => (int) $i['ficha_id'], 'situacao' => $i['situacao'], 'nome' => $i['nome'],
+                'logradouro' => $i['logradouro'], 'numero' => $i['numero'], 'bairro' => $i['bairro'],
+                'latitude' => $i['latitude'] === null ? null : (float) $i['latitude'], 'longitude' => $i['longitude'] === null ? null : (float) $i['longitude'],
+                'devolucao_nota' => $i['devolucao_nota'], 'ficha_codigo' => $i['ficha_codigo'], 'fotos' => (int) $i['fotos'],
+                'f' => (object) ($fichasDosItens[(int) $i['id']] ?? [])];
+    }, $linhas);
     $empresa = Empresa::atual();
     $u = Auth::usuarioOuNulo();
     responder(['ok' => true, 'destino' => $empresa['nome_fantasia'] ?? '', 'usuario' => $u['nome'] ?? '', 'em' => date('c'),
                'csrf' => Auth::porAparelho() ? null : Auth::tokenCsrf(),
-               'pode_criar' => Auth::pode('coleta.criar') || Auth::pode('inventario.criar'), 'fichas' => $fichas, 'itens' => $itens]);
+               'pode_criar' => Auth::pode('coleta.criar') || Auth::pode('inventario.criar'), 'fichas' => $fichas, 'itens' => $itens,
+               'catalogo' => FichaFormulario::catalogo(array_column($fichas, 'id')), 'formato' => 2]);
 }
 
 // ------------------------------------------------------------------ ENVIOS
@@ -143,7 +150,6 @@ if ($acao !== 'salvar') {
 // ------------------------------------------------------------------ SALVAR
 $d = (array) ($corpo['dados'] ?? []);
 $txt = fn (string $c, int $max) => ($v = mb_substr(trim((string) ($d[$c] ?? '')), 0, $max)) !== '' ? $v : null;
-$num = fn (string $c) => isset($d[$c]) && is_numeric($d[$c]) ? (float) $d[$c] : null;
 
 if ($itemId) {
     $item = $itemEmColeta($itemId) ?? responder(['ok' => false, 'motivo' => 'item'], 404);
@@ -170,42 +176,22 @@ if ($itemId) {
     $item = null;
 }
 
-$campos = [];
-if (($nome = $txt('nome', 180)) !== null) {
-    $campos['nome'] = $nome;
+// A ficha completa, no formato do formulário do painel; só o que veio (o
+// aparelho manda o que mudou). Valor inválido (CNPJ, e-mail, telefone) não
+// derruba a gravação feita sem sinal: fica de fora e volta como aviso.
+$fichaRow = Inventario::ficha($fichaId) ?? responder(['ok' => false, 'motivo' => 'ficha'], 400);
+$lido = FichaFormulario::ler($d, $fichaRow, true);
+$campos = array_diff_key($lido['nucleo'], $lido['erros']);
+if (array_key_exists('nome', $campos) && $campos['nome'] === '') {
+    unset($campos['nome']);
 }
-$tipo = (int) ($d['tipo_id'] ?? 0);
-if ($tipo && in_array($tipo, array_map('intval', array_column(Inventario::tipos($fichaId), 'id')), true)) {
-    $campos['tipo_id'] = $tipo;
-}
-foreach (['logradouro' => 200, 'numero' => 20, 'bairro' => 120, 'referencia' => 255, 'site' => 255] as $c => $max) {
-    if (array_key_exists($c, $d)) {
-        $campos[$c] = $txt($c, $max);
-    }
-}
-if (array_key_exists('instagram', $d)) {
-    $campos['instagram'] = ($ig = ltrim((string) $txt('instagram', 100), '@')) !== '' ? $ig : null;
-}
-foreach (['telefone', 'whatsapp'] as $c) {
-    if (array_key_exists($c, $d)) {
-        $campos[$c] = telefoneParaBanco($d[$c] ?: null);
-    }
-}
-if (array_key_exists('cep', $d)) {
-    $campos['cep'] = strlen($cep = (string) preg_replace('/\D/', '', (string) $d['cep'])) === 8 ? $cep : null;
-}
-if (array_key_exists('zona', $d)) {
-    $campos['zona'] = array_key_exists((string) $d['zona'], Inventario::ZONAS) ? (string) $d['zona'] : null;
-}
-if (array_key_exists('conservacao', $d)) {
-    $campos['conservacao'] = array_key_exists((string) $d['conservacao'], Inventario::CONSERVACAO) ? (string) $d['conservacao'] : null;
-}
-if (array_key_exists('plus_code', $d)) {
-    $campos['plus_code'] = PlusCode::valido($pc = strtoupper((string) $txt('plus_code', 16))) ? $pc : null;
-}
-$lat = $num('latitude');
-$lng = $num('longitude');
-if ($lat !== null && $lng !== null && abs($lat) <= 90 && abs($lng) <= 180) {
+// A observação vai pela nota de campo (abaixo), que soma em vez de trocar.
+unset($campos['observacoes']);
+$avisos = array_values($lido['erros']);
+$lat = $campos['latitude'] ?? null;
+$lng = $campos['longitude'] ?? null;
+unset($campos['latitude'], $campos['longitude']);
+if ($lat !== null && $lng !== null) {
     [$campos['latitude'], $campos['longitude']] = [round($lat, 6), round($lng, 6)];
 } elseif (!empty($campos['plus_code']) && ($item === null || $item['latitude'] === null)) {
     $ref = $pdo->prepare('SELECT m.latitude, m.longitude FROM empresas e JOIN municipios m ON m.id = e.municipio_id WHERE e.id = ?');
@@ -256,7 +242,12 @@ try {
         $itemId = (int) $pdo->lastInsertId();
         Inventario::registrarHistorico($itemId, 'criou', null, 'em_campo', 'coleta em campo', $aquiLat, $aquiLng);
     }
-    $r = ['ok' => true, 'item_id' => $itemId, 'situacao' => 'em_campo'];
+    $capacidades = FichaFormulario::gravarParcial($itemId, $fichaRow, $lido['especificos'], $lido['acess'], $lido['facilidades']);
+    if ($capacidades) {
+        $pdo->prepare('UPDATE inventario_itens SET ' . implode(' = ?, ', array_keys($capacidades)) . ' = ? WHERE id = ? AND empresa_id = ?')
+            ->execute([...array_values($capacidades), $itemId, $eid]);
+    }
+    $r = ['ok' => true, 'item_id' => $itemId, 'situacao' => 'em_campo'] + ($avisos ? ['aviso' => 'Ficou de fora: ' . implode(' ', $avisos)] : []);
     $registrar('item', $itemId, $r);
     $pdo->commit();
 } catch (Throwable $e) {

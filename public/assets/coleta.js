@@ -237,13 +237,39 @@
         mapa[chave] = alvo;
         lista.unshift(alvo);
       }
-      Object.assign(alvo, c.dados);
+      alvo.f = mesclarFicha(alvo.f || fichaDoItemAntigo(alvo), c.dados);
+      ['nome', 'logradouro', 'numero', 'bairro'].forEach(function (k) { if (c.dados && k in c.dados) { alvo[k] = c.dados[k]; } });
+      if (c.dados && c.dados.latitude) { alvo.latitude = parseFloat(c.dados.latitude); alvo.longitude = parseFloat(c.dados.longitude); }
       alvo.local_id = c.local_id;
       alvo.na_fila = true;
       alvo.fotos_fila = (alvo.fotos_fila || 0) + (c.fotos || 0);
       if (c.enviar) { alvo.vai_enviar = true; }
     });
     return lista;
+  }
+
+  // A ficha do item (formato do formulário). A lista baixada por servidor
+  // antigo não tinha f: as colunas soltas servem.
+  function fichaDoItemAntigo(i) {
+    var f = {};
+    ['nome', 'tipo_id', 'zona', 'logradouro', 'numero', 'bairro', 'cep', 'referencia', 'plus_code', 'telefone', 'whatsapp', 'instagram', 'site',
+      'conservacao', 'latitude', 'longitude'].forEach(function (k) { if (i[k] != null && i[k] !== '') { f[k] = String(i[k]); } });
+    return f;
+  }
+  // O que está no aparelho por cima do que veio do servidor. Os campos da
+  // ficha, a acessibilidade e as horas trocam um a um; o resto, inteiro.
+  var POR_PARTE = ['at', 'aus', 'acess', 'h_abre', 'h_fecha'];
+  function mesclarFicha(f, dados) {
+    var r = JSON.parse(JSON.stringify(f || {}));
+    Object.keys(dados || {}).forEach(function (k) {
+      if (k === 'nota') { return; }
+      if (POR_PARTE.indexOf(k) !== -1 && dados[k] && typeof dados[k] === 'object' && !Array.isArray(dados[k])) {
+        r[k] = Object.assign({}, r[k] || {}, dados[k]);
+      } else {
+        r[k] = dados[k];
+      }
+    });
+    return r;
   }
 
   function naSituacao(i, qual) {
@@ -391,7 +417,8 @@
             if (falhou) { return null; }
             progresso(feito, total, 'Enviando ' + (c.nome || 'item') + '...');
             var fotosDoItem = 0;
-            var era = { novo: !c.item_id, conferencia: !!c.enviar, campos: Object.keys(c.dados || {}).filter(function (k) { return k !== 'nome'; }).length };
+            var era = { novo: !c.item_id, conferencia: !!c.enviar,
+              campos: c.campos != null ? c.campos : Object.keys(c.dados || {}).filter(function (k) { return k !== 'nome'; }).length };
             return processar(c, function () { feito++; fotosEnviadas++; fotosDoItem++; progresso(feito, total, 'Enviando as fotos de ' + (c.nome || 'item') + '...'); })
               .then(function (ok) {
                 feito++;
@@ -498,6 +525,7 @@
           return gravar('fila', c).then(function () { throw new Error('parar-este'); });
         }
         c.item_id = r.item_id;
+        if (r.aviso) { c.aviso = r.aviso; }
         c.etapa = 'fotos';
         return todos('fila').then(function (fila) {
           return Promise.all(fila.filter(function (o) { return o.uuid !== c.uuid && !o.item_id && o.local_id === c.local_id; })
@@ -545,18 +573,27 @@
   }
 
   // ------------------------------------------------------------ ficha em abas
+  // A mesma ficha do painel (item.php): núcleo, funcionamento, campos
+  // específicos da ficha do MTur, acessibilidade, tribos e textos. Os campos
+  // têm o nome do formulário do painel, e o servidor lê os dois do mesmo
+  // jeito (app/FichaFormulario.php). Grava só o que mudou.
   var form = $('col-form');
   var dialogo = $('col-dialogo');
-  var ABAS = ['ident', 'local', 'contato', 'fotos', 'conferencia'];
+  var ABAS_TODAS = ['ident', 'local', 'contato', 'funcionamento', 'ficha', 'acessibilidade', 'tribos', 'textos', 'fotos', 'conferencia'];
+  var ABAS = ABAS_TODAS.slice();
   var abaAtual = 'ident';
-  var CAMPOS = ['nome', 'tipo_id', 'zona', 'logradouro', 'numero', 'bairro', 'cep', 'referencia', 'plus_code', 'telefone', 'whatsapp', 'instagram', 'site', 'conservacao'];
+  var inicial = null;  // a ficha como abriu, para mandar só o que mudou
 
   function abrirAba(aba) {
     abaAtual = aba;
-    form.querySelectorAll('[data-aba-coleta]').forEach(function (b) { b.setAttribute('aria-selected', b.getAttribute('data-aba-coleta') === aba ? 'true' : 'false'); });
+    form.querySelectorAll('[data-aba-coleta]').forEach(function (b) {
+      var sim = b.getAttribute('data-aba-coleta') === aba;
+      b.setAttribute('aria-selected', sim ? 'true' : 'false');
+      if (sim && b.scrollIntoView) { b.scrollIntoView({ block: 'nearest', inline: 'center' }); }
+    });
     form.querySelectorAll('[data-painel-coleta]').forEach(function (p) { p.hidden = p.getAttribute('data-painel-coleta') !== aba; });
     var i = ABAS.indexOf(aba);
-    $('c-anterior').hidden = i === 0;
+    $('c-anterior').hidden = i <= 0;
     $('c-proxima').hidden = i === ABAS.length - 1;
     form.querySelector('.corpo-dialogo').scrollTop = 0;
     if (aba === 'local') { mostrarMapa(); }
@@ -572,28 +609,293 @@
     return Number(lat).toFixed(6) + ', ' + Number(lng).toFixed(6) + (precisao ? '  (± ' + Math.round(precisao) + ' m)' : '');
   }
 
+  // Liga ou desliga uma parte da ficha: escondida e fora do envio.
+  function mostrarParte(el, sim) {
+    el.hidden = !sim;
+    el.querySelectorAll('input, select, textarea').forEach(function (c) { c.disabled = !sim; });
+  }
+
+  var AUSENCIAS = [['na', 'NA'], ['ni', 'NI'], ['ne', 'NE']];
+  function seletorAusencia(aid) {
+    return '<select class="ausencia" name="aus[' + aid + ']" aria-label="Sem resposta"><option value="">Respondido</option>'
+      + AUSENCIAS.map(function (a) { return '<option value="' + a[0] + '">' + a[1] + '</option>'; }).join('') + '</select>';
+  }
+  function caixasHtml(nome, opcoes) {
+    return '<div class="caixas">' + opcoes.map(function (op) {
+      var v = Array.isArray(op) ? op[0] : op, r = Array.isArray(op) ? op[1] : op;
+      return '<label class="check"><input type="checkbox" name="' + esc(nome) + '[]" value="' + esc(v) + '"><i></i>' + esc(r) + '</label>';
+    }).join('') + '</div>';
+  }
+  function linhaTabela(aid, n, colunas) {
+    return '<tr>' + colunas.map(function (col, k) {
+      return '<td><div class="entrada mini"><input type="text" name="at[' + aid + '][' + n + '][' + k + ']" maxlength="200" aria-label="' + esc(col) + ', linha ' + (n + 1) + '"></div></td>';
+    }).join('') + '</tr>';
+  }
+  function campoEspecifico(a, valor) {
+    var id = 'c-at-' + a.id;
+    var largo = ['texto_longo', 'multipla', 'tabela'].indexOf(a.tipo) !== -1;
+    var h = '<div class="campo ' + (largo ? 'c-12' : 'c-6') + '"><label for="' + id + '">' + esc(a.rotulo)
+      + (a.obrigatorio ? ' <span class="obrig">núcleo do MTur</span>' : '') + '</label>';
+    if (a.tipo === 'numero') {
+      h += '<div class="entrada"><input type="text" id="' + id + '" name="at[' + a.id + ']" inputmode="decimal" autocomplete="off">' + seletorAusencia(a.id) + '</div>';
+    } else if (a.tipo === 'sim_nao') {
+      h += '<div class="entrada"><select id="' + id + '" name="at[' + a.id + ']"><option value="">Não respondido</option><option value="1">Sim</option><option value="0">Não</option></select>' + seletorAusencia(a.id) + '</div>';
+    } else if (a.tipo === 'escolha') {
+      h += '<div class="entrada"><select id="' + id + '" name="at[' + a.id + ']"><option value="">Não respondido</option>'
+        + a.opcoes.map(function (o) { return '<option value="' + esc(o) + '">' + esc(o) + '</option>'; }).join('') + '</select>' + seletorAusencia(a.id) + '</div>';
+    } else if (a.tipo === 'multipla') {
+      h += caixasHtml('at[' + a.id + ']', a.opcoes) + '<div class="entrada estreita">' + seletorAusencia(a.id) + '</div>';
+    } else if (a.tipo === 'tabela') {
+      var linhas = valor && typeof valor === 'object' ? Object.keys(valor).length : 0;
+      var corpo = '';
+      for (var n = 0; n < linhas + 1; n++) { corpo += linhaTabela(a.id, n, a.opcoes); }
+      h += '<div class="rolagem"><table class="dados tabela-campo" data-tabela="' + a.id + '"><thead><tr>'
+        + a.opcoes.map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>' + corpo + '</tbody></table></div>'
+        + '<div class="tabela-acoes"><button type="button" class="como-link" data-mais-linha="' + a.id + '">' + icone('mais') + 'Mais uma linha</button>'
+        + '<div class="entrada estreita">' + seletorAusencia(a.id) + '</div></div>';
+    } else if (a.tipo === 'texto_longo') {
+      h += '<div class="entrada"><textarea id="' + id + '" name="at[' + a.id + ']" rows="3"></textarea></div><div class="entrada estreita">' + seletorAusencia(a.id) + '</div>';
+    } else {
+      h += '<div class="entrada"><input type="text" id="' + id + '" name="at[' + a.id + ']" maxlength="500" autocomplete="off">' + seletorAusencia(a.id) + '</div>';
+    }
+    return h + (a.ajuda ? '<span class="ajuda">' + esc(a.ajuda) + '</span>' : '') + '</div>';
+  }
+
+  // Monta a ficha para o item: as abas e partes que a ficha tem, e os campos
+  // do catálogo (campos específicos, acessibilidade, tribos).
+  function montarFicha(f, valores) {
+    var cat = (base && base.catalogo) || null;
+    var municipio = f && f.forma === 'municipio';
+    form.querySelectorAll('[data-nao-municipio]').forEach(function (el) {
+      if (el.hasAttribute('data-aba-coleta')) { el.hidden = municipio; } else { mostrarParte(el, !municipio); }
+    });
+    form.querySelectorAll('[data-so-linear]').forEach(function (el) { mostrarParte(el, !!f && f.forma === 'linear'); });
+    form.querySelectorAll('[data-so-capacidade]').forEach(function (el) { mostrarParte(el, !!f && !!f.capacidade); });
+    var atributos = cat && f ? (cat.atributos[String(f.id)] || []) : [];
+    var html = '';
+    var grupo = null;
+    atributos.forEach(function (a) {
+      if (a.grupo !== grupo) {
+        if (grupo !== null) { html += '</div>'; }
+        grupo = a.grupo;
+        html += '<h3 class="sub-cartao">' + esc(grupo) + '</h3><div class="grade">';
+      }
+      html += campoEspecifico(a, valores.at ? valores.at[String(a.id)] : null);
+    });
+    if (grupo !== null) { html += '</div>'; }
+    if (!cat && f) { html = '<p class="aviso atencao">' + icone('alerta') + '<span>Toque em Sincronizar com sinal para baixar os campos completos da ficha.</span></p>'; }
+    $('c-especificos').innerHTML = html;
+    $('aba-ficha-rotulo').textContent = f ? 'Ficha ' + f.codigo : 'Ficha';
+    form.querySelector('[data-aba-coleta="ficha"]').hidden = !f || (!atributos.length && !f.capacidade && !!cat);
+    $('c-acess').innerHTML = municipio || !cat ? '' : cat.acessibilidade.map(function (s) {
+      return '<h3 class="sub-cartao">' + esc(s.rotulo) + '</h3>' + caixasHtml('acess[' + s.chave + ']', s.opcoes);
+    }).join('');
+    var macro = null;
+    $('c-tribos').innerHTML = municipio || !cat ? '' : cat.tribos.map(function (t) {
+      var cab = t.macro !== macro ? '<h3 class="sub-cartao">' + esc(t.macro) + '</h3>' : '';
+      macro = t.macro;
+      return cab + '<details class="tribo" data-tribo><summary>' + icone(t.icone || 'usuarios') + '<b>' + esc(t.nome) + '</b><span class="tribo-conta"></span></summary>'
+        + caixasHtml('facilidades', t.facilidades) + '</details>';
+    }).join('');
+    ABAS = ABAS_TODAS.filter(function (a) { return !form.querySelector('[data-aba-coleta="' + a + '"]').hidden; });
+    var ajuda = $('col-ficha-ajuda');
+    ajuda.hidden = !(f && f.ajuda);
+    ajuda.querySelector('span').textContent = f && f.ajuda ? f.ajuda : '';
+  }
+
+  // Lê a ficha no formato do formulário do painel: at[12] vira {at: {12: ...}},
+  // pagamentos[] vira lista, at[5][0][1] vira a célula da tabela.
+  function lerForm() {
+    var r = {};
+    Array.prototype.forEach.call(form.elements, function (el) {
+      if (!el.name || el.disabled || el.hasAttribute('data-fora-da-ficha') || /^(file|button|submit)$/.test(el.type)) { return; }
+      var partes = el.name.replace(/\]/g, '').split('[');
+      var lista = partes[partes.length - 1] === '';
+      if (lista) { partes.pop(); }
+      var alvo = r;
+      for (var i = 0; i < partes.length - 1; i++) {
+        if (typeof alvo[partes[i]] !== 'object' || alvo[partes[i]] === null) { alvo[partes[i]] = {}; }
+        alvo = alvo[partes[i]];
+      }
+      var chave = partes[partes.length - 1];
+      if (lista) {
+        if (!Array.isArray(alvo[chave])) { alvo[chave] = []; }
+        if (el.checked) { alvo[chave].push(el.value); }
+      } else if (el.type === 'checkbox') {
+        alvo[chave] = el.checked ? el.value : '';
+      } else {
+        alvo[chave] = el.value.trim();
+      }
+    });
+    return r;
+  }
+  function valorNoCaminho(f, nome) {
+    var partes = nome.replace(/\]/g, '').split('[');
+    if (partes[partes.length - 1] === '') { partes.pop(); }
+    var v = f;
+    for (var i = 0; i < partes.length; i++) {
+      if (v == null || typeof v !== 'object') { return undefined; }
+      v = v[partes[i]];
+    }
+    return v;
+  }
+  function preencher(f) {
+    Array.prototype.forEach.call(form.elements, function (el) {
+      if (!el.name || el.hasAttribute('data-fora-da-ficha') || /^(file|button|submit)$/.test(el.type)) { return; }
+      var v = valorNoCaminho(f, el.name);
+      if (el.type === 'checkbox') {
+        el.checked = /\[\]$/.test(el.name) ? Array.isArray(v) && v.map(String).indexOf(el.value) !== -1 : !!v && v !== '0';
+      } else {
+        el.value = v == null || typeof v === 'object' ? '' : String(v);
+      }
+    });
+    form.elements.telefone.value = telefoneLegivel(form.elements.telefone.value);
+    form.elements.whatsapp.value = telefoneLegivel(form.elements.whatsapp.value);
+    var cep = form.elements.cep.value.replace(/\D/g, '');
+    if (cep.length === 8) { form.elements.cep.value = cep.replace(/^(\d{5})(\d{3})$/, '$1-$2'); }
+    if (form.elements.instagram.value) { form.elements.instagram.value = '@' + form.elements.instagram.value.replace(/^@/, ''); }
+    semanaDaFicha();
+    contarTribos();
+    contarFicha();
+  }
+
+  // O que mudou desde que a ficha abriu. Campo da ficha vai com a ausência;
+  // o horário vai inteiro; a coordenada, em par.
+  var HORARIO = ['h24', 'h_abre', 'h_fecha', 'h_feriados', 'h_temporada'];
+  function igual(a, b) { return JSON.stringify(a == null ? '' : a) === JSON.stringify(b == null ? '' : b); }
+  function diferenca(antes, agora) {
+    var mudou = {};
+    var n = 0;
+    var chaves = {};
+    Object.keys(antes).concat(Object.keys(agora)).forEach(function (k) { chaves[k] = true; });
+    var horario = false;
+    Object.keys(chaves).forEach(function (k) {
+      if (k === 'at' || k === 'aus') { return; }
+      if (HORARIO.indexOf(k) !== -1) { if (!igual(antes[k], agora[k])) { horario = true; } return; }
+      if (k === 'acess') {
+        var a = antes.acess || {}, b = agora.acess || {};
+        Object.keys(Object.assign({}, a, b)).forEach(function (c) {
+          if (!igual(a[c] || [], b[c] || [])) { (mudou.acess = mudou.acess || {})[c] = b[c] || []; n++; }
+        });
+        return;
+      }
+      if (!igual(antes[k], agora[k])) { mudou[k] = agora[k] == null ? '' : agora[k]; n++; }
+    });
+    if (horario) { HORARIO.forEach(function (k) { mudou[k] = agora[k] == null ? '' : agora[k]; }); n++; }
+    var at0 = antes.at || {}, at1 = agora.at || {}, au0 = antes.aus || {}, au1 = agora.aus || {};
+    Object.keys(Object.assign({}, at0, at1, au0, au1)).forEach(function (aid) {
+      if (!igual(at0[aid], at1[aid]) || !igual(au0[aid], au1[aid])) {
+        (mudou.at = mudou.at || {})[aid] = at1[aid] == null ? '' : at1[aid];
+        (mudou.aus = mudou.aus || {})[aid] = au1[aid] || '';
+        n++;
+      }
+    });
+    if ('latitude' in mudou || 'longitude' in mudou) { mudou.latitude = agora.latitude || ''; mudou.longitude = agora.longitude || ''; }
+    return { dados: mudou, campos: n };
+  }
+
+  // Funcionamento: a chave de cada dia limpa ou devolve as horas; 24 horas
+  // esconde a semana; os atalhos copiam a segunda.
+  var semana = form.querySelector('[data-semana-coleta]');
+  var dias = Array.prototype.slice.call(semana.querySelectorAll('.dia'));
+  function horasDo(dia) { return dia.querySelectorAll('input[type=time]'); }
+  function abrirDia(dia, aberto, valores) {
+    var h = horasDo(dia);
+    dia.querySelector('[data-aberto-coleta]').checked = aberto;
+    dia.classList.toggle('fechado', !aberto);
+    if (aberto) {
+      var v = valores || [dia.getAttribute('data-abre') || '08:00', dia.getAttribute('data-fecha') || '18:00'];
+      h[0].value = v[0]; h[1].value = v[1];
+    } else {
+      if (h[0].value) { dia.setAttribute('data-abre', h[0].value); }
+      if (h[1].value) { dia.setAttribute('data-fecha', h[1].value); }
+      h[0].value = ''; h[1].value = '';
+    }
+  }
+  function semanaDaFicha() {
+    dias.forEach(function (dia) {
+      var h = horasDo(dia);
+      var aberto = !!(h[0].value && h[1].value);
+      dia.querySelector('[data-aberto-coleta]').checked = aberto;
+      dia.classList.toggle('fechado', !aberto);
+      dia.removeAttribute('data-abre'); dia.removeAttribute('data-fecha');
+    });
+    semana.classList.toggle('dia-todo', form.elements.h24.checked);
+  }
+  dias.forEach(function (dia) {
+    var chave = dia.querySelector('[data-aberto-coleta]');
+    chave.addEventListener('change', function () { abrirDia(dia, chave.checked); });
+  });
+  form.elements.h24.addEventListener('change', function () { semana.classList.toggle('dia-todo', form.elements.h24.checked); });
+  semana.querySelectorAll('[data-copiar-dias]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var h = horasDo(dias[0]);
+      var aberto = dias[0].querySelector('[data-aberto-coleta]').checked && h[0].value && h[1].value;
+      (b.getAttribute('data-copiar-dias') === 'uteis' ? dias.slice(1, 5) : dias.slice(1)).forEach(function (dia) {
+        abrirDia(dia, !!aberto, aberto ? [h[0].value, h[1].value] : null);
+      });
+    });
+  });
+
+  // Tribos: quantas marcadas em cada uma (duas ou mais dão o selo).
+  function contarTribos() {
+    $('c-tribos').querySelectorAll('[data-tribo]').forEach(function (t) {
+      var n = t.querySelectorAll('input:checked').length;
+      var conta = t.querySelector('.tribo-conta');
+      conta.className = 'tribo-conta' + (n ? ' pilula ' + (n >= 2 ? 'ok' : 'nu') : '');
+      conta.textContent = n >= 2 ? 'selo' : (n ? String(n) : '');
+      if (n) { t.open = true; }
+    });
+  }
+  // Campos da ficha respondidos (valor ou NA, NI, NE) sobre o total.
+  function contarFicha() {
+    var cat = base && base.catalogo;
+    var f = atual ? fichaPorId(atual.ficha_id) : null;
+    var lista = cat && f ? (cat.atributos[String(f.id)] || []) : [];
+    var marca = $('aba-ficha-conta');
+    if (!lista.length) { marca.hidden = true; return; }
+    var v = lerForm();
+    var feitos = lista.filter(function (a) {
+      var x = v.at ? v.at[String(a.id)] : null;
+      var temValor = Array.isArray(x) ? x.length > 0 : (x && typeof x === 'object' ? Object.keys(x).some(function (n) {
+        return Object.keys(x[n]).some(function (k) { return x[n][k]; });
+      }) : !!x);
+      return temValor || (v.aus && v.aus[String(a.id)]);
+    }).length;
+    marca.hidden = false;
+    marca.textContent = feitos + '/' + lista.length;
+  }
+  $('c-tribos').addEventListener('change', contarTribos);
+  $('c-especificos').addEventListener('change', contarFicha);
+  $('c-especificos').addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-mais-linha]');
+    if (!b) { return; }
+    var aid = b.getAttribute('data-mais-linha');
+    var tabela = form.querySelector('[data-tabela="' + aid + '"]');
+    var colunas = Array.prototype.map.call(tabela.querySelectorAll('thead th'), function (th) { return th.textContent; });
+    var n = tabela.querySelectorAll('tbody tr').length;
+    tabela.querySelector('tbody').insertAdjacentHTML('beforeend', linhaTabela(aid, n, colunas));
+    tabela.querySelector('tbody tr:last-child input').focus();
+  });
+
   function abrirItem(item) {
     atual = item;
     var f = fichaPorId(item.ficha_id);
+    var valores = item.f || fichaDoItemAntigo(item);
     $('col-titulo').textContent = item.nome || 'Novo item';
     $('col-subtitulo').textContent = f ? f.codigo + ' ' + f.nome : '';
     var tipos = f ? f.tipos : [];
     $('c-tipo-campo').hidden = !tipos.length;
+    $('c-tipo').disabled = !tipos.length;
     $('c-tipo').innerHTML = '<option value="">Escolha</option>' + tipos.map(function (t) { return '<option value="' + t.id + '">' + esc(t.nome) + '</option>'; }).join('');
-    CAMPOS.forEach(function (c) {
-      var el = form.elements[c];
-      if (el) { el.value = item[c] == null ? '' : String(item[c]); }
-    });
-    form.elements.telefone.value = telefoneLegivel(item.telefone);
-    form.elements.whatsapp.value = telefoneLegivel(item.whatsapp);
-    form.elements.cep.value = item.cep ? String(item.cep).replace(/^(\d{5})(\d{3})$/, '$1-$2') : '';
+    montarFicha(f, valores);
+    preencher(valores);
+    $('col-form-erro').hidden = true;
     $('c-endereco').hidden = true;
     enderecoAchado = null;
-    if (form.elements.instagram.value) { form.elements.instagram.value = '@' + form.elements.instagram.value.replace(/^@/, ''); }
-    $('c-lat').value = item.latitude == null ? '' : item.latitude;
-    $('c-lng').value = item.longitude == null ? '' : item.longitude;
-    $('c-gps-texto').textContent = textoGps(item.latitude, item.longitude);
-    $('c-gps-quando').textContent = item.latitude != null ? 'já gravada; toque no botão para trocar pela daqui' : '';
+    var lat = $('c-lat').value, lng = $('c-lng').value;
+    $('c-gps-texto').textContent = textoGps(lat || null, lng);
+    $('c-gps-quando').textContent = lat ? 'já gravada; toque no botão para trocar pela daqui' : '';
     form.elements.nota.value = '';
     $('c-enviar').checked = false;
     var dev = $('col-devolucao');
@@ -607,9 +909,10 @@
     fotosNovas = [];
     desenharMiniaturas();
     mostrarPendencias();
+    inicial = lerForm();
     abrirAba('ident');
     dialogo.showModal();
-    form.elements.nome.focus();
+    if (!item.id && !item.local_id) { form.elements.nome.focus(); }
   }
 
   function desenharMiniaturas() {
@@ -759,34 +1062,57 @@
     mostrarPendencias();
   });
 
+  // Antes de guardar no aparelho: o que o servidor recusaria (CNPJ, e-mail,
+  // telefone). Sem sinal não dá para corrigir depois, então para aqui.
+  function cnpjValido(v) {
+    var c = String(v || '').toUpperCase().replace(/[^0-9A-Z]/g, '');
+    if (!/^[0-9A-Z]{12}[0-9]{2}$/.test(c) || /^(.)\1{13}$/.test(c)) { return false; }
+    for (var pos = 12; pos <= 13; pos++) {
+      var soma = 0, peso = pos - 7;
+      for (var i = 0; i < pos; i++) { soma += (c.charCodeAt(i) - 48) * peso; peso = peso - 1 < 2 ? 9 : peso - 1; }
+      var dig = soma % 11 < 2 ? 0 : 11 - soma % 11;
+      if (parseInt(c[pos], 10) !== dig) { return false; }
+    }
+    return true;
+  }
+  function errosDaFicha() {
+    var el = form.elements;
+    var tel = function (v) { var d = soDigitosTel(v); return !d || d.length === 10 || d.length === 11; };
+    if (!el.cnpj.disabled && el.cnpj.value.trim() && !cnpjValido(el.cnpj.value)) { return ['ident', el.cnpj, 'CNPJ inválido. Confira os dígitos.']; }
+    if (!el.email.disabled && el.email.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.email.value.trim())) { return ['contato', el.email, 'E-mail inválido.']; }
+    if (!el.telefone.disabled && !tel(el.telefone.value)) { return ['contato', el.telefone, 'Telefone incompleto. Use DDD e número.']; }
+    if (!el.whatsapp.disabled && !tel(el.whatsapp.value)) { return ['contato', el.whatsapp, 'WhatsApp incompleto. Use DDD e número.']; }
+    return null;
+  }
+  function erroNaFicha(aba, campo, texto) {
+    var p = $('col-form-erro');
+    p.querySelector('span').textContent = texto;
+    p.hidden = false;
+    abrirAba(aba);
+    if (campo) { campo.focus(); }
+  }
+
   form.addEventListener('submit', function (ev) {
     ev.preventDefault();
-    if (!form.elements.nome.value.trim()) { abrirAba('ident'); form.elements.nome.focus(); return; }
-    var dados = {};
-    CAMPOS.forEach(function (c) { var el = form.elements[c]; if (el) { dados[c] = el.value.trim(); } });
-    dados.tipo_id = dados.tipo_id ? parseInt(dados.tipo_id, 10) : null;
-    dados.instagram = dados.instagram.replace(/^@/, '');
-    if ($('c-lat').value) { dados.latitude = parseFloat($('c-lat').value); dados.longitude = parseFloat($('c-lng').value); }
-    // Só vai o que mudou (o telefone comparado pelos dígitos).
-    var mudou = {};
-    Object.keys(dados).forEach(function (k) {
-      var antes = atual[k] == null ? '' : String(atual[k]);
-      var agora = dados[k] == null ? '' : String(dados[k]);
-      if (k === 'telefone' || k === 'whatsapp') { antes = soDigitosTel(antes); agora = soDigitosTel(agora); }
-      if (k === 'cep') { antes = antes.replace(/\D/g, ''); agora = agora.replace(/\D/g, ''); }
-      if (k === 'latitude' || k === 'longitude') { antes = antes ? Number(antes).toFixed(6) : ''; agora = agora ? Number(agora).toFixed(6) : ''; }
-      if (antes !== agora) { mudou[k] = dados[k]; }
-    });
-    var nota = form.elements.nota.value.trim();
-    if (nota) { mudou.nota = nota; }
+    if (!form.elements.nome.value.trim()) { erroNaFicha('ident', form.elements.nome, 'Dê o nome do item.'); return; }
+    var erro = errosDaFicha();
+    if (erro) { erroNaFicha(erro[0], erro[1], erro[2]); return; }
+    $('col-form-erro').hidden = true;
+    var agora = lerForm();
     var novo = !atual.id && !atual.local_id;
-    if (novo) { mudou.nome = dados.nome; }
+    // Item novo leva a ficha inteira; o que já existe, só o que mudou.
+    var dif = novo ? { dados: agora, campos: 0 } : diferenca(inicial || {}, agora);
+    var mudou = dif.dados;
+    var nota = (agora.nota || '').trim();
+    delete mudou.nota;
+    if (nota) { mudou.nota = nota; }
+    if (novo) { mudou.nome = agora.nome; }
     var nadaMudou = !Object.keys(mudou).length && !fotosNovas.length && !$('c-enviar').checked;
     if (nadaMudou) { dialogo.close(); return; }
     var c = {
       uuid: uuid(), uuid_envio: uuid(), ordem: Date.now(),
       item_id: atual.id || null, local_id: atual.local_id || uuid(), ficha_id: atual.ficha_id,
-      nome: dados.nome, dados: mudou, enviar: $('c-enviar').checked, fotos: fotosNovas.length,
+      nome: agora.nome, dados: mudou, campos: dif.campos, enviar: $('c-enviar').checked, fotos: fotosNovas.length,
       aqui: posicao ? [posicao[0], posicao[1]] : null, etapa: 'salvar'
     };
     var fotos = fotosNovas.map(function (x) {

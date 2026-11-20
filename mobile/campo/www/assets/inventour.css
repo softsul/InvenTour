@@ -1259,8 +1259,23 @@ dialog.coleta-dialogo > form{display:flex; flex-direction:column; flex:1; min-he
 .coleta-dialogo .cab-dialogo p{margin:2px 0 0; font-size:12.5px}
 .coleta-dialogo .fechar{border:0; background:none; color:var(--fraca); cursor:pointer; padding:6px; line-height:0}
 .coleta-dialogo .fechar svg{width:18px; height:18px}
-.coleta-dialogo .abas-coleta{flex:none; padding:0 16px; background:var(--branco)}
+.coleta-dialogo .abas-coleta{flex:none; padding:0 16px; background:var(--branco); overflow-x:auto; scrollbar-width:none}
+.coleta-dialogo .abas-coleta::-webkit-scrollbar{display:none}
+.coleta-dialogo .abas-coleta button{flex:none; white-space:nowrap}
+.coleta-dialogo .abas-coleta button[hidden]{display:none}
 .coleta-dialogo .abas-coleta button svg{width:16px; height:16px}
+/* Qual ficha?: a busca parada no alto, só a lista rola. */
+.coleta-dialogo .busca-dialogo{flex:none; padding:14px 24px 10px; background:var(--nuvem); border-bottom:1px solid var(--traco)}
+.coleta-dialogo .busca-dialogo + .corpo-dialogo{padding-top:8px}
+/* Campos específicos da ficha, acessibilidade e tribos. */
+.coleta-especificos{display:flex; flex-direction:column; gap:4px}
+.coleta-especificos > h3.sub-cartao:first-child, #c-acess > h3.sub-cartao:first-child{margin-top:0}
+.coleta-especificos .grade{margin-bottom:10px}
+.tabela-acoes{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:6px}
+.tabela-acoes .como-link{display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600; color:var(--indigo)}
+.tabela-acoes .como-link svg{width:14px; height:14px}
+.tabela-acoes .entrada.estreita{margin-top:0}
+details.tribo summary .tribo-conta{margin-left:auto}
 .coleta-dialogo .corpo-dialogo{flex:1; min-height:0; overflow-y:auto; padding:22px 24px; display:flex; flex-direction:column; gap:16px}
 .coleta-dialogo .painel-coleta{display:flex; flex-direction:column; gap:16px}
 .coleta-dialogo .painel-coleta[hidden]{display:none}
@@ -1271,6 +1286,8 @@ dialog.coleta-dialogo > form{display:flex; flex-direction:column; flex:1; min-he
 .coleta-dialogo .entrada select, .coleta-dialogo .entrada textarea{flex:1; min-width:0; border:0; background:transparent; padding:12px 0;
   font:inherit; font-size:14.5px; color:var(--tinta); outline:none}
 .coleta-dialogo .entrada textarea{resize:vertical}
+.coleta-dialogo .entrada select.ausencia{flex:none; width:auto; padding:12px 0 12px 10px; margin-left:8px; border-left:1px solid var(--traco); font-size:12.5px; color:var(--suave)}
+.coleta-dialogo .entrada.estreita select.ausencia{flex:1; margin-left:0; padding-left:0; border-left:0}
 .coleta-dialogo .entrada input[type=search]{flex:1; min-width:0; border:0; background:transparent; padding:12px 0; font:inherit; font-size:14.5px; outline:none}
 .coleta-gps{display:flex; align-items:center; justify-content:space-between; gap:12px 16px; flex-wrap:wrap; padding:16px 18px; border-radius:var(--r);
   background:var(--branco); border:1px solid var(--traco)}
@@ -1309,10 +1326,13 @@ dialog.coleta-dialogo > form{display:flex; flex-direction:column; flex:1; min-he
   .coleta-botoes{margin-left:0; width:100%}
   .coleta-botoes .botao{flex:1; padding:14px}
   dialog.coleta-dialogo, dialog.coleta-dialogo.pequeno{width:100vw; height:100dvh; max-height:none; max-width:none; border-radius:0; margin:0; inset:0}
-  /* As cinco abas sempre à vista: ícone em cima, nome embaixo. */
-  .coleta-dialogo .abas-coleta{display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); gap:0; padding:0; overflow:visible}
-  .coleta-dialogo .abas-coleta button{position:relative; flex-direction:column; gap:3px; padding:8px 2px 7px; font-size:10.5px; white-space:nowrap;
-    overflow:hidden; text-overflow:ellipsis; justify-content:center}
+  /* As abas da ficha correm de lado (ícone em cima, nome embaixo); a
+     escolhida rola para o meio, e Próxima e Anterior passam de uma a outra. */
+  .coleta-dialogo .abas-coleta{display:flex; gap:0; padding:0 4px; overflow-x:auto; scroll-snap-type:x proximity}
+  .coleta-dialogo .abas-coleta button{position:relative; flex:none; min-width:74px; flex-direction:column; gap:3px; padding:8px 8px 7px; font-size:10.5px;
+    white-space:nowrap; justify-content:center; scroll-snap-align:center}
+  .coleta-dialogo .busca-dialogo{padding:12px 16px 8px}
+  .tribos-colunas{column-count:1}
   .coleta-dialogo .abas-coleta button svg{width:19px; height:19px}
   .coleta-dialogo .abas-coleta .conta-aba{position:absolute; top:3px; right:4px; padding:0 4px; font-size:9px}
   .coleta-dialogo .corpo-dialogo{padding:16px}
