@@ -9,7 +9,7 @@ Para quem cuida do InvenTour no dia a dia (equipe Softsul). Escrito em
 | --- | --- |
 | Painel | `https://app.inventour.com.br` (DocumentRoot `public/`) |
 | Portal de cada destino | `https://<slug>.inventour.com.br` ou domínio próprio (DocumentRoot `portal/`) |
-| Código | `/home/www/app.inventour.com.br`, repositório `softsul/inventour` no GitHub (chave de deploy `~/.ssh/deploy_inventour`, alias `github-inventour`) |
+| Código | `/home/www/app.inventour.com.br`, repositório `softsul/InvenTour` no GitHub (chave de deploy `~/.ssh/deploy_inventour`, alias `github-inventour`) |
 | Banco | MySQL 8, banco `inventour`; usuários `inventour_app` (painel e fila) e `inventour_portal` (portal, permissões em `docs/servidor/mysql-usuario-portal.sql`) |
 | Configuração | `app/config.php` (fora do Git, dono `ubuntu:www-data`, modo 640) |
 | Registros | `logs/seguranca.log` (lido pelo fail2ban, jail `inventour`); erros do PHP em `/var/log/apache2/*inventour*_error.log` |
