@@ -15,8 +15,8 @@
  *   o lado maior fica em até 800 px e a saída é PNG, para a transparência
  *   do brasão sobreviver sobre o fundo escuro do portal (Imagem::logo).
  *
- * Capa e galeria de evento, em WebP e com outras medidas, ganham perfis
- * próprios na etapa dos eventos; este arquivo só cresce, não muda.
+ * Foto do inventário: formato original, lado maior em até 1600 px
+ * (Imagem::foto), com a coordenada do EXIF lida antes (Imagem::gpsDoExif).
  *
  * Fora o logo, sempre JPEG de qualidade 80 (igual ao olho, e menor que o original), com
  * a rotação da câmera corrigida (EXIF) e sem metadados: a imagem é
@@ -67,6 +67,55 @@ final class Imagem
         ob_start();
         imagejpeg($saida, null, self::QUALIDADE);
         return (string) ob_get_clean();
+    }
+
+    /**
+     * Foto do inventário (atrativo, equipamento): formato original mantido,
+     * lado maior em até $max px (não amplia), rotação da câmera corrigida e
+     * JPEG sem metadados. Devolve [bytes, largura, altura] ou null.
+     */
+    public static function foto(string $dados, int $max = 1600): ?array
+    {
+        $img = @imagecreatefromstring($dados);
+        if (!$img) {
+            return null;
+        }
+        $img = self::endireitar($img, $dados);
+        [$l, $a] = [imagesx($img), imagesy($img)];
+        $escala = min($max / max($l, $a), 1);
+        [$lNovo, $aNovo] = [(int) round($l * $escala), (int) round($a * $escala)];
+        $saida = imagecreatetruecolor($lNovo, $aNovo);
+        imagefill($saida, 0, 0, imagecolorallocate($saida, 255, 255, 255));
+        imagecopyresampled($saida, $img, 0, 0, 0, 0, $lNovo, $aNovo, $l, $a);
+        imageinterlace($saida, true);
+        ob_start();
+        imagejpeg($saida, null, self::QUALIDADE);
+        return [(string) ob_get_clean(), $lNovo, $aNovo];
+    }
+
+    /**
+     * Coordenada gravada pela câmera (EXIF), lida antes de a imagem ser
+     * redesenhada sem metadados. [latitude, longitude] ou null.
+     */
+    public static function gpsDoExif(string $dados): ?array
+    {
+        if (!function_exists('exif_read_data')) {
+            return null;
+        }
+        $exif = @exif_read_data('data://image/jpeg;base64,' . base64_encode($dados));
+        if (!$exif || empty($exif['GPSLatitude']) || empty($exif['GPSLongitude'])) {
+            return null;
+        }
+        $grau = function (array $partes): float {
+            $n = array_map(function ($p) {
+                [$a, $b] = array_pad(explode('/', (string) $p), 2, '1');
+                return (float) $b ? (float) $a / (float) $b : 0.0;
+            }, $partes);
+            return ($n[0] ?? 0) + ($n[1] ?? 0) / 60 + ($n[2] ?? 0) / 3600;
+        };
+        $lat = $grau((array) $exif['GPSLatitude']) * (($exif['GPSLatitudeRef'] ?? 'N') === 'S' ? -1 : 1);
+        $lng = $grau((array) $exif['GPSLongitude']) * (($exif['GPSLongitudeRef'] ?? 'E') === 'W' ? -1 : 1);
+        return abs($lat) <= 90 && abs($lng) <= 180 && ($lat || $lng) ? [round($lat, 6), round($lng, 6)] : null;
     }
 
     /** O tamanho de referência do enquadramento na tela, por uso; a saída segue o perfil. */

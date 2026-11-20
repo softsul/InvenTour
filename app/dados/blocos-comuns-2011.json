@@ -1,0 +1,704 @@
+{
+ "fonte": "Inventário da Oferta Turística, MTur 2011, ficha B2 Alimentos e bebidas (pp. 125 a 131), conferida com B1 (pp. 105 a 124), B3, B5 e fichas C",
+ "acessibilidade_possui": {
+  "chave": "possui_facilidade",
+  "rotulo": "Possui alguma facilidade para pessoas com deficiência ou mobilidade reduzida?",
+  "opcoes": [
+   "Não",
+   "Sim"
+  ],
+  "multipla": false
+ },
+ "acessibilidade": [
+  {
+   "chave": "pessoal_capacitado",
+   "rotulo": "Pessoal capacitado para receber pessoas com deficiência",
+   "multipla": true,
+   "opcoes": [
+    "Não",
+    "Física",
+    "Auditiva",
+    "Visual",
+    "Mental",
+    "Múltipla"
+   ]
+  },
+  {
+   "chave": "rota_externa",
+   "rotulo": "Rota externa acessível",
+   "multipla": true,
+   "opcoes": [
+    "Não",
+    "Estacionamento",
+    "Calçada rebaixada",
+    "Faixa de pedestre",
+    "Rampa",
+    "Semáforo sonoro",
+    "Piso tátil de alerta",
+    "Piso regular e antiderrapante",
+    "Livre de obstáculos",
+    "Outras"
+   ]
+  },
+  {
+   "chave": "simbolo_acesso",
+   "rotulo": "Símbolo internacional de acesso",
+   "multipla": true,
+   "opcoes": [
+    "Não",
+    "Entrada",
+    "Área reservada",
+    "Estacionamento",
+    "Área de embarque e desembarque",
+    "Sanitário",
+    "Saída de emergência"
+   ]
+  },
+  {
+   "chave": "embarque_desembarque",
+   "rotulo": "Local de embarque e desembarque",
+   "multipla": true,
+   "opcoes": [
+    "Não",
+    "Sinalizado",
+    "Com acesso em nível"
+   ]
+  },
+  {
+   "chave": "vaga_estacionamento",
+   "rotulo": "Vaga em estacionamento",
+   "multipla": true,
+   "opcoes": [
+    "Não",
+    "Sinalizada",
+    "Com acesso em nível",
+    "Alargada para cadeira de rodas",
+    "Rampa de acesso à calçada"
+   ]
+  },
+  {
+   "chave": "circulacao_interna",
+   "rotulo": "Área de circulação/acesso interno para cadeiras de rodas",
+   "multipla": true,
+   "opcoes": [
+    "Não",
+    "Rampa",
+    "Elevador",
+    "Plataforma elevatória",
+    "Com circulação entre mobiliário",
+    "Porta larga",
+    "Piso regular/antiderrapante"
+   ]
+  },
+  {
+   "chave": "escada",
+   "rotulo": "Escada",
+   "multipla": true,
+   "opcoes": [
+    "Não",
+    "Corrimão",
+    "Patamar para descanso",
+    "Sinalização tátil de alerta",
+    "Piso antiderrapante"
+   ]
+  },
+  {
+   "chave": "rampa",
+   "rotulo": "Rampa",
+   "multipla": true,
+   "opcoes": [
+    "Não",
+    "Corrimão",
+    "Patamar para descanso",
+    "Piso antiderrapante",
+    "Sinalização tátil",
+    "Inclinação adequada"
+   ]
+  },
+  {
+   "chave": "piso",
+   "rotulo": "Piso",
+   "multipla": true,
+   "opcoes": [
+    "Não",
+    "Tátil",
+    "Sem obstáculos (tapete ou desnível)",
+    "Antiderrapante/deslizante"
+   ]
+  },
+  {
+   "chave": "elevador",
+   "rotulo": "Elevador",
+   "multipla": true,
+   "opcoes": [
+    "Não",
+    "Sinalizado em Braille",
+    "Dispositivo sonoro",
+    "Dispositivo luminoso",
+    "Sensor eletrônico (porta)"
+   ]
+  },
+  {
+   "chave": "equipamento_motorizado",
+   "rotulo": "Equipamento motorizado para deslocamento interno",
+   "multipla": true,
+   "opcoes": [
+    "Não",
+    "Cadeira",
+    "Carrinho"
+   ]
+  },
+  {
+   "chave": "sinalizacao_visual",
+   "rotulo": "Sinalização visual",
+   "multipla": true,
+   "opcoes": [
+    "Não",
+    "Entrada",
+    "Recepção",
+    "Porta",
+    "Sanitário",
+    "Elevador",
+    "Restaurante",
+    "Área de lazer",
+    "Área de resgate"
+   ]
+  },
+  {
+   "chave": "sinalizacao_tatil",
+   "rotulo": "Sinalização tátil",
+   "multipla": true,
+   "opcoes": [
+    "Não",
+    "Entrada",
+    "Recepção",
+    "Porta",
+    "Sanitário",
+    "Elevador",
+    "Restaurante",
+    "Área de lazer",
+    "Área de resgate"
+   ]
+  },
+  {
+   "chave": "alarme_emergencia",
+   "rotulo": "Alarme de emergência",
+   "multipla": true,
+   "opcoes": [
+    "Não",
+    "Sonoro",
+    "Visual",
+    "Vibratório"
+   ]
+  },
+  {
+   "chave": "comunicacao",
+   "rotulo": "Comunicação",
+   "multipla": true,
+   "opcoes": [
+    "Não",
+    "Texto informativo em Braille",
+    "Texto informativo em fonte ampliada",
+    "Intérprete em Libras (língua brasileira de sinais)"
+   ]
+  },
+  {
+   "chave": "balcao_atendimento",
+   "rotulo": "Balcão de atendimento",
+   "multipla": true,
+   "opcoes": [
+    "Não",
+    "Rebaixado",
+    "Preferencial para pessoas com deficiência ou mobilidade reduzida"
+   ]
+  },
+  {
+   "chave": "mobiliario",
+   "rotulo": "Mobiliário",
+   "multipla": true,
+   "opcoes": [
+    "Não",
+    "Altura adequada",
+    "Recuo adequado"
+   ]
+  },
+  {
+   "chave": "sanitario",
+   "rotulo": "Sanitário",
+   "multipla": true,
+   "opcoes": [
+    "Não",
+    "Barra de apoio",
+    "Porta larga suficiente para entrada de cadeira de rodas",
+    "Giro para cadeira de rodas",
+    "Acesso para cadeira de rodas",
+    "Pia rebaixada",
+    "Espelho rebaixado ou com ângulo de alcance visual",
+    "Boxe ou banheira adaptada",
+    "Torneira monocomando/alavanca"
+   ]
+  },
+  {
+   "chave": "telefone",
+   "rotulo": "Telefone",
+   "multipla": true,
+   "opcoes": [
+    "Não",
+    "Altura adequada",
+    "Para surdos (TPS ou TTS)"
+   ]
+  },
+  {
+   "chave": "atendimento_preferencial",
+   "rotulo": "Sinalização indicativa de atendimento preferencial para pessoas com deficiência ou mobilidade reduzida",
+   "multipla": false,
+   "opcoes": [
+    "Sim",
+    "Não"
+   ],
+   "tipo": "sim_nao"
+  },
+  {
+   "chave": "outras",
+   "rotulo": "Outras",
+   "multipla": false,
+   "opcoes": [],
+   "tipo": "texto"
+  }
+ ],
+ "funcionamento": {
+  "formas_pagamento": [
+   "Dinheiro",
+   "Cheque",
+   "Cheque de outra praça",
+   "Cartão de crédito",
+   "Cartão de débito",
+   "Tíquete"
+  ],
+  "formas_pagamento_inativas": [
+   "Cheque",
+   "Cheque de outra praça"
+  ],
+  "vendas_reservas": [
+   "Balcão",
+   "Telefone",
+   "Fax",
+   "Internet",
+   "Outras"
+  ],
+  "vendas_reservas_variante_b1": [
+   "Balcão",
+   "Telefone",
+   "Fax",
+   "Internet",
+   "Agência de turismo",
+   "Com sinal",
+   "Antecipado"
+  ],
+  "idiomas": [
+   "Não",
+   "Inglês",
+   "Espanhol",
+   "Outras"
+  ],
+  "informativos_impressos": [
+   "Não",
+   "Português",
+   "Inglês",
+   "Espanhol",
+   "Outras"
+  ],
+  "periodo": [
+   "Janeiro",
+   "Fevereiro",
+   "Março",
+   "Abril",
+   "Maio",
+   "Junho",
+   "Julho",
+   "Agosto",
+   "Setembro",
+   "Outubro",
+   "Novembro",
+   "Dezembro",
+   "Ano inteiro"
+  ],
+  "horario": {
+   "dias": [
+    "2ª feira",
+    "3ª feira",
+    "4ª feira",
+    "5ª feira",
+    "6ª feira",
+    "Sábado",
+    "Domingo"
+   ],
+   "campos": [
+    "Abertura",
+    "Encerramento"
+   ],
+   "funcionamento_24h": [
+    "Sim",
+    "Não"
+   ],
+   "funcionamento_feriados": [
+    "Sim",
+    "Não"
+   ]
+  },
+  "restricoes": [
+   "Crianças",
+   "Fumantes",
+   "Animais",
+   "Outras"
+  ],
+  "outras_regras": "texto_longo"
+ },
+ "informacoes_gerais": {
+  "campos": [
+   "Razão social",
+   "Nome fantasia",
+   "CNPJ",
+   "Código CNAE",
+   "Atividade econômica",
+   "Nome da rede/holding",
+   "Inscrição municipal",
+   "Natureza",
+   "Tipo de organização/instituição",
+   "Início da atividade",
+   "Funcionários permanentes (nº)",
+   "Funcionários temporários (nº)",
+   "Pessoas com deficiência (%)",
+   "Localização",
+   "Latitude",
+   "Longitude",
+   "Avenida/rua/travessa/caminho/outro",
+   "Bairro/localidade",
+   "Distrito",
+   "CEP",
+   "Telefone",
+   "Ramal",
+   "Fax",
+   "Ramal do fax",
+   "Endereço eletrônico (e-mail)",
+   "Sítio eletrônico (site/página web)",
+   "Sinalização de acesso",
+   "Sinalização turística",
+   "Proximidades",
+   "Distâncias (km)",
+   "Pontos de referência",
+   "Cadastros, classificações e outros"
+  ],
+  "campos_inativos": [
+   "Fax",
+   "Ramal do fax"
+  ],
+  "natureza": [
+   "Pública",
+   "Privada",
+   "Outra"
+  ],
+  "tipo_organizacao": [
+   "Associação",
+   "Sindicato",
+   "Cooperativa",
+   "Sistema S",
+   "Empresa",
+   "Outros"
+  ],
+  "localizacao": [
+   "Urbana",
+   "Rural"
+  ],
+  "sinalizacao": {
+   "de_acesso": [
+    "Sim",
+    "Não"
+   ],
+   "turistica": [
+    "Sim",
+    "Não"
+   ]
+  },
+  "proximidades": [
+   "Meio de hospedagem",
+   "Shopping",
+   "Galeria/rua comercial",
+   "Centro de convenções/exposições",
+   "Posto de combustível",
+   "Outras"
+  ],
+  "proximidades_variante_b1": [
+   "Restaurante",
+   "Bar/lanchonete",
+   "Shopping",
+   "Galeria/rua comercial",
+   "Centro de convenções/exposições",
+   "Posto de combustível",
+   "Outras"
+  ],
+  "proximidades_uniao": [
+   "Restaurante",
+   "Bar/lanchonete",
+   "Meio de hospedagem",
+   "Shopping",
+   "Galeria/rua comercial",
+   "Centro de convenções/exposições",
+   "Posto de combustível",
+   "Outras"
+  ],
+  "distancias": [
+   "Aeroporto",
+   "Estação rodoviária",
+   "Estação ferroviária",
+   "Estação marítima/fluvial",
+   "Estação metroviária",
+   "Ponto de ônibus",
+   "Ponto de táxi",
+   "Outras"
+  ],
+  "cadastros": [
+   "MTur CADASTUR",
+   "MTur outros",
+   "Associações e sindicatos do setor",
+   "Associações de turismo",
+   "Associações comerciais",
+   "Guias turísticos",
+   "Outros"
+  ],
+  "cadastros_colunas": [
+   "Entidade/guia turístico",
+   "Categoria/tipo/classificação/número"
+  ],
+  "segmentos_rotulo": "Segmentos ou tipos de turismo em que é especializado (assinalar até 3)"
+ },
+ "protecao": {
+  "alvos": [
+   "Do equipamento/espaço",
+   "Da área ou edificação em que está localizado/instalado"
+  ],
+  "esferas": [
+   "Municipal",
+   "Estadual/Distrital",
+   "Federal",
+   "Internacional",
+   "Outras"
+  ],
+  "instrumentos": [
+   "Lei/Decreto",
+   "Portaria/Instrução/Deliberação",
+   "Norma/Ato",
+   "Outros"
+  ],
+  "colunas": [
+   "Instrumento (nº)",
+   "Nome/Título/Certificação/Licenciamento/outro",
+   "Entidade declaratória/Tipo de declaração"
+  ]
+ },
+ "conservacao": [
+  "Muito bom",
+  "Bom",
+  "Ruim"
+ ],
+ "segmentos": [
+  "Aventura",
+  "Ecoturismo",
+  "Sol e praia",
+  "Rural",
+  "Estudos e intercâmbio",
+  "Negócios e eventos",
+  "Cultural (cívico, étnico, religioso, místico e esotérico)",
+  "Náutico",
+  "Esporte",
+  "Saúde (bem-estar e médico)",
+  "Pesca",
+  "Não é especializado em nenhum segmento"
+ ],
+ "segmentos_maximo": 3,
+ "instalacoes": {
+  "estacionamento": [
+   "Pago",
+   "Gratuito",
+   "Coberto",
+   "Descoberto"
+  ],
+  "estacionamento_capacidade": [
+   "Automóveis (nº)",
+   "Ônibus (nº)"
+  ]
+ },
+ "fluxo": {
+  "rotulo": "Caracterização do fluxo turístico",
+  "campos": [
+   "Ocupação ano (nº)",
+   "Ocupação na alta temporada (nº)",
+   "Meses de alta temporada",
+   "Origem dos visitantes/turistas",
+   "Origem dos turistas nacionais (até 5 estados)",
+   "Origem dos turistas internacionais (até 5 países)",
+   "Ano-base"
+  ],
+  "origem": [
+   "Entorno municipal",
+   "Estadual",
+   "Nacional",
+   "Internacional"
+  ],
+  "meses": [
+   "Janeiro",
+   "Fevereiro",
+   "Março",
+   "Abril",
+   "Maio",
+   "Junho",
+   "Julho",
+   "Agosto",
+   "Setembro",
+   "Outubro",
+   "Novembro",
+   "Dezembro"
+  ]
+ },
+ "atrativos": {
+  "nota": "Blocos repetidos nas fichas B6 e C (atrativos), seção 1 e 2",
+  "identificacao": [
+   "Nome oficial",
+   "Nome popular",
+   "Entidade mantenedora",
+   "Sede do município (distância km)",
+   "Localidade mais próxima (distância km)"
+  ],
+  "visitacao": {
+   "possui": [
+    "Sim",
+    "Não"
+   ],
+   "finalidade": [
+    "Passeio",
+    "Aventura",
+    "Religiosidade",
+    "Pesquisa",
+    "Outras"
+   ],
+   "agendada": [
+    "Não",
+    "Opcional",
+    "Obrigatória"
+   ],
+   "autoguiada": [
+    "Não",
+    "Opcional",
+    "Obrigatória"
+   ],
+   "guiada": [
+    "Não",
+    "Opcional",
+    "Obrigatória"
+   ]
+  },
+  "entrada": {
+   "gratuita": [
+    "Sim",
+    "Não"
+   ],
+   "paga": [
+    "Inteira",
+    "Meia"
+   ],
+   "permissao_acesso": [
+    "Livre",
+    "Apenas para associados"
+   ]
+  },
+  "instalacoes_entrada": [
+   "Centro de recepção",
+   "Posto de informação",
+   "Portaria principal",
+   "Guarita",
+   "Bilheteria"
+  ],
+  "publico_frequentador": [
+   "Turistas",
+   "Moradores"
+  ],
+  "fluxo_campos": [
+   "Total anual de visitantes (nº)",
+   "Total de visitantes na alta temporada (nº)",
+   "Meses de alta temporada",
+   "Origem dos visitantes/turistas",
+   "Origem dos turistas nacionais (até 5 estados)",
+   "Origem dos turistas internacionais (até 5 países)",
+   "Ano-base",
+   "Principal público frequentador"
+  ],
+  "apoio_comercializacao": {
+   "integra_roteiros": [
+    "Sim",
+    "Não"
+   ],
+   "roteiros_colunas": [
+    "Nome dos principais roteiros (até 5)",
+    "Sítio eletrônico (site/página web)"
+   ],
+   "integra_guia": [
+    "Sim",
+    "Não"
+   ],
+   "guias_colunas": [
+    "Nome dos principais guias impressos (até 5)",
+    "Sítio eletrônico (site/página web)"
+   ]
+  },
+  "acesso_atrativo": {
+   "trilha_acesso": [
+    "Pavimentada",
+    "Não pavimentada"
+   ],
+   "trilha_extensao_m": "numero",
+   "grau_dificuldade": [
+    "Leve",
+    "Semipesada",
+    "Pesada"
+   ],
+   "transporte_regular_colunas": [
+    "Empresa",
+    "Telefone",
+    "Sítio eletrônico (site/página web)",
+    "Endereço eletrônico (e-mail)"
+   ],
+   "transporte_fretado_colunas": [
+    "Empresa",
+    "Tipo de transporte",
+    "Telefone",
+    "Sítio eletrônico (site/página web)",
+    "Endereço eletrônico (e-mail)"
+   ]
+  },
+  "distancias_extra": [
+   "Sede do município",
+   "Localidade mais próxima"
+  ]
+ },
+ "fichas_simplificadas": {
+  "nota": "A3, A4, A5, A7.1, A7.4, A7.5/6 e A7.7 são listas: cada linha é um equipamento com nome, CNPJ quando houver, endereço, telefones, e-mail e site; as seções são 1 Informações gerais, 2 Observações, 3 Referências, 4 Equipe responsável",
+  "formas_pagamento_a5": [
+   "Dinheiro",
+   "Cheque",
+   "Cartão de débito",
+   "Cartão de crédito"
+  ]
+ },
+ "observacoes": "texto_longo",
+ "referencias": "texto_longo",
+ "equipe": {
+  "campos": [
+   "Responsável pelo preenchimento (Pesquisador)",
+   "Telefone/Fax",
+   "Endereço eletrônico (e-mail)",
+   "Responsável pela conferência (Coordenador)",
+   "Telefone/Fax",
+   "Endereço eletrônico (e-mail)"
+  ]
+ }
+}

@@ -135,7 +135,7 @@ function cabecaComum(string $titulo, ?bool $escuro = false): void
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<title><?= e($titulo) ?> · <?= e(Marca::nome()) ?>, da Softsul</title>
+<title><?= e($titulo) ?> · <?= e(Marca::nome()) ?></title>
 <link rel="preload" href="/assets/fontes/open-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/tema.css?v=<?= VERSAO_ASSETS ?>">
 <link rel="stylesheet" href="/assets/inventour.css?v=<?= VERSAO_ASSETS ?>">

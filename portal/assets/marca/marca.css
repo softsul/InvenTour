@@ -4,18 +4,11 @@
 
    Estrutura copiada do EventCity (20/11/2026), com a arte e as cores do site
    inventour.com.br: emblema em emblema.svg, verde-água, azul-marinho, azul e
-   dourado. Os nomes das classes (rosa, marinho, laranja, papel) ficaram os
+   dourado. Os nomes das variáveis (rosa, marinho, laranja, papel) ficaram os
    do EventCity para o código das duas casas continuar igual; as cores são
-   as do InvenTour. Texto original:
-   o emblema em "e" rosa e
-   azul-marinho cercado por 16 raios nas cores da marca, que pulsam em tempos
-   diferentes enquanto o conjunto gira devagar. Aqui ela foi refeita só com
-   CSS e o sprite marca.svg, porque a CSP do painel não aceita estilo no
-   elemento: a posição, o tamanho e o atraso de cada raio saem de
-   :nth-child, e o tamanho do conjunto vem de uma variável (--tam).
-
-   Este arquivo existe também em portal/assets/marca/, idêntico; o
-   scripts/conferir_telas.php avisa se as cópias divergirem.
+   as do InvenTour. Na entrada, o emblema fica sobre um mapa vivo (pinos,
+   rota e ondas de localização), feito só com SVG e CSS porque a CSP do
+   painel não aceita estilo no elemento.
    ========================================================================== */
 
 :root{
@@ -44,59 +37,69 @@
 .palco-escuro .marca-svg{color:var(--marca-marinho-claro)}
 @media (prefers-color-scheme:dark){ .segue-sistema .marca-svg{color:var(--marca-marinho-claro)} }
 
-/* ------------------------------------------------------- a explosão */
+/* ------------------------------------------------------- o mapa vivo
+   Emblema no centro de um mapa redondo (curvas de nível e grade), com uma
+   rota tracejada que se desenha entre cinco pinos que caem um a um, e ondas
+   de localização saindo do centro. A classe continua .explosao, nome
+   herdado, para as telas de entrada e de erro não mudarem. */
 .explosao{--tam:320px; position:relative; width:var(--tam); height:var(--tam); flex:none;
   animation:it-surge 1s ease both}
 .explosao .halo{
-  position:absolute; left:50%; top:50%; width:60%; height:60%; translate:-50% -50%; border-radius:50%;
-  background:radial-gradient(circle, rgba(24,168,144,.34), rgba(46,124,166,.16) 45%, transparent 70%);
+  position:absolute; left:50%; top:50%; width:70%; height:70%; translate:-50% -50%; border-radius:50%;
+  background:radial-gradient(circle, rgba(24,168,144,.30), rgba(46,124,166,.14) 45%, transparent 70%);
   filter:blur(calc(var(--tam) * .037)); animation:it-halo 6s ease-in-out infinite;
 }
-.explosao .palco{position:absolute; inset:0; animation:it-gira 150s linear infinite}
-.explosao .raios{position:absolute; inset:0; animation:it-revela .95s cubic-bezier(.2,.85,.25,1) both}
-.explosao .raio-pos{
-  --a:0deg; --len:.25; --d:0s;
-  position:absolute; top:50%; left:50%;
-  transform:translate(-50%,-50%) rotate(var(--a)) translateY(calc(var(--tam) * -.3526));
-}
-.explosao .raio{
-  display:block; width:calc(var(--tam) * .0553); height:calc(var(--tam) * var(--len));
-  margin:calc(var(--tam) * var(--len) / -2) calc(var(--tam) * -.0276);
-  border-radius:999px; transform-origin:center;
-  animation:it-pisca 3.6s var(--d) ease-in-out infinite;
-}
-.explosao .raio.rosa{background:var(--marca-rosa)}
-.explosao .raio.laranja{background:var(--marca-laranja)}
-.explosao .raio.marinho{background:#0C6C78}
-.explosao .raio.papel{background:var(--marca-papel)}
-/* Comprimentos e atrasos do site, divididos pelo tamanho de lá (380px). */
-.explosao .raio-pos:nth-child(1){--a:0deg;--len:.2526;--d:0s}
-.explosao .raio-pos:nth-child(2){--a:22.5deg;--len:.1895;--d:.18s}
-.explosao .raio-pos:nth-child(3){--a:45deg;--len:.2368;--d:.36s}
-.explosao .raio-pos:nth-child(4){--a:67.5deg;--len:.1789;--d:.54s}
-.explosao .raio-pos:nth-child(5){--a:90deg;--len:.2474;--d:.72s}
-.explosao .raio-pos:nth-child(6){--a:112.5deg;--len:.2;--d:.9s}
-.explosao .raio-pos:nth-child(7){--a:135deg;--len:.2316;--d:1.08s}
-.explosao .raio-pos:nth-child(8){--a:157.5deg;--len:.1842;--d:1.26s}
-.explosao .raio-pos:nth-child(9){--a:180deg;--len:.2526;--d:.09s}
-.explosao .raio-pos:nth-child(10){--a:202.5deg;--len:.1947;--d:.27s}
-.explosao .raio-pos:nth-child(11){--a:225deg;--len:.2368;--d:.45s}
-.explosao .raio-pos:nth-child(12){--a:247.5deg;--len:.1789;--d:.63s}
-.explosao .raio-pos:nth-child(13){--a:270deg;--len:.2421;--d:.81s}
-.explosao .raio-pos:nth-child(14){--a:292.5deg;--len:.2053;--d:.99s}
-.explosao .raio-pos:nth-child(15){--a:315deg;--len:.2263;--d:1.17s}
-.explosao .raio-pos:nth-child(16){--a:337.5deg;--len:.1895;--d:1.35s}
+.explosao .mapa-vivo{position:absolute; inset:0; width:100%; height:100%; overflow:visible;
+  animation:it-revela .95s cubic-bezier(.2,.85,.25,1) both}
+.mapa-vivo .mapa-disco{fill:rgba(11,66,107,.22); stroke:rgba(32,178,149,.35); stroke-width:1.5}
+.mapa-vivo .curvas{fill:none; stroke:rgba(99,182,229,.22); stroke-width:1.4; animation:it-deriva 18s ease-in-out infinite alternate}
+.mapa-vivo .grade{fill:none; stroke:rgba(255,255,255,.07); stroke-width:1; stroke-dasharray:3 6}
+.mapa-vivo .rota{fill:none; stroke:var(--marca-laranja); stroke-width:2.6; stroke-linecap:round;
+  stroke-dasharray:1 9; stroke-dashoffset:0; opacity:.9; animation:it-rota 9s linear infinite}
+.mapa-vivo .pino{transform-box:fill-box; transform-origin:50% 100%; opacity:0;
+  animation:it-pino .7s cubic-bezier(.3,1.5,.5,1) both}
+.mapa-vivo .pino path{fill:currentColor}
+.mapa-vivo .pino circle:not(.ping){fill:#fff}
+.mapa-vivo .pino .sombra{fill:rgba(0,0,0,.35)}
+.mapa-vivo .pino .ping{fill:none; stroke:currentColor; stroke-width:2; transform-box:fill-box; transform-origin:center;
+  animation:it-ping 2.8s ease-out infinite}
+.mapa-vivo .pino.verde{color:var(--marca-rosa)}
+.mapa-vivo .pino.ouro{color:var(--marca-laranja)}
+.mapa-vivo .pino.azul{color:#63B6E5}
+.mapa-vivo > g:nth-of-type(2) .pino{animation-delay:.5s}
+.mapa-vivo > g:nth-of-type(3) .pino{animation-delay:.9s}
+.mapa-vivo > g:nth-of-type(4) .pino{animation-delay:1.3s}
+.mapa-vivo > g:nth-of-type(5) .pino{animation-delay:1.7s}
+.mapa-vivo > g:nth-of-type(6) .pino{animation-delay:2.1s}
+.mapa-vivo > g:nth-of-type(3) .ping{animation-delay:.9s}
+.mapa-vivo > g:nth-of-type(4) .ping{animation-delay:1.6s}
+.mapa-vivo > g:nth-of-type(5) .ping{animation-delay:2.3s}
+.mapa-vivo > g:nth-of-type(6) .ping{animation-delay:.4s}
+/* Ondas de localização: três anéis que saem do emblema e somem. */
+.explosao .ondas{position:absolute; left:50%; top:50%; width:34%; height:34%; translate:-50% -50%}
+.explosao .ondas span{position:absolute; inset:0; border-radius:50%; border:2px solid var(--marca-rosa);
+  opacity:0; animation:it-onda 3.6s cubic-bezier(.2,.6,.3,1) infinite}
+.explosao .ondas span:nth-child(2){animation-delay:1.2s}
+.explosao .ondas span:nth-child(3){animation-delay:2.4s}
 .explosao .emblema-central{
-  position:absolute; left:50%; top:50%; width:33.7%; height:33.7%; translate:-50% -50%;
+  position:absolute; left:50%; top:50%; width:30%; height:30%; translate:-50% -50%;
   color:var(--marca-marinho-claro);
   filter:drop-shadow(0 6px 22px rgba(0,0,0,.45));
   animation:it-respira 5.5s ease-in-out infinite, it-surge 1.1s .15s ease both;
 }
+@keyframes it-rota{to{stroke-dashoffset:-200}}
+@keyframes it-pino{from{opacity:0; transform:translateY(-26px) scale(.6)}to{opacity:1; transform:none}}
+@keyframes it-ping{0%{opacity:.8; transform:scale(.6)}80%,100%{opacity:0; transform:scale(3.2)}}
+@keyframes it-onda{0%{opacity:.75; transform:scale(.85)}100%{opacity:0; transform:scale(2.9)}}
+@keyframes it-deriva{from{transform:translateX(-6px)}to{transform:translateX(6px)}}
+@media (prefers-reduced-motion:reduce){
+  .explosao *, .explosao{animation:none !important}
+  .mapa-vivo .pino{opacity:1}
+  .explosao .ondas span:first-child{opacity:.4; transform:scale(1.6)}
+}
 
 @keyframes it-halo{0%,100%{opacity:.65; scale:1}50%{opacity:1; scale:1.08}}
-@keyframes it-gira{to{rotate:360deg}}
 @keyframes it-revela{from{scale:.55; opacity:0}to{scale:1; opacity:1}}
-@keyframes it-pisca{0%,100%{scale:1 .8; opacity:.5}50%{scale:1 1.06; opacity:1}}
 @keyframes it-respira{0%,100%{scale:1}50%{scale:1.045}}
 @keyframes it-surge{from{opacity:0}to{opacity:1}}
 @keyframes it-sobe{from{opacity:0; transform:translateY(14px)}to{opacity:1; transform:none}}

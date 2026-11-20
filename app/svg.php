@@ -214,24 +214,43 @@ function logoInvenTour(string $qual = 'logo', string $classe = ''): string
 }
 
 /**
- * O emblema com a explosão de raios do site: 16 raios nas cores da marca
- * que pulsam em tempos diferentes, um giro lento do conjunto e um halo
- * atrás. Só HTML e CSS (marca.css); a posição e o tamanho de cada raio
- * saem de :nth-child, porque a CSP não deixa estilo no elemento.
+ * O emblema da entrada sobre um "mapa vivo": um mapa redondo com curvas de
+ * nível, uma rota tracejada que se desenha entre cinco pinos que caem um a
+ * um, e ondas de localização ("você está aqui") saindo do centro, onde fica o
+ * emblema. Só HTML, SVG e CSS (marca.css): a CSP não deixa estilo no
+ * elemento. Substitui a explosão de raios herdada do EventCity (pedido do
+ * Luiz, 20/11/2026: algo de mapa e posicionamento).
  *
  * O tamanho vem do CSS pela variável --tam do elemento (padrão 320px).
  * Quem pede menos movimento (prefers-reduced-motion) vê tudo parado.
  */
 function explosaoDaMarca(string $classe = ''): string
 {
-    $cores = ['rosa', 'marinho', 'laranja', 'papel', 'marinho', 'rosa', 'papel', 'laranja',
-              'rosa', 'marinho', 'papel', 'laranja', 'marinho', 'rosa', 'laranja', 'papel'];
-    $raios = '';
-    foreach ($cores as $cor) {
-        $raios .= '<span class="raio-pos"><i class="raio ' . $cor . '"></i></span>';
+    // Cinco pontos do roteiro, em volta do centro (viewBox 400 x 400).
+    $pinos = [[96, 128, 'verde'], [298, 92, 'ouro'], [334, 246, 'azul'], [150, 312, 'verde'], [62, 236, 'ouro']];
+    $svgPinos = '';
+    foreach ($pinos as [$x, $y, $cor]) {
+        $svgPinos .= '<g transform="translate(' . $x . ' ' . $y . ')"><g class="pino ' . $cor . '">'
+                   . '<ellipse class="sombra" cx="0" cy="1" rx="7" ry="2.4"/>'
+                   . '<path d="M0 0C-6-9-11-14-11-21a11 11 0 1 1 22 0c0 7-5 12-11 21z"/><circle cx="0" cy="-21" r="4.2"/>'
+                   . '<circle class="ping" cx="0" cy="0" r="6"/></g></g>';
     }
+    $svg = '<svg class="mapa-vivo" viewBox="0 0 400 400" aria-hidden="true" focusable="false">'
+         . '<defs><clipPath id="mapa-redondo"><circle cx="200" cy="200" r="188"/></clipPath></defs>'
+         . '<circle class="mapa-disco" cx="200" cy="200" r="188"/>'
+         . '<g clip-path="url(#mapa-redondo)"><g class="curvas">'
+         . '<path d="M-20 90C60 60 120 120 200 96S330 40 420 70"/>'
+         . '<path d="M-20 150C70 120 130 180 210 156S340 100 420 132"/>'
+         . '<path d="M-20 262C80 236 140 296 220 270S350 214 420 246"/>'
+         . '<path d="M-20 322C70 300 150 352 230 330S360 282 420 306"/>'
+         . '<ellipse cx="300" cy="190" rx="54" ry="34"/><ellipse cx="300" cy="190" rx="30" ry="17"/>'
+         . '<ellipse cx="110" cy="205" rx="40" ry="26"/>'
+         . '</g><g class="grade"><path d="M0 200H400M200 0V400"/><circle cx="200" cy="200" r="120"/></g></g>'
+         . '<path class="rota" d="M96 128C160 70 236 70 298 92S352 190 334 246 230 330 150 312 50 290 62 236"/>'
+         . $svgPinos . '</svg>';
     return '<div class="' . htmlspecialchars(trim('explosao ' . $classe), ENT_QUOTES) . '" aria-hidden="true">'
-         . '<div class="halo"></div><div class="palco"><div class="raios">' . $raios . '</div></div>'
+         . '<div class="halo"></div>' . $svg
+         . '<div class="ondas"><span></span><span></span><span></span></div>'
          . logoInvenTour('simbolo', 'emblema-central') . '</div>';
 }
 
