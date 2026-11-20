@@ -30,6 +30,8 @@
   var atual = null;
   var fotosNovas = [];      // {uuid, blob, nome, url, lat, lng, precisao}
   var posicao = null;       // [lat, lng, precisão, quando]
+  var situacao = 'todos';   // filtro: todos, devolvidos, pre_cadastro, em_campo, aparelho
+  var SITUACOES = [['todos', 'Todos'], ['devolvidos', 'Devolvidos'], ['pre_cadastro', 'Pré-cadastro'], ['em_campo', 'Em campo'], ['aparelho', 'No aparelho']];
 
   // ------------------------------------------------------------ IndexedDB
   var bancoPromessa = new Promise(function (ok, falha) {
@@ -189,17 +191,44 @@
     return lista;
   }
 
+  function naSituacao(i, qual) {
+    if (qual === 'devolvidos') { return !!i.devolucao_nota && !i.na_fila; }
+    if (qual === 'pre_cadastro') { return i.situacao === 'pre_cadastro' && !i.na_fila; }
+    if (qual === 'em_campo') { return i.situacao === 'em_campo' && !i.devolucao_nota && !i.na_fila; }
+    if (qual === 'aparelho') { return !!i.na_fila; }
+    return true;
+  }
+
+  function desenharSituacoes(todosItens) {
+    var caixa = $('col-situacoes');
+    caixa.innerHTML = SITUACOES.map(function (s) {
+      var n = todosItens.filter(function (i) { return naSituacao(i, s[0]); }).length;
+      var classe = 'situacao-ficha' + (situacao === s[0] ? ' ativa' : '') + (s[0] === 'devolvidos' && n ? ' alerta' : '');
+      return '<button type="button" class="' + classe + '" data-situacao="' + s[0] + '" aria-pressed="' + (situacao === s[0]) + '">'
+        + esc(s[1]) + '<span>' + n + '</span></button>';
+    }).join('');
+    var devolvidos = todosItens.filter(function (i) { return naSituacao(i, 'devolvidos'); }).length;
+    var aviso = $('col-aviso-devolvidos');
+    aviso.hidden = !devolvidos || situacao === 'devolvidos';
+    if (devolvidos) {
+      aviso.querySelector('span').innerHTML = '<b>' + (devolvidos === 1 ? '1 item devolvido' : devolvidos + ' itens devolvidos') + ' pela conferência.</b> '
+        + '<button type="button" class="como-link" data-situacao="devolvidos">Ver o que acertar</button>';
+    }
+  }
+
   function desenharLista() {
     var busca = semAcento($('col-busca').value);
     var ficha = parseInt($('col-ficha-filtro').value, 10) || 0;
-    var soDevolvidos = $('col-so-devolvidos').checked;
-    var soFila = $('col-so-fila').checked;
-    var itens = itensComFila().filter(function (i) {
+    var todosItens = itensComFila();
+    desenharSituacoes(todosItens);
+    var itens = todosItens.filter(function (i) {
       if (ficha && i.ficha_id !== ficha) { return false; }
-      if (soDevolvidos && !i.devolucao_nota) { return false; }
-      if (soFila && !i.na_fila) { return false; }
+      if (!naSituacao(i, situacao)) { return false; }
       return !busca || semAcento([i.nome, i.logradouro, i.bairro].join(' ')).indexOf(busca) !== -1;
     });
+    // Devolvidos primeiro, depois o que está no aparelho, depois por nome.
+    var peso = function (i) { return i.devolucao_nota && !i.na_fila ? 0 : (i.na_fila ? 1 : 2); };
+    itens.sort(function (a, b) { return peso(a) - peso(b) || String(a.nome || '').localeCompare(String(b.nome || ''), 'pt-BR'); });
     $('col-lista').innerHTML = itens.slice(0, mostrar).map(function (i) {
       var f = fichaPorId(i.ficha_id);
       var selo = i.na_fila ? '<span class="pilula at">' + (i.vai_enviar ? 'vai à conferência' : 'no aparelho') + '</span>'
@@ -687,8 +716,15 @@
       return Promise.all(fotos.map(function (f) { return apagar('fotos', f.uuid); }));
     }).then(function () { return apagar('fila', id); }).then(recarregarTela);
   });
-  ['col-busca', 'col-ficha-filtro', 'col-so-devolvidos', 'col-so-fila'].forEach(function (id) {
+  ['col-busca', 'col-ficha-filtro'].forEach(function (id) {
     $(id).addEventListener(id === 'col-busca' ? 'input' : 'change', function () { mostrar = POR_PAGINA; desenharLista(); });
+  });
+  raiz.addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-situacao]');
+    if (!b) { return; }
+    situacao = b.getAttribute('data-situacao');
+    mostrar = POR_PAGINA;
+    desenharLista();
   });
   $('col-mais').addEventListener('click', function () { mostrar += POR_PAGINA; desenharLista(); });
   $('col-sincronizar').addEventListener('click', sincronizar);
@@ -700,9 +736,21 @@
 
   // ------------------------------------------------------------ início
   // Abre com o que está no aparelho. Sem lista nenhuma (primeira vez), baixa uma.
+  // Abre com o que está no aparelho e, havendo rede, baixa a lista nova em
+  // silêncio (o que a conferência devolveu aparece sem precisar sincronizar).
+  // Enviar continua só no botão Sincronizar.
+  var ultimaBaixa = 0;
+  function atualizarLista() {
+    if (!navigator.onLine || sincronizando) { return Promise.resolve(); }
+    ultimaBaixa = Date.now();
+    return baixarLista().then(function (ok) { return ok ? recarregarTela() : null; }).catch(function () {});
+  }
   recarregarTela().then(function () {
     if (!base && navigator.onLine) { return sincronizar(); }
-    return null;
+    return atualizarLista();
+  });
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden && Date.now() - ultimaBaixa > 120000) { atualizarLista(); }
   });
 
   // Painel: a página e os arquivos guardados para abrir sem sinal (no app já vêm dentro dele).

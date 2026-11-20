@@ -1388,3 +1388,21 @@ dialog.visualizador.vis-pdf .vis-palco{padding:0 12px 12px}
 /* Regra geral do Luiz (20/11/2026): o cabeçalho das abas sempre visível.
    A barra gruda abaixo do cabeçalho fixo (medido no inventour.js). */
 .abas-chamado:not(.abas-coleta){position:sticky; top:var(--topo-abas, 0); z-index:3; background:var(--nuvem)}
+
+/* Coleta: situação em fichas com contagem (o devolvido em destaque). */
+.coleta-situacoes{display:flex; gap:8px; flex-wrap:wrap}
+.situacao-ficha{display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border-radius:999px; border:1px solid var(--traco2);
+  background:var(--branco); color:var(--suave); font:inherit; font-size:13.5px; font-weight:600; cursor:pointer}
+.situacao-ficha span{font-family:var(--dado); font-size:12px; padding:1px 7px; border-radius:999px; background:var(--leve); color:var(--fraca)}
+.situacao-ficha:hover{border-color:var(--acento-borda); color:var(--tinta)}
+.situacao-ficha.ativa{background:var(--indigo); border-color:var(--indigo); color:#fff}
+.situacao-ficha.ativa span{background:rgba(255,255,255,.22); color:#fff}
+.situacao-ficha.alerta:not(.ativa){border-color:#F1D3A6; color:#7A4808; background:var(--ambar-sup)}
+.situacao-ficha.alerta:not(.ativa) span{background:var(--ambar); color:#fff}
+.coleta-devolvidos{margin:0}
+.coleta-devolvidos .como-link{font-weight:700}
+@media (max-width:640px){
+  .coleta-situacoes{flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; margin:0 -12px; padding:0 12px}
+  .coleta-situacoes::-webkit-scrollbar{display:none}
+  .situacao-ficha{flex:none; padding:8px 12px}
+}
