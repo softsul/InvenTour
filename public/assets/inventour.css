@@ -1465,3 +1465,7 @@ dialog.coleta-dialogo.app-instalar{height:auto; max-height:calc(100vh - 32px)}
 #app-historico{scroll-margin-top:calc(var(--topo-abas, 0px) + 60px)}
 .destaque-chegou{animation:chegou-cartao 1.6s ease-out}
 @keyframes chegou-cartao{0%{box-shadow:0 0 0 4px var(--acento-borda)} 100%{box-shadow:0 0 0 0 transparent}}
+/* Histórico da equipe em modal: o cabeçalho do cartão vira o do modal. */
+#app-historico-dialogo{width:min(980px, calc(100vw - 32px)); height:min(780px, calc(100vh - 32px))}
+#app-historico > .cab-cartao{display:none}
+#app-historico .hist-lista{max-height:none; overflow:visible}

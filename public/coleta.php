@@ -114,9 +114,13 @@ paginaInicio('Coleta de campo', 'coleta');
 <?= cartaoAparelhos($aparelhos, $daEquipe, (int) $u['id'], $csrf) ?>
   </div>
 
-  <div class="cartao" id="app-historico">
-<?= cartaoHistorico(historicoSincronizacao($daEquipe, (int) $u['id']), $daEquipe) ?>
-  </div>
+  <?php /* Histórico da equipe em modal, pelo botão Histórico (pedido do Luiz). */ ?>
+  <dialog class="coleta-dialogo app-historico-dialogo" id="app-historico-dialogo" aria-label="Histórico de sincronização">
+    <div class="cab-dialogo"><div><h2>Histórico de sincronização<?= $daEquipe ? ' da equipe' : '' ?></h2>
+      <p class="nulo">O que chegou ao servidor, de cada aparelho, nos últimos 30 dias. Atualiza sozinho.</p></div>
+      <button type="button" class="fechar" data-fechar aria-label="Fechar"><?= icone('fechar') ?></button></div>
+    <div class="corpo-dialogo"><div id="app-historico"><?= cartaoHistorico(historicoSincronizacao($daEquipe, (int) $u['id']), $daEquipe) ?></div></div>
+  </dialog>
 </div>
 
 <div class="painel-aba" data-painel="coleta"<?= $codigo ? ' hidden' : '' ?>>

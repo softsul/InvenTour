@@ -30,7 +30,7 @@ function telaEstadoColeta(string $botaoExtra = '', bool $historicoLocal = true):
     <?php if ($historicoLocal): ?>
     <button type="button" class="botao claro" id="col-historico" title="O que já foi sincronizado neste aparelho"><?= icone('relogio') ?>Histórico</button>
     <?php else: ?>
-    <button type="button" class="botao claro" data-ir-para="app-historico" title="O que a equipe sincronizou nos últimos 30 dias"><?= icone('relogio') ?>Histórico</button>
+    <button type="button" class="botao claro" data-abre-dialogo="app-historico-dialogo" title="O que a equipe sincronizou nos últimos 30 dias"><?= icone('relogio') ?>Histórico</button>
     <?php endif; ?>
     <button type="button" class="botao" id="col-sincronizar"><?= icone('trocar') ?><span>Sincronizar</span></button>
   </span>
