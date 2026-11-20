@@ -22,6 +22,7 @@ function telaColeta(bool $noApp): string
   <span class="fila-local" id="col-fila">Nada esperando envio</span>
   <span class="quando" id="col-quando"></span>
   <span class="coleta-botoes">
+    <button type="button" class="botao claro" id="col-historico" title="O que já foi sincronizado neste aparelho"><?= icone('relogio') ?>Histórico</button>
     <button type="button" class="botao" id="col-sincronizar"><?= icone('trocar') ?><span>Sincronizar</span></button>
   </span>
 </div>
@@ -43,6 +44,12 @@ function telaColeta(bool $noApp): string
 <ul class="coleta-lista" id="col-lista"></ul>
 <div class="vazio" id="col-vazio" hidden><?= icone('camera') ?><p><strong id="col-vazio-titulo">Carregando.</strong></p><p id="col-vazio-texto"></p></div>
 <button type="button" class="botao claro" id="col-mais" hidden>Mostrar mais</button>
+
+<dialog class="coleta-dialogo pequeno" id="col-historico-dialogo" aria-labelledby="col-hist-titulo">
+  <div class="cab-dialogo"><div><h2 id="col-hist-titulo">Histórico de sincronização</h2><p class="nulo">O que este aparelho enviou ao servidor, da mais recente para a mais antiga.</p></div>
+    <button type="button" class="fechar" data-fechar aria-label="Fechar"><?= icone('fechar') ?></button></div>
+  <div class="corpo-dialogo"><ul class="hist-lista" id="col-hist-lista"></ul></div>
+</dialog>
 
 <dialog class="coleta-dialogo pequeno" id="col-escolha" aria-labelledby="col-escolha-titulo">
   <div class="cab-dialogo"><h2 id="col-escolha-titulo">Qual ficha?</h2>

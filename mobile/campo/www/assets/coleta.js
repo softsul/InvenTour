@@ -314,6 +314,8 @@
     var enviadas = 0;
     var fotosEnviadas = 0;
     var falhou = false;
+    // O que esta sincronização fez, para o Histórico (fica no aparelho).
+    registro = { quando: Date.now(), itens: [], resultado: '', tom: '' };
     return testarConexao().then(function (ok) {
       if (!ok) {
         falhou = true;
@@ -333,9 +335,22 @@
           passo = passo.then(function () {
             if (falhou) { return null; }
             progresso(feito, total, 'Enviando ' + (c.nome || 'item') + '...');
-            return processar(c, function () { feito++; fotosEnviadas++; progresso(feito, total, 'Enviando as fotos de ' + (c.nome || 'item') + '...'); })
-              .then(function (ok) { feito++; if (ok) { enviadas++; } })
-              .catch(function () { falhou = true; });
+            var fotosDoItem = 0;
+            var era = { novo: !c.item_id, conferencia: !!c.enviar, campos: Object.keys(c.dados || {}).filter(function (k) { return k !== 'nome'; }).length };
+            return processar(c, function () { feito++; fotosEnviadas++; fotosDoItem++; progresso(feito, total, 'Enviando as fotos de ' + (c.nome || 'item') + '...'); })
+              .then(function (ok) {
+                feito++;
+                if (ok) { enviadas++; }
+                if (ok || c.erro || fotosDoItem) {
+                  registro.itens.push({ nome: c.nome || 'Item', novo: era.novo, campos: era.campos, fotos: fotosDoItem,
+                    conferencia: ok && era.conferencia, erro: c.erro || null, aviso: c.aviso || null });
+                }
+              })
+              .catch(function () {
+                falhou = true;
+                registro.itens.push({ nome: c.nome || 'Item', novo: era.novo, campos: era.campos, fotos: fotosDoItem, conferencia: false,
+                  erro: 'a conexão caiu antes de terminar; continua no aparelho' });
+              });
           });
         });
         return passo;
@@ -360,11 +375,54 @@
     }).then(function () {
       sincronizando = false;
       progresso(0, null);
+      return guardarNoHistorico(registro);
+    }).then(function () {
       return recarregarTela();
     });
   }
 
+  // ------------------------------------------------------------ histórico
+  var registro = null;
+  function guardarNoHistorico(r) {
+    if (!r) { return Promise.resolve(); }
+    return ler('base', 'historico').then(function (lista) {
+      lista = (lista || []);
+      lista.unshift(r);
+      return gravar('base', lista.slice(0, 60), 'historico');
+    }).catch(function () {});
+  }
+  function quandoLegivel(t) {
+    return new Date(t).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+  function abrirHistorico() {
+    ler('base', 'historico').then(function (lista) {
+      lista = lista || [];
+      var corpo = $('col-hist-lista');
+      if (!lista.length) {
+        corpo.innerHTML = '<div class="vazio">' + icone('relogio') + '<p><strong>Nenhuma sincronização ainda.</strong></p><p>Cada vez que você tocar em Sincronizar, o que subiu aparece aqui.</p></div>';
+      } else {
+        corpo.innerHTML = lista.map(function (r) {
+          var fotos = r.itens.reduce(function (s, i) { return s + (i.fotos || 0); }, 0);
+          var resumo = r.itens.length ? (r.itens.length === 1 ? '1 item' : r.itens.length + ' itens') + (fotos ? ', ' + (fotos === 1 ? '1 foto' : fotos + ' fotos') : '') : 'nada a enviar';
+          return '<li class="hist-sinc ' + esc(r.tom || 'bom') + '"><div class="hist-cab">' + icone(r.tom === 'bom' ? 'check' : 'alerta')
+            + '<b>' + esc(quandoLegivel(r.quando)) + '</b><span class="pilula ' + (r.tom === 'bom' ? 'ok' : 'at') + '">' + esc(resumo) + '</span></div>'
+            + '<p class="hist-resultado">' + esc(r.resultado || '') + '</p>'
+            + (r.itens.length ? '<ul class="hist-itens">' + r.itens.map(function (i) {
+              var partes = [i.novo ? 'item novo' : (i.campos ? (i.campos === 1 ? '1 campo alterado' : i.campos + ' campos alterados') : 'conferido')];
+              if (i.fotos) { partes.push(i.fotos === 1 ? '1 foto' : i.fotos + ' fotos'); }
+              if (i.conferencia) { partes.push('enviado à conferência'); }
+              return '<li' + (i.erro ? ' class="com-erro"' : '') + '><b>' + esc(i.nome) + '</b><span>' + esc(partes.join(' · ')) + '</span>'
+                + (i.erro ? '<span class="erro">' + esc(i.erro) + '</span>' : '') + (i.aviso ? '<span class="erro">' + esc(i.aviso) + '</span>' : '') + '</li>';
+            }).join('') + '</ul>' : '')
+            + '</li>';
+        }).join('');
+      }
+      $('col-historico-dialogo').showModal();
+    });
+  }
+
   function mostrarResultado(texto, tom) {
+    if (registro && sincronizando) { registro.resultado = texto; registro.tom = tom; }
     var p = $('col-resultado');
     p.className = 'aviso ' + tom;
     p.innerHTML = icone(tom === 'bom' ? 'check' : 'alerta') + '<span>' + esc(texto) + '</span>';
@@ -728,6 +786,7 @@
   });
   $('col-mais').addEventListener('click', function () { mostrar += POR_PAGINA; desenharLista(); });
   $('col-sincronizar').addEventListener('click', sincronizar);
+  $('col-historico').addEventListener('click', abrirHistorico);
   window.addEventListener('online', function () { mostrarEstado(); });
   window.addEventListener('offline', function () { mostrarEstado(); });
 

@@ -1406,3 +1406,21 @@ dialog.visualizador.vis-pdf .vis-palco{padding:0 12px 12px}
   .coleta-situacoes::-webkit-scrollbar{display:none}
   .situacao-ficha{flex:none; padding:8px 12px}
 }
+
+/* Histórico de sincronização da coleta (fica no aparelho). */
+.coleta-botoes #col-historico{width:auto}
+.hist-lista{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px}
+.hist-sinc{padding:12px 14px; border-radius:var(--r); background:var(--branco); border:1px solid var(--traco)}
+.hist-sinc.atencao{border-color:#F1D3A6}
+.hist-cab{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.hist-cab svg{width:16px; height:16px; color:var(--verde)}
+.hist-sinc.atencao .hist-cab svg{color:var(--ambar)}
+.hist-cab b{font-family:var(--dado); font-size:13px}
+.hist-resultado{margin:6px 0 0; font-size:13px; color:var(--suave)}
+.hist-itens{list-style:none; margin:8px 0 0; padding:8px 0 0; border-top:1px dashed var(--traco); display:flex; flex-direction:column; gap:6px}
+.hist-itens li{display:flex; flex-direction:column; gap:1px; font-size:13px}
+.hist-itens li span{color:var(--suave); font-size:12.5px}
+.hist-itens li .erro{color:#7E2630}
+@media (max-width:640px){
+  .coleta-botoes #col-historico{flex:0 0 auto}
+}
