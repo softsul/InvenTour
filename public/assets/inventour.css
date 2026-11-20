@@ -1186,7 +1186,7 @@ details.tribo .caixas{margin:8px 0 4px 26px}
    campos no padrão do painel (eram inputs crus dentro da tabela). */
 .abas-destino{margin:4px 0 18px}
 .abas-destino button svg{width:16px; height:16px}
-.abas-destino .conta-aba[title]{font-family:inherit}
+.abas-destino .conta-aba.aba-vazia{font-family:inherit}
 .indicadores{display:flex; flex-direction:column; gap:8px; margin-bottom:14px}
 .indicador{display:grid; grid-template-columns:minmax(220px, 1.4fr) minmax(110px, .8fr) minmax(160px, 1.2fr) 110px; gap:10px; align-items:center}
 .indicador.cab span{font-family:var(--dado); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--fraca); padding:0 2px}

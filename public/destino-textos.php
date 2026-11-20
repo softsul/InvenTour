@@ -146,7 +146,7 @@ paginaInicio('O destino', 'destino-textos');
          para onde o salvar de cada seção volta. */ ?>
 <nav class="abas-chamado abas-destino" role="tablist" aria-label="Seções">
   <?php foreach (SECOES_NARRATIVA as $secao => $rotulo): $temTexto = trim(strip_tags((string) ($narrativas[$secao]['conteudo_html'] ?? ''))) !== ''; ?>
-    <button type="button" role="tab" data-aba="<?= $secao ?>" aria-selected="<?= $secao === 'apresentacao' ? 'true' : 'false' ?>"><?= e($rotulo) ?><?= $temTexto ? '' : '<span class="conta-aba" title="Ainda sem texto">vazio</span>' ?></button>
+    <button type="button" role="tab" data-aba="<?= $secao ?>" aria-selected="<?= $secao === 'apresentacao' ? 'true' : 'false' ?>"><?= e($rotulo) ?><?= $temTexto ? '' : '<span class="conta-aba aba-vazia" title="Ainda sem texto">vazio</span>' ?></button>
   <?php endforeach; ?>
   <button type="button" role="tab" data-aba="linha" aria-selected="false"><?= icone('calendario') ?>Linha do tempo<span class="conta-aba"><?= count($marcos) ?></span></button>
 </nav>
