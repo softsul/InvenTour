@@ -2393,6 +2393,8 @@ window.erpPerguntar = function (opcoes) {
   });
   function abrirEndereco(href, nome) {
     if (!modal.open) { historicoAntes = history.length; }
+    // O item do inventário é a ficha mais comprida: abre mais largo.
+    modal.classList.toggle('largo-item', /^\/item(\/|\?|$)/.test(href || ''));
     quadro.src = comPopup(href);
     abrir(nome);
   }

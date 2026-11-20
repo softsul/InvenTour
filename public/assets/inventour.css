@@ -160,6 +160,7 @@ dialog.ficha-modal iframe{flex:1; width:100%; border:0; background:var(--nuvem)}
 body.em-popup .cab-pag{top:0}
 /* Fichas em modal mais largas: cabem as colunas sem apertar. */
 #modal-ficha{width:min(1240px,96vw)}
+#modal-ficha.largo-item{width:min(1600px,97vw); height:min(94vh,1100px)}
 /* Ficha em modal: o cabeçalho (foto, nome, Salvar) fica fixo até o fim da
    ficha. Ele está dentro do formulário, e os cartões de baixo ficam fora
    dele; sem isto, o "sticky" acabava junto com o formulário e o cabeçalho
@@ -1146,3 +1147,14 @@ details.tribo .caixas{margin:8px 0 4px 26px}
   .dia.fechado .faixa{display:none}
   .entrada.hora{flex:1; width:auto}
 }
+
+/* Item do inventário em abas: a barra fica logo abaixo do cabeçalho. */
+.abas-item{margin:4px 0 18px}
+.abas-item button svg{width:16px; height:16px}
+.painel-aba > .cartao + .cartao, .painel-aba > .colunas + .cartao, .painel-aba > .cartao + .colunas{margin-top:18px}
+/* Tribos do item em duas colunas: a lista inteira em uma só passava da tela. */
+.tribos-colunas{column-count:2; column-gap:40px}
+.tribos-colunas > h3.sub-cartao{break-after:avoid; margin-top:14px}
+.tribos-colunas > h3.sub-cartao:first-child{margin-top:4px}
+.tribos-colunas > details{break-inside:avoid}
+@media (max-width:900px){ .tribos-colunas{column-count:1} }

@@ -334,6 +334,28 @@ paginaFicha($titulo, 'inventario');
     <p class="aviso info"><?= icone('manual') ?><span><?= e((string) $ficha['ajuda']) ?></span></p>
   <?php endif; ?>
 
+  <?php
+  // Abas: a ficha inteira numa página só ficava comprida demais.
+  $fotos = $novo ? [] : Inventario::fotos($id);
+  $temFicha = (bool) $atributos || in_array($ficha['eventcity'], ['espaco_eventos', 'atrativo'], true);
+  $temAcess = $ficha['forma'] !== 'municipio' && $subitensAcess;
+  $temTribos = $ficha['forma'] !== 'municipio';
+  $abas = ['dados' => ['Dados', 'etiqueta', null]];
+  if ($temFicha) { $abas['ficha'] = ['Ficha ' . $ficha['codigo'], 'lista', null]; }
+  if ($temAcess) { $abas['acessibilidade'] = ['Acessibilidade', 'cadeirante', null]; }
+  if ($temTribos) { $abas['tribos'] = ['Tribos', 'pessoas', null]; }
+  $abas['textos'] = ['Textos e histórico', 'lapis', null];
+  if (!$novo) { $abas['fotos'] = ['Fotos', 'camera', count($fotos)]; }
+  if (!$novo && $ficha['forma'] !== 'municipio') { $abas['experiencias'] = ['Experiências', 'natureza', null]; }
+  ?>
+  <nav class="abas-chamado abas-item" role="tablist" aria-label="Partes da ficha">
+    <?php foreach ($abas as $chaveAba => [$rotuloAba, $iconeAba, $contaAba]): ?>
+      <button type="button" role="tab" data-aba="<?= $chaveAba ?>" aria-selected="<?= $chaveAba === 'dados' ? 'true' : 'false' ?>"><?= icone($iconeAba) ?><?= e($rotuloAba) ?><?= $contaAba !== null ? '<span class="conta-aba">' . $contaAba . '</span>' : '' ?></button>
+    <?php endforeach; ?>
+  </nav>
+
+  <div class="painel-aba" data-painel="dados">
+
   <div class="colunas">
     <div class="cartao">
       <h2 class="titulo-secao">Identificação</h2>
@@ -559,6 +581,9 @@ paginaFicha($titulo, 'inventario');
     <?php endif; ?>
   </div>
 
+  </div>
+
+  <?php if ($temFicha): ?><div class="painel-aba" data-painel="ficha" hidden><?php endif; ?>
   <?php if (in_array($ficha['eventcity'], ['espaco_eventos', 'atrativo'], true)): ?>
   <div class="cartao">
     <h2 class="titulo-secao">Capacidade</h2>
@@ -620,7 +645,10 @@ paginaFicha($titulo, 'inventario');
   </div>
   <?php endforeach; ?>
 
-  <?php if ($ficha['forma'] !== 'municipio' && $subitensAcess): ?>
+  <?php if ($temFicha): ?></div><?php endif; ?>
+
+  <?php if ($temAcess): ?>
+  <div class="painel-aba" data-painel="acessibilidade" hidden>
   <div class="cartao">
     <h2 class="titulo-secao">Acessibilidade</h2>
     <p class="ajuda">Os subitens da seção 6 da ficha oficial. O portal resume em cinco selos simples para o turista.</p>
@@ -629,13 +657,16 @@ paginaFicha($titulo, 'inventario');
       <?= $caixas('acess[' . $s['chave'] . ']', (array) $s['opcoes'], (array) ($acess[$s['chave']] ?? [])) ?>
     <?php endforeach; ?>
   </div>
+  </div>
   <?php endif; ?>
 
   <?php if ($ficha['forma'] !== 'municipio'): $tribos = Inventario::tribos();
     $marcadas = $_SERVER['REQUEST_METHOD'] === 'POST' ? array_map('intval', (array) ($_POST['facilidades'] ?? [])) : ($novo ? [] : Inventario::facilidades($id)); ?>
+  <div class="painel-aba" data-painel="tribos" hidden>
   <div class="cartao">
     <h2 class="titulo-secao">Tribos de consumo</h2>
     <p class="ajuda">Marque só o que o lugar comprovadamente oferece. Com duas facilidades ou mais, ganha o selo da tribo no portal (Bike Friendly, Pet Friendly...).</p>
+    <div class="tribos-colunas">
     <?php $macroAtual = null; foreach ($tribos as $tid => $t):
       $nMarcadas = count(array_intersect(array_keys($t['facilidades']), $marcadas)); ?>
       <?php if ($t['macro'] !== $macroAtual): $macroAtual = $t['macro']; ?><h3 class="sub-cartao"><?= e((string) $macroAtual) ?></h3><?php endif; ?>
@@ -648,9 +679,12 @@ paginaFicha($titulo, 'inventario');
         </div>
       </details>
     <?php endforeach; ?>
+    </div>
+  </div>
   </div>
   <?php endif; ?>
 
+  <div class="painel-aba" data-painel="textos" hidden>
   <div class="colunas">
     <div class="cartao">
       <h2 class="titulo-secao">Conservação e textos</h2>
@@ -704,9 +738,11 @@ paginaFicha($titulo, 'inventario');
     </div>
     <?php endif; ?>
   </div>
+  </div>
 </form>
 
-<?php if (!$novo): $fotos = Inventario::fotos($id); $eid = (int) $empresa['id']; $csrf = Auth::tokenCsrf(); ?>
+<?php if (!$novo): $eid = (int) $empresa['id']; $csrf = Auth::tokenCsrf(); ?>
+<div class="painel-aba" data-painel="fotos" hidden>
 <div class="cartao" id="fotos">
   <h2 class="titulo-secao">Fotos (<?= count($fotos) ?>)</h2>
   <?php if ($fotos): ?>
@@ -748,6 +784,7 @@ paginaFicha($titulo, 'inventario');
     </form>
   <?php endif; ?>
 </div>
+</div>
 <?php endif; ?>
 
 <?php if (!$novo && $ficha['forma'] !== 'municipio'):
@@ -755,6 +792,7 @@ paginaFicha($titulo, 'inventario');
   $qx->execute([$id, (int) $empresa['id']]);
   $experiencias = $qx->fetchAll();
   $situacoesX = ['rascunho' => ['Rascunho', 'nu'], 'aguardando' => ['Aguardando curadoria', 'at'], 'aprovada' => ['Aprovada', 'ok'], 'ajuste' => ['Ajuste pedido', 'at'], 'reprovada' => ['Reprovada', 'ruim']]; ?>
+<div class="painel-aba" data-painel="experiencias" hidden>
 <div class="cartao" id="experiencias">
   <div class="cab-cartao"><h2>Experiências turísticas (<?= count($experiencias) ?>)</h2>
     <?php if ($podeEditar): ?><a href="/experiencia?item=<?= $id ?>" data-ficha="Nova experiência"><?= icone('mais') ?> Nova experiência</a><?php endif; ?></div>
@@ -767,6 +805,7 @@ paginaFicha($titulo, 'inventario');
       <?php endforeach; ?>
     </ul>
   <?php endif; ?>
+</div>
 </div>
 <?php endif; ?>
 <?php paginaFichaFim();
