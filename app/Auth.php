@@ -30,9 +30,47 @@ final class Auth
     /** Idade máxima de uma sessão, mesmo em uso contínuo. */
     private const SESSAO_MAXIMA_SEG = 7 * 86400;
 
+    /** A requisição veio do app InvenTour Campo, com o token do aparelho (sem cookie de sessão). */
+    private static bool $porAparelho = false;
+
+    /**
+     * Entrada do app InvenTour Campo: o cabeçalho X-Aparelho traz o token que
+     * o aparelho recebeu ao se conectar (app/Campo.php). Vale para a pessoa e
+     * o destino da conexão, sem sessão PHP nem cookie, e cai se a pessoa
+     * trocar a senha ou perder o acesso (versao_sessao), como as sessões.
+     */
+    public static function entrarPorAparelho(): bool
+    {
+        $token = (string) ($_SERVER['HTTP_X_APARELHO'] ?? '');
+        if (!preg_match('/^[A-Za-z0-9_-]{40,64}$/', $token)) {
+            return false;
+        }
+        $q = Database::conexao()->prepare('SELECT a.id, a.usuario_id, a.empresa_id, a.versao_sessao, u.versao_sessao AS versao_atual
+                                           FROM campo_aparelhos a JOIN usuarios u ON u.id = a.usuario_id
+                                           WHERE a.token_hash = ? AND a.revogado_em IS NULL AND u.ativo = 1');
+        $q->execute([hash('sha256', $token)]);
+        $a = $q->fetch();
+        if (!$a || (int) $a['versao_sessao'] !== (int) $a['versao_atual']) {
+            return false;
+        }
+        self::$porAparelho = true;
+        self::$cache = null;
+        self::$permissoesCache = null;
+        $agora = time();
+        $_SESSION = ['usuario_id' => (int) $a['usuario_id'], 'empresa_id' => (int) $a['empresa_id'], 'logado_em' => $agora,
+                     'ultimo_uso' => $agora, 'versao_sessao' => (int) $a['versao_sessao'], 'entrou_por' => 'aparelho'];
+        Database::conexao()->prepare('UPDATE campo_aparelhos SET ultimo_uso_em = NOW() WHERE id = ?')->execute([(int) $a['id']]);
+        return true;
+    }
+
+    public static function porAparelho(): bool
+    {
+        return self::$porAparelho;
+    }
+
     public static function iniciarSessao(): void
     {
-        if (session_status() !== PHP_SESSION_NONE || PHP_SAPI === 'cli') {
+        if (self::$porAparelho || session_status() !== PHP_SESSION_NONE || PHP_SAPI === 'cli') {
             return;
         }
         $cfg      = require __DIR__ . '/config.php';

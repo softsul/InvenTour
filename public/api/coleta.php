@@ -16,10 +16,13 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../app/layout.php';
 require_once __DIR__ . '/../../app/Esteira.php';
 require_once __DIR__ . '/../../app/Limite.php';
+require_once __DIR__ . '/../../app/Campo.php';
 require_once __DIR__ . '/../../app/PlusCode.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
+// O app InvenTour Campo chama de outra origem, com o token do aparelho.
+Campo::abrirParaApp();
 
 function responder(array $dados, int $codigo = 200): never
 {
@@ -38,6 +41,11 @@ Limite::porUsuario('coleta', 600, 60);
 $pdo = Database::conexao();
 $eid = Empresa::id();
 $uid = (int) Auth::usuarioOuNulo()['id'];
+
+// Teste de conexão do botão Sincronizar: rápido e sem dados.
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ping'])) {
+    responder(['ok' => true, 'em' => date('c')]);
+}
 
 // ------------------------------------------------------------------ DADOS
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -66,7 +74,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         return $i;
     }, $q->fetchAll());
     $empresa = Empresa::atual();
-    responder(['ok' => true, 'destino' => $empresa['nome_fantasia'] ?? '', 'em' => date('c'), 'csrf' => Auth::tokenCsrf(),
+    $u = Auth::usuarioOuNulo();
+    responder(['ok' => true, 'destino' => $empresa['nome_fantasia'] ?? '', 'usuario' => $u['nome'] ?? '', 'em' => date('c'),
+               'csrf' => Auth::porAparelho() ? null : Auth::tokenCsrf(),
                'pode_criar' => Auth::pode('coleta.criar') || Auth::pode('inventario.criar'), 'fichas' => $fichas, 'itens' => $itens]);
 }
 
@@ -74,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     responder(['ok' => false, 'motivo' => 'metodo'], 405);
 }
-if (!Auth::conferirCsrf($_SERVER['HTTP_X_CSRF'] ?? null)) {
+if (!Auth::porAparelho() && !Auth::conferirCsrf($_SERVER['HTTP_X_CSRF'] ?? null)) {
     responder(['ok' => false, 'motivo' => 'csrf'], 403);
 }
 $corpo = json_decode((string) file_get_contents('php://input'), true);
