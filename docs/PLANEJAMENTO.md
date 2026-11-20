@@ -302,19 +302,27 @@ eventos, HMAC com segredo por destino, aviso de mudança pela fila,
 portais separados com links cruzados. Proposta do primeiro par de
 endpoints, a combinar com a sessão do EventCity antes da etapa 5:
 
-- **InvenTour para o EventCity** (aviso, `POST /api/v1/inventour/aviso`
-  no EventCity, assinado): item homologado, alterado ou arquivado, com
-  `inventour_id`, tipo (atrativo, hospedagem, gastronomia, espaço de
-  eventos, serviço de apoio), nome, CNPJ, Cadastur, endereço, coordenadas,
-  WhatsApp, capacidade; e os totais do destino (leitos, UHs, capacidade de
-  eventos). O EventCity atualiza o espelho em `locais` e `organizadores`
-  pelo `inventour_id` e usa os leitos no painel de conflitos.
-- **EventCity para o InvenTour** (`GET /api/v1/publico/locais/{inventour_id}/eventos`
-  no EventCity): próximos eventos publicados de um equipamento, para a aba
-  da ficha. E `GET /api/v1/destino/{ibge}/agenda` para o pilar Agenda e o
-  anexo do caderno.
-- Ids numéricos nos dois lados (o documento 02 falava em UUID no
-  EventCity; o EventCity usa INT, então não há conversão).
+Formato combinado com a sessão do EventCity em 20/11/2026 (linha "API v1"
+da tabela de decisões), implementado na etapa 5:
+
+- Rotas no painel do EventCity: `POST /api/v1/inventour/aviso`,
+  `GET /api/v1/inventour/eventos?local={inventour_id}` e
+  `GET /api/v1/inventour/agenda?ibge={ibge}&de=&ate=`.
+- Assinatura HMAC-SHA256 por destino nos cabeçalhos `X-Destino`,
+  `X-Momento` e `X-Assinatura`, janela de 5 minutos, segredo cifrado em
+  `ajustes` dos dois lados.
+- Aviso em envelope com `aviso_id` (descarta repetição), `tipo` (`item` ou
+  `totais`) e `versao` (descarta fora de ordem); enviado pela fila do
+  InvenTour com reenvio.
+- No EventCity o item vai para um espelho (`inventour_itens`); local ou
+  organizador só nasce quando alguém escolhe o item num evento. Arquivar
+  não apaga nada.
+- Totais de leitos, UHs e capacidade de eventos alimentam o painel de
+  conflitos do EventCity, ao lado do número do Cadastur.
+- Eventos de um local e agenda do destino voltam só com o que o portal do
+  EventCity mostra, com cache de 5 minutos dos dois lados.
+- Ids numéricos nos dois lados (o documento 02 falava em UUID; o EventCity
+  usa INT, então não há conversão).
 
 ### 2.11 Segurança e LGPD (desde a primeira etapa)
 
