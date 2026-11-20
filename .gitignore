@@ -17,3 +17,6 @@
 *.swp
 *~
 .DS_Store
+
+# Material do Drive (zip e arquivos extraídos): grande e com documentos de terceiros.
+/docs/material-original/
