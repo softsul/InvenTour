@@ -163,6 +163,46 @@ final class Esteira
         return true;
     }
 
+    /** Quem pode arquivar (tirar do inventário sem apagar). */
+    public static function arquiva(): bool
+    {
+        return self::coordena() || Auth::pode('inventario.excluir');
+    }
+
+    /** Arquiva o item: sai das listas, do portal e do EventCity, sem apagar nada. */
+    public static function arquivar(int $id): bool
+    {
+        $item = Inventario::buscar($id);
+        if (!$item || !self::arquiva() || $item['situacao'] === 'arquivada') {
+            return false;
+        }
+        $uid = (int) (Auth::usuarioOuNulo()['id'] ?? 0) ?: null;
+        self::pdo()->prepare("UPDATE inventario_itens SET situacao = 'arquivada', atualizado_em = NOW(), atualizado_por = ? WHERE id = ? AND empresa_id = ?")
+            ->execute([$uid, $id, Empresa::id()]);
+        Inventario::registrarHistorico($id, 'arquivou', $item['situacao'], 'arquivada');
+        Auditoria::registrar('alterou', 'inventario_itens', $id, 'arquivou: ' . $item['nome']);
+        return true;
+    }
+
+    /** Desarquiva: volta para a situação de antes de arquivar (ou em campo). */
+    public static function desarquivar(int $id): bool
+    {
+        $item = Inventario::buscar($id);
+        if (!$item || !self::arquiva() || $item['situacao'] !== 'arquivada') {
+            return false;
+        }
+        $q = self::pdo()->prepare("SELECT de FROM inventario_item_historico WHERE item_id = ? AND para = 'arquivada' ORDER BY id DESC LIMIT 1");
+        $q->execute([$id]);
+        $antes = (string) $q->fetchColumn();
+        $volta = in_array($antes, ['pre_cadastro', 'em_campo', 'em_conferencia', 'homologada', 'desatualizada'], true) ? $antes : 'em_campo';
+        $uid = (int) (Auth::usuarioOuNulo()['id'] ?? 0) ?: null;
+        self::pdo()->prepare('UPDATE inventario_itens SET situacao = ?, atualizado_em = NOW(), atualizado_por = ? WHERE id = ? AND empresa_id = ?')
+            ->execute([$volta, $uid, $id, Empresa::id()]);
+        Inventario::registrarHistorico($id, 'desarquivou', 'arquivada', $volta);
+        Auditoria::registrar('alterou', 'inventario_itens', $id, 'desarquivou: ' . $item['nome']);
+        return true;
+    }
+
     /** Itens esperando conferência no destino (o número do menu). */
     public static function naFila(int $empresaId): int
     {

@@ -1450,3 +1450,7 @@ dialog.visualizador.vis-pdf .vis-palco{padding:0 12px 12px}
 @media (max-width:640px){ .gps-botoes{width:100%} .gps-botoes .botao{flex:1 1 100%} }
 .endereco-coordenada{display:flex; flex-direction:column; align-items:flex-start; gap:8px}
 .endereco-coordenada > .botao{width:auto}
+/* Chave Arquivada no cabeçalho da ficha do item. */
+.cab-pag .acoes .liga-cab{margin-right:6px; font-size:13px}
+.liga-cab input:checked + i{background:var(--rubi)}
+.liga-cab input:checked ~ .liga-sim{color:var(--rubi)}

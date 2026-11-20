@@ -50,6 +50,11 @@ $podeEditar = $novo ? (Auth::pode('inventario.criar') || Auth::pode('coleta.cria
 // Quem coordena ajusta a situação à mão; o pesquisador só envia à conferência.
 $coordena = Auth::ehSoftsul() || Auth::temPapel('gestor') || Auth::temPapel('consultor') || Auth::temPapel('coordenador');
 $situacoesPermitidas = $coordena ? array_keys(Inventario::SITUACOES) : ['pre_cadastro', 'em_campo', 'em_conferencia'];
+// Arquivar é pela chave no cabeçalho, não pela lista (a lista só mostra
+// "Arquivada" quando o item está arquivado, para não desarquivar sem querer).
+if (($item['situacao'] ?? '') !== 'arquivada') {
+    $situacoesPermitidas = array_values(array_diff($situacoesPermitidas, ['arquivada']));
+}
 
 // ------------------------------------------------------------ ESCOLHER A FICHA
 if ($novo && !$ficha) {
@@ -103,6 +108,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $acaoEsteira !== '' && !$novo) {
     } elseif ($acaoEsteira === 'homologar' && Esteira::coordena()) {
         $falta = Esteira::homologar($id);
         $falta ? avisar('Ainda falta: ' . implode(', ', $falta) . '.', 'atencao') : avisar($item['nome'] . ' homologado: pronto para o portal e para o EventCity.');
+    } elseif ($acaoEsteira === 'arquivar' && Esteira::arquiva()) {
+        Esteira::arquivar($id) ? avisar($item['nome'] . ' arquivado: saiu das listas e do portal, sem apagar nada.') : avisar('Este item já estava arquivado.', 'atencao');
+    } elseif ($acaoEsteira === 'desarquivar' && Esteira::arquiva()) {
+        Esteira::desarquivar($id) ? avisar($item['nome'] . ' voltou para o inventário.') : avisar('Este item não estava arquivado.', 'atencao');
     } elseif ($acaoEsteira === 'devolver' && Esteira::coordena()) {
         Esteira::devolver($id, (string) ($_POST['devolucao_nota'] ?? ''))
             ? avisar($item['nome'] . ' voltou para o campo com a sua nota.')
@@ -359,8 +368,16 @@ paginaFicha($titulo, 'inventario');
       <h1 data-titulo><?= e($titulo) ?></h1>
       <p><span class="dado"><?= e((string) $ficha['codigo']) ?></span> <?= e((string) $ficha['nome']) ?> · <span class="pilula <?= $tomSituacao ?>"><?= e($rotuloSituacao) ?></span></p>
     </div>
-    <?php if ($podeEditar): ?>
-      <div class="acoes"><button type="submit" class="botao"><?= icone('check') ?>Salvar</button></div>
+    <?php if ($podeEditar || (!$novo && Esteira::arquiva())): ?>
+      <div class="acoes">
+        <?php if (!$novo && Esteira::arquiva()): $arquivada = ($d['situacao'] ?? '') === 'arquivada'; ?>
+          <label class="liga liga-cab" title="Arquivado sai das listas, do portal e do EventCity, sem apagar nada">
+            <input type="checkbox" data-alterna-esteira="<?= $arquivada ? 'desarquivar' : 'arquivar' ?>"<?= $arquivada ? ' checked' : '' ?>
+              data-pergunta="<?= $arquivada ? 'Tirar ' . e((string) $d['nome']) . ' do arquivo e voltar ao inventário?' : 'Arquivar ' . e((string) $d['nome']) . '? Sai das listas, do portal e do EventCity, sem apagar nada.' ?>">
+            <i></i><em class="liga-sim">Arquivada</em><em class="liga-nao">Arquivada</em></label>
+        <?php endif; ?>
+        <?php if ($podeEditar): ?><button type="submit" class="botao"><?= icone('check') ?>Salvar</button><?php endif; ?>
+      </div>
     <?php endif; ?>
   </div>
   <?php if ($ficha['ajuda']): ?>

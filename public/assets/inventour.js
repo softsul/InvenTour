@@ -6467,3 +6467,30 @@ window.inventourMarcarNoFiltro = function (form, campo, ids, nome) {
     dizer('Endereço trocado. Confira e salve a ficha.', 'achou');
   });
 })();
+
+/*
+ * Chave do cabeçalho da ficha do item (Arquivada): pergunta e manda pela
+ * esteira (form-esteira), sem passar pelo Salvar da ficha.
+ * Softsul Software
+ */
+(function () {
+  'use strict';
+  document.querySelectorAll('input[data-alterna-esteira]').forEach(function (chave) {
+    chave.addEventListener('change', function () {
+      var form = document.getElementById('form-esteira');
+      if (!form) { chave.checked = !chave.checked; return; }
+      var acao = chave.getAttribute('data-alterna-esteira');
+      var perguntar = window.erpPerguntar
+        ? window.erpPerguntar({ titulo: acao === 'arquivar' ? 'Arquivar o item' : 'Desarquivar o item', texto: chave.getAttribute('data-pergunta'),
+            confirmar: acao === 'arquivar' ? 'Arquivar' : 'Desarquivar', cancelar: 'Cancelar', perigo: acao === 'arquivar' })
+        : Promise.resolve(window.confirm(chave.getAttribute('data-pergunta')));
+      perguntar.then(function (sim) {
+        if (!sim) { chave.checked = !chave.checked; return; }
+        var campo = document.createElement('input');
+        campo.type = 'hidden'; campo.name = 'acao_esteira'; campo.value = acao;
+        form.appendChild(campo);
+        form.submit();
+      });
+    });
+  });
+})();
