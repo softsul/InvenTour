@@ -38,7 +38,8 @@ $csrf = Auth::tokenCsrf();
 $daEquipe = Esteira::coordena();
 $aparelhos = Campo::aparelhosDoDestino($daEquipe);
 $estado = estadoDoCodigo();
-$assinatura = md5(json_encode(array_map(fn ($a) => [$a['id'], $a['ultimo_uso_em'], $a['envios']], $aparelhos)));
+$sessoes = historicoSincronizacao($daEquipe, (int) $u['id']);
+$assinatura = md5(json_encode(array_map(fn ($a) => [$a['id'], $a['ultimo_uso_em'], $a['envios']], $aparelhos)) . json_encode(array_map(fn ($s) => [$s['fim'], count($s['itens']), $s['fotos']], $sessoes)));
 $destacar = $estado && $estado['estado'] === 'usado' ? (int) $estado['id'] : null;
 
 echo json_encode([
@@ -46,6 +47,7 @@ echo json_encode([
     'assinatura' => $assinatura,
     'total' => count($aparelhos),
     'html' => cartaoAparelhos($aparelhos, $daEquipe, (int) $u['id'], $csrf, $destacar),
+    'historico' => cartaoHistorico($sessoes, $daEquipe),
     'codigo' => $estado && $estado['estado'] !== 'pendente'
         ? ['estado' => $estado['estado'], 'html' => passoCodigo($estado['estado'], null, $estado['aparelho'], $csrf, $u, $empresa)]
         : ['estado' => $estado['estado'] ?? 'novo'],

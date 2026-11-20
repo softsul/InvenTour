@@ -95,6 +95,10 @@ paginaInicio('Coleta de campo', 'coleta');
   <div class="cartao" id="app-aparelhos" data-codigo="<?= $codigo ? 'pendente' : e($estado['estado']) ?>">
 <?= cartaoAparelhos($aparelhos, $daEquipe, (int) $u['id'], $csrf) ?>
   </div>
+
+  <div class="cartao" id="app-historico">
+<?= cartaoHistorico(historicoSincronizacao($daEquipe, (int) $u['id']), $daEquipe) ?>
+  </div>
 </div>
 
 <div class="painel-aba" data-painel="coleta"<?= $codigo ? ' hidden' : '' ?>>

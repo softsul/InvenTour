@@ -31,6 +31,8 @@
         if (!d || !d.ok) { return; }
         if (assinatura !== null && d.assinatura !== assinatura) {
           cartao.innerHTML = d.html;
+          var hist = document.getElementById('app-historico');
+          if (hist && d.historico) { hist.innerHTML = d.historico; }
         }
         assinatura = d.assinatura;
         if (conta) { conta.textContent = String(d.total); }

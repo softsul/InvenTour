@@ -102,8 +102,8 @@ if (($anterior = $ja->fetchColumn()) !== false) {
     responder((json_decode((string) $anterior, true) ?: ['ok' => true]) + ['repetido' => true]);
 }
 $registrar = function (string $tipo, ?int $itemId, array $resultado) use ($pdo, $eid, $uuid, $uid): void {
-    $pdo->prepare('INSERT INTO inventario_coletas (empresa_id, uuid, tipo, usuario_id, item_id, resultado, recebido_em) VALUES (?, ?, ?, ?, ?, ?, NOW())')
-        ->execute([$eid, $uuid, $tipo, $uid, $itemId, json_encode($resultado, JSON_UNESCAPED_UNICODE)]);
+    $pdo->prepare('INSERT INTO inventario_coletas (empresa_id, uuid, tipo, usuario_id, aparelho_id, item_id, resultado, recebido_em) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())')
+        ->execute([$eid, $uuid, $tipo, $uid, Auth::aparelhoId(), $itemId, json_encode($resultado, JSON_UNESCAPED_UNICODE)]);
 };
 $acao = (string) ($corpo['acao'] ?? '');
 $itemId = (int) ($corpo['item_id'] ?? 0);

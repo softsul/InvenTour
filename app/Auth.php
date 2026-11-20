@@ -32,6 +32,7 @@ final class Auth
 
     /** A requisição veio do app InvenTour Campo, com o token do aparelho (sem cookie de sessão). */
     private static bool $porAparelho = false;
+    private static ?int $aparelhoId = null;
 
     /**
      * Entrada do app InvenTour Campo: o cabeçalho X-Aparelho traz o token que
@@ -54,6 +55,7 @@ final class Auth
             return false;
         }
         self::$porAparelho = true;
+        self::$aparelhoId = (int) $a['id'];
         self::$cache = null;
         self::$permissoesCache = null;
         $agora = time();
@@ -66,6 +68,12 @@ final class Auth
     public static function porAparelho(): bool
     {
         return self::$porAparelho;
+    }
+
+    /** O aparelho do app que fez esta requisição (null no painel). */
+    public static function aparelhoId(): ?int
+    {
+        return self::$aparelhoId;
     }
 
     public static function iniciarSessao(): void

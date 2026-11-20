@@ -82,6 +82,6 @@ if ($lat !== null && $lng !== null && abs($lat) <= 90 && abs($lng) <= 180) {
 }
 Inventario::registrarHistorico($itemId, 'alterou', null, null, 'foto da coleta em campo', $lat, $lng);
 $r = ['ok' => true, 'item_id' => $itemId];
-$pdo->prepare('INSERT IGNORE INTO inventario_coletas (empresa_id, uuid, tipo, usuario_id, item_id, resultado, recebido_em) VALUES (?, ?, ?, ?, ?, ?, NOW())')
-    ->execute([$eid, $uuid, 'foto', $uid, $itemId, json_encode($r)]);
+$pdo->prepare('INSERT IGNORE INTO inventario_coletas (empresa_id, uuid, tipo, usuario_id, aparelho_id, item_id, resultado, recebido_em) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())')
+    ->execute([$eid, $uuid, 'foto', $uid, Auth::aparelhoId(), $itemId, json_encode($r)]);
 responder($r);
