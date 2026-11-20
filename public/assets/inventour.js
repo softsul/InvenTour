@@ -6304,3 +6304,110 @@ window.inventourMarcarNoFiltro = function (form, campo, ids, nome) {
     });
   });
 })();
+
+/*
+ * Visualizador de foto e PDF, em modal (regra do Luiz, 20/11/2026: foto e
+ * PDF abrem em modal, sempre).
+ * Softsul Software
+ *
+ * Qualquer link com data-visualizar ("foto" ou "pdf") abre por cima da tela,
+ * nunca em aba nova nem baixando. Links com o mesmo data-galeria andam com
+ * as setas (botões e teclado); data-legenda vai embaixo. Esc fecha.
+ */
+(function () {
+  'use strict';
+  var caixa = null;
+  var grupo = [];
+  var atual = 0;
+
+  function montar() {
+    caixa = document.createElement('dialog');
+    caixa.className = 'visualizador';
+    caixa.setAttribute('aria-label', 'Visualizar');
+    caixa.innerHTML = '<div class="vis-topo"><span class="vis-titulo"></span><span class="vis-conta"></span>'
+      + '<button type="button" class="vis-fechar" aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"></use></svg></button></div>'
+      + '<div class="vis-palco"><button type="button" class="vis-seta vis-anterior" aria-label="Anterior"><svg aria-hidden="true"><use href="#i-seta"></use></svg></button>'
+      + '<div class="vis-conteudo"></div>'
+      + '<button type="button" class="vis-seta vis-proxima" aria-label="Próxima"><svg aria-hidden="true"><use href="#i-seta"></use></svg></button></div>'
+      + '<p class="vis-legenda"></p>';
+    document.body.appendChild(caixa);
+    caixa.querySelector('.vis-fechar').addEventListener('click', function () { caixa.close(); });
+    caixa.querySelector('.vis-anterior').addEventListener('click', function () { mostrar(atual - 1); });
+    caixa.querySelector('.vis-proxima').addEventListener('click', function () { mostrar(atual + 1); });
+    caixa.addEventListener('click', function (ev) { if (ev.target === caixa || ev.target.classList.contains('vis-palco')) { caixa.close(); } });
+    caixa.addEventListener('keydown', function (ev) {
+      if (ev.key === 'ArrowLeft') { mostrar(atual - 1); }
+      if (ev.key === 'ArrowRight') { mostrar(atual + 1); }
+    });
+    caixa.addEventListener('close', function () { caixa.querySelector('.vis-conteudo').innerHTML = ''; });
+  }
+
+  function mostrar(i) {
+    if (!grupo.length) { return; }
+    atual = (i + grupo.length) % grupo.length;
+    var el = grupo[atual];
+    var tipo = el.getAttribute('data-visualizar') || (/\.pdf($|\?)/i.test(el.href) ? 'pdf' : 'foto');
+    var conteudo = caixa.querySelector('.vis-conteudo');
+    conteudo.innerHTML = '';
+    if (tipo === 'pdf') {
+      var quadro = document.createElement('iframe');
+      quadro.src = el.href;
+      quadro.title = el.getAttribute('data-legenda') || 'Documento';
+      conteudo.appendChild(quadro);
+      caixa.classList.add('vis-pdf');
+    } else {
+      var img = document.createElement('img');
+      img.src = el.href;
+      img.alt = el.getAttribute('data-legenda') || '';
+      conteudo.appendChild(img);
+      caixa.classList.remove('vis-pdf');
+    }
+    var legenda = el.getAttribute('data-legenda') || '';
+    caixa.querySelector('.vis-legenda').textContent = legenda;
+    caixa.querySelector('.vis-legenda').hidden = !legenda;
+    caixa.querySelector('.vis-titulo').textContent = el.getAttribute('data-titulo') || (tipo === 'pdf' ? 'Documento' : 'Foto');
+    caixa.querySelector('.vis-conta').textContent = grupo.length > 1 ? (atual + 1) + ' de ' + grupo.length : '';
+    caixa.querySelectorAll('.vis-seta').forEach(function (b) { b.hidden = grupo.length < 2; });
+  }
+
+  document.addEventListener('click', function (ev) {
+    var el = ev.target.closest && ev.target.closest('a[data-visualizar]');
+    if (!el || ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.button === 1) { return; }
+    ev.preventDefault();
+    if (!caixa) { montar(); }
+    var nome = el.getAttribute('data-galeria');
+    grupo = nome ? Array.prototype.slice.call(document.querySelectorAll('a[data-visualizar][data-galeria="' + nome + '"]')) : [el];
+    mostrar(Math.max(0, grupo.indexOf(el)));
+    if (!caixa.open) { caixa.showModal(); }
+  });
+})();
+
+/*
+ * Barra de abas sempre visível (regra geral do Luiz, 20/11/2026): ao rolar,
+ * ela gruda logo abaixo do cabeçalho fixo da tela ou da ficha em modal. A
+ * altura do cabeçalho muda (aviso, esteira, quebra de linha), então é
+ * medida e passada ao CSS em --topo-abas.
+ * Softsul Software
+ */
+(function () {
+  'use strict';
+  var barras = document.querySelectorAll('.abas-chamado:not(.abas-coleta)');
+  if (!barras.length) { return; }
+  function medir() {
+    barras.forEach(function (barra) {
+      var cab = document.querySelector('main .cab-pag');
+      var topo = 0;
+      if (cab) {
+        var cs = getComputedStyle(cab);
+        if (cs.position === 'sticky' || cs.position === 'fixed') { topo = (parseFloat(cs.top) || 0) + cab.offsetHeight; }
+      }
+      barra.style.setProperty('--topo-abas', topo + 'px');
+    });
+  }
+  medir();
+  window.addEventListener('resize', medir);
+  if (window.ResizeObserver) {
+    var cab = document.querySelector('main .cab-pag');
+    if (cab) { new ResizeObserver(medir).observe(cab); }
+  }
+})();

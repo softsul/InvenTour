@@ -697,7 +697,7 @@ paginaFicha($titulo, 'inventario');
                 <tbody>
                 <?php foreach ($linhas as $n => $linha): ?>
                   <tr><?php foreach (array_values($at['opcoes']) as $k => $col): ?>
-                    <td><input type="text" name="at[<?= $aid ?>][<?= $n ?>][<?= $k ?>]" maxlength="200" aria-label="<?= e((string) $col) ?>, linha <?= $n + 1 ?>" value="<?= e((string) ($linha[$k] ?? '')) ?>"<?= $ro ?>></td>
+                    <td><div class="entrada mini"><input type="text" name="at[<?= $aid ?>][<?= $n ?>][<?= $k ?>]" maxlength="200" aria-label="<?= e((string) $col) ?>, linha <?= $n + 1 ?>" value="<?= e((string) ($linha[$k] ?? '')) ?>"<?= $ro ?>></div></td>
                   <?php endforeach; ?></tr>
                 <?php endforeach; ?>
                 </tbody></table></div>
@@ -823,15 +823,15 @@ paginaFicha($titulo, 'inventario');
     <div class="galeria-item">
       <?php foreach ($fotos as $f): ?>
         <figure class="<?= $f['capa'] ? 'capa' : '' ?>">
-          <a href="<?= e(Inventario::urlFoto($eid, (string) $f['arquivo'])) ?>" target="_blank" rel="noopener"><img src="<?= e(Inventario::urlFoto($eid, (string) $f['arquivo'])) ?>" alt="<?= e((string) ($f['legenda'] ?: $d['nome'])) ?>" loading="lazy"></a>
+          <a href="<?= e(Inventario::urlFoto($eid, (string) $f['arquivo'])) ?>" data-visualizar="foto" data-galeria="item-<?= $id ?>" data-legenda="<?= e(trim((string) $f['legenda'] . ($f['credito'] ? ' · Foto: ' . $f['credito'] : ''), ' ·')) ?>"><img src="<?= e(Inventario::urlFoto($eid, (string) $f['arquivo'])) ?>" alt="<?= e((string) ($f['legenda'] ?: $d['nome'])) ?>" loading="lazy"></a>
           <figcaption>
             <?php if ($f['capa']): ?><span class="pilula ok">Capa</span><?php endif; ?>
             <?php if ($f['latitude']): ?><span class="pilula nu" title="A foto trouxe a coordenada da câmera"><?= icone('mapa') ?>GPS</span><?php endif; ?>
             <?php if ($podeEditar): ?>
               <form method="post" action="<?= e($acao) ?>" class="legenda-foto">
                 <input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="acao_foto" value="legenda"><input type="hidden" name="foto_id" value="<?= (int) $f['id'] ?>">
-                <input type="text" name="legenda" maxlength="200" placeholder="Legenda" aria-label="Legenda" value="<?= e((string) $f['legenda']) ?>">
-                <input type="text" name="credito" maxlength="120" placeholder="Crédito (autor)" aria-label="Crédito" value="<?= e((string) $f['credito']) ?>">
+                <div class="entrada mini"><?= icone('etiqueta') ?><input type="text" name="legenda" maxlength="200" placeholder="Legenda" aria-label="Legenda" value="<?= e((string) $f['legenda']) ?>"></div>
+                <div class="entrada mini"><?= icone('camera') ?><input type="text" name="credito" maxlength="120" placeholder="Crédito (autor)" aria-label="Crédito" value="<?= e((string) $f['credito']) ?>"></div>
                 <div class="acoes-linha">
                   <button type="submit" title="Salvar a legenda" aria-label="Salvar a legenda"><?= icone('check') ?></button>
                   <?php if (!$f['capa']): ?><button type="submit" name="acao_foto" value="capa" title="Usar como capa" aria-label="Usar como capa"><?= icone('imagem') ?></button><?php endif; ?>

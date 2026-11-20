@@ -1343,3 +1343,48 @@ dialog.coleta-dialogo > form{display:flex; flex-direction:column; flex:1; min-he
 @keyframes pulso-app{70%{box-shadow:0 0 0 7px rgba(14,143,106,0)} 100%{box-shadow:0 0 0 0 rgba(14,143,106,0)}}
 table.dados tr.recem-chegado td{animation:chegou 3s ease-out}
 @keyframes chegou{0%{background:var(--verde-sup)} 100%{background:transparent}}
+
+/* Regra do Luiz (20/11/2026): nenhum campo cru. Textarea dentro da .entrada
+   em todo lugar, e a .entrada.mini para campos em tabelas, cartões de foto e
+   linhas compactas. */
+.entrada textarea{flex:1; min-width:0; border:0; background:transparent; padding:12px 0; font:inherit; font-size:14.5px;
+  color:var(--tinta); outline:none; resize:vertical}
+.entrada.mini{padding:0 10px; gap:7px; border-radius:var(--r-p); background:var(--branco)}
+.entrada.mini svg{width:14px; height:14px; font-size:14px}
+.entrada.mini input, .entrada.mini select{padding:7px 0; font-size:13px}
+table.dados td .entrada.mini{min-width:120px}
+.galeria-item .legenda-foto .entrada.mini{width:100%}
+
+/* Visualizador de foto e PDF em modal (regra do Luiz: sempre em modal). */
+dialog.visualizador{width:min(1400px, calc(100vw - 32px)); height:min(920px, calc(100vh - 32px)); max-width:none; max-height:none; padding:0; border:0;
+  border-radius:var(--r-g); background:#0E1420; color:#fff; overflow:hidden}
+dialog.visualizador[open]{display:flex; flex-direction:column}
+dialog.visualizador::backdrop{background:rgba(5,8,15,.82)}
+.vis-topo{flex:none; display:flex; align-items:center; gap:12px; padding:12px 16px}
+.vis-titulo{font-weight:700; font-size:14px}
+.vis-conta{font-family:var(--dado); font-size:12px; color:rgba(255,255,255,.65)}
+.vis-fechar{margin-left:auto; border:0; background:rgba(255,255,255,.1); color:#fff; width:36px; height:36px; border-radius:50%; cursor:pointer;
+  display:flex; align-items:center; justify-content:center}
+.vis-fechar svg{width:16px; height:16px}
+.vis-palco{flex:1; min-height:0; position:relative; display:flex; align-items:center; justify-content:center; padding:0 64px 12px}
+.vis-conteudo{width:100%; height:100%; display:flex; align-items:center; justify-content:center}
+.vis-conteudo img{max-width:100%; max-height:100%; object-fit:contain; border-radius:8px}
+.vis-conteudo iframe{width:100%; height:100%; border:0; border-radius:8px; background:#fff}
+.vis-seta{position:absolute; top:50%; transform:translateY(-50%); width:44px; height:44px; border:0; border-radius:50%; cursor:pointer;
+  background:rgba(255,255,255,.12); color:#fff; display:flex; align-items:center; justify-content:center}
+.vis-seta:hover, .vis-fechar:hover{background:rgba(255,255,255,.22)}
+.vis-seta svg{width:20px; height:20px}
+.vis-anterior{left:12px}
+.vis-anterior svg{transform:rotate(180deg)}
+.vis-proxima{right:12px}
+.vis-legenda{flex:none; margin:0; padding:0 20px 16px; text-align:center; font-size:13.5px; color:rgba(255,255,255,.8)}
+dialog.visualizador.vis-pdf .vis-palco{padding:0 12px 12px}
+@media (max-width:640px){
+  dialog.visualizador{width:100vw; height:100dvh; border-radius:0}
+  .vis-palco{padding:0 8px 8px}
+  .vis-seta{top:auto; bottom:16px; transform:none}
+}
+
+/* Regra geral do Luiz (20/11/2026): o cabeçalho das abas sempre visível.
+   A barra gruda abaixo do cabeçalho fixo (medido no inventour.js). */
+.abas-chamado:not(.abas-coleta){position:sticky; top:var(--topo-abas, 0); z-index:3; background:var(--nuvem)}

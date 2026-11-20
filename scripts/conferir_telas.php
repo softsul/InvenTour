@@ -88,8 +88,55 @@ foreach (array_merge(glob("{$raiz}/public/*.php") ?: [], glob("{$raiz}/portal/*.
     }
 }
 
+// Regra do Luiz (20/11/2026): nenhum campo cru. Todo input de texto,
+// select e textarea fica dentro de .entrada (ou de um componente da casa:
+// multi-escolha, busca viva, paleta). Campos escondidos, de marcar, de
+// arquivo e de faixa (zoom) ficam de fora, e o que leva hidden também.
+$camposDaCasa = ['campo-paleta'];
+foreach (array_merge(glob("{$raiz}/public/*.php") ?: [], glob("{$raiz}/portal/*.php") ?: [], glob("{$raiz}/app/*.php") ?: []) as $arquivo) {
+    $linhas = file($arquivo) ?: [];
+    foreach ($linhas as $n => $linha) {
+        if (!preg_match_all('/<(input|select|textarea)\b([^>]*)/i', $linha, $achados, PREG_SET_ORDER | PREG_OFFSET_CAPTURE)) {
+            continue;
+        }
+        foreach ($achados as $m) {
+            $attrs = $m[2][0];
+            $tipo = preg_match('/type=["\']?(\w+)/i', $attrs, $t) ? strtolower($t[1]) : strtolower($m[1][0]);
+            // O resto da tag: o [^>]* para no fecha-PHP de dentro do value.
+            $tag = (string) preg_replace('/<\?=.*?\?>/', '', substr($linha, (int) $m[0][1], 600));
+            $tag = substr($tag, 0, (int) (strpos($tag, '>') ?: strlen($tag)) + 1);
+            if (in_array($tipo, ['hidden', 'checkbox', 'radio', 'file', 'submit', 'button', 'range'], true)
+                || preg_match('/\shidden[\s>=]/', $tag)
+                // select.ausencia: o NA/NI/NE que vai dentro da .entrada do campo, no item.php
+                || str_contains($tag, 'class="ausencia"')) {
+                continue;
+            }
+            $id = preg_match('/id=["\']([^"\']+)/', $attrs, $i) ? $i[1] : '';
+            if (in_array($id, $camposDaCasa, true)) {
+                continue;
+            }
+            $antes = implode(' ', array_slice($linhas, max(0, $n - 2), min(2, $n))) . ' ' . substr($linha, 0, (int) $m[0][1]);
+            if (preg_match('/class=["\'][^"\']*\b(entrada|multi-[a-z]+|busca-viva|pegar-paleta)\b/', $antes)) {
+                continue;
+            }
+            echo substr((string) $arquivo, strlen($raiz) + 1) . ':' . ($n + 1) . ": campo cru ({$tipo}); ponha dentro de .entrada\n";
+            $problemas++;
+        }
+    }
+}
+
+// Regra do Luiz (20/11/2026): foto e PDF abrem em modal, sempre (data-visualizar).
+foreach (array_merge(glob("{$raiz}/public/*.php") ?: [], glob("{$raiz}/portal/*.php") ?: []) as $arquivo) {
+    foreach (file($arquivo) ?: [] as $n => $linha) {
+        if (preg_match('/<a\b[^>]*target="_blank"[^>]*>\s*<img|<a\b[^>]*href="[^"]*\.pdf[^"]*"[^>]*target="_blank"/i', $linha)) {
+            echo substr((string) $arquivo, strlen($raiz) + 1) . ':' . ($n + 1) . ": foto ou PDF em aba nova; use data-visualizar (abre em modal)\n";
+            $problemas++;
+        }
+    }
+}
+
 if ($problemas) {
     echo "\n{$problemas} problema(s).\n";
     exit(1);
 }
-echo "Nenhum formulário aninhado ou sem fechar, nenhum travessão, marca igual no portal, upload só por arrastar e soltar.\n";
+echo "Nenhum formulário aninhado ou sem fechar, nenhum travessão, marca igual no portal, upload só por arrastar e soltar, nenhum campo cru, foto e PDF em modal.\n";

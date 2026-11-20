@@ -140,8 +140,8 @@ paginaFicha($f['nome'], 'fichas');
             <tr class="<?= $t['ativo'] ? '' : 'inativa' ?>">
               <td class="dado"><?= $t['codigo_mtur'] ? e((string) $t['codigo_mtur']) : '<span class="nulo">-</span>' ?></td>
               <td><?= $t['pai_id'] ? '<span class="nulo">' . e((string) $t['pai_nome']) . ':</span> ' . e((string) $t['nome']) : '<b>' . e((string) $t['nome']) . '</b>' ?></td>
-              <td class="elastica"><input type="text" name="definicao[<?= (int) $t['id'] ?>]" maxlength="1000" aria-label="Definição de <?= e((string) $t['nome']) ?>"
-                     value="<?= e((string) $t['definicao']) ?>"<?= $ro ?>></td>
+              <td class="elastica"><div class="entrada mini"><input type="text" name="definicao[<?= (int) $t['id'] ?>]" maxlength="1000" aria-label="Definição de <?= e((string) $t['nome']) ?>"
+                     value="<?= e((string) $t['definicao']) ?>"<?= $ro ?>></div></td>
               <td><label class="check"><input type="checkbox" name="tipo_ativo[<?= (int) $t['id'] ?>]" value="1"<?= $t['ativo'] ? ' checked' : '' ?><?= $podeEditar ? '' : ' disabled' ?> aria-label="<?= e((string) $t['nome']) ?> em uso"><i></i></label></td>
             </tr>
           <?php endforeach; ?>
