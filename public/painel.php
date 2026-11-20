@@ -108,6 +108,15 @@ faça o <a href="/pre-cadastro">pré-cadastro pelo Cadastur</a>, que traz hotéi
         ['rotulo' => 'B. Serviços e equipamentos', 'valor' => $inv['categoria']['B'], 'cor' => '#20B295', 'link' => '/inventario?categoria=B'],
         ['rotulo' => 'C. Atrativos', 'valor' => $inv['categoria']['C'], 'cor' => '#F3B137', 'link' => '/inventario?categoria=C'],
     ]) ?>
+    <h3 class="sub-cartao">Por origem</h3>
+    <?= Graficos::barras(array_values(array_filter([
+        ['rotulo' => 'Cadastur', 'valor' => $inv['origem']['cadastur'] ?? 0, 'cor' => '#1E6EA7'],
+        ['rotulo' => 'Caderno importado', 'valor' => $inv['origem']['importacao'] ?? 0, 'cor' => '#7A5BC7'],
+        ['rotulo' => 'Painel', 'valor' => $inv['origem']['painel'] ?? 0, 'cor' => '#20B295'],
+        ['rotulo' => 'Coleta em campo', 'valor' => $inv['origem']['campo'] ?? 0, 'cor' => '#F3B137'],
+        ['rotulo' => 'CNPJ', 'valor' => $inv['origem']['cnpj'] ?? 0, 'cor' => '#63B6E5'],
+        ['rotulo' => 'EventCity', 'valor' => $inv['origem']['eventcity'] ?? 0, 'cor' => '#E2620B'],
+    ], fn ($b) => $b['valor'] > 0))) ?>
   </div>
   <?php endif; ?>
   <div class="cartao">

@@ -18,6 +18,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../app/layout.php';
 require_once __DIR__ . '/../app/Inventario.php';
 require_once __DIR__ . '/../app/Cnpj.php';
+require_once __DIR__ . '/../app/PlusCode.php';
 
 Auth::exigirLogin();
 $empresa = Empresa::exigir();
@@ -158,6 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $acaoFoto === '') {
             'bairro'                => $texto('bairro', 120),
             'latitude'              => ($la = $numero('latitude')) !== null && abs($la) <= 90 ? $la : null,
             'longitude'             => ($lo = $numero('longitude')) !== null && abs($lo) <= 180 ? $lo : null,
+            'plus_code'             => PlusCode::valido($pc = strtoupper((string) $texto('plus_code', 16))) ? $pc : null,
             'maps_url'              => $texto('maps_url', 500),
             'referencia'            => $texto('referencia', 255),
             'sinalizacao_acesso'    => ($_POST['sinalizacao_acesso'] ?? '') === '' ? null : (int) ($_POST['sinalizacao_acesso'] === '1'),
@@ -179,6 +181,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $acaoFoto === '') {
             'referencias'           => $texto('referencias', 10000),
             'possui_experiencia'    => empty($_POST['possui_experiencia']) ? 0 : 1,
         ];
+        // Sem coordenada, mas com plus code: o código vira latitude e longitude
+        // (o curto se recupera pela posição do município do destino).
+        if ($nucleo['plus_code'] && $nucleo['latitude'] === null) {
+            $ref = $pdo->prepare('SELECT m.latitude, m.longitude FROM empresas e JOIN municipios m ON m.id = e.municipio_id WHERE e.id = ?');
+            $ref->execute([Empresa::id()]);
+            $r = $ref->fetch() ?: [];
+            if ($c = PlusCode::coordenada($nucleo['plus_code'], isset($r['latitude']) ? (float) $r['latitude'] : null, isset($r['longitude']) ? (float) $r['longitude'] : null)) {
+                [$nucleo['latitude'], $nucleo['longitude']] = $c;
+            }
+        }
         if ($novo) {
             $nucleo['origem'] = 'painel';
             $nucleo['pesquisador_id'] = (int) Auth::usuarioOuNulo()['id'];
@@ -438,13 +450,18 @@ paginaFicha($titulo, 'inventario');
           <label for="complemento">Complemento</label>
           <div class="entrada"><input type="text" id="complemento" name="complemento" maxlength="80" value="<?= e((string) ($d['complemento'] ?? '')) ?>"<?= $ro ?>></div>
         </div>
-        <div class="campo c-6">
+        <div class="campo c-4">
           <label for="latitude">Latitude</label>
           <div class="entrada"><input type="text" id="latitude" name="latitude" inputmode="decimal" placeholder="-26.229512" value="<?= e((string) ($d['latitude'] ?? '')) ?>"<?= $ro ?>></div>
         </div>
-        <div class="campo c-6">
+        <div class="campo c-4">
           <label for="longitude">Longitude</label>
           <div class="entrada"><input type="text" id="longitude" name="longitude" inputmode="decimal" placeholder="-52.671604" value="<?= e((string) ($d['longitude'] ?? '')) ?>"<?= $ro ?>></div>
+        </div>
+        <div class="campo c-4">
+          <label for="plus_code">Plus code</label>
+          <div class="entrada"><input type="text" id="plus_code" name="plus_code" maxlength="16" placeholder="Q8FF+VM" autocapitalize="characters" value="<?= e((string) ($d['plus_code'] ?? '')) ?>"<?= $ro ?>></div>
+          <span class="ajuda">O código do Google Maps. Sem latitude, ela sai daqui ao gravar.</span>
         </div>
         <div class="campo c-12">
           <label for="maps_url">Link do mapa</label>

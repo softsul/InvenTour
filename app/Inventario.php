@@ -501,6 +501,10 @@ final class Inventario
                                    WHERE empresa_id = ? AND situacao IN ('homologada', 'desatualizada')");
         $q->execute([$empresaId]);
         [$r['uh'], $r['leitos']] = array_map('intval', $q->fetch(PDO::FETCH_NUM));
+        // De onde veio cada item (Cadastur, caderno importado, painel, campo).
+        $q = self::pdo()->prepare("SELECT origem, COUNT(*) FROM inventario_itens WHERE empresa_id = ? AND situacao <> 'arquivada' GROUP BY origem");
+        $q->execute([$empresaId]);
+        $r['origem'] = array_map('intval', $q->fetchAll(PDO::FETCH_KEY_PAIR));
         return $r;
     }
 }
