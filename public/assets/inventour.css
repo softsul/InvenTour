@@ -1058,3 +1058,10 @@ table.tabela-campo td{padding:4px 6px}
 table.tabela-campo td input{width:100%; min-width:90px}
 .lista-simples{margin:0; padding-left:18px}
 .lista-simples li{margin:4px 0}
+.galeria-item{display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:14px; margin-bottom:14px}
+.galeria-item figure{margin:0; border:1px solid var(--traco); border-radius:12px; overflow:hidden; background:var(--branco)}
+.galeria-item figure.capa{border-color:var(--indigo)}
+.galeria-item img{display:block; width:100%; aspect-ratio:4/3; object-fit:cover}
+.galeria-item figcaption{padding:8px; display:flex; flex-wrap:wrap; gap:6px; align-items:center}
+.galeria-item .legenda-foto{display:grid; gap:6px; width:100%}
+.galeria-item .legenda-foto input{width:100%}

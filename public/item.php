@@ -81,7 +81,45 @@ $numero = function (string $c): ?float {
 };
 $doCatalogo = fn (string $c, array $validos): ?string => array_key_exists((string) ($_POST[$c] ?? ''), $validos) ? (string) $_POST[$c] : null;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// Fotos: formulário próprio (fora do formulário da ficha), só com o item salvo.
+$acaoFoto = (string) ($_POST['acao_foto'] ?? '');
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $acaoFoto !== '' && !$novo) {
+    if (!Auth::conferirCsrf($_POST['csrf'] ?? null) || !$podeEditar) {
+        avisar('A página ficou aberta tempo demais, ou você não pode alterar este item.', 'ruim');
+    } elseif ($acaoFoto === 'enviar') {
+        $arquivos = $_FILES['fotos'] ?? null;
+        $credito = mb_substr(trim((string) ($_POST['credito'] ?? '')), 0, 120) ?: null;
+        $enviadas = 0;
+        $falhas = [];
+        foreach ((array) ($arquivos['name'] ?? []) as $k => $nomeArquivo) {
+            $um = ['name' => $nomeArquivo, 'tmp_name' => $arquivos['tmp_name'][$k] ?? '', 'error' => $arquivos['error'][$k] ?? UPLOAD_ERR_NO_FILE,
+                   'size' => $arquivos['size'][$k] ?? 0];
+            if ($um['error'] === UPLOAD_ERR_NO_FILE) {
+                continue;
+            }
+            $falha = Inventario::guardarFoto($id, $um, $credito);
+            $falha === null ? $enviadas++ : $falhas[] = $nomeArquivo . ': ' . $falha;
+        }
+        if ($enviadas) {
+            Inventario::registrarHistorico($id, 'alterou', null, null, plural($enviadas, 'foto enviada', 'fotos enviadas'));
+        }
+        avisar(($enviadas ? plural($enviadas, 'foto guardada', 'fotos guardadas') . '. ' : '') . implode(' ', $falhas), $falhas ? 'atencao' : 'bom');
+    } elseif ($acaoFoto === 'capa') {
+        Inventario::definirCapa($id, (int) ($_POST['foto_id'] ?? 0));
+        avisar('Capa trocada.');
+    } elseif ($acaoFoto === 'legenda') {
+        Inventario::legendarFoto($id, (int) ($_POST['foto_id'] ?? 0), mb_substr(trim((string) ($_POST['legenda'] ?? '')), 0, 200) ?: null,
+            mb_substr(trim((string) ($_POST['credito'] ?? '')), 0, 120) ?: null);
+        avisar('Legenda salva.');
+    } elseif ($acaoFoto === 'excluir') {
+        Inventario::excluirFoto($id, (int) ($_POST['foto_id'] ?? 0));
+        Inventario::registrarHistorico($id, 'alterou', null, null, 'excluiu uma foto');
+        avisar('Foto excluída.');
+    }
+    fichaSalva(endereco('item', $id, (string) $item['nome']) . '#fotos');
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $acaoFoto === '') {
     if (!Auth::conferirCsrf($_POST['csrf'] ?? null)) {
         $erro = 'A página ficou aberta tempo demais. Tente de novo.';
     } elseif (!$podeEditar) {
@@ -612,4 +650,48 @@ paginaFicha($titulo, 'inventario');
     <?php endif; ?>
   </div>
 </form>
+
+<?php if (!$novo): $fotos = Inventario::fotos($id); $eid = (int) $empresa['id']; $csrf = Auth::tokenCsrf(); ?>
+<div class="cartao" id="fotos">
+  <h2 class="titulo-secao">Fotos (<?= count($fotos) ?>)</h2>
+  <?php if ($fotos): ?>
+    <div class="galeria-item">
+      <?php foreach ($fotos as $f): ?>
+        <figure class="<?= $f['capa'] ? 'capa' : '' ?>">
+          <a href="<?= e(Inventario::urlFoto($eid, (string) $f['arquivo'])) ?>" target="_blank" rel="noopener"><img src="<?= e(Inventario::urlFoto($eid, (string) $f['arquivo'])) ?>" alt="<?= e((string) ($f['legenda'] ?: $d['nome'])) ?>" loading="lazy"></a>
+          <figcaption>
+            <?php if ($f['capa']): ?><span class="pilula ok">Capa</span><?php endif; ?>
+            <?php if ($f['latitude']): ?><span class="pilula nu" title="A foto trouxe a coordenada da câmera"><?= icone('mapa') ?>GPS</span><?php endif; ?>
+            <?php if ($podeEditar): ?>
+              <form method="post" action="<?= e($acao) ?>" class="legenda-foto">
+                <input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="acao_foto" value="legenda"><input type="hidden" name="foto_id" value="<?= (int) $f['id'] ?>">
+                <input type="text" name="legenda" maxlength="200" placeholder="Legenda" aria-label="Legenda" value="<?= e((string) $f['legenda']) ?>">
+                <input type="text" name="credito" maxlength="120" placeholder="Crédito (autor)" aria-label="Crédito" value="<?= e((string) $f['credito']) ?>">
+                <div class="acoes-linha">
+                  <button type="submit" title="Salvar a legenda" aria-label="Salvar a legenda"><?= icone('check') ?></button>
+                  <?php if (!$f['capa']): ?><button type="submit" name="acao_foto" value="capa" title="Usar como capa" aria-label="Usar como capa"><?= icone('imagem') ?></button><?php endif; ?>
+                  <button type="submit" name="acao_foto" value="excluir" title="Excluir a foto" aria-label="Excluir a foto" data-confirmar="Excluir esta foto? Não dá para desfazer."><?= icone('lixeira') ?></button>
+                </div>
+              </form>
+            <?php else: ?>
+              <span><?= e((string) $f['legenda']) ?><?= $f['credito'] ? ' · Foto: ' . e((string) $f['credito']) : '' ?></span>
+            <?php endif; ?>
+          </figcaption>
+        </figure>
+      <?php endforeach; ?>
+    </div>
+  <?php endif; ?>
+  <?php if ($podeEditar): ?>
+    <form method="post" action="<?= e($acao) ?>" enctype="multipart/form-data" class="enviar-fotos">
+      <input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="acao_foto" value="enviar">
+      <div class="campo">
+        <label for="credito-fotos">Crédito das fotos enviadas</label>
+        <div class="entrada"><input type="text" id="credito-fotos" name="credito" maxlength="120" placeholder="Nome de quem fotografou"></div>
+        <span class="ajuda">O crédito vai junto da foto no portal e no caderno.</span>
+      </div>
+      <?= zonaDeUpload('fotos', 'image/jpeg,image/png,image/webp', 'Arraste as fotos aqui', 'ou clique para escolher (JPG, PNG ou WebP; a do celular traz a coordenada)', true, true) ?>
+    </form>
+  <?php endif; ?>
+</div>
+<?php endif; ?>
 <?php paginaFichaFim();

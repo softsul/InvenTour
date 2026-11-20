@@ -25,7 +25,7 @@ final class PortalLayout
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title><?= e($titulo === $nome ? $nome . ' | InvenTour' : $titulo . ' | ' . $nome) ?></title>
+<title><?= e($titulo === $nome ? $nome . ' · InvenTour' : $titulo . ' · ' . $nome) ?></title>
 <?php if (!$indexar): ?><meta name="robots" content="noindex"><?php endif; ?>
 <meta name="theme-color" content="<?= e($cor) ?>">
 <link rel="icon" href="/assets/icone.svg" type="image/svg+xml">
