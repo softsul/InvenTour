@@ -77,6 +77,41 @@ table.campos td.r{width:38%;color:#5b6474;padding-right:3mm}
 table.sub{font-size:7.8pt;margin:.6mm 0}
 table.sub th{text-align:left;color:#5b6474;font-weight:bold;border-bottom:.5pt solid #d9dee7;padding:.4mm 1.5mm .4mm 0}
 table.sub td{padding:.4mm 1.5mm .4mm 0;border-bottom:.3pt dotted #e1e5ec}
+.c-pagina{width:210mm;height:296mm;position:relative;overflow:hidden;background:#fff}
+.c-foto{height:118mm;background-size:cover;background-position:center;position:relative}
+.c-veu{position:absolute;left:0;right:0;bottom:0;height:30mm;background:-webkit-linear-gradient(top,rgba(0,0,0,0),rgba(0,0,0,.45))}
+.c-credito{position:absolute;right:10mm;bottom:4mm;color:#fff;font-size:7.5pt;opacity:.9}
+.c-sem-foto{overflow:hidden}
+.c-circulo{position:absolute;border-radius:50%;background:rgba(255,255,255,.07)}
+.c-circulo.c1{width:150mm;height:150mm;right:-45mm;top:-55mm}
+.c-circulo.c2{width:64mm;height:64mm;right:92mm;top:44mm;background:rgba(255,255,255,.05)}
+.c-circulo.c3{width:40mm;height:40mm;left:18mm;top:22mm;background:rgba(255,255,255,.06)}
+.c-emblema{position:absolute;right:26mm;top:26mm;height:52mm;background:#fff;border-radius:50%;padding:7mm}
+.c-faixa{color:#fff;padding:11mm 18mm 12mm}
+.c-sobre{font-size:9pt;letter-spacing:2pt;text-transform:uppercase;opacity:.8}
+.c-titulo{font-size:28pt;font-weight:bold;line-height:1.12;margin:3mm 0 2mm}
+.c-sub{font-size:12.5pt;opacity:.92;margin-bottom:2mm}
+.c-lugar{font-size:11pt;font-weight:bold;opacity:.95;margin-top:3mm}
+table.c-numeros{margin:9mm 18mm 0;width:174mm}
+table.c-numeros td{width:25%;padding:0 4mm 0 0;vertical-align:top}
+table.c-numeros b{display:block;font-size:22pt;line-height:1.1}
+table.c-numeros span{display:block;font-size:8.6pt;color:#5b6474;margin-top:1mm}
+table.c-meta{margin:8mm 18mm 0;width:174mm;border-top:.6pt solid #d9dee7}
+table.c-meta td{padding:3mm 4mm 0 0;vertical-align:top;width:25%}
+table.c-meta span{display:block;font-size:7.5pt;text-transform:uppercase;letter-spacing:.6pt;color:#8a94a6}
+table.c-meta b{display:block;font-size:9.5pt;margin-top:.8mm}
+.c-chancela{margin:7mm 18mm 0;display:block;border:1pt solid #e2620b;color:#e2620b;padding:2mm 3.5mm;border-radius:3pt;font-weight:bold;font-size:9pt}
+table.c-rodape{position:absolute;left:18mm;right:18mm;bottom:14mm;width:174mm;border-top:.6pt solid #d9dee7}
+table.c-rodape td{padding-top:5mm;vertical-align:middle}
+.c-marca img{height:12mm;float:left;margin-right:3mm}
+.c-marca b{display:block;font-size:11pt;color:#0f5f5c;padding-top:1mm}
+.c-marca span{display:block;font-size:7.5pt;color:#5b6474}
+.c-qr{text-align:right}
+.c-qr div{display:inline-block;vertical-align:middle;text-align:right;margin-right:3mm}
+.c-qr b{display:block;font-size:8.5pt}
+.c-qr span{display:block;font-size:7.5pt;color:#5b6474}
+.c-qr .c-codigo{font-weight:bold;color:#1f2a37;margin-top:.8mm}
+.c-qr img{width:24mm;height:24mm;vertical-align:middle}
 .capa{height:258mm;position:relative}
 .capa .faixa{background:#0f5f5c;color:#fff;padding:22mm 16mm 18mm;margin:0 -16mm}
 .capa .sobre{font-size:10pt;letter-spacing:1.5pt;text-transform:uppercase;color:#9fe3cf}
@@ -121,20 +156,73 @@ CSS;
     {
         $e = $this->d['empresa'];
         $cfg = $this->d['config'];
+        $cor = preg_match('/^#[0-9A-Fa-f]{6}$/', (string) $e['cor_acento']) ? (string) $e['cor_acento'] : '#0E7C66';
         $verificar = $this->d['portal'] . '/verificar/' . $this->c['codigo'];
         $marca = 'file://' . $this->d['raiz'] . '/public/assets/marca/emblema.svg';
-        $chancela = $this->c['previa'] ? '<div class="chancela">Versão preliminar: inclui fichas ainda não homologadas</div>'
-            : ($e['modo_operacao'] === 'projeto' ? '<div class="chancela">Documento estruturado via InvenTour</div>' : '');
-        return '<div class="capa"><div class="faixa"><div class="sobre">Inventário da Oferta Turística</div>'
-            . '<div class="titulo">' . self::e($cfg['titulo']) . '</div>'
-            . ($cfg['subtitulo'] !== '' ? '<div class="sub">' . self::e($cfg['subtitulo']) . '</div>' : '')
-            . '</div><table class="meta"><tr><td>Destino</td><td><b>' . self::e($e['nome_fantasia']) . '</b>'
-            . ($e['municipio_nome'] ? ' (' . self::e($e['municipio_nome'] . '/' . $e['municipio_uf']) . ')' : '') . '</td></tr>'
-            . '<tr><td>Ano</td><td><b>' . (int) $this->c['ano'] . '</b></td></tr>'
-            . '<tr><td>Versão</td><td><b>' . (int) $this->c['versao'] . '</b> · ' . self::e(Caderno::descreverRecorte($this->c['recorte'])) . '</td></tr>'
-            . '<tr><td>Gerado em</td><td>' . date('d/m/Y') . '</td></tr></table>' . $chancela
-            . '<table class="rodape"><tr><td class="marca"><img src="' . self::e($marca) . '" alt=""><br><span class="pequeno">InvenTour · Produto Softsul Software e Zapping Consultoria</span></td>'
-            . '<td class="qr" style="text-align:right"><img src="' . $this->qr($verificar, 6) . '" alt=""><br><span class="pequeno">Verifique a autenticidade<br>Código ' . self::e(Caderno::codigoLegivel((string) $this->c['codigo'])) . '</span></td></tr></table></div>';
+
+        // Os números do inventário que o caderno traz.
+        $porCat = ['A' => 0, 'B' => 0, 'C' => 0];
+        $hoteis = 0;
+        $leitos = 0;
+        foreach ($this->d['itens'] as $i) {
+            $f = $this->d['fichas'][(int) $i['ficha_id']] ?? null;
+            if (!$f) {
+                continue;
+            }
+            $porCat[$f['categoria']]++;
+            if ((int) $f['ordem'] === 20) {
+                $hoteis++;
+                $leitos += (int) $i['capacidade_leitos'];
+            }
+        }
+        $numeros = [[count($this->d['itens']), 'itens inventariados'], [$porCat['C'], 'atrativos turísticos'],
+                    [$hoteis, 'meios de hospedagem'], [$leitos, 'leitos']];
+        if ($this->d['experiencias']) {
+            $numeros[3] = [count($this->d['experiencias']), 'experiências'];
+        }
+
+        // A foto da capa: a de um atrativo (C), senão a de um serviço (B).
+        $foto = null;
+        foreach (['C', 'B', 'A'] as $cat) {
+            foreach ($this->d['itens'] as $i) {
+                if ($i['foto'] && ($this->d['fichas'][(int) $i['ficha_id']]['categoria'] ?? '') === $cat) {
+                    $arquivo = $this->d['pasta_fotos'] . '/' . basename((string) $i['foto']['arquivo']);
+                    if (is_readable($arquivo)) {
+                        $foto = ['arquivo' => $arquivo, 'nome' => $i['nome']];
+                        break 2;
+                    }
+                }
+            }
+        }
+
+        $chancela = $this->c['previa'] ? 'Versão preliminar: inclui fichas ainda não homologadas'
+            : ($e['modo_operacao'] === 'projeto' ? 'Documento estruturado via InvenTour' : '');
+        $topo = $foto
+            ? '<div class="c-foto" style="background-image:url(\'file://' . self::e($foto['arquivo']) . '\')"><div class="c-veu"></div>'
+              . '<div class="c-credito">' . self::e($foto['nome']) . '</div></div>'
+            : '<div class="c-foto c-sem-foto" style="background:' . $cor . '"><div class="c-circulo c1"></div><div class="c-circulo c2"></div><div class="c-circulo c3"></div>'
+              . '<img class="c-emblema" src="' . self::e($marca) . '" alt=""></div>';
+        $h = '<div class="c-pagina">' . $topo
+            . '<div class="c-faixa" style="background:' . $cor . '"><div class="c-sobre">Inventário da Oferta Turística</div>'
+            . '<div class="c-titulo">' . self::e($cfg['titulo']) . '</div>'
+            . ($cfg['subtitulo'] !== '' ? '<div class="c-sub">' . self::e($cfg['subtitulo']) . '</div>' : '')
+            . '<div class="c-lugar">' . self::e(trim(($e['municipio_nome'] ?? $e['nome_fantasia']) . ($e['municipio_uf'] ? ' · ' . $e['municipio_uf'] : ''))) . ' · ' . (int) $this->c['ano'] . '</div></div>'
+            . '<table class="c-numeros"><tr>';
+        foreach ($numeros as [$n, $rotulo]) {
+            $h .= '<td><b style="color:' . $cor . '">' . self::n($n) . '</b><span>' . self::e($rotulo) . '</span></td>';
+        }
+        $h .= '</tr></table>'
+            . '<table class="c-meta"><tr><td><span>Versão</span><b>' . (int) $this->c['versao'] . '</b></td>'
+            . '<td><span>Recorte</span><b>' . self::e(Caderno::descreverRecorte($this->c['recorte'])) . '</b></td>'
+            . '<td><span>Gerado em</span><b>' . date('d/m/Y') . '</b></td>'
+            . '<td><span>Metodologia</span><b>Ministério do Turismo</b></td></tr></table>'
+            . ($chancela !== '' ? '<div class="c-chancela">' . self::e($chancela) . '</div>' : '')
+            . '<table class="c-rodape"><tr><td class="c-marca"><img src="' . self::e($marca) . '" alt=""><div><b>InvenTour</b>'
+            . '<span>Produto Softsul Software e Zapping Consultoria</span></div></td>'
+            . '<td class="c-qr"><div><b>Verifique a autenticidade</b><span>Leia o QR ou acesse ' . self::e(preg_replace('#^https://#', '', $this->d['portal'])) . '/verificar</span>'
+            . '<span class="c-codigo">Código ' . self::e(Caderno::codigoLegivel((string) $this->c['codigo'])) . '</span></div>'
+            . '<img src="' . $this->qr($verificar, 6) . '" alt=""></td></tr></table></div>';
+        return $h;
     }
 
     public function fichaTecnica(): string

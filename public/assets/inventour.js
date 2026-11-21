@@ -6450,7 +6450,9 @@ window.inventourMarcarNoFiltro = function (form, campo, ids, nome) {
     conteudo.innerHTML = '';
     if (tipo === 'pdf') {
       var quadro = document.createElement('iframe');
-      quadro.src = el.href;
+      // Abre sempre na largura toda do quadro (Luiz, 21/11/2026): o leitor
+      // de PDF do navegador começava em 100% de zoom, com faixas cinza dos lados.
+      quadro.src = el.href.indexOf('#') === -1 ? el.href + '#view=FitH' : el.href;
       quadro.title = el.getAttribute('data-legenda') || 'Documento';
       conteudo.appendChild(quadro);
       caixa.classList.add('vis-pdf');

@@ -189,8 +189,9 @@ final class Caderno
             $pdf = function (string $nome, string $corpo, ?int $deslocamento, ?array &$titulos = null) use ($tmp, $html, $rodape, $cabecalho): int {
                 $arquivoHtml = $tmp . '/' . $nome . '.html';
                 file_put_contents($arquivoHtml, $html->documento($corpo));
-                $args = ['wkhtmltopdf', '-q', '--encoding', 'utf-8', '--enable-local-file-access', '-s', 'A4',
-                         '-T', '18mm', '-B', '18mm', '-L', '16mm', '-R', '16mm', '--outline-depth', '2',
+                // A capa (sem numeração) sangra até a borda do papel; o resto tem margem.
+                $margens = $deslocamento === null ? ['-T', '0', '-B', '0', '-L', '0', '-R', '0'] : ['-T', '18mm', '-B', '18mm', '-L', '16mm', '-R', '16mm'];
+                $args = ['wkhtmltopdf', '-q', '--encoding', 'utf-8', '--enable-local-file-access', '-s', 'A4', ...$margens, '--outline-depth', '2',
                          // Sem o encolhimento automático, milímetro no CSS é milímetro no papel.
                          '--disable-smart-shrinking', '--dpi', '96'];
                 if ($deslocamento !== null) {
