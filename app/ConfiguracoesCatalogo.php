@@ -19,7 +19,7 @@ require_once __DIR__ . '/Database.php';
 final class ConfiguracoesCatalogo
 {
     /** A ordem dos grupos na tela. */
-    public const GRUPOS = ['O destino', 'Integrações', 'Acesso e segurança'];
+    public const GRUPOS = ['O destino', 'Comercial', 'Integrações', 'Acesso e segurança'];
 
     /**
      * Os cartões que a pessoa pode abrir. Se tem direito, o cartão aparece e
@@ -38,7 +38,7 @@ final class ConfiguracoesCatalogo
     private static function podeAbrir(string $endereco): bool
     {
         $caminho = (string) parse_url($endereco, PHP_URL_PATH);
-        if (preg_match('#^/configuracoes/(email|modulos)$#', $caminho)) {
+        if (preg_match('#^/configuracoes/(email|modulos|comercial)$#', $caminho)) {
             return Auth::ehSoftsul() && Auth::pode('configuracoes.ver');
         }
         return Auth::pode(match (true) {
@@ -112,7 +112,20 @@ final class ConfiguracoesCatalogo
         $conta = fn (string $sql): int => (int) $pdo->query($sql)->fetchColumn();
         require_once __DIR__ . '/Waha.php';
         require_once __DIR__ . '/SesAvisos.php';
+        require_once __DIR__ . '/Comercial.php';
+        $comercial = Comercial::dados();
         return [
+            [
+                'endereco'  => '/configuracoes/comercial',
+                'grupo'     => 'Comercial',
+                'icone'     => 'certificado',
+                'nome'      => 'Preços e avaliação',
+                'descricao' => 'Tabela de preços por porte de município (implantação e assinatura mensal e anual), o período de '
+                             . 'avaliação gratuita e o convite que o QR do caderno mostra no modo projeto.',
+                'total'     => fn () => $comercial['dias_avaliacao'],
+                'unidade'   => 'dias de avaliação',
+                'pronto'    => true,
+            ],
             [
                 'endereco'  => '/configuracoes/modulos',
                 'grupo'     => 'Acesso e segurança',

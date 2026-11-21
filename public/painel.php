@@ -10,7 +10,8 @@
  * mora em Configurações.
  *
  * Regra do Luiz (23/10/2026): cada funcionalidade nova ganha o seu resumo
- * neste Início.
+ * neste Início. Reforçada em 21/11/2026: a visão geral cresce a cada
+ * módulo (Experiências, O destino e a coleta por dia entraram assim).
  */
 declare(strict_types=1);
 require_once __DIR__ . '/../app/layout.php';
@@ -53,6 +54,20 @@ if ($empresa) {
         $metricas[] = ['Para coletar', Esteira::paraColetar($eid), plural(Esteira::devolvidos($eid), 'devolvido', 'devolvidos') . ' pela conferência · '
             . plural((int) $q->fetchColumn(), 'aparelho com o app', 'aparelhos com o app') . (Esteira::escopo() !== null ? ' · no seu escopo' : ''), '/coleta'];
     }
+    if (Auth::pode('experiencias.ver')) {
+        $q = $pdo->prepare("SELECT COUNT(*), COALESCE(SUM(situacao = 'aguardando'), 0), COALESCE(SUM(situacao = 'aprovada'), 0)
+                            FROM inventario_experiencias WHERE empresa_id = ?");
+        $q->execute([$eid]);
+        [$totalX, $aguardandoX, $aprovadasX] = array_map('intval', $q->fetch(PDO::FETCH_NUM));
+        $metricas[] = ['Experiências', $totalX, plural($aprovadasX, 'aprovada', 'aprovadas') . ' · ' . milhar($aguardandoX) . ' aguardando curadoria', '/experiencias'];
+    }
+    if (Auth::pode('destino-textos.ver')) {
+        $q = $pdo->prepare("SELECT (SELECT COUNT(*) FROM destino_narrativas WHERE empresa_id = ? AND conteudo_html <> ''),
+                                   (SELECT COUNT(*) FROM destino_linha_tempo WHERE empresa_id = ?)");
+        $q->execute([$eid, $eid]);
+        [$textosD, $marcosD] = array_map('intval', $q->fetch(PDO::FETCH_NUM));
+        $metricas[] = ['O destino', $textosD, 'de 5 textos · ' . plural($marcosD, 'marco', 'marcos') . ' na linha do tempo', '/destino-textos'];
+    }
     $metricas[] = ['Equipe', Painel::equipe($eid), 'pessoas com acesso ao destino', Auth::pode('usuarios.ver') ? '/configuracoes/usuarios' : null];
 } elseif ($u['softsul']) {
     $destinos = Painel::destinosPlataforma();
@@ -94,7 +109,7 @@ paginaInicio('Início', 'painel');
 <div class="metricas">
   <?php foreach ($metricas as $i => [$rotulo, $valor, $nota, $link]): ?>
     <?php if ($link): ?><a class="metrica metrica-link<?= $i === 0 ? ' destaque' : '' ?>" href="<?= e($link) ?>"><?php else: ?><div class="metrica<?= $i === 0 ? ' destaque' : '' ?>"><?php endif; ?>
-      <span class="rot"><?= e($rotulo) ?></span><span class="val"><?= (int) $valor ?></span><span class="nota"><?= e($nota) ?></span>
+      <span class="rot"><?= e($rotulo) ?></span><span class="val"><?= milhar((int) $valor) ?></span><span class="nota"><?= e($nota) ?></span>
     <?= $link ? '</a>' : '</div>' ?>
   <?php endforeach; ?>
 </div>
@@ -131,6 +146,15 @@ faça o <a href="/pre-cadastro">pré-cadastro pelo Cadastur</a>, que traz hotéi
         ['rotulo' => 'CNPJ', 'valor' => $inv['origem']['cnpj'] ?? 0, 'cor' => '#63B6E5'],
         ['rotulo' => 'EventCity', 'valor' => $inv['origem']['eventcity'] ?? 0, 'cor' => '#E2620B'],
     ], fn ($b) => $b['valor'] > 0))) ?>
+  </div>
+  <?php endif; ?>
+  <?php if (Auth::pode('coleta.ver')): ?>
+  <div class="cartao">
+    <div class="cab-cartao"><h2>Coleta de campo</h2><a href="/coleta">Ver a coleta</a></div>
+    <?= Graficos::colunas(Painel::coletaPorDia($eid), [
+        ['chave' => 'itens', 'nome' => 'Fichas gravadas', 'cor' => '#20B295'],
+        ['chave' => 'fotos', 'nome' => 'Fotos', 'cor' => '#63B6E5'],
+    ], 'O que chegou da coleta de campo por dia') ?>
   </div>
   <?php endif; ?>
   <div class="cartao">

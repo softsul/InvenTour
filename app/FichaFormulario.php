@@ -177,13 +177,14 @@ final class FichaFormulario
 
         $erros = [];
         $alertas = [];
-        // Coordenada fora da área do destino (com a margem da divisa): por
-        // enquanto grava e alerta (decisão do Luiz em 21/11/2026; bloquear
-        // ou não fica para depois de ver o uso).
+        // Coordenada fora da área do destino (com a margem da divisa): o
+        // destino escolhe se grava com alerta ou se recusa (area_regra).
         if (isset($n['latitude'], $n['longitude']) && $n['latitude'] !== null && $n['longitude'] !== null) {
             require_once __DIR__ . '/AreaDestino.php';
             $c = AreaDestino::conferir((float) $n['latitude'], (float) $n['longitude']);
-            if (!$c['dentro']) {
+            if (!$c['dentro'] && AreaDestino::bloqueia()) {
+                $erros['latitude'] = 'A coordenada fica ' . AreaDestino::descrever($c) . '. Este destino só aceita pontos dentro da sua área.';
+            } elseif (!$c['dentro']) {
                 $alertas[] = 'A coordenada fica ' . AreaDestino::descrever($c) . '. Confira se é mesmo o lugar do item.';
             }
         }

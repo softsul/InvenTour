@@ -177,7 +177,7 @@ final class Graficos
                    . '<svg class="trilho" viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden="true">'
                    . '<rect x="0" y="0" width="100" height="8" rx="4" fill="#EEF0F3"/>'
                    . ($pct ? '<rect x="0" y="0" width="' . $pct . '" height="8" rx="4" fill="' . self::cor($i['cor'] ?? null) . '"/>' : '') . '</svg>'
-                   . '<b>' . (int) $i['valor'] . '</b>';
+                   . '<b>' . self::numero((int) $i['valor']) . '</b>';
             $dica = self::dica(['t' => (string) $i['rotulo'], 'l' => [[self::cor($i['cor'] ?? null), 'Quantidade', self::numero((int) $i['valor'])]],
                                 'r' => [['Participação no total', self::pct((int) $i['valor'], $soma)],
                                         ['Média da lista', self::numero($media, $media == (int) $media ? 0 : 1)],
@@ -213,7 +213,7 @@ final class Graficos
         }
         $html .= '</svg><ul class="legenda-faixa">';
         foreach ($partes as $p) {
-            $item = self::ponto($p['cor']) . e($p['rotulo']) . ' <b>' . (int) $p['valor'] . '</b>';
+            $item = self::ponto($p['cor']) . e($p['rotulo']) . ' <b>' . self::numero((int) $p['valor']) . '</b>';
             $html .= '<li>' . (!empty($p['link']) ? '<a href="' . e($p['link']) . '">' . $item . '</a>' : $item) . '</li>';
         }
         return $html . '</ul>';
@@ -244,7 +244,7 @@ final class Graficos
         $svg = '<svg class="grafico-hastes" viewBox="0 0 ' . $W . ' ' . $H . '" role="img" aria-label="' . e($titulo) . '">';
         foreach ([0, (int) round($hi / 2), $hi] as $g) {
             $svg .= '<line class="guia" x1="' . $esq . '" y1="' . $y($g) . '" x2="' . ($W - 4) . '" y2="' . $y($g) . '"/>'
-                  . '<text class="esc" x="' . ($esq - 6) . '" y="' . ($y($g) + 3) . '">' . $g . '</text>';
+                  . '<text class="esc" x="' . ($esq - 6) . '" y="' . ($y($g) + 3) . '">' . self::numero($g) . '</text>';
         }
         $pts = [];
         foreach ($itens as $n => $i) {
@@ -274,7 +274,7 @@ final class Graficos
                         . '<circle class="alto" cx="' . $cx . '" cy="' . $y($alto) . '" r="4"/>';
             }
             if ($alto > 0) {
-                $grupo .= '<text class="val" x="' . $cx . '" y="' . round($y($alto) - 8, 1) . '">' . $alto . '</text>';
+                $grupo .= '<text class="val" x="' . $cx . '" y="' . round($y($alto) - 8, 1) . '">' . self::numero($alto) . '</text>';
             }
             $grupo .= '<circle class="baixo" cx="' . $cx . '" cy="' . $y($baixo) . '" r="4.5"/>'
                     . '<text class="dia" x="' . $cx . '" y="' . ($H - 6) . '">' . e($i['rotulo']) . '</text></g>';

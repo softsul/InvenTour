@@ -10,7 +10,13 @@ require_once __DIR__ . '/svg.php';
 /** "1 dia", "3 dias": o número com a palavra no singular ou no plural, nunca "dia(s)". */
 function plural(int $n, string $um, string $varios): string
 {
-    return $n . ' ' . ($n === 1 ? $um : $varios);
+    return milhar($n) . ' ' . ($n === 1 ? $um : $varios);
+}
+
+/** Número inteiro com o ponto de milhar: 153.674, 1.234.567 (regra do Luiz, 21/11/2026). */
+function milhar(int|float $n, int $casas = 0): string
+{
+    return number_format((float) $n, $casas, ',', '.');
 }
 
 /** Valor em reais: R$ 1.234,56 (sem centavos acima de mil, que só poluem a estimativa). */

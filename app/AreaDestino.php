@@ -9,6 +9,10 @@
  * margem de tolerância (empresas.area_margem_m, 2 km por padrão). Destino
  * sem divisa conhecida (IBGE fora do ar, por exemplo) não bloqueia nada.
  *
+ * O que acontece fora da área é escolha de cada destino (empresas.area_regra,
+ * nos Dados do destino): alertar (grava e avisa, o padrão) ou bloquear
+ * (recusa o GPS, o plus code e a foto, e a homologação trava).
+ *
  * A mesma conta roda no app, sem sinal (assets/coleta.js), com a geometria
  * que vai na lista baixada.
  */
@@ -33,7 +37,7 @@ final class AreaDestino
             return self::$cache[$eid];
         }
         $pdo = Database::conexao();
-        $q = $pdo->prepare('SELECT e.municipio_id, e.area_margem_m, m.nome FROM empresas e LEFT JOIN municipios m ON m.id = e.municipio_id WHERE e.id = ?');
+        $q = $pdo->prepare('SELECT e.municipio_id, e.area_margem_m, e.area_regra, m.nome FROM empresas e LEFT JOIN municipios m ON m.id = e.municipio_id WHERE e.id = ?');
         $q->execute([$eid]);
         $e = $q->fetch();
         if (!$e || !$e['municipio_id']) {
@@ -50,7 +54,8 @@ final class AreaDestino
         if (!$poligonos) {
             return self::$cache[$eid] = null;
         }
-        return self::$cache[$eid] = ['poligonos' => $poligonos, 'margem_m' => (int) $e['area_margem_m'], 'municipio' => (string) $e['nome']];
+        return self::$cache[$eid] = ['poligonos' => $poligonos, 'margem_m' => (int) $e['area_margem_m'], 'municipio' => (string) $e['nome'],
+                                     'regra' => (string) $e['area_regra']];
     }
 
     /** Baixa a divisa do IBGE e guarda. Devolve o GeoJSON da geometria ou null. */
@@ -111,6 +116,13 @@ final class AreaDestino
         }
         $d = (int) round($d);
         return ['dentro' => $d <= $a['margem_m'], 'distancia_m' => $d, 'municipio' => $a['municipio']];
+    }
+
+    /** O destino recusa o que fica fora da área? (sem divisa conhecida, nunca) */
+    public static function bloqueia(?int $empresaId = null): bool
+    {
+        $a = self::doDestino($empresaId);
+        return $a !== null && $a['regra'] === 'bloquear';
     }
 
     /** Texto para o aviso: "a 3,4 km da divisa de Pato Branco". */

@@ -255,10 +255,15 @@ if ($lat !== null && $lng !== null) {
     $ref->execute([$eid]);
     $r = $ref->fetch() ?: [];
     if ($c = PlusCode::coordenada($campos['plus_code'], isset($r['latitude']) ? (float) $r['latitude'] : null, isset($r['longitude']) ? (float) $r['longitude'] : null)) {
-        [$campos['latitude'], $campos['longitude']] = $c;
         $area = AreaDestino::conferir((float) $c[0], (float) $c[1]);
-        if (!$area['dentro']) {
-            $alertas[] = 'O plus code aponta para um lugar ' . AreaDestino::descrever($area) . '. Confira se é mesmo o lugar do item.';
+        if (!$area['dentro'] && AreaDestino::bloqueia()) {
+            // O destino recusa ponto fora da área: o plus code fica sem coordenada.
+            $avisos[] = 'O plus code aponta para um lugar ' . AreaDestino::descrever($area) . '. Este destino só aceita pontos dentro da sua área.';
+        } else {
+            [$campos['latitude'], $campos['longitude']] = $c;
+            if (!$area['dentro']) {
+                $alertas[] = 'O plus code aponta para um lugar ' . AreaDestino::descrever($area) . '. Confira se é mesmo o lugar do item.';
+            }
         }
     }
 }

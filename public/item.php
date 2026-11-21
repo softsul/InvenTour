@@ -179,10 +179,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $acaoFoto === '' && $acaoEsteira ==
             $ref->execute([Empresa::id()]);
             $r = $ref->fetch() ?: [];
             if ($c = PlusCode::coordenada($nucleo['plus_code'], isset($r['latitude']) ? (float) $r['latitude'] : null, isset($r['longitude']) ? (float) $r['longitude'] : null)) {
-                [$nucleo['latitude'], $nucleo['longitude']] = $c;
                 $area = AreaDestino::conferir((float) $c[0], (float) $c[1]);
-                if (!$area['dentro']) {
-                    $lido['alertas'][] = 'O plus code aponta para um lugar ' . AreaDestino::descrever($area) . '. Confira se é mesmo o lugar do item.';
+                if (!$area['dentro'] && AreaDestino::bloqueia()) {
+                    $lido['erros']['plus_code'] = 'O plus code aponta para um lugar ' . AreaDestino::descrever($area) . '. Este destino só aceita pontos dentro da sua área.';
+                } else {
+                    [$nucleo['latitude'], $nucleo['longitude']] = $c;
+                    if (!$area['dentro']) {
+                        $lido['alertas'][] = 'O plus code aponta para um lugar ' . AreaDestino::descrever($area) . '. Confira se é mesmo o lugar do item.';
+                    }
                 }
             }
         }

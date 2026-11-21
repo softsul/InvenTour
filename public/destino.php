@@ -27,6 +27,7 @@ require_once __DIR__ . '/../app/Cnpj.php';
 require_once __DIR__ . '/../app/Foto.php';
 require_once __DIR__ . '/../app/Imagem.php';
 require_once __DIR__ . '/../app/Tenant.php';
+require_once __DIR__ . '/../app/Comercial.php';
 
 const TIPOS_DE_DESTINO = ['municipio' => 'Município', 'regiao' => 'Região turística', 'estado' => 'Estado'];
 // O ciclo comercial do destino (docs/PLANEJAMENTO.md, 2.2).
@@ -80,7 +81,8 @@ $dominioPortal = (string) ($cfg['app']['dominio_portal'] ?? 'inventour.com.br');
 $d = ['id' => 0, 'nome' => '', 'nome_fantasia' => '', 'tipo' => 'municipio', 'cnpj' => '', 'slug' => '', 'dominio_proprio' => '',
       'email' => '', 'telefone' => '', 'whatsapp' => '', 'cep' => '', 'logradouro' => '', 'numero' => '', 'complemento' => '',
       'bairro' => '', 'cidade' => '', 'uf' => '', 'municipio_id' => null, 'cor_acento' => '', 'logo' => '', 'logo_no_portal' => 1, 'foto' => '',
-      'exigir_2fa_equipe' => 1, 'ativo' => 1, 'modo_operacao' => 'projeto', 'avaliacao_ate' => null, 'consultor_id' => null];
+      'exigir_2fa_equipe' => 1, 'ativo' => 1, 'modo_operacao' => 'projeto', 'avaliacao_ate' => null, 'consultor_id' => null,
+      'area_regra' => 'alertar', 'area_margem_m' => 2000];
 if (!$novo) {
     $q = $pdo->prepare('SELECT * FROM empresas WHERE id = ?');
     $q->execute([$id]);
@@ -205,6 +207,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'logo_no_portal'    => empty($_POST['ocultar_logo']) ? 1 : 0,
             'cor_acento'        => empty($_POST['sem_cor']) ? strtoupper(trim((string) ($_POST['cor_acento'] ?? ''))) : null,
             'exigir_2fa_equipe' => empty($_POST['exigir_2fa_equipe']) ? 0 : 1,
+            // Área do destino: fora da divisa (com a margem), alertar ou recusar.
+            'area_regra'        => ($_POST['area_regra'] ?? '') === 'bloquear' ? 'bloquear' : 'alertar',
+            'area_margem_m'     => max(0, min(20000, (int) round((float) str_replace(',', '.', (string) ($_POST['area_margem_km'] ?? '2')) * 1000))),
         ];
         if ($campos['cor_acento'] === '') {
             $campos['cor_acento'] = null;
@@ -219,7 +224,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $campos['modo_operacao'] = array_key_exists((string) ($_POST['modo_operacao'] ?? ''), MODOS_DE_OPERACAO) ? (string) $_POST['modo_operacao'] : 'projeto';
             $ate = (string) ($_POST['avaliacao_ate'] ?? '');
             $campos['avaliacao_ate'] = $campos['modo_operacao'] === 'avaliacao'
-                ? (preg_match('/^\d{4}-\d{2}-\d{2}$/', $ate) ? $ate : date('Y-m-d', strtotime('+30 days'))) : null;
+                ? (preg_match('/^\d{4}-\d{2}-\d{2}$/', $ate) ? $ate : date('Y-m-d', strtotime('+' . Comercial::diasDeAvaliacao() . ' days'))) : null;
             $consultor = (int) ($_POST['consultor_id'] ?? 0);
             $campos['consultor_id'] = isset($consultores[$consultor]) ? $consultor : null;
             // Projeto de consultoria novo sem subdomínio ganha um provisório
@@ -653,6 +658,27 @@ $acaoForm = endereco('destino', $novo ? null : $id, $novo ? null : $d['nome_fant
           <div class="entrada"><?= icone('whatsapp') ?><input type="text" id="whatsapp" name="whatsapp" class="telefone"
                  value="<?= e($d['whatsapp'] && ctype_digit((string) $d['whatsapp']) ? formatarTelefone($d['whatsapp']) : (string) $d['whatsapp']) ?>"<?= $ro ?>></div>
           <span class="ajuda">O número que o público vê no portal para falar com o destino.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cartao">
+      <h2 class="titulo-secao">Área do destino</h2>
+      <p class="ajuda">A coleta confere GPS, plus code e fotos pela divisa oficial do município (IBGE), com uma margem para as variações perto da divisa.</p>
+      <div class="grade">
+        <div class="campo c-6">
+          <label for="area_regra">Fora da área</label>
+          <div class="entrada"><select id="area_regra" name="area_regra"<?= $podeEditar ? '' : ' disabled' ?>>
+            <option value="alertar"<?= ($d['area_regra'] ?? 'alertar') === 'alertar' ? ' selected' : '' ?>>Aceitar com alerta</option>
+            <option value="bloquear"<?= ($d['area_regra'] ?? '') === 'bloquear' ? ' selected' : '' ?>>Recusar</option>
+          </select></div>
+          <span class="ajuda">Com alerta, o ponto e a foto entram marcados e a homologação mostra o aviso. Recusando, não entram e a homologação trava.</span>
+        </div>
+        <div class="campo c-6">
+          <label for="area_margem_km">Margem além da divisa (km)</label>
+          <div class="entrada"><input type="text" id="area_margem_km" name="area_margem_km" inputmode="decimal" maxlength="5"
+                 value="<?= e(rtrim(rtrim(number_format(((int) ($d['area_margem_m'] ?? 2000)) / 1000, 1, ',', ''), '0'), ',')) ?>"<?= $ro ?>></div>
+          <span class="ajuda">De 0 a 20 km. Atrativos na própria divisa (rio, rodovia, ponte) pedem uns 2 km.</span>
         </div>
       </div>
     </div>

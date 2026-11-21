@@ -47,6 +47,26 @@ final class Painel
         return $serie;
     }
 
+    /** O que chegou da coleta de campo por dia: fichas gravadas e fotos (inventario_coletas). */
+    public static function coletaPorDia(int $empresaId, int $dias = 14): array
+    {
+        $de = date('Y-m-d', strtotime('-' . ($dias - 1) . ' days'));
+        $q = self::pdo()->prepare('SELECT DATE(recebido_em) d, tipo, COUNT(*) n FROM inventario_coletas
+                                   WHERE empresa_id = ? AND recebido_em >= ? GROUP BY d, tipo');
+        $q->execute([$empresaId, $de]);
+        $porDia = [];
+        foreach ($q->fetchAll() as $l) {
+            $porDia[$l['d']][$l['tipo']] = (int) $l['n'];
+        }
+        $serie = [];
+        for ($i = 0; $i < $dias; $i++) {
+            $d = date('Y-m-d', strtotime($de . " +{$i} days"));
+            $serie[] = ['rotulo' => self::DIAS_CURTOS[(int) date('w', strtotime($d))], 'titulo' => dataBr($d, 'd/m'), 'data' => $d,
+                        'itens' => $porDia[$d]['item'] ?? 0, 'fotos' => $porDia[$d]['foto'] ?? 0, 'link' => null];
+        }
+        return $serie;
+    }
+
     /** Uma linha por destino ativo, com a equipe e a última atividade. */
     public static function destinosPlataforma(): array
     {

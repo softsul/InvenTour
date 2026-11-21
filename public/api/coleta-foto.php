@@ -72,8 +72,13 @@ if ($origem === 'galeria' || $lat === null || $lng === null || abs($lat) > 90 ||
     $lat = $lng = null;
 }
 // Foto tirada pela câmera fora da área do destino (com a margem da divisa):
-// por enquanto entra, marcada Fora do destino, para quem homologa ver.
+// conforme o destino, entra marcada Fora do destino ou é recusada. A da
+// galeria é conferida pelo GPS do arquivo, em Inventario::guardarFoto.
 $areaCamera = $lat !== null && $origem === 'camera' ? AreaDestino::conferir($lat, $lng) : null;
+if ($areaCamera && !$areaCamera['dentro'] && AreaDestino::bloqueia()) {
+    responder(['ok' => false, 'motivo' => 'fora_area', 'mensagem' => 'Esta foto foi tirada ' . AreaDestino::descrever($areaCamera)
+        . '. Este destino só aceita fotos tiradas dentro da sua área.'], 422);
+}
 $usuario = Auth::usuarioOuNulo();
 $falha = Inventario::guardarFoto($itemId, $_FILES['foto'] ?? [], (string) ($usuario['nome'] ?? '') ?: null);
 if ($falha !== null) {

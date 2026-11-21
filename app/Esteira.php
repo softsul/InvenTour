@@ -103,18 +103,30 @@ final class Esteira
         if (!(int) $fotos->fetchColumn()) {
             $falta[] = 'ao menos uma foto';
         }
+        // No destino que bloqueia o que fica fora da área, isso trava.
+        require_once __DIR__ . '/AreaDestino.php';
+        if (AreaDestino::bloqueia((int) $item['empresa_id'])) {
+            array_push($falta, ...self::foraDaArea($item));
+        }
         return $falta;
     }
 
     /**
-     * Alertas que não travam a homologação: coordenada e fotos fora da área
-     * do destino (por enquanto o sistema aceita e alerta; decisão em aberto).
+     * Alertas que não travam a homologação: coordenada e fotos fora da área,
+     * no destino que escolheu alertar (area_regra; no que bloqueia, viram
+     * pendência).
      *
      * @return list<string>
      */
     public static function alertas(array $item): array
     {
         require_once __DIR__ . '/AreaDestino.php';
+        return AreaDestino::bloqueia((int) $item['empresa_id']) ? [] : self::foraDaArea($item);
+    }
+
+    /** O que do item fica fora da área do destino (coordenada, fotos). */
+    private static function foraDaArea(array $item): array
+    {
         $alertas = [];
         if ($item['latitude'] !== null && $item['longitude'] !== null) {
             $area = AreaDestino::conferir((float) $item['latitude'], (float) $item['longitude'], (int) $item['empresa_id']);

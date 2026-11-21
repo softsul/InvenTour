@@ -474,6 +474,15 @@ final class Inventario
         }
         [$bytes, $l, $a] = $foto;
         $eid = Empresa::id();
+        // O destino que recusa foto de fora da área (area_regra) para aqui,
+        // antes de gravar qualquer arquivo. Foto sem GPS sempre entra.
+        require_once __DIR__ . '/AreaDestino.php';
+        if ($gps && AreaDestino::bloqueia($eid)) {
+            $fora = AreaDestino::conferir((float) $gps[0], (float) $gps[1], $eid);
+            if (!$fora['dentro']) {
+                return 'A foto foi tirada ' . AreaDestino::descrever($fora) . '. Este destino só aceita fotos tiradas dentro da sua área.';
+            }
+        }
         $nome = $itemId . '-' . bin2hex(random_bytes(6)) . '.jpg';
         if (@file_put_contents(self::pastaFotos($eid) . '/' . $nome, $bytes) === false) {
             return 'Não consegui guardar a foto agora.';

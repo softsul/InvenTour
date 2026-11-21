@@ -17,7 +17,7 @@ RewriteRule ^ /%1 [R=301,L,NE]
 # 1b. As telas de Configurações moram em /configuracoes/...: o endereço
 #     curto (/usuarios, /usuario/12) vai uma vez para o novo. A lista é a
 #     mesma de TELAS_DE_CONFIGURACOES em app/svg.php.
-RewriteCond %{THE_REQUEST} \s/+(usuarios|usuario|auditoria|destino|email|modulos)[/?\s] [NC]
+RewriteCond %{THE_REQUEST} \s/+(usuarios|usuario|auditoria|destino|email|modulos|comercial)[/?\s] [NC]
 RewriteRule ^([a-z-]+)(/.*)?$ /configuracoes/$1$2 [R=301,L,NE]
 
 # 1c. /configuracoes/usuario/12-apelido e /configuracoes/usuarios servem a tela.
