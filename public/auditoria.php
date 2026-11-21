@@ -15,6 +15,11 @@ Auth::exigirPermissao('auditoria.ver');
 $pdo = Database::conexao();
 $empresa = Empresa::id();
 $busca = trim((string) ($_GET['busca'] ?? ''));
+// Filtros (Luiz, 21/11/2026): pessoa, período e, na visão da plataforma, destino.
+$usuarioF = (int) ($_GET['usuario'] ?? 0);
+$de = preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) ($_GET['de'] ?? '')) ? (string) $_GET['de'] : '';
+$ate = preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) ($_GET['ate'] ?? '')) ? (string) $_GET['ate'] : '';
+$destinoF = (string) ($_GET['destino'] ?? '');
 $pagina = max(1, (int) ($_GET['p'] ?? 1));
 $porPagina = Auth::porPagina();
 
@@ -30,7 +35,32 @@ if ($busca !== '') {
     $onde[] = '(a.usuario_nome LIKE ? OR a.resumo LIKE ? OR a.acao LIKE ? OR a.ip LIKE ?)';
     array_push($args, ...array_fill(0, 4, '%' . $busca . '%'));
 }
+if ($usuarioF) {
+    $onde[] = 'a.usuario_id = ?';
+    $args[] = $usuarioF;
+}
+if ($de !== '') {
+    $onde[] = 'a.criado_em >= ?';
+    $args[] = $de . ' 00:00:00';
+}
+if ($ate !== '') {
+    $onde[] = 'a.criado_em <= ?';
+    $args[] = $ate . ' 23:59:59';
+}
+if (!$empresa && $destinoF !== '') {
+    // "0" é o que aconteceu na visão da plataforma, fora de um destino.
+    $onde[] = $destinoF === '0' ? '(a.empresa_id IS NULL OR a.empresa_id = 0)' : 'a.empresa_id = ?';
+    if ($destinoF !== '0') {
+        $args[] = (int) $destinoF;
+    }
+}
 $where = $onde ? 'WHERE ' . implode(' AND ', $onde) : '';
+// As pessoas que aparecem na auditoria (do destino, ou de todos na plataforma).
+$q = $pdo->prepare('SELECT DISTINCT a.usuario_id, u.nome FROM auditoria a JOIN usuarios u ON u.id = a.usuario_id'
+    . ($empresa ? ' WHERE a.empresa_id = ?' : '') . ' ORDER BY u.nome');
+$q->execute($empresa ? [$empresa] : []);
+$pessoas = $q->fetchAll(PDO::FETCH_KEY_PAIR);
+$destinos = $empresa ? [] : $pdo->query('SELECT id, nome_fantasia FROM empresas ORDER BY nome_fantasia')->fetchAll(PDO::FETCH_KEY_PAIR);
 $t = $pdo->prepare("SELECT COUNT(*) FROM auditoria a {$where}");
 $t->execute($args);
 $total = (int) $t->fetchColumn();
@@ -68,7 +98,7 @@ ob_start();
   </tbody>
 </table>
 </div>
-<?= paginacao($total, $pagina, '/configuracoes/auditoria', array_filter(['busca' => $busca])) ?>
+<?= paginacao($total, $pagina, '/configuracoes/auditoria', array_filter(['busca' => $busca, 'usuario' => $usuarioF ?: '', 'de' => $de, 'ate' => $ate, 'destino' => $destinoF], fn ($v) => $v !== '')) ?>
 <?php endif; ?>
 <?php
 $htmlLista = ob_get_clean();
@@ -82,7 +112,20 @@ paginaInicio('Auditoria', 'configuracoes');
 <div class="cab-pag"><div><h1>Auditoria</h1>
   <p>Quem fez o quê, quando e de onde<?= $empresa ? ', em ' . e(Empresa::atual()['nome_fantasia']) : ', em todos os destinos' ?>.</p></div></div>
 <form class="filtros" method="get" action="/configuracoes/auditoria">
-  <div class="entrada"><?= icone('busca') ?><input type="search" name="busca" value="<?= e($busca) ?>" placeholder="Pessoa, ação, texto ou IP" aria-label="Buscar na auditoria"></div>
+  <div class="entrada"><?= icone('busca') ?><input type="search" name="busca" value="<?= e($busca) ?>" placeholder="Pessoa, ação, texto ou IP" aria-label="Buscar na auditoria" autocomplete="off"></div>
+  <div class="entrada"><?= icone('pessoas') ?><select name="usuario" aria-label="Pessoa">
+    <option value="">Todas as pessoas</option>
+    <?php foreach ($pessoas as $uid => $nome): ?><option value="<?= (int) $uid ?>"<?= $usuarioF === (int) $uid ? ' selected' : '' ?>><?= e((string) $nome) ?></option><?php endforeach; ?>
+  </select></div>
+  <?php if (!$empresa): ?>
+  <div class="entrada"><?= icone('predio') ?><select name="destino" aria-label="Destino">
+    <option value="">Todos os destinos</option>
+    <option value="0"<?= $destinoF === '0' ? ' selected' : '' ?>>Visão da plataforma</option>
+    <?php foreach ($destinos as $did => $nome): ?><option value="<?= (int) $did ?>"<?= $destinoF === (string) $did ? ' selected' : '' ?>><?= e((string) $nome) ?></option><?php endforeach; ?>
+  </select></div>
+  <?php endif; ?>
+  <div class="entrada"><?= icone('calendario') ?><input type="date" name="de" value="<?= e($de) ?>" aria-label="De" title="De" data-filtra-data></div>
+  <div class="entrada"><?= icone('calendario') ?><input type="date" name="ate" value="<?= e($ate) ?>" aria-label="Até" title="Até" data-filtra-data></div>
 </form>
 <div id="lista-viva">
 <?= $htmlLista ?>
