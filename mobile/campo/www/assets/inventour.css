@@ -496,6 +496,13 @@ table.dados td .ev-linha2{overflow:hidden; text-overflow:ellipsis}
 .sugestoes.combo-lista li b{font-weight:500; font-size:13.5px}
 .sugestoes.combo-lista li[aria-selected="true"] b{font-weight:700; color:var(--indigo-fte)}
 .sugestoes.combo-lista li.desabilitada{opacity:.5; cursor:default}
+/* Lista longa: a busca fica parada no alto enquanto a lista rola; nome
+   comprido quebra a linha em vez de sumir na borda. */
+.sugestoes.combo-lista li b{white-space:normal}
+.sugestoes.combo-lista li.combo-busca{position:sticky; top:-5px; z-index:1; margin:-5px -5px 4px; padding:6px; background:var(--branco); border-bottom:1px solid var(--traco); cursor:default}
+.sugestoes.combo-lista li.combo-busca:hover{background:var(--branco)}
+.sugestoes.combo-lista li.combo-busca .entrada{display:flex; width:100%; min-height:38px}
+.sugestoes.combo-lista li.combo-busca input{flex:1; min-width:0}
 
 /* Limpar filtros (inventour.js): à direita da linha de filtros, pequeno. */
 .filtros .limpar-filtros{flex:0 0 auto; margin-left:auto; padding:7px 12px; font-size:12.5px; gap:6px; width:auto; text-decoration:none; white-space:nowrap}
@@ -1078,15 +1085,25 @@ table.tabela-campo td input{width:100%; min-width:90px}
 .editor-area:focus{box-shadow:inset var(--anel)}
 .editor-area table{border-collapse:collapse}
 .editor-area td, .editor-area th{border:1px solid var(--traco); padding:4px 8px}
-.linha-tempo{list-style:none; margin:0; padding:0}
-.linha-tempo li{display:grid; grid-template-columns:96px 1fr auto; gap:12px; padding:10px 0; border-bottom:1px solid var(--traco); align-items:start}
+/* Linha do tempo de O destino: o componente do tema (linha à esquerda e o
+   ponto em cada marco) com uma terceira coluna para o botão de excluir. O
+   recuo à esquerda é o do tema: sem ele o ponto cai em cima da data. */
+.linha-tempo li{grid-template-columns:76px minmax(0,1fr) auto; gap:12px; align-items:start}
 .linha-tempo li p{margin:4px 0 0; color:var(--suave)}
-.linha-tempo .data{font-weight:600; color:var(--indigo-fte)}
+.linha-tempo .data{font-family:var(--dado); font-size:12.5px; font-weight:700; color:var(--indigo-fte); padding-top:2px; white-space:nowrap}
+@media (max-width:640px){
+  .linha-tempo li{grid-template-columns:minmax(0,1fr) auto; gap:4px 10px}
+  .linha-tempo .data{grid-column:1 / -1}
+}
 details.tribo{border-bottom:1px solid var(--traco); padding:6px 0}
 details.tribo summary{cursor:pointer; display:flex; align-items:center; gap:8px; list-style:none}
 details.tribo summary::-webkit-details-marker{display:none}
 details.tribo summary svg{width:18px; height:18px; color:var(--indigo)}
 details.tribo .caixas{margin:8px 0 4px 26px}
+/* Tribos: a chave da tribo e uma chave por facilidade, como o tema escuro. */
+details.tribo .chave-tribo{margin:10px 0 8px}
+details.tribo .chaves-facilidades{list-style:none; margin:0 0 10px; padding:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:8px}
+details.tribo .chaves-facilidades button.interruptor{height:100%}
 
 /* ==========================================================================
    Funcionamento do item: uma linha por dia, chave de aberto e fechado,

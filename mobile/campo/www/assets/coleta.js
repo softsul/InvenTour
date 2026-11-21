@@ -1153,6 +1153,9 @@
     var d = Math.round(Math.min.apply(null, a.poligonos.map(function (anel) { return distanciaAoAnel(lat, lng, anel); })));
     return { dentro: d <= a.margem_m, distancia: d, municipio: a.municipio };
   }
+  // O destino recusa o que fica fora da área (Dados do destino)? Se não,
+  // aceita com alerta.
+  function areaBloqueia() { return !!(base && base.area && base.area.regra === 'bloquear'); }
   function foraDoDestino(c) {
     var km = c.distancia >= 1000 ? (c.distancia / 1000).toFixed(1).replace('.', ',') + ' km' : c.distancia + ' m';
     return 'fora de ' + (c.municipio || 'o destino') + ' (a ' + km + ' da divisa)';
@@ -1175,13 +1178,19 @@
     pegarPosicao().then(function (p) {
       botao.disabled = false;
       var area = conferirArea(p.lat, p.lng);
+      if (!area.dentro && areaBloqueia()) {
+        // Destino que recusa: o ponto não entra, e o que já estava fica.
+        $('c-gps-quando').classList.add('gps-aviso');
+        $('c-gps-quando').textContent = 'Este ponto fica ' + foraDoDestino(area) + '. Este destino só aceita pontos dentro da sua área.';
+        return;
+      }
       posicao = [p.lat, p.lng, p.precisao, Date.now()];
       $('c-gps-texto').classList.remove('gps-aviso');
       $('c-lat').value = p.lat.toFixed(6);
       $('c-lng').value = p.lng.toFixed(6);
       $('c-gps-texto').textContent = textoGps(p.lat, p.lng, p.precisao);
       $('c-gps-quando').textContent = 'agora, ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-      // Fora da área do destino: grava, mas alerta (bloquear ou não está em análise).
+      // Fora da área do destino, no destino que aceita: grava com o alerta.
       $('c-gps-quando').classList.toggle('gps-aviso', !area.dentro);
       if (!area.dentro) { $('c-gps-quando').textContent = 'Atenção: este ponto fica ' + foraDoDestino(area) + '. Confira se você está no lugar do item.'; }
       mostrarPendencias();
@@ -1218,6 +1227,10 @@
           if (!r) { return; }
           var camera = id === 'c-tirar-foto';
           var area = r.gps ? conferirArea(r.gps.lat, r.gps.lng) : { dentro: true };
+          if (camera && !area.dentro && areaBloqueia()) {
+            avisar('Esta foto foi tirada ' + foraDoDestino(area) + '. Este destino só aceita fotos tiradas dentro da sua área.');
+            return;
+          }
           if (camera && !area.dentro) {
             // Foto tirada fora da área do destino: entra marcada, com o alerta.
             avisar('Atenção: esta foto foi tirada ' + foraDoDestino(area) + '. Ela entra marcada como fora do destino, para a conferência ver.');
