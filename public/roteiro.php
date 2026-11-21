@@ -162,12 +162,21 @@ $linha = function (array $p) use ($ro, $podeEditar, $homologado): string {
 paginaFicha($r['titulo'] ?: 'Novo roteiro', 'roteiros');
 ?>
 <?php if ($erro !== ''): ?><p class="aviso ruim" role="alert"><?= icone('alerta') ?><span><?= e($erro) ?></span></p><?php endif; ?>
+<?php // O portal público só mostra lugar homologado: quem publica precisa saber o que o visitante vê.
+$visiveis = count(array_filter($paradas, fn ($p) => $homologado((string) ($p['situacao'] ?? ''))));
+if ($r['publicado'] && $paradas && $visiveis < count($paradas)): ?>
+  <p class="aviso atencao" role="status"><?= icone('alerta') ?><span><?= $visiveis === 0
+    ? 'Publicado, mas ainda não aparece no portal: nenhuma das ' . plural(count($paradas), 'parada', 'paradas') . ' foi homologada, e o portal só mostra lugar homologado. Na prévia do portal (Início do painel) ele aparece inteiro.'
+    : 'No portal aparecem ' . $visiveis . ' de ' . plural(count($paradas), 'parada', 'paradas') . ': as outras ainda não foram homologadas. Na prévia do portal aparece inteiro.' ?></span></p>
+<?php endif; ?>
+<?php if ($r['publicado'] && $r['tipo'] !== 'um_dia'): ?><p class="ajuda"><?= icone('calendario') ?> Este roteiro aparece em Roteiros no portal. Para entrar em Um dia aqui, o tipo é Um dia aqui.</p><?php endif; ?>
 <form method="post" action="<?= e($aqui) ?>" id="form-roteiro">
   <button type="submit" class="oculto-visual" tabindex="-1" aria-hidden="true">Salvar</button>
   <input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="acao" value="salvar">
   <div class="cab-pag">
     <div><h1 data-titulo><?= e($r['titulo'] ?: 'Novo roteiro') ?></h1>
-      <p><?= $r['publicado'] ? '<span class="pilula ok">No portal</span>' : '<span class="pilula nu">Rascunho</span>' ?> · <span data-paradas-conta><?= plural(count($paradas), 'parada', 'paradas') ?></span></p></div>
+      <p><?= !$r['publicado'] ? '<span class="pilula nu">Rascunho</span>' : ($paradas && $visiveis === 0 ? '<span class="pilula at">Publicado, sem parada homologada</span>'
+            : ($visiveis < count($paradas) ? '<span class="pilula at">No portal: ' . $visiveis . ' de ' . count($paradas) . '</span>' : '<span class="pilula ok">No portal</span>')) ?> · <span data-paradas-conta><?= plural(count($paradas), 'parada', 'paradas') ?></span></p></div>
     <?php if ($podeEditar): ?><div class="acoes"><button type="submit" class="botao"><?= icone('check') ?>Salvar</button></div><?php endif; ?>
   </div>
   <div class="cartao">

@@ -331,10 +331,14 @@ final class Portal
 
     public static function roteiros(int $eid): array
     {
-        $q = self::pdo()->prepare('SELECT r.id, r.empresa_id, r.titulo, r.tipo, r.tribo_id, r.descricao, r.duracao, r.publicado, r.ordem, (SELECT COUNT(*) FROM roteiro_itens ri WHERE ri.roteiro_id = r.id) AS paradas
+        // Conta só as paradas que o visitante vê (no público, as homologadas);
+        // roteiro sem nenhuma visível não aparece, em vez de abrir vazio.
+        $q = self::pdo()->prepare('SELECT r.id, r.empresa_id, r.titulo, r.tipo, r.tribo_id, r.descricao, r.duracao, r.publicado, r.ordem,
+                                          (SELECT COUNT(*) FROM roteiro_itens ri JOIN inventario_itens i ON i.id = ri.item_id
+                                           WHERE ri.roteiro_id = r.id AND ' . self::situacoes($eid) . ') AS paradas
                                    FROM roteiros r WHERE r.empresa_id = ?' . (self::previa($eid) ? '' : ' AND r.publicado = 1') . ' ORDER BY r.ordem, r.titulo');
         $q->execute([$eid]);
-        return $q->fetchAll();
+        return array_values(array_filter($q->fetchAll(), fn ($r) => (int) $r['paradas'] > 0));
     }
 
     public static function roteiro(int $eid, int $id): ?array
@@ -352,6 +356,9 @@ final class Portal
             $paradas[(int) $l['item_id']] = $l;
         }
         $r['paradas'] = self::porIds($eid, array_keys($paradas));
+        if (!$r['paradas']) {
+            return null;
+        }
         foreach ($r['paradas'] as $iid => &$p) {
             $p['nota'] = $paradas[$iid]['nota'] ?? null;
             $p['hora'] = $paradas[$iid]['hora'] ?? null;

@@ -14,7 +14,8 @@ Auth::exigirPermissao('roteiros.ver');
 Auth::exigirModuloLigado('roteiros');
 $pdo = Database::conexao();
 $eid = (int) $empresa['id'];
-$q = $pdo->prepare('SELECT r.*, t.nome AS tribo_nome, (SELECT COUNT(*) FROM roteiro_itens ri WHERE ri.roteiro_id = r.id) AS paradas
+$q = $pdo->prepare('SELECT r.*, t.nome AS tribo_nome, (SELECT COUNT(*) FROM roteiro_itens ri WHERE ri.roteiro_id = r.id) AS paradas,
+                    (SELECT COUNT(*) FROM roteiro_itens ri JOIN inventario_itens i ON i.id = ri.item_id WHERE ri.roteiro_id = r.id AND i.situacao IN (\'homologada\', \'desatualizada\')) AS visiveis
                     FROM roteiros r LEFT JOIN tribos t ON t.id = r.tribo_id WHERE r.empresa_id = ? ORDER BY r.ordem, r.titulo');
 $q->execute([$eid]);
 $roteiros = $q->fetchAll();
@@ -44,7 +45,10 @@ paginaInicio('Roteiros', 'roteiros');
             <?php if ($r['duracao']): ?><br><span class="nulo"><?= e((string) $r['duracao']) ?></span><?php endif; ?></td>
           <td><?= e($tipos[$r['tipo']] ?? $r['tipo']) ?><?= $r['tribo_nome'] ? ': ' . e((string) $r['tribo_nome']) : '' ?></td>
           <td class="num dado"><?= milhar((int) $r['paradas']) ?></td>
-          <td><?= $r['publicado'] ? '<span class="pilula ok">No portal</span>' : '<span class="pilula nu">Rascunho</span>' ?></td>
+          <td><?php if (!$r['publicado']): ?><span class="pilula nu">Rascunho</span>
+            <?php elseif ((int) $r['visiveis'] === 0): ?><span class="pilula at" data-balao-titulo="Ainda não aparece" data-balao="Nenhuma parada foi homologada, e o portal só mostra lugar homologado. Na prévia do portal ele aparece inteiro.">Publicado, sem parada homologada</span>
+            <?php elseif ((int) $r['visiveis'] < (int) $r['paradas']): ?><span class="pilula at" data-balao-titulo="No portal, em parte" data-balao="<?= (int) $r['visiveis'] ?> de <?= (int) $r['paradas'] ?> paradas aparecem; as outras ainda não foram homologadas.">No portal: <?= (int) $r['visiveis'] ?> de <?= (int) $r['paradas'] ?> paradas</span>
+            <?php else: ?><span class="pilula ok">No portal</span><?php endif; ?></td>
           <td class="acao"><div class="acoes-linha"><a href="<?= e($url) ?>" data-ficha="<?= e($r['titulo']) ?>" data-balao-titulo="Abrir" data-balao="Editar o roteiro e as paradas." aria-label="Abrir <?= e($r['titulo']) ?>"><?= icone('lapis') ?></a>
             <?php if ($podeExcluir): ?><form method="post" action="<?= e($url) ?>"><input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="acao" value="excluir">
               <button type="submit" class="perigo" data-confirmar="Excluir o roteiro <?= e((string) $r['titulo']) ?>? Ele sai do painel e do portal; os lugares continuam no inventário."
