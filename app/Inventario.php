@@ -40,6 +40,8 @@ final class Inventario
     /** Escala da ficha oficial de 2011 (decisão pendente no PLANEJAMENTO, 4.2). */
     public const CONSERVACAO = ['muito_bom' => 'Muito bom', 'bom' => 'Bom', 'ruim' => 'Ruim', 'nao_aplicavel' => 'Não se aplica'];
     public const AUSENCIAS = ['na' => 'NA, não se aplica', 'ni' => 'NI, não informou', 'ne' => 'NE, não existe'];
+    /** A ausência por extenso, como aparece no painel (no lugar da sigla). */
+    public const AUSENCIAS_TEXTO = ['na' => 'Não se aplica', 'ni' => 'Não informou', 'ne' => 'Não existe'];
     public const PAGAMENTOS = ['Dinheiro', 'PIX', 'Cartão de crédito', 'Cartão de débito', 'Tíquete', 'Gratuito'];
     public const IDIOMAS = ['Português', 'Inglês', 'Espanhol', 'Libras', 'Outros'];
     public const TIPOS_ORGANIZACAO = ['associacao' => 'Associação', 'sindicato' => 'Sindicato', 'cooperativa' => 'Cooperativa', 'sistema_s' => 'Sistema S',

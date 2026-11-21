@@ -237,11 +237,11 @@ $titulo = $novo ? 'Novo item: ' . $ficha['nome'] : (string) $d['nome'];
 $acao = $novo ? endereco('item', null) . '?ficha=' . $fichaId : endereco('item', $id, (string) $d['nome']);
 [$rotuloSituacao, $tomSituacao] = Inventario::SITUACOES[$d['situacao']] ?? [$d['situacao'], 'nu'];
 
-/** Campo de ausência (NA, NI, NE) ao lado de um campo específico. */
+/** Campo de ausência ao lado de um campo específico, por extenso (Não se aplica, Não informou, Não existe). */
 $ausencia = function (int $aid, ?string $atual) use ($dis): string {
     $h = '<select class="ausencia" name="aus[' . $aid . ']" aria-label="Sem resposta"' . $dis . '><option value="">Respondido</option>';
-    foreach (Inventario::AUSENCIAS as $k => $r) {
-        $h .= '<option value="' . $k . '"' . ($atual === $k ? ' selected' : '') . '>' . e(strtoupper($k)) . '</option>';
+    foreach (Inventario::AUSENCIAS_TEXTO as $k => $r) {
+        $h .= '<option value="' . $k . '"' . ($atual === $k ? ' selected' : '') . ' title="' . e(strtoupper($k)) . '">' . e($r) . '</option>';
     }
     return $h . '</select>';
 };
