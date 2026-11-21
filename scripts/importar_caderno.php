@@ -138,7 +138,7 @@ foreach ($linhas as $l) {
     if ($alvo[0] === 20 && preg_match('/^([SN])\s+(\d+)\s+(\d+)/', (string) $l['resto'], $m)) {
         [$uh, $leitos] = [(int) $m[2], (int) $m[3]];
     }
-    $origem = 'Inventário da Oferta Turística ' . $destino['nome_fantasia'] . ' 2025, seção ' . $l['secao'] . ' (folha ' . $l['folha'] . ' do PDF).';
+    $origem = 'Importado do Inventário da Oferta Turística ' . $destino['nome_fantasia'] . ' 2025, seção ' . $l['secao'] . ' (folha ' . $l['folha'] . ' do PDF).';
     $tecnica = null;
     if (!empty($l['artista']) || !empty($l['ano'])) {
         $tecnica = trim(($l['ano'] ? 'Ano: ' . $l['ano'] . '. ' : '') . ($l['artista'] ? 'Artista: ' . $l['artista'] . '. ' : '') . ($l['local'] ? 'Local: ' . $l['local'] . '.' : ''));
@@ -173,7 +173,7 @@ foreach ($linhas as $l) {
         }
         $nota = $origem;
         if ($uh !== null) {
-            $nota .= " Caderno: {$uh} UH e {$leitos} leitos; Cadastur: " . ($par['capacidade_uh'] ?? '?') . ' UH e ' . ($par['capacidade_leitos'] ?? '?') . ' leitos.';
+            $nota .= " Inventário 2025: {$uh} UH e {$leitos} leitos; Cadastur: " . ($par['capacidade_uh'] ?? '?') . ' UH e ' . ($par['capacidade_leitos'] ?? '?') . ' leitos.';
             $sets[] = 'capacidade_uh = ?, capacidade_leitos = ?';
             array_push($args, $uh, $leitos);
         }
@@ -183,7 +183,7 @@ foreach ($linhas as $l) {
         if ($gravar) {
             $pdo->prepare('UPDATE inventario_itens SET ' . implode(', ', $sets) . ', atualizado_em = NOW() WHERE id = ? AND empresa_id = ?')
                 ->execute([...$args, $par['id'], $empresaId]);
-            $hist->execute([$par['id'], $empresaId, null, 'Completado com o caderno 2025: ' . $l['secao']]);
+            $hist->execute([$par['id'], $empresaId, null, 'Completado com a importação do Inventário 2025: ' . $l['secao']]);
         }
         $conta['completados']++;
         continue;
@@ -198,7 +198,7 @@ foreach ($linhas as $l) {
     if ($gravar) {
         $ins->execute([$empresaId, $fichaId, $tipoId($fichaId, $alvo[1]), mb_substr($nome, 0, 180), $endereco ? mb_substr($endereco, 0, 200) : null,
                        $tel, $l['plus'], $coord[0] ?? null, $coord[1] ?? null, $uh, $leitos, $tecnica, $origem]);
-        $hist->execute([(int) $pdo->lastInsertId(), $empresaId, 'pre_cadastro', 'Caderno 2025: ' . $l['secao']]);
+        $hist->execute([(int) $pdo->lastInsertId(), $empresaId, 'pre_cadastro', 'Importado do Inventário 2025: ' . $l['secao']]);
     }
     $conta['novos']++;
 }

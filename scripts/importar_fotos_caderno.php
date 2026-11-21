@@ -83,7 +83,7 @@ while (($linha = fgets(STDIN)) !== false) {
         @file_put_contents($pasta . '/' . Imagem::nomeMiniatura($nome, $sufixo), $miniatura);
     }
     $insere->execute([$eid, (int) $i['id'], $nome, $l, $a, $legenda, $credito, $quantas === 0 ? 1 : 0, $quantas + 1]);
-    Auditoria::registrar('item.foto', 'inventario_item', (int) $i['id'], 'Foto importada do caderno 2025: ' . $legenda, null,
+    Auditoria::registrar('item.foto', 'inventario_item', (int) $i['id'], 'Foto importada do Inventário 2025: ' . $legenda, null,
         ['arquivo' => $nome, 'legenda' => $legenda, 'credito' => $credito], $eid);
     $novas++;
 }

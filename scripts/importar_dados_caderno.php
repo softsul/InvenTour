@@ -31,7 +31,7 @@ if (!$eid || !is_array($lista)) {
 }
 const COLUNAS = ['site', 'email', 'instagram', 'razao_social', 'cnpj', 'inicio_atividade_data', 'rede', 'natureza', 'descricao_tecnica',
                  'descricao_promocional', 'capacidade_uh', 'capacidade_leitos', 'capacidade_assentos', 'capacidade_publico', 'observacoes'];
-const ORIGEM = 'Do caderno de inventário 2025';
+const ORIGEM = 'Importado do Inventário 2025';
 
 $pdo = Database::conexao();
 $buscaItem = $pdo->prepare("SELECT * FROM inventario_itens WHERE id = ? AND empresa_id = ? AND situacao <> 'arquivada'");
@@ -53,7 +53,7 @@ foreach ($lista as $d) {
     }
     $nucleo = array_intersect_key((array) ($d['nucleo'] ?? []), array_flip(COLUNAS));
     $tecnica = (string) ($nucleo['descricao_tecnica'] ?? '');
-    // O portal mostra a descrição promocional: sem ela, vale o texto do caderno
+    // O portal mostra a descrição promocional: sem ela, vale o texto importado
     // (menos as listas de "Sistemas:" dos auditórios, que são só técnicas).
     if ($tecnica !== '' && !str_starts_with($tecnica, 'Sistemas:')) {
         $nucleo['descricao_promocional'] = $tecnica;
@@ -126,14 +126,14 @@ foreach ($lista as $d) {
         foreach ($novos as $aid => [, $texto, $numero, $outro]) {
             $insAttr->execute([(int) $item['id'], $aid, $eid, $texto, $numero, $outro]);
         }
-        $hist->execute([(int) $item['id'], $eid, 'Completado com os dados do caderno de inventário 2025 (só campos vazios).']);
+        $hist->execute([(int) $item['id'], $eid, 'Completado com os dados importados do Inventário 2025 (só campos vazios).']);
         $pdo->commit();
     } catch (Throwable $e) {
         $pdo->rollBack();
         echo "  erro em #{$item['id']}: {$e->getMessage()}\n";
         continue;
     }
-    Auditoria::registrar('alterou', 'inventario_itens', (int) $item['id'], 'completou ' . $item['nome'] . ' com o caderno 2025',
+    Auditoria::registrar('alterou', 'inventario_itens', (int) $item['id'], 'completou ' . $item['nome'] . ' com a importação do Inventário 2025',
         array_intersect_key($item, $muda) ?: null,
         $muda + ($novos ? ['campos_da_ficha' => array_combine(array_column($novos, 0), array_map(fn ($n) => $n[1] ?? $n[2], $novos))] : []), $eid);
 }
