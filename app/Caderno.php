@@ -325,18 +325,19 @@ final class Caderno
         [$l, $a] = [imagesx($img), imagesy($img)];
         // Em degraus: cada redução e ampliação suave, com desfoque no meio, não deixa o quadriculado.
         $atual = $img;
-        foreach ([240, 120, 60] as $largura) {
+        // Desfoque leve (Luiz, 21/11/2026): dá para reconhecer a cidade, e o título continua em destaque.
+        foreach ([420] as $largura) {
             $prox = imagecreatetruecolor($largura, max(1, (int) round($largura * $a / max(1, $l))));
             imagecopyresampled($prox, $atual, 0, 0, 0, 0, imagesx($prox), imagesy($prox), imagesx($atual), imagesy($atual));
-            for ($i = 0; $i < 3; $i++) {
+            for ($i = 0; $i < 2; $i++) {
                 imagefilter($prox, IMG_FILTER_GAUSSIAN_BLUR);
             }
             $atual = $prox;
         }
-        foreach ([200, 500, 900] as $largura) {
+        foreach ([1200] as $largura) {
             $prox = imagecreatetruecolor($largura, max(1, (int) round($largura * $a / max(1, $l))));
             imagecopyresampled($prox, $atual, 0, 0, 0, 0, imagesx($prox), imagesy($prox), imagesx($atual), imagesy($atual));
-            for ($i = 0; $i < 4; $i++) {
+            for ($i = 0; $i < 2; $i++) {
                 imagefilter($prox, IMG_FILTER_GAUSSIAN_BLUR);
             }
             $atual = $prox;
