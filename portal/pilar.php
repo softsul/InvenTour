@@ -18,7 +18,14 @@ $filtros = ['q' => trim((string) ($_GET['q'] ?? '')), 'zona' => (string) ($_GET[
             'tribo' => (int) ($_GET['tribo'] ?? 0), 'ficha' => (int) ($_GET['ficha'] ?? 0), 'aberto' => !empty($_GET['aberto'])];
 $vazioDeBusca = $busca && $filtros['q'] === '' && !$filtros['aberto'];
 $itens = $vazioDeBusca ? [] : Portal::itens($eid, $busca ? null : $pilar, $filtros, 2000);
-[$titulo, $sub] = $busca ? [$filtros['aberto'] && $filtros['q'] === '' ? 'Aberto agora' : 'Busca', 'Hotéis, restaurantes, atrativos e serviços de ' . $destino['nome_fantasia']] : Portal::PILARES[$pilar];
+// Na busca, a agenda do EventCity entra junto: eventos pelo título, pelo
+// segmento e pelo lugar onde acontecem.
+$eventos = [];
+if ($busca && $filtros['q'] !== '' && !$filtros['aberto']) {
+    require_once __DIR__ . '/../app/EventCity.php';
+    $eventos = EventCity::buscar($eid, $filtros['q'], array_column($itens, 'id'));
+}
+[$titulo, $sub] = $busca ? [$filtros['aberto'] && $filtros['q'] === '' ? 'Aberto agora' : 'Busca', 'Hotéis, restaurantes, atrativos, serviços e a agenda de ' . $destino['nome_fantasia']] : Portal::PILARES[$pilar];
 
 $fichasDoPilar = [];
 if (!$busca) {
@@ -42,7 +49,7 @@ PortalLayout::inicio($destino, $titulo, !$busca, ['ativo' => $busca ? '' : $pila
 <form class="capa-busca busca-pagina" method="get" action="/busca" role="search">
   <?php if (Portal::previa($eid)): ?><input type="hidden" name="previa" value="<?= e((string) $_GET['previa']) ?>"><?php endif; ?>
   <?php if ($filtros['aberto']): ?><input type="hidden" name="aberto" value="1"><?php endif; ?>
-  <label for="q">Buscar</label><span class="entrada"><input type="search" id="q" name="q" value="<?= e($filtros['q']) ?>" placeholder="nome, tipo ou bairro"></span><button type="submit">Buscar</button>
+  <label for="q">Buscar</label><span class="entrada"><input type="search" id="q" name="q" value="<?= e($filtros['q']) ?>" placeholder="lugar, tipo, bairro ou evento"></span><button type="submit">Buscar</button>
 </form>
 <?php endif; ?>
 
@@ -77,10 +84,22 @@ PortalLayout::inicio($destino, $titulo, !$busca, ['ativo' => $busca ? '' : $pila
   </form>
 </details>
 
+<?php if ($eventos): ?>
+<section class="busca-eventos">
+  <div class="secao-cab"><div><span class="rotulo">Agenda oficial · EventCity</span><h2>Na agenda</h2></div><a href="<?= e(Portal::url('/agenda')) ?>">A agenda</a></div>
+  <ul class="lista-eventos">
+    <?php foreach ($eventos as $ev): ?>
+      <li><a href="<?= e((string) ($ev['url'] ?? '#')) ?>" rel="noopener"><span class="data"><?= e(date('d/m', strtotime((string) ($ev['proximo_dia'] ?? $ev['data_inicio'])))) ?><?= !empty($ev['hora_inicio']) ? '<br>' . e(substr((string) $ev['hora_inicio'], 0, 5)) : '' ?></span>
+        <b><?= e((string) $ev['titulo']) ?></b><?php if (!empty($ev['segmento'])): ?><em><?= e((string) $ev['segmento']) ?></em><?php endif; ?></a></li>
+    <?php endforeach; ?>
+  </ul>
+</section>
+<?php endif; ?>
+
 <?php if ($vazioDeBusca): ?>
-  <p class="aviso-vazio">Digite o que procura: o nome do lugar, o tipo (hotel, pizzaria, museu) ou o bairro.</p>
+  <p class="aviso-vazio">Digite o que procura: o nome do lugar, o tipo (hotel, pizzaria, museu), o bairro ou um evento da agenda.</p>
 <?php elseif (!$itens): ?>
-  <p class="aviso-vazio">Nenhum lugar com esses filtros<?= $filtros['q'] !== '' ? ' para "' . e($filtros['q']) . '"' : '' ?>. Tire algum filtro para ver mais.</p>
+  <p class="aviso-vazio">Nenhum lugar<?= $eventos ? ' no guia' : '' ?> com esses filtros<?= $filtros['q'] !== '' ? ' para "' . e($filtros['q']) . '"' : '' ?>. Tire algum filtro para ver mais.</p>
 <?php else: ?>
   <div class="mapa-caixa" data-mapa data-mapa-lista hidden><?= PortalLayout::mapa($eid, $itens, $titulo . ' no mapa') ?></div>
   <div class="grade-lugares" data-lista-lugares><?php foreach ($itens as $i) { echo PortalLayout::cartao($eid, $i); } ?></div>

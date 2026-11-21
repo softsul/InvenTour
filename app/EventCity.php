@@ -58,6 +58,43 @@ final class EventCity
         return array_values(array_filter(self::agendaEmCache($eid) ?? [], fn ($e) => (int) ($e['local_inventour_id'] ?? 0) === $itemId));
     }
 
+    /**
+     * Os eventos da agenda que casam com a busca do portal: cada palavra
+     * precisa aparecer no título, no segmento ou no nome do lugar do
+     * inventário onde o evento acontece (sem acento, sem caixa). Também
+     * entram os eventos dos lugares que a busca achou.
+     */
+    public static function buscar(int $eid, string $busca, array $idsDosLugares = []): array
+    {
+        $palavras = array_filter(preg_split('/\s+/', mb_strtolower(semAcento($busca))), fn ($p) => mb_strlen($p) >= 2);
+        $agenda = self::agendaEmCache($eid) ?? [];
+        if (!$palavras || !$agenda) {
+            return [];
+        }
+        $locais = array_filter(array_map(fn ($e) => (int) ($e['local_inventour_id'] ?? 0), $agenda));
+        $nomes = [];
+        if ($locais) {
+            $marcas = implode(',', array_fill(0, count($locais), '?'));
+            $q = Database::conexaoPortal()->prepare("SELECT id, nome FROM inventario_itens WHERE empresa_id = ? AND id IN ({$marcas})");
+            $q->execute([$eid, ...array_values($locais)]);
+            $nomes = $q->fetchAll(PDO::FETCH_KEY_PAIR);
+        }
+        $doLugar = array_flip(array_map('intval', $idsDosLugares));
+        return array_values(array_filter($agenda, function ($e) use ($palavras, $nomes, $doLugar) {
+            $local = (int) ($e['local_inventour_id'] ?? 0);
+            if ($local && isset($doLugar[$local])) {
+                return true;
+            }
+            $texto = mb_strtolower(semAcento(($e['titulo'] ?? '') . ' ' . ($e['segmento'] ?? '') . ' ' . ($nomes[$local] ?? '')));
+            foreach ($palavras as $p) {
+                if (!str_contains($texto, $p)) {
+                    return false;
+                }
+            }
+            return true;
+        }));
+    }
+
     /** Pedido assinado. Devolve [código HTTP, corpo decodificado ou null]. */
     public static function pedir(int $eid, string $metodo, string $caminho, ?array $corpo = null, float $limite = 5.0): array
     {

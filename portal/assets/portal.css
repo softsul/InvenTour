@@ -372,3 +372,4 @@ details.refinar[open] summary::after { content: " ×"; }
 
 .busca-pagina { border: 2px solid var(--tinta); margin: 0 0 18px; }
 .dist-fixa { font-family: var(--mono); font-size: .72rem; color: var(--brasa); font-weight: 600; }
+.busca-eventos { margin: 8px 0 34px; }

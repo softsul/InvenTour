@@ -166,6 +166,35 @@ final class MapaTurismo
         return $q->fetch() ?: null;
     }
 
+    /**
+     * Para o município que está fora do Mapa: a região turística dos
+     * vizinhos (a mais comum entre os 8 municípios mais próximos da mesma UF
+     * que estão no Mapa). É onde ele se encaixa ao pedir a inclusão.
+     */
+    public static function regiaoDosVizinhos(int $municipioId): ?array
+    {
+        $pdo = Database::conexao();
+        $q = $pdo->prepare(
+            'SELECT t.regiao_id FROM municipios m
+             JOIN municipios o ON o.id = ? AND o.estado_id = m.estado_id
+             JOIN mapa_turismo t ON t.municipio_id = m.id AND t.ano = (SELECT MAX(ano) FROM mapa_turismo)
+             WHERE m.id <> o.id AND m.latitude IS NOT NULL AND o.latitude IS NOT NULL
+             ORDER BY POW(m.latitude - o.latitude, 2) + POW((m.longitude - o.longitude) * COS(RADIANS(o.latitude)), 2)
+             LIMIT 8'
+        );
+        $q->execute([$municipioId]);
+        $contagem = array_count_values(array_map('intval', $q->fetchAll(PDO::FETCH_COLUMN)));
+        if (!$contagem) {
+            return null;
+        }
+        arsort($contagem);
+        $regiao = (int) array_key_first($contagem);
+        $q = $pdo->prepare('SELECT r.id, r.nome, (SELECT COUNT(*) FROM mapa_turismo v WHERE v.ano = (SELECT MAX(ano) FROM mapa_turismo) AND v.regiao_id = r.id) AS na_regiao
+                            FROM regioes_turisticas r WHERE r.id = ?');
+        $q->execute([$regiao]);
+        return $q->fetch() ?: null;
+    }
+
     /** Os municípios de uma região no Mapa mais recente, por categoria e nome. */
     public static function daRegiao(int $regiaoId): array
     {

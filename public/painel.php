@@ -78,6 +78,23 @@ if ($empresa) {
             ? 'páginas na versão ' . (int) $ultimo[0] . ($ultimo[2] ? ' (prévia)' : '') . ' · ' . plural((int) $ultimo[3], 'leitura do QR', 'leituras do QR')
             : 'nenhuma versão gerada ainda', '/caderno'];
     }
+    // O município no Mapa do Turismo Brasileiro, como no EventCity: a região
+    // turística e a categoria. Fora do Mapa, a região dos vizinhos e o aviso
+    // abaixo das métricas.
+    $foraDoMapa = null;
+    $regiaoVizinha = null;
+    if (!empty($empresa['municipio_id'])) {
+        require_once __DIR__ . '/../app/MapaTurismo.php';
+        if ($noMapa = MapaTurismo::doMunicipio((int) $empresa['municipio_id'])) {
+            $metricas[] = ['Região turística', (int) $noMapa['na_regiao'], 'municípios em ' . $noMapa['regiao'] . ' · '
+                . mb_strtolower(MapaTurismo::CATEGORIAS[(int) $noMapa['categoria']] ?? ''), Auth::pode('mapa-turismo.ver') ? '/mapa-turismo' : null];
+        } elseif ($foraDoMapa = MapaTurismo::ano()) {
+            if ($regiaoVizinha = MapaTurismo::regiaoDosVizinhos((int) $empresa['municipio_id'])) {
+                $metricas[] = ['Região turística', (int) $regiaoVizinha['na_regiao'], 'municípios em ' . $regiaoVizinha['nome']
+                    . ' · a dos vizinhos', Auth::pode('mapa-turismo.ver') ? '/mapa-turismo' : null];
+            }
+        }
+    }
     $metricas[] = ['Equipe', Painel::equipe($eid), 'pessoas com acesso ao destino', Auth::pode('usuarios.ver') ? '/configuracoes/usuarios' : null];
 } elseif ($u['softsul']) {
     $destinos = Painel::destinosPlataforma();
@@ -134,6 +151,10 @@ paginaInicio('Início', 'painel');
 <?php if (isset($inv) && $inv['total'] === 0): ?>
 <p class="aviso info"><?= icone('mapa') ?><span><strong>Para começar o inventário de <?= e($empresa['nome_fantasia']) ?>:</strong>
 faça o <a href="/pre-cadastro">pré-cadastro pelo Cadastur</a>, que traz hotéis, restaurantes e agências que a base oficial já conhece, e escreva os textos em <a href="/destino-textos">O destino</a>. Os atrativos e a infraestrutura de apoio entram pelo Novo item do Inventário.</span></p>
+<?php elseif (!empty($foraDoMapa)): ?>
+<p class="aviso atencao"><?= icone('mapa') ?><span><strong><?= e($empresa['cidade'] ?? '' ?: $empresa['nome_fantasia']) ?> não está no Mapa do Turismo Brasileiro <?= (int) $foraDoMapa ?>.</strong>
+O Mapa é a referência do Ministério do Turismo para regiões turísticas e para os programas dele. A inclusão é pedida pela prefeitura ao órgão estadual de turismo, no período de atualização do Mapa.<?php if ($regiaoVizinha): ?>
+Os municípios vizinhos estão na região turística <strong><?= e($regiaoVizinha['nome']) ?></strong>.<?php endif; ?></span></p>
 <?php endif; ?>
 <div class="painel-colunas painel-graficos">
   <?php if (isset($inv) && $inv['total'] > 0): ?>
