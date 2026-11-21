@@ -6880,3 +6880,110 @@ window.inventourMarcarNoFiltro = function (form, campo, ids, nome) {
     if (ent) { ent.classList.toggle('invalida', !ok); }
   });
 })();
+
+/*
+ * Paradas do roteiro na mesma tela (public/roteiro.php): o lugar escolhido
+ * na busca entra no fim da lista; a ordem muda arrastando pela alça (mouse
+ * ou dedo, por pointer events) ou pelas setas do teclado na alça; a lixeira
+ * tira a parada. Nada vai ao servidor até Salvar.
+ * Softsul Software
+ */
+(function () {
+  'use strict';
+  var caixa = document.querySelector('[data-paradas]');
+  if (!caixa) { return; }
+  var lista = caixa.querySelector('[data-paradas-lista]');
+  var molde = caixa.querySelector('template[data-parada-molde]');
+  var vazio = caixa.querySelector('[data-paradas-vazio]');
+  var conta = document.querySelector('[data-paradas-conta]');
+  function renumerar() {
+    var linhas = lista.querySelectorAll('[data-parada]');
+    linhas.forEach(function (li, k) { li.querySelector('[data-parada-num]').textContent = (k + 1) + '.'; });
+    if (vazio) { vazio.hidden = linhas.length > 0; }
+    if (conta) { conta.textContent = linhas.length + (linhas.length === 1 ? ' parada' : ' paradas'); }
+  }
+  renumerar();
+
+  // Acrescentar: o lugar escolhido na busca vira uma linha no fim.
+  caixa.addEventListener('item-escolhido', function (ev) {
+    var item = ev.detail || {};
+    if (!molde || !item.id) { return; }
+    var ja = lista.querySelector('[data-parada-item][value="' + item.id + '"]');
+    var busca = caixa.querySelector('.paradas-acrescentar input[type="text"]');
+    var oculto = caixa.querySelector('.paradas-acrescentar input[type="hidden"]');
+    function limpar() { if (busca) { busca.value = ''; busca.focus(); } if (oculto) { oculto.value = ''; } }
+    if (ja) {
+      var linha = ja.closest('[data-parada]');
+      linha.classList.add('destaque'); setTimeout(function () { linha.classList.remove('destaque'); }, 1200);
+      linha.scrollIntoView({ block: 'nearest' });
+      limpar();
+      return;
+    }
+    var li = molde.content.firstElementChild.cloneNode(true);
+    li.querySelector('[data-parada-item]').value = item.id;
+    li.querySelector('[data-parada-nome]').textContent = item.texto || '';
+    li.querySelector('[data-parada-codigo]').textContent = item.codigo || '';
+    li.querySelector('[data-parada-pendente]').hidden = !!item.homologado;
+    lista.appendChild(li);
+    renumerar();
+    limpar();
+    li.scrollIntoView({ block: 'nearest' });
+  });
+
+  // Tirar.
+  lista.addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-tirar-parada]');
+    if (!b) { return; }
+    b.closest('[data-parada]').remove();
+    renumerar();
+  });
+
+  // Teclado na alça: setas mudam a ordem.
+  lista.addEventListener('keydown', function (ev) {
+    var alca = ev.target.closest('[data-alca]');
+    if (!alca || (ev.key !== 'ArrowUp' && ev.key !== 'ArrowDown')) { return; }
+    ev.preventDefault();
+    var li = alca.closest('[data-parada]');
+    if (ev.key === 'ArrowUp' && li.previousElementSibling) { lista.insertBefore(li, li.previousElementSibling); }
+    if (ev.key === 'ArrowDown' && li.nextElementSibling) { lista.insertBefore(li.nextElementSibling, li); }
+    renumerar();
+    alca.focus();
+  });
+
+  // Arrastar pela alça: a linha acompanha o ponteiro e troca de lugar com
+  // a vizinha quando passa do meio dela.
+  var arrastando = null;
+  lista.addEventListener('pointerdown', function (ev) {
+    var alca = ev.target.closest('[data-alca]');
+    if (!alca || (ev.pointerType === 'mouse' && ev.button !== 0)) { return; }
+    ev.preventDefault();
+    var li = alca.closest('[data-parada]');
+    arrastando = { li: li, id: ev.pointerId, y: ev.clientY };
+    alca.setPointerCapture(ev.pointerId);
+    li.classList.add('arrastando');
+    document.body.classList.add('arrastando-parada');
+  });
+  lista.addEventListener('pointermove', function (ev) {
+    if (!arrastando || ev.pointerId !== arrastando.id) { return; }
+    var li = arrastando.li;
+    var antes = li.previousElementSibling, depois = li.nextElementSibling;
+    if (antes) {
+      var ra = antes.getBoundingClientRect();
+      if (ev.clientY < ra.top + ra.height / 2) { lista.insertBefore(li, antes); renumerar(); return; }
+    }
+    if (depois) {
+      var rd = depois.getBoundingClientRect();
+      if (ev.clientY > rd.top + rd.height / 2) { lista.insertBefore(depois, li); renumerar(); }
+    }
+    // Perto da borda da janela, a página rola junto.
+    if (ev.clientY < 60) { window.scrollBy(0, -12); } else if (ev.clientY > window.innerHeight - 60) { window.scrollBy(0, 12); }
+  });
+  function soltar(ev) {
+    if (!arrastando || ev.pointerId !== arrastando.id) { return; }
+    arrastando.li.classList.remove('arrastando');
+    document.body.classList.remove('arrastando-parada');
+    arrastando = null;
+  }
+  lista.addEventListener('pointerup', soltar);
+  lista.addEventListener('pointercancel', soltar);
+})();

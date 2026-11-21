@@ -1,8 +1,10 @@
 <?php
 /**
  * Um roteiro do destino, em modal: título, tipo, perfil de viajante,
- * descrição, duração, publicar, e as paradas em ordem (subir, descer,
- * tirar e a dica de cada uma). Só lugares que não estão arquivados.
+ * descrição, duração, publicar e as paradas, tudo na mesma tela e salvo de
+ * uma vez. A parada entra pela busca do lugar e vai para o fim; a ordem se
+ * ajusta arrastando (ou pelas setas do teclado na alça). Cada parada tem a
+ * hora de chegada, o tempo no lugar e uma dica. Só lugares não arquivados.
  *   /roteiro       roteiro novo
  *   /roteiro/5     roteiro existente
  * Softsul Software
@@ -29,16 +31,17 @@ $tribos = $pdo->query('SELECT id, nome FROM tribos WHERE ativo = 1 ORDER BY orde
 $erro = '';
 $aqui = $id ? endereco('roteiro', $id, (string) $r['titulo']) : '/roteiro';
 
+/** As paradas como estão no banco, com o que a tela mostra de cada lugar. */
+$lerParadas = function (int $rid) use ($pdo): array {
+    $q = $pdo->prepare('SELECT ri.item_id, ri.nota, ri.hora, ri.duracao_min, i.nome, i.situacao, f.codigo FROM roteiro_itens ri
+                        JOIN inventario_itens i ON i.id = ri.item_id JOIN inventario_fichas f ON f.id = i.ficha_id WHERE ri.roteiro_id = ? ORDER BY ri.ordem');
+    $q->execute([$rid]);
+    return $q->fetchAll();
+};
+$paradas = $id ? $lerParadas($id) : [];
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $acao = (string) ($_POST['acao'] ?? 'salvar');
-    // Os botões de mover ficam dentro da lista e mandam o formulário #mover
-    // com o próprio nome (subir, descer, tirar) e o lugar no valor.
-    foreach (['subir', 'descer', 'tirar'] as $mover) {
-        if (isset($_POST[$mover])) {
-            $acao = $mover;
-            $_POST['item'] = $_POST[$mover];
-        }
-    }
     if (!Auth::conferirCsrf($_POST['csrf'] ?? null) || !$podeEditar) {
         $erro = 'A página ficou aberta tempo demais, ou você não pode alterar roteiros.';
     } elseif ($acao === 'excluir' && $id && Auth::pode('roteiros.excluir')) {
@@ -46,37 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         Auditoria::registrar('excluiu', 'roteiros', $id, 'excluiu o roteiro ' . $r['titulo'], null, null, $eid);
         avisar('Roteiro excluído.');
         fichaSalva('/roteiros');
-    } elseif (in_array($acao, ['parada', 'subir', 'descer', 'tirar'], true) && $id) {
-        $item = (int) ($_POST['item'] ?? 0);
-        $q = $pdo->prepare('SELECT item_id FROM roteiro_itens WHERE roteiro_id = ? ORDER BY ordem');
-        $q->execute([$id]);
-        $ordem = array_map('intval', $q->fetchAll(PDO::FETCH_COLUMN));
-        if ($acao === 'parada') {
-            $ok = $pdo->prepare("SELECT 1 FROM inventario_itens WHERE id = ? AND empresa_id = ? AND situacao <> 'arquivada'");
-            $ok->execute([$item, $eid]);
-            if ($ok->fetchColumn() && !in_array($item, $ordem, true)) {
-                $pdo->prepare('INSERT INTO roteiro_itens (roteiro_id, item_id, empresa_id, ordem) VALUES (?, ?, ?, ?)')->execute([$id, $item, $eid, count($ordem) + 1]);
-                avisar('Parada acrescentada.');
-            }
-        } else {
-            $k = array_search($item, $ordem, true);
-            if ($k !== false) {
-                if ($acao === 'tirar') {
-                    array_splice($ordem, $k, 1);
-                    $pdo->prepare('DELETE FROM roteiro_itens WHERE roteiro_id = ? AND item_id = ?')->execute([$id, $item]);
-                } else {
-                    $outro = $acao === 'subir' ? $k - 1 : $k + 1;
-                    if (isset($ordem[$outro])) {
-                        [$ordem[$k], $ordem[$outro]] = [$ordem[$outro], $ordem[$k]];
-                    }
-                }
-                foreach ($ordem as $n => $iid) {
-                    $pdo->prepare('UPDATE roteiro_itens SET ordem = ? WHERE roteiro_id = ? AND item_id = ?')->execute([$n + 1, $id, $iid]);
-                }
-            }
-        }
-        $pdo->prepare('UPDATE roteiros SET atualizado_em = NOW() WHERE id = ?')->execute([$id]);
-        redirecionar($aqui . '#paradas');
     } else {
         $campos = [
             'titulo'    => mb_substr(trim((string) ($_POST['titulo'] ?? '')), 0, 150),
@@ -89,54 +61,89 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($campos['tipo'] !== 'tribo') {
             $campos['tribo_id'] = null;
         }
-        // Dica, hora de chegada e tempo de visita das paradas vêm no mesmo formulário.
-        foreach ((array) ($_POST['nota'] ?? []) as $iid => $nota) {
-            if ($id) {
-                $min = (int) ($_POST['duracao_min'][$iid] ?? 0);
-                $pdo->prepare('UPDATE roteiro_itens SET nota = ?, hora = ?, duracao_min = ? WHERE roteiro_id = ? AND item_id = ?')
-                    ->execute([mb_substr(trim((string) $nota), 0, 300) ?: null, UmDia::hora($_POST['hora'][$iid] ?? null),
-                               $min > 0 ? min($min, 1440) : null, $id, (int) $iid]);
+        // As paradas vêm na ordem da tela: item, hora, tempo e dica alinhados.
+        $itens = array_map('intval', (array) ($_POST['parada_item'] ?? []));
+        $novas = [];
+        $ok = $pdo->prepare("SELECT i.id, i.nome, i.situacao, f.codigo FROM inventario_itens i JOIN inventario_fichas f ON f.id = i.ficha_id
+                             WHERE i.id = ? AND i.empresa_id = ? AND i.situacao <> 'arquivada'");
+        foreach ($itens as $k => $iid) {
+            if (!$iid || isset($novas[$iid])) {
+                continue;
             }
+            $ok->execute([$iid, $eid]);
+            $lugar = $ok->fetch();
+            if (!$lugar) {
+                continue;
+            }
+            $min = (int) ($_POST['parada_tempo'][$k] ?? 0);
+            $novas[$iid] = ['item_id' => $iid, 'nome' => $lugar['nome'], 'situacao' => $lugar['situacao'], 'codigo' => $lugar['codigo'],
+                            'hora' => UmDia::hora($_POST['parada_hora'][$k] ?? null), 'duracao_min' => $min > 0 ? min($min, 1440) : null,
+                            'nota' => mb_substr(trim((string) ($_POST['parada_nota'][$k] ?? '')), 0, 300) ?: null];
         }
         if ($campos['titulo'] === '') {
             $erro = 'Dê um título ao roteiro.';
         } else {
-            if ($id) {
-                $pdo->prepare('UPDATE roteiros SET ' . implode(' = ?, ', array_keys($campos)) . ' = ?, atualizado_em = NOW() WHERE id = ? AND empresa_id = ?')
-                    ->execute([...array_values($campos), $id, $eid]);
-                Auditoria::registrar('alterou', 'roteiros', $id, 'alterou o roteiro ' . $campos['titulo'], null, $campos, $eid);
-            } else {
-                $pdo->prepare('INSERT INTO roteiros (empresa_id, ' . implode(', ', array_keys($campos)) . ', criado_em, criado_por) VALUES (?' . str_repeat(', ?', count($campos)) . ', NOW(), ?)')
-                    ->execute([$eid, ...array_values($campos), (int) Auth::usuarioOuNulo()['id']]);
-                $id = (int) $pdo->lastInsertId();
-                Auditoria::registrar('criou', 'roteiros', $id, 'criou o roteiro ' . $campos['titulo'], null, $campos, $eid);
+            $pdo->beginTransaction();
+            try {
+                if ($id) {
+                    $pdo->prepare('UPDATE roteiros SET ' . implode(' = ?, ', array_keys($campos)) . ' = ?, atualizado_em = NOW() WHERE id = ? AND empresa_id = ?')
+                        ->execute([...array_values($campos), $id, $eid]);
+                } else {
+                    $pdo->prepare('INSERT INTO roteiros (empresa_id, ' . implode(', ', array_keys($campos)) . ', criado_em, criado_por) VALUES (?' . str_repeat(', ?', count($campos)) . ', NOW(), ?)')
+                        ->execute([$eid, ...array_values($campos), (int) Auth::usuarioOuNulo()['id']]);
+                }
+                $novoId = $id ?: (int) $pdo->lastInsertId();
+                $pdo->prepare('DELETE FROM roteiro_itens WHERE roteiro_id = ?')->execute([$novoId]);
+                $ins = $pdo->prepare('INSERT INTO roteiro_itens (roteiro_id, item_id, empresa_id, ordem, hora, duracao_min, nota) VALUES (?, ?, ?, ?, ?, ?, ?)');
+                $n = 0;
+                foreach ($novas as $p) {
+                    $ins->execute([$novoId, $p['item_id'], $eid, ++$n, $p['hora'], $p['duracao_min'], $p['nota']]);
+                }
+                $pdo->commit();
+            } catch (Throwable $ex) {
+                $pdo->rollBack();
+                throw $ex;
             }
-            avisar($id && !empty($_POST['primeira']) ? 'Roteiro criado. Agora acrescente as paradas.' : 'Roteiro salvo.');
-            fichaSalva(endereco('roteiro', $id, $campos['titulo']));
+            $resumo = $campos + ['paradas' => array_map(fn ($p) => trim(($p['hora'] ?? '') . ' ' . $p['nome']), array_values($novas))];
+            Auditoria::registrar($id ? 'alterou' : 'criou', 'roteiros', $novoId, ($id ? 'alterou' : 'criou') . ' o roteiro ' . $campos['titulo'], null, $resumo, $eid);
+            avisar($id ? 'Roteiro salvo.' : 'Roteiro criado.');
+            fichaSalva(endereco('roteiro', $novoId, $campos['titulo']));
         }
         $r = array_merge($r, $campos);
+        $paradas = array_values($novas);
     }
 }
 
-$paradas = [];
-if ($id) {
-    $q = $pdo->prepare('SELECT ri.item_id, ri.nota, ri.hora, ri.duracao_min, i.nome, i.situacao, f.codigo FROM roteiro_itens ri JOIN inventario_itens i ON i.id = ri.item_id
-                        JOIN inventario_fichas f ON f.id = i.ficha_id WHERE ri.roteiro_id = ? ORDER BY ri.ordem');
-    $q->execute([$id]);
-    $paradas = $q->fetchAll();
-}
 $csrf = Auth::tokenCsrf();
 $ro = $podeEditar ? '' : ' readonly';
+$homologado = fn (string $s) => in_array($s, ['homologada', 'desatualizada'], true);
+/** Uma linha de parada (também o molde que o inventour.js copia ao acrescentar). */
+$linha = function (array $p) use ($ro, $podeEditar, $homologado): string {
+    ob_start(); ?>
+    <li class="parada-linha" data-parada>
+      <?php if ($podeEditar): ?><button type="button" class="parada-alca" data-alca aria-label="Arrastar para mudar a ordem (ou use as setas)" data-balao-titulo="Mudar a ordem" data-balao="Arraste para cima ou para baixo. Pelo teclado: setas para cima e para baixo."><?= icone('arrastar') ?></button><?php endif; ?>
+      <span class="parada-num" data-parada-num></span>
+      <div class="parada-lugar"><b data-parada-nome><?= e((string) ($p['nome'] ?? '')) ?></b> <span class="dado" data-parada-codigo><?= e((string) ($p['codigo'] ?? '')) ?></span>
+        <span class="pilula at" data-parada-pendente<?= $homologado((string) ($p['situacao'] ?? 'homologada')) ? ' hidden' : '' ?>>Ainda não homologado</span>
+        <input type="hidden" name="parada_item[]" value="<?= (int) ($p['item_id'] ?? 0) ?>" data-parada-item></div>
+      <div class="parada-campos">
+        <div class="entrada"><input type="text" name="parada_hora[]" data-hora inputmode="numeric" maxlength="5" placeholder="Chegada" autocomplete="off" aria-label="Hora de chegada" value="<?= e((string) ($p['hora'] ?? '')) ?>"<?= $ro ?>></div>
+        <div class="entrada com-sufixo"><input type="text" name="parada_tempo[]" inputmode="numeric" maxlength="4" placeholder="Tempo" aria-label="Tempo no lugar, em minutos" value="<?= e((string) ($p['duracao_min'] ?? '')) ?>"<?= $ro ?>><span class="sufixo">min</span></div>
+        <div class="entrada"><input type="text" name="parada_nota[]" maxlength="300" placeholder="Dica desta parada (opcional)" value="<?= e((string) ($p['nota'] ?? '')) ?>"<?= $ro ?>></div>
+      </div>
+      <?php if ($podeEditar): ?><button type="button" class="parada-tirar" data-tirar-parada aria-label="Tirar do roteiro" data-balao-titulo="Tirar do roteiro" data-balao="A parada sai do roteiro quando você salvar."><?= icone('lixeira') ?></button><?php endif; ?>
+    </li>
+    <?php return (string) ob_get_clean();
+};
 paginaFicha($r['titulo'] ?: 'Novo roteiro', 'roteiros');
 ?>
 <?php if ($erro !== ''): ?><p class="aviso ruim" role="alert"><?= icone('alerta') ?><span><?= e($erro) ?></span></p><?php endif; ?>
 <form method="post" action="<?= e($aqui) ?>" id="form-roteiro">
   <button type="submit" class="oculto-visual" tabindex="-1" aria-hidden="true">Salvar</button>
   <input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="acao" value="salvar">
-  <?php if (!$id): ?><input type="hidden" name="primeira" value="1"><?php endif; ?>
   <div class="cab-pag">
     <div><h1 data-titulo><?= e($r['titulo'] ?: 'Novo roteiro') ?></h1>
-      <p><?= $r['publicado'] ? '<span class="pilula ok">No portal</span>' : '<span class="pilula nu">Rascunho</span>' ?> · <?= plural(count($paradas), 'parada', 'paradas') ?></p></div>
+      <p><?= $r['publicado'] ? '<span class="pilula ok">No portal</span>' : '<span class="pilula nu">Rascunho</span>' ?> · <span data-paradas-conta><?= plural(count($paradas), 'parada', 'paradas') ?></span></p></div>
     <?php if ($podeEditar): ?><div class="acoes"><button type="submit" class="botao"><?= icone('check') ?>Salvar</button></div><?php endif; ?>
   </div>
   <div class="cartao">
@@ -147,52 +154,37 @@ paginaFicha($r['titulo'] ?: 'Novo roteiro', 'roteiros');
         <div class="entrada"><input type="text" id="duracao" name="duracao" maxlength="60" placeholder="Meio dia, 2 dias" value="<?= e((string) $r['duracao']) ?>"<?= $ro ?>></div></div>
       <div class="campo c-6"><label for="tipo">Tipo</label>
         <div class="entrada"><select id="tipo" name="tipo" data-revela="tribo"<?= $podeEditar ? '' : ' disabled' ?>>
-          <?php foreach ($tipos as $k => $t): ?><option value="<?= $k ?>"<?= $r['tipo'] === $k ? ' selected' : '' ?>><?= e($t) ?></option><?php endforeach; ?></select></div></div>
+          <?php foreach ($tipos as $k => $t): ?><option value="<?= $k ?>"<?= $r['tipo'] === $k ? ' selected' : '' ?>><?= e($t) ?></option><?php endforeach; ?></select></div>
+        <span class="ajuda">Um dia aqui: a página do portal que sorteia um dos roteiros deste tipo. Você decide onde o dia começa, a hora de cada parada, o tempo em cada lugar e onde termina.</span></div>
       <div class="campo c-6"><label for="tribo_id">Perfil de viajante</label>
         <div class="entrada"><select id="tribo_id" name="tribo_id"<?= $podeEditar ? '' : ' disabled' ?>><option value="">Nenhum</option>
           <?php foreach ($tribos as $tid => $t): ?><option value="<?= (int) $tid ?>"<?= (int) $r['tribo_id'] === (int) $tid ? ' selected' : '' ?>><?= e((string) $t) ?></option><?php endforeach; ?></select></div>
         <span class="ajuda">Vale para o tipo Por perfil de viajante.</span></div>
-      <?php if ($r['tipo'] === 'um_dia'): ?><div class="campo c-12"><p class="ajuda"><?= icone('calendario') ?> Um dia aqui: você decide o dia inteiro. As paradas vão na ordem da visita, da primeira (onde o dia começa) à última (onde termina), cada uma com a hora de chegada e o tempo no lugar: cinco pontos numa manhã ou um lugar o dia todo. O portal sorteia entre os roteiros deste tipo publicados.</p></div><?php endif; ?>
       <div class="campo c-12"><label for="descricao">Descrição</label>
         <div class="entrada"><textarea id="descricao" name="descricao" rows="4" maxlength="4000"<?= $ro ?>><?= e((string) $r['descricao']) ?></textarea></div></div>
       <div class="campo c-12"><?= interruptor('publicado', 'Publicar no portal', (bool) $r['publicado'], 'No portal, com a rota no mapa', 'Rascunho: só no painel', !$podeEditar) ?></div>
     </div>
   </div>
-  <?php if ($id): ?>
-  <div class="cartao" id="paradas">
+
+  <div class="cartao" id="paradas" data-paradas>
     <h2 class="titulo-secao">Paradas</h2>
-    <?php if (!$paradas): ?><p class="ajuda">Nenhuma parada ainda. Busque o lugar abaixo e acrescente na ordem da visita.</p><?php endif; ?>
-    <ol class="paradas-painel">
-      <?php foreach ($paradas as $n => $p): ?>
-        <li><div class="parada-cab"><b><?= e((string) $p['nome']) ?></b> <span class="dado"><?= e((string) $p['codigo']) ?></span>
-          <?= in_array($p['situacao'], ['homologada', 'desatualizada'], true) ? '' : '<span class="pilula at" title="No portal só aparece depois de homologado">Ainda não homologado</span>' ?>
-          <?php if ($podeEditar): ?><span class="parada-acoes">
-            <button type="submit" form="mover" name="subir" value="<?= (int) $p['item_id'] ?>" class="botao claro mini" title="Subir"<?= $n === 0 ? ' disabled' : '' ?>>↑</button>
-            <button type="submit" form="mover" name="descer" value="<?= (int) $p['item_id'] ?>" class="botao claro mini" title="Descer"<?= $n === count($paradas) - 1 ? ' disabled' : '' ?>>↓</button>
-            <button type="submit" form="mover" name="tirar" value="<?= (int) $p['item_id'] ?>" class="botao claro mini" title="Tirar do roteiro"><?= icone('lixeira') ?></button></span><?php endif; ?></div>
-          <div class="parada-campos">
-            <div class="entrada"><input type="text" name="hora[<?= (int) $p['item_id'] ?>]" data-hora inputmode="numeric" maxlength="5" placeholder="Chegada 00:00" autocomplete="off" value="<?= e((string) $p['hora']) ?>" aria-label="Hora de chegada em <?= e((string) $p['nome']) ?>"<?= $ro ?>></div>
-            <div class="entrada com-sufixo"><input type="number" name="duracao_min[<?= (int) $p['item_id'] ?>]" min="0" max="1440" step="5" inputmode="numeric" placeholder="Tempo" value="<?= e((string) ($p['duracao_min'] ?? '')) ?>" aria-label="Tempo de visita em minutos"<?= $ro ?>><span class="sufixo">min</span></div>
-            <div class="entrada"><input type="text" name="nota[<?= (int) $p['item_id'] ?>]" maxlength="300" placeholder="Dica desta parada (opcional)" value="<?= e((string) $p['nota']) ?>"<?= $ro ?>></div>
-          </div></li>
-      <?php endforeach; ?>
+    <p class="ajuda">Na ordem da visita: a primeira é onde o roteiro começa e a última onde termina. Arraste pela alça para mudar a ordem.</p>
+    <p class="paradas-vazio" data-paradas-vazio<?= $paradas ? ' hidden' : '' ?>>Nenhuma parada ainda. Busque o lugar abaixo: ele entra no fim do roteiro.</p>
+    <ol class="paradas-editor" data-paradas-lista>
+      <?php foreach ($paradas as $p) { echo $linha($p); } ?>
     </ol>
+    <?php if ($podeEditar): ?>
+    <template data-parada-molde><?= $linha(['item_id' => 0, 'nome' => '', 'codigo' => '', 'situacao' => 'homologada']) ?></template>
+    <div class="paradas-acrescentar">
+      <label for="parada_nova_texto">Acrescentar parada</label>
+      <?= seletorBuscavel(['campo' => 'parada_nova', 'fonte' => '/api/itens', 'oque' => 'o lugar', 'vazio' => 'Digite o nome do lugar', 'nada' => 'Nenhum lugar com esse nome.']) ?>
+    </div>
+    <?php endif; ?>
   </div>
-  <?php endif; ?>
 </form>
-<?php if ($id && $podeEditar): ?>
-<form method="post" action="<?= e($aqui) ?>" id="mover"><input type="hidden" name="csrf" value="<?= e($csrf) ?>"></form>
-<form method="post" action="<?= e($aqui) ?>" class="cartao">
-  <input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="acao" value="parada">
-  <h2 class="titulo-secao">Acrescentar parada</h2>
-  <div class="grade"><div class="campo c-12">
-    <?= seletorBuscavel(['campo' => 'item', 'fonte' => '/api/itens', 'obrigatorio' => true, 'oque' => 'o lugar', 'enviarAoEscolher' => true,
-        'vazio' => 'Digite o nome do lugar', 'nada' => 'Nenhum lugar com esse nome.']) ?>
-    <span class="ajuda">Escolhendo o lugar, ele entra no fim do roteiro.</span></div></div>
-</form>
-<?php if (Auth::pode('roteiros.excluir')): ?>
-<form method="post" action="<?= e($aqui) ?>"><input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="acao" value="excluir">
-  <button type="submit" class="botao perigo" data-confirmar="Excluir o roteiro <?= e((string) $r['titulo']) ?>?"><?= icone('lixeira') ?>Excluir o roteiro</button></form>
-<?php endif; ?>
+<?php if ($id && $podeEditar && Auth::pode('roteiros.excluir')): ?>
+<form method="post" action="<?= e($aqui) ?>" class="cartao cartao-perigo"><input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="acao" value="excluir">
+  <div class="cartao-perigo-linha"><p class="ajuda">Excluir tira o roteiro do painel e do portal. Os lugares continuam no inventário.</p>
+    <button type="submit" class="botao perigo" data-confirmar="Excluir o roteiro <?= e((string) $r['titulo']) ?>?"><?= icone('lixeira') ?>Excluir o roteiro</button></div></form>
 <?php endif; ?>
 <?php paginaFichaFim();

@@ -30,7 +30,7 @@ if (mb_strlen($busca) < 2) {
 }
 [$sql, $args] = Lista::porPalavras($busca, ['i.nome', 'i.nome_popular', 'i.razao_social', 'i.bairro', 'i.logradouro']);
 $q = Database::conexao()->prepare(
-    "SELECT i.id, i.nome, i.bairro, f.codigo, f.nome AS ficha_nome
+    "SELECT i.id, i.nome, i.bairro, i.situacao, f.codigo, f.nome AS ficha_nome
      FROM inventario_itens i JOIN inventario_fichas f ON f.id = i.ficha_id
      WHERE i.empresa_id = ? AND i.situacao <> 'arquivada' AND f.forma <> 'municipio' AND {$sql}
      ORDER BY i.nome LIKE ? DESC, i.nome LIMIT 20"
@@ -41,5 +41,7 @@ echo json_encode(array_map(fn ($i) => [
     'nome'  => e((string) $i['nome']),
     'extra' => e($i['codigo'] . ' ' . $i['ficha_nome'] . ($i['bairro'] ? ' · ' . $i['bairro'] : '')),
     'texto' => (string) $i['nome'],
+    'codigo' => (string) $i['codigo'],
+    'homologado' => in_array($i['situacao'], ['homologada', 'desatualizada'], true),
     'iniciais' => avatarIniciais((string) $i['nome'], 'avatar'),
 ], $q->fetchAll()), JSON_UNESCAPED_UNICODE);

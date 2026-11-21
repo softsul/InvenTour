@@ -1716,9 +1716,36 @@ td.arquivos-caderno .apagar-versao:hover{background:var(--rubi-sup); border-colo
 .foto-capa-atual{display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap; margin:0 0 14px}
 .foto-capa-atual img{width:260px; max-width:100%; height:150px; object-fit:cover; border-radius:10px; display:block}
 
-/* Paradas do roteiro: hora de chegada, tempo de visita e a dica. */
-.parada-campos { display: grid; grid-template-columns: minmax(0, 130px) minmax(0, 120px) minmax(0, 1fr); gap: 8px; margin-top: 8px; }
-@media (max-width: 600px) { .parada-campos { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .parada-campos > .entrada:last-child { grid-column: 1 / -1; } }
+/* Paradas do roteiro, na mesma tela: alça para arrastar, número, lugar,
+   hora, tempo, dica e tirar. No celular, os campos descem para baixo do nome. */
+.paradas-editor { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; }
+.parada-linha { display: grid; grid-template-columns: 34px 26px minmax(0, 1fr) 40px; grid-template-areas: "alca num lugar tirar" "alca num campos tirar";
+  align-items: center; gap: 6px 10px; padding: 12px 12px 12px 8px; border: 1px solid var(--traco); border-radius: var(--r); background: var(--branco); }
+.parada-linha.arrastando { box-shadow: 0 10px 28px rgba(21, 29, 51, .16); border-color: var(--indigo); position: relative; z-index: 2; }
+.parada-linha.destaque { border-color: var(--indigo); background: var(--indigo-sup); }
+body.arrastando-parada { user-select: none; -webkit-user-select: none; cursor: grabbing; }
+.parada-alca { grid-area: alca; align-self: stretch; display: grid; place-items: center; width: 34px; border: 0; border-radius: 8px; background: transparent;
+  color: var(--fraca); cursor: grab; touch-action: none; }
+.parada-alca:hover, .parada-alca:focus-visible { background: var(--leve); color: var(--tinta); }
+.parada-alca svg { font-size: 18px; }
+.parada-num { grid-area: num; font-weight: 800; font-size: 13px; color: var(--indigo-fte); text-align: right; align-self: start; padding-top: 2px; }
+.parada-lugar { grid-area: lugar; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.parada-lugar b { font-size: 14px; }
+.parada-campos { grid-area: campos; display: grid; grid-template-columns: minmax(0, 120px) minmax(0, 140px) minmax(0, 1fr); gap: 8px; }
+.parada-tirar { grid-area: tirar; display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid var(--traco); border-radius: 8px;
+  background: var(--branco); color: var(--rubi); cursor: pointer; }
+.parada-tirar:hover { background: var(--rubi-sup); }
+.paradas-vazio { margin: 12px 0 0; padding: 18px; border: 1.5px dashed var(--traco); border-radius: var(--r); color: var(--fraca); text-align: center; }
+.paradas-acrescentar { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--traco); display: grid; gap: 6px; }
+.paradas-acrescentar label { font-weight: 700; font-size: 13px; }
+.cartao-perigo-linha { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.cartao-perigo-linha .ajuda { margin: 0; }
+@media (max-width: 600px) {
+  .parada-linha { grid-template-columns: 30px 22px minmax(0, 1fr) 40px; grid-template-areas: "alca num lugar tirar" "campos campos campos campos"; }
+  .parada-campos { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .parada-campos > .entrada:last-child { grid-column: 1 / -1; }
+  .cartao-perigo-linha .botao { flex: 1 1 100%; justify-content: center; }
+}
 
 /* Rodapé de cartão: o botão de salvar respira, separado dos campos (regra do Luiz, 21/11/2026). */
 .cartao-rodape { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--traco); }
