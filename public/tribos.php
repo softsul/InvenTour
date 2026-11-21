@@ -46,6 +46,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             Auditoria::registrar('criou', 'tribos', (int) $pdo->lastInsertId(), 'acrescentou a tribo ' . $nome);
             avisar('Tribo acrescentada. Agora cadastre as facilidades dela.');
         }
+    } elseif (in_array($acao, ['chave_tribo', 'chave_facilidade'], true)) {
+        // A chave liga e desliga (interruptor): grava sem recarregar a tela.
+        $tabela = $acao === 'chave_tribo' ? 'tribos' : 'tribo_facilidades';
+        $ativo = empty($_POST['ativo']) ? 0 : 1;
+        $pdo->prepare("UPDATE {$tabela} SET ativo = ? WHERE id = ?")->execute([$ativo, (int) ($_POST['id'] ?? 0)]);
+        Auditoria::registrar('alterou', $tabela, (int) ($_POST['id'] ?? 0), ($ativo ? 'ligou' : 'desligou') . ($acao === 'chave_tribo' ? ' a tribo' : ' a facilidade'));
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+            header('Content-Type: application/json');
+            echo json_encode(['ok' => true]);
+            exit;
+        }
     } elseif (in_array($acao, ['ligar_tribo', 'desligar_tribo', 'ligar_facilidade', 'desligar_facilidade'], true)) {
         $tabela = str_ends_with($acao, 'tribo') ? 'tribos' : 'tribo_facilidades';
         $pdo->prepare("UPDATE {$tabela} SET ativo = ? WHERE id = ?")->execute([str_starts_with($acao, 'ligar') ? 1 : 0, (int) ($_POST['id'] ?? 0)]);
@@ -74,13 +85,17 @@ paginaInicio('Tribos de consumo', 'tribos');
       <span class="nulo"><?= plural(count($facilidades[(int) $t['id']] ?? []), 'facilidade', 'facilidades') ?> · <?= plural((int) $t['itens'], 'item', 'itens') ?></span>
       <?= $t['ativo'] ? '' : '<span class="pilula ruim">Desligada</span>' ?></summary>
     <?php if ($t['descricao']): ?><p class="ajuda"><?= e((string) $t['descricao']) ?></p><?php endif; ?>
-    <ul class="lista-simples">
+    <?php /* Liga e desliga em chave, como o tema escuro (Luiz, 21/11/2026). */ ?>
+    <form method="post" action="/tribos" class="chave-tribo" data-chave-grava>
+      <input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="acao" value="chave_tribo"><input type="hidden" name="id" value="<?= (int) $t['id'] ?>">
+      <?= interruptor('ativo', 'A tribo', (bool) $t['ativo'], 'Ligada: aparece nas fichas e no portal', 'Desligada: fora das fichas e do portal', !$podeEditar) ?>
+    </form>
+    <ul class="chaves-facilidades">
       <?php foreach ($facilidades[(int) $t['id']] ?? [] as $f): ?>
-        <li class="<?= $f['ativo'] ? '' : 'nulo' ?>"><?= e((string) $f['nome']) ?>
-          <?php if ($podeEditar): ?>
-            <form method="post" action="/tribos" class="em-linha"><input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="id" value="<?= (int) $f['id'] ?>">
-              <button type="submit" class="como-link" name="acao" value="<?= $f['ativo'] ? 'desligar_facilidade' : 'ligar_facilidade' ?>"><?= $f['ativo'] ? 'desligar' : 'ligar' ?></button></form>
-          <?php endif; ?></li>
+        <li><form method="post" action="/tribos" data-chave-grava>
+          <input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="acao" value="chave_facilidade"><input type="hidden" name="id" value="<?= (int) $f['id'] ?>">
+          <?= interruptor('ativo', (string) $f['nome'], (bool) $f['ativo'], 'Ligada', 'Desligada', !$podeEditar) ?>
+        </form></li>
       <?php endforeach; ?>
     </ul>
     <?php if ($podeEditar): ?>
@@ -88,9 +103,6 @@ paginaInicio('Tribos de consumo', 'tribos');
         <input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="acao" value="facilidade"><input type="hidden" name="tribo_id" value="<?= (int) $t['id'] ?>">
         <div class="entrada"><?= icone('mais') ?><input type="text" name="nome" maxlength="160" placeholder="Nova facilidade" aria-label="Nova facilidade de <?= e((string) $t['nome']) ?>"></div>
         <button type="submit" class="botao claro mini">Acrescentar</button>
-        <button type="submit" class="botao claro mini" name="acao" value="<?= $t['ativo'] ? 'desligar_tribo' : 'ligar_tribo' ?>" formnovalidate>
-          <?= $t['ativo'] ? 'Desligar a tribo' : 'Ligar a tribo' ?></button>
-        <input type="hidden" name="id" value="<?= (int) $t['id'] ?>">
       </form>
     <?php endif; ?>
   </details>

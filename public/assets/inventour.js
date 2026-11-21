@@ -5492,6 +5492,15 @@ window.inventourMarcarNoFiltro = function (form, campo, ids, nome) {
       botao.dispatchEvent(new CustomEvent('interruptor', { bubbles: true }));
     });
   });
+  // Chave que grava sozinha (form data-chave-grava, como nas Tribos): manda
+  // o formulário sem recarregar; se falhar, a tela volta ao que está gravado.
+  document.addEventListener('interruptor', function (ev) {
+    var form = ev.target.closest('form[data-chave-grava]');
+    if (!form) { return; }
+    fetch(form.getAttribute('action'), { method: 'POST', body: new FormData(form), headers: { 'X-Requested-With': 'fetch' }, credentials: 'same-origin' })
+      .then(function (r) { if (!r.ok) { throw new Error('falhou'); } })
+      .catch(function () { location.reload(); });
+  });
   var quadro = document.querySelector('[data-ia-quadro]');
   if (!quadro) { return; }
   var chave = quadro.querySelector('[data-interruptor]');

@@ -1100,6 +1100,10 @@ details.tribo summary{cursor:pointer; display:flex; align-items:center; gap:8px;
 details.tribo summary::-webkit-details-marker{display:none}
 details.tribo summary svg{width:18px; height:18px; color:var(--indigo)}
 details.tribo .caixas{margin:8px 0 4px 26px}
+/* Tribos: a chave da tribo e uma chave por facilidade, como o tema escuro. */
+details.tribo .chave-tribo{margin:10px 0 8px}
+details.tribo .chaves-facilidades{list-style:none; margin:0 0 10px; padding:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:8px}
+details.tribo .chaves-facilidades button.interruptor{height:100%}
 
 /* ==========================================================================
    Funcionamento do item: uma linha por dia, chave de aberto e fechado,
