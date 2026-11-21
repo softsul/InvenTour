@@ -167,40 +167,46 @@ final class Portal
             $acess[(int) $a['item_id']][$a['chave']] = json_decode((string) $a['opcoes'], true) ?: [];
         }
         foreach ($acess as $id => $respostas) {
-            $itens[$id]['selos'] = self::selos($respostas);
+            $itens[$id]['selos_det'] = self::selosDetalhados($respostas);
+            $itens[$id]['selos'] = array_keys($itens[$id]['selos_det']);
         }
-        foreach (self::pdo()->query("SELECT i.item_id, t.id, t.nome, t.icone, COUNT(*) n FROM inventario_item_facilidades i
+        foreach (self::pdo()->query("SELECT i.item_id, t.id, t.nome, t.icone, COUNT(*) n, GROUP_CONCAT(f.nome ORDER BY f.ordem SEPARATOR ', ') AS facilidades FROM inventario_item_facilidades i
                                      JOIN tribo_facilidades f ON f.id = i.facilidade_id AND f.ativo = 1 JOIN tribos t ON t.id = f.tribo_id AND t.ativo = 1
                                      WHERE i.empresa_id = {$eid} AND i.item_id IN ({$ids}) GROUP BY i.item_id, t.id HAVING n >= 2") as $t) {
-            $itens[(int) $t['item_id']]['tribos'][(int) $t['id']] = ['nome' => $t['nome'], 'icone' => $t['icone']];
+            $itens[(int) $t['item_id']]['tribos'][(int) $t['id']] = ['nome' => $t['nome'], 'icone' => $t['icone'], 'facilidades' => (string) $t['facilidades']];
         }
     }
 
     /** Os selos a partir das respostas de acessibilidade (o "Não" sozinho não vale). */
     public static function selos(array $r): array
     {
-        $tem = function (string $chave, array $opcoes = []) use ($r): bool {
-            $marcadas = array_diff((array) ($r[$chave] ?? []), ['Não']);
-            return $opcoes ? (bool) array_intersect($marcadas, $opcoes) : (bool) $marcadas;
+        return array_keys(self::selosDetalhados($r));
+    }
+
+    /**
+     * Os selos com o que os justifica, para o balão: ['cadeirante' => ['Rampa', 'Sanitário: barra de apoio'], ...].
+     */
+    public static function selosDetalhados(array $r): array
+    {
+        $achados = function (string $chave, string $rotulo, array $opcoes = []) use ($r): array {
+            $marcadas = array_values(array_diff((array) ($r[$chave] ?? []), ['Não']));
+            if ($opcoes) {
+                $marcadas = array_values(array_intersect($marcadas, $opcoes));
+            }
+            return array_map(fn ($o) => $rotulo !== '' ? $rotulo . ': ' . mb_strtolower((string) $o) : (string) $o, $marcadas);
         };
-        $selos = [];
-        if ($tem('circulacao_interna', ['Rampa', 'Elevador', 'Plataforma elevatória', 'Porta larga']) || $tem('rota_externa', ['Rampa', 'Calçada rebaixada'])
-            || $tem('sanitario', ['Barra de apoio', 'Acesso para cadeira de rodas', 'Porta larga suficiente para entrada de cadeira de rodas'])) {
-            $selos[] = 'cadeirante';
-        }
-        if ($tem('piso', ['Tátil']) || $tem('sinalizacao_tatil') || $tem('comunicacao', ['Texto informativo em Braille', 'Texto informativo em fonte ampliada'])) {
-            $selos[] = 'visual';
-        }
-        if ($tem('comunicacao', ['Intérprete em Libras']) || $tem('sinalizacao_visual') || $tem('alarme_emergencia', ['Visual', 'Vibratório'])) {
-            $selos[] = 'auditiva';
-        }
-        if ($tem('pessoal_capacitado')) {
-            $selos[] = 'capacitado';
-        }
-        if ($tem('vaga_estacionamento')) {
-            $selos[] = 'vaga';
-        }
-        return $selos;
+        $det = [
+            'cadeirante' => array_merge($achados('circulacao_interna', '', ['Rampa', 'Elevador', 'Plataforma elevatória', 'Porta larga']),
+                                        $achados('rota_externa', 'Acesso externo', ['Rampa', 'Calçada rebaixada']),
+                                        $achados('sanitario', 'Sanitário', ['Barra de apoio', 'Acesso para cadeira de rodas', 'Porta larga suficiente para entrada de cadeira de rodas'])),
+            'visual'     => array_merge($achados('piso', 'Piso', ['Tátil']), $achados('sinalizacao_tatil', 'Sinalização tátil'),
+                                        $achados('comunicacao', '', ['Texto informativo em Braille', 'Texto informativo em fonte ampliada'])),
+            'auditiva'   => array_merge($achados('comunicacao', '', ['Intérprete em Libras']), $achados('sinalizacao_visual', 'Sinalização visual'),
+                                        $achados('alarme_emergencia', 'Alarme', ['Visual', 'Vibratório'])),
+            'capacitado' => $achados('pessoal_capacitado', 'Atendimento preparado para deficiência'),
+            'vaga'       => $achados('vaga_estacionamento', 'Vaga'),
+        ];
+        return array_filter($det);
     }
 
     // ------------------------------------------------------------ ficha

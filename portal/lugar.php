@@ -65,8 +65,10 @@ PortalLayout::inicio($destino, $nome, true, ['ativo' => (string) $pilar, 'imagem
     <?php if ($i['selos'] || $i['tribos']): ?>
     <h2>Para quem</h2>
     <ul class="selos-lista">
-      <?php foreach ($i['selos'] as $s): ?><li><?= icone($s === 'cadeirante' ? 'cadeirante' : ($s === 'auditiva' ? 'libras' : ($s === 'visual' ? 'olho' : ($s === 'vaga' ? 'carro' : 'pessoas')))) ?><?= e(Portal::SELOS_ACESSIBILIDADE[$s]) ?></li><?php endforeach; ?>
-      <?php foreach ($i['tribos'] as $t): ?><li class="tribo"><?= icone((string) ($t['icone'] ?: 'coracao')) ?><?= e((string) $t['nome']) ?></li><?php endforeach; ?>
+      <?php foreach ($i['selos'] as $s): ?><li><?= icone(PortalLayout::iconeDoSelo($s)) ?><span><b><?= e(Portal::SELOS_ACESSIBILIDADE[$s]) ?></b>
+        <?php if (!empty($i['selos_det'][$s])): ?><small><?= e(implode('; ', $i['selos_det'][$s])) ?></small><?php endif; ?></span></li><?php endforeach; ?>
+      <?php foreach ($i['tribos'] as $t): ?><li class="tribo"><?= icone((string) ($t['icone'] ?: 'coracao')) ?><span><b><?= e((string) $t['nome']) ?></b>
+        <small><?= e((string) $t['facilidades']) ?></small></span></li><?php endforeach; ?>
     </ul>
     <?php endif; ?>
 

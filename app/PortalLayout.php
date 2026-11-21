@@ -69,7 +69,7 @@ final class PortalLayout
       <?php if ($previa): ?><input type="hidden" name="previa" value="<?= e((string) $_GET['previa']) ?>"><?php endif; ?>
       <span class="entrada"><?= icone('busca') ?><input type="search" name="q" placeholder="Buscar hotel, restaurante, atrativo" aria-label="Buscar no portal" value="<?= e((string) ($_GET['q'] ?? '')) ?>"></span>
     </form>
-    <a class="meu-roteiro-link" href="<?= e(Portal::url('/meu-roteiro')) ?>" title="Meu roteiro"><?= icone('mapa') ?><span>Meu roteiro</span><b data-conta-roteiro hidden>0</b></a>
+    <a class="meu-roteiro-link" href="<?= e(Portal::url('/meu-roteiro')) ?>" data-balao-titulo="Meu roteiro" data-balao="Os lugares que você guardou neste aparelho, com a rota no mapa e o link para compartilhar." data-balao-roteiro><?= icone('mapa') ?><span>Meu roteiro</span><b data-conta-roteiro hidden>0</b></a>
     <button type="button" class="abrir-menu-portal" aria-controls="menu-portal" aria-expanded="false" aria-label="Abrir o menu"><?= icone('menu') ?></button>
   </div>
   <nav class="menu-portal" id="menu-portal" aria-label="Seções">
@@ -127,17 +127,39 @@ final class PortalLayout
         <?php
     }
 
+    /** Ícone de cada selo de acessibilidade. */
+    public static function iconeDoSelo(string $s): string
+    {
+        return ['cadeirante' => 'cadeirante', 'auditiva' => 'libras', 'visual' => 'olho', 'vaga' => 'carro'][$s] ?? 'pessoas';
+    }
+
+    /** Selo de acessibilidade com o balão completo (o que a ficha registra). */
+    public static function selo(string $s, array $detalhes): string
+    {
+        $texto = $detalhes ? 'Segundo a ficha do inventário: ' . implode('; ', $detalhes) . '.' : 'Registrado na ficha do inventário.';
+        return '<span class="selo" tabindex="0" role="img" aria-label="' . e(Portal::SELOS_ACESSIBILIDADE[$s] . '. ' . $texto) . '" data-balao-titulo="'
+            . e(Portal::SELOS_ACESSIBILIDADE[$s]) . '" data-balao="' . e($texto) . '">' . icone(self::iconeDoSelo($s)) . '</span>';
+    }
+
+    /** Selo de perfil de viajante (tribo), com as facilidades que o justificam. */
+    public static function seloTribo(array $t): string
+    {
+        $texto = 'Bom para este perfil de viajante. Tem: ' . ($t['facilidades'] ?? '') . '.';
+        return '<span class="selo tribo" tabindex="0" role="img" aria-label="' . e($t['nome'] . '. ' . $texto) . '" data-balao-titulo="' . e((string) $t['nome'])
+            . '" data-balao="' . e($texto) . '">' . icone((string) ($t['icone'] ?: 'coracao')) . '</span>';
+    }
+
     /** Cartão de um lugar nas listas. */
     public static function cartao(int $eid, array $i): string
     {
         $foto = Portal::foto($eid, $i['foto'] ?? null, 'm');
         $url = Portal::url('/lugar/' . (int) $i['id'] . '-' . Portal::slug((string) $i['nome']));
         $selos = '';
-        foreach ($i['selos'] ?? [] as $s) {
-            $selos .= '<span class="selo" title="' . e(Portal::SELOS_ACESSIBILIDADE[$s]) . '">' . icone($s === 'cadeirante' ? 'cadeirante' : ($s === 'auditiva' ? 'libras' : ($s === 'visual' ? 'olho' : ($s === 'vaga' ? 'carro' : 'pessoas')))) . '</span>';
+        foreach ($i['selos'] ?? [] as $sel) {
+            $selos .= self::selo($sel, (array) ($i['selos_det'][$sel] ?? []));
         }
         foreach ($i['tribos'] ?? [] as $t) {
-            $selos .= '<span class="selo tribo" title="' . e($t['nome']) . '">' . icone((string) ($t['icone'] ?: 'coracao')) . '</span>';
+            $selos .= self::seloTribo($t);
         }
         return '<article class="cartao-lugar"><a href="' . e($url) . '">'
             . ($foto ? '<img src="' . e($foto) . '" alt="" loading="lazy">' : '<span class="sem-foto">' . icone('imagem') . '</span>')
@@ -145,7 +167,7 @@ final class PortalLayout
             . ($i['bairro'] ? ' · ' . e((string) $i['bairro']) : '') . '</span>'
             . (!empty($i['experiencias']) ? '<span class="tem-xp">' . icone('coracao') . 'Tem experiência</span>' : '')
             . ($selos !== '' ? '<span class="selos">' . $selos . '</span>' : '') . '</span></a>'
-            . '<button type="button" class="guardar" data-roteiro="' . (int) $i['id'] . '" aria-pressed="false" title="Guardar no meu roteiro" aria-label="Guardar ' . e((string) $i['nome']) . ' no meu roteiro">' . icone('mais') . '</button>'
+            . '<button type="button" class="guardar" data-roteiro="' . (int) $i['id'] . '" aria-pressed="false" data-balao-titulo="Guardar no meu roteiro" data-balao="' . e((string) $i['nome']) . ' entra na sua lista de lugares para visitar, guardada só neste aparelho. Toque de novo para tirar." aria-label="Guardar ' . e((string) $i['nome']) . ' no meu roteiro">' . icone('mais') . '</button>'
             . '</article>';
     }
 }

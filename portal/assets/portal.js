@@ -138,4 +138,57 @@
       if (e.key === 'Escape') { fechar(); } else if (e.key === 'ArrowLeft') { mostrar(atual - 1); } else if (e.key === 'ArrowRight') { mostrar(atual + 1); }
     });
   }
+
+  // ---------------------------------------------------------------- balões
+  // O balão da casa, no lugar do balão nativo do navegador (title): título,
+  // texto completo, dentro da tela. Passar o mouse ou focar mostra; no
+  // toque, os selos (que não são botão) abrem e fecham o balão.
+  document.querySelectorAll('[title]:not(iframe)').forEach(function (el) {
+    if (!el.hasAttribute('data-balao')) { el.setAttribute('data-balao', el.getAttribute('title')); }
+    el.removeAttribute('title');
+  });
+  var balao = document.createElement('div');
+  balao.className = 'balao';
+  balao.setAttribute('role', 'tooltip');
+  balao.hidden = true;
+  document.body.appendChild(balao);
+  var alvo = null;
+  function textoDoBalao(el) {
+    var texto = el.getAttribute('data-balao') || '';
+    if (el.hasAttribute('data-balao-roteiro')) {
+      var n = ler().length;
+      texto = (n ? (n === 1 ? '1 lugar guardado. ' : n + ' lugares guardados. ') : 'Nenhum lugar guardado ainda. ') + texto;
+    }
+    return texto;
+  }
+  function abrirBalao(el) {
+    alvo = el;
+    balao.innerHTML = '';
+    var t = el.getAttribute('data-balao-titulo');
+    if (t) { var b = document.createElement('b'); b.textContent = t; balao.appendChild(b); }
+    var p = document.createElement('span'); p.textContent = textoDoBalao(el); balao.appendChild(p);
+    balao.hidden = false;
+    var r = el.getBoundingClientRect();
+    var larg = balao.offsetWidth, alt = balao.offsetHeight;
+    var esq = Math.max(8, Math.min(r.left + r.width / 2 - larg / 2, window.innerWidth - larg - 8));
+    var topo = r.top - alt - 10;
+    balao.classList.toggle('abaixo', topo < 8);
+    if (topo < 8) { topo = r.bottom + 10; }
+    balao.style.left = (esq + window.scrollX) + 'px';
+    balao.style.top = (topo + window.scrollY) + 'px';
+  }
+  function fecharBalao() { alvo = null; balao.hidden = true; }
+  document.addEventListener('mouseover', function (ev) {
+    var el = ev.target.closest && ev.target.closest('[data-balao]');
+    if (el && el !== alvo) { abrirBalao(el); } else if (!el && alvo) { fecharBalao(); }
+  });
+  document.addEventListener('focusin', function (ev) { var el = ev.target.closest && ev.target.closest('[data-balao]'); if (el) { abrirBalao(el); } });
+  document.addEventListener('focusout', fecharBalao);
+  window.addEventListener('scroll', fecharBalao, { passive: true });
+  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') { fecharBalao(); } });
+  document.addEventListener('touchstart', function (ev) {
+    var selo = ev.target.closest && ev.target.closest('.selo[data-balao]');
+    if (selo) { ev.preventDefault(); if (alvo === selo) { fecharBalao(); } else { abrirBalao(selo); } return; }
+    if (alvo && !balao.contains(ev.target)) { fecharBalao(); }
+  }, { passive: false });
 })();
