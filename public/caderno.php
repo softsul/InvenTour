@@ -77,7 +77,7 @@ paginaInicio('Caderno oficial', 'caderno');
 </div>
 
 <nav class="abas-chamado" role="tablist" aria-label="Seções">
-  <button type="button" role="tab" data-aba="versoes" aria-selected="<?= $aba === 'versoes' ? 'true' : 'false' ?>"><?= icone('manual') ?>Versões<span class="conta-aba"><?= count($versoes) ?></span></button>
+  <button type="button" role="tab" data-aba="versoes" aria-selected="<?= $aba === 'versoes' ? 'true' : 'false' ?>"><?= icone('arquivo') ?>Versões<span class="conta-aba"><?= count($versoes) ?></span></button>
   <button type="button" role="tab" data-aba="encadernacao" aria-selected="<?= $aba === 'encadernacao' ? 'true' : 'false' ?>"><?= icone('lapis') ?>Encadernação</button>
 </nav>
 
@@ -85,19 +85,21 @@ paginaInicio('Caderno oficial', 'caderno');
   <?php if ($podeGerar): ?>
   <form method="post" action="/caderno" class="cartao">
     <input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="acao" value="gerar">
-    <div class="cab-cartao"><h2>Gerar uma versão</h2></div>
-    <p class="ajuda"><?= milhar((int) $contas['homologados']) ?> de <?= milhar((int) $contas['total']) ?> itens homologados. A versão oficial leva só os homologados;
-      a prévia leva todos, com a marca de versão preliminar em todas as páginas.</p>
+    <div class="cab-cartao"><h2>Gerar uma versão</h2>
+      <span class="nota"><?= milhar((int) $contas['homologados']) ?> de <?= milhar((int) $contas['total']) ?> itens homologados</span></div>
+    <p class="ajuda gerar-explica">A versão oficial leva só os itens homologados. A prévia leva todos, com a marca de versão preliminar em todas as páginas, para conferir antes da homologação.</p>
     <div class="grade">
       <div class="campo c-6">
-        <label>Categorias</label>
+        <span class="rotulo-campo">Categorias</span>
+        <div class="caixas-coluna">
         <?php foreach (Caderno::CATEGORIAS as $k => $nome): ?>
           <label class="check"><input type="checkbox" name="categorias[]" value="<?= $k ?>" checked><i></i><?= e($nome) ?></label>
         <?php endforeach; ?>
+        </div>
         <span class="ajuda">As três marcadas é o caderno completo.</span>
       </div>
       <div class="campo c-6">
-        <label>Só algumas fichas</label>
+        <span class="rotulo-campo">Só algumas fichas</span>
         <?= multiEscolhaFiltro(['campo' => 'fichas', 'icone' => 'manual', 'rotulo' => 'Fichas', 'vazio' => 'Todas as fichas das categorias marcadas',
             'plural' => 'fichas', 'escolhidos' => [], 'filtrar' => true, 'buscar' => 'Buscar ficha',
             'opcoes' => array_column(array_map(fn ($f) => ['id' => $f['id'], 'nome' => $f['codigo'] . ' ' . $f['nome']], $fichas), 'nome', 'id')]) ?>
@@ -108,18 +110,19 @@ paginaInicio('Caderno oficial', 'caderno');
             'Só os itens homologados: a versão oficial') ?>
       </div>
     </div>
-    <div class="acoes"><button type="submit" class="botao"<?= $naFila ? ' disabled title="Espere a versão da fila terminar"' : '' ?>><?= icone('manual') ?>Gerar o caderno</button></div>
+    <div class="acoes acoes-gerar"><button type="submit" class="botao"<?= $naFila ? ' disabled title="Espere a versão da fila terminar"' : '' ?>><?= icone('arquivo') ?>Gerar o caderno</button>
+      <?php if ($naFila): ?><span class="nota">Há uma versão sendo gerada. A tela se atualiza sozinha.</span><?php endif; ?></div>
   </form>
   <?php endif; ?>
 
   <div class="cartao"<?= $naFila ? ' data-recarregar-em="6"' : '' ?>>
     <div class="cab-cartao"><h2>Versões geradas</h2></div>
     <?php if (!$versoes): ?>
-      <div class="vazio"><?= icone('manual') ?><p><strong>Nenhuma versão ainda.</strong></p><p>Gere a primeira acima. A prévia serve para conferir antes da homologação.</p></div>
+      <div class="vazio"><?= icone('arquivo') ?><p><strong>Nenhuma versão ainda.</strong></p><p>Gere a primeira acima. A prévia serve para conferir antes da homologação.</p></div>
     <?php else: ?>
     <div class="rolagem">
       <table class="dados">
-        <thead><tr><th>Versão</th><th>Recorte</th><th>Situação</th><th class="num">Páginas</th><th class="num">Itens</th><th>Código</th><th class="num">Leituras do QR</th><th class="acao"></th></tr></thead>
+        <thead><tr><th>Versão</th><th>Recorte</th><th>Situação</th><th class="num">Páginas</th><th class="num">Itens</th><th>Código</th><th class="num">Leituras do QR</th><th>Arquivos</th></tr></thead>
         <tbody>
         <?php foreach ($versoes as $v): [$rot, $tom] = Caderno::SITUACOES[$v['situacao']]; $pronto = $v['situacao'] === 'pronto'; ?>
           <tr>
@@ -133,15 +136,16 @@ paginaInicio('Caderno oficial', 'caderno');
             <td class="num dado"><?= $v['itens'] !== null ? milhar((int) $v['itens']) : '<span class="nulo">-</span>' ?></td>
             <td class="dado"><?= e(Caderno::codigoLegivel((string) $v['codigo'])) ?></td>
             <td class="num dado"><?= milhar((int) $v['leituras']) ?></td>
-            <td class="acao"><div class="acoes-linha">
+            <td class="arquivos-caderno">
               <?php if ($pronto): ?>
-                <a href="/caderno-arquivo?id=<?= (int) $v['id'] ?>&amp;tipo=pdf" data-visualizar="pdf" title="Ver o PDF" aria-label="Ver o PDF da versão <?= (int) $v['versao'] ?>"><?= icone('olho') ?></a>
+                <?php /* Os três arquivos com nome escrito: ícone sozinho não dizia qual era qual. */ ?>
+                <a class="botao claro mini" href="/caderno-arquivo?id=<?= (int) $v['id'] ?>&amp;tipo=pdf" data-visualizar="pdf" title="Abrir o PDF" aria-label="Abrir o PDF da versão <?= (int) $v['versao'] ?>"><?= icone('olho') ?>PDF</a>
                 <?php if (Auth::pode('caderno.exportar')): ?>
-                  <a href="/caderno-arquivo?id=<?= (int) $v['id'] ?>&amp;tipo=xlsx" title="Baixar a planilha (XLSX)" aria-label="Baixar a planilha da versão <?= (int) $v['versao'] ?>"><?= icone('lista') ?></a>
-                  <a href="/caderno-arquivo?id=<?= (int) $v['id'] ?>&amp;tipo=csv" title="Baixar em CSV" aria-label="Baixar o CSV da versão <?= (int) $v['versao'] ?>"><?= icone('baixar') ?></a>
+                  <a class="botao claro mini" href="/caderno-arquivo?id=<?= (int) $v['id'] ?>&amp;tipo=xlsx" title="Baixar a planilha do Excel" aria-label="Baixar a planilha da versão <?= (int) $v['versao'] ?>"><?= icone('baixar') ?>XLSX</a>
+                  <a class="botao claro mini" href="/caderno-arquivo?id=<?= (int) $v['id'] ?>&amp;tipo=csv" title="Baixar em CSV" aria-label="Baixar o CSV da versão <?= (int) $v['versao'] ?>"><?= icone('baixar') ?>CSV</a>
                 <?php endif; ?>
               <?php endif; ?>
-            </div></td>
+            </td>
           </tr>
         <?php endforeach; ?>
         </tbody>
@@ -170,7 +174,7 @@ paginaInicio('Caderno oficial', 'caderno');
         <div class="entrada"><textarea id="fontes" name="fontes" rows="6" maxlength="4000"<?= $ro ?>><?= e($cfg['fontes']) ?></textarea></div>
         <span class="ajuda">IBGE, IPARDES, Cadastur, o caderno anterior. Sai na ficha técnica.</span></div>
     </div>
-    <?php if ($podeEditar): ?><div class="acoes"><button type="submit" class="botao"><?= icone('check') ?>Salvar</button></div><?php endif; ?>
+    <?php if ($podeEditar): ?><div class="acoes acoes-gerar"><button type="submit" class="botao"><?= icone('check') ?>Salvar</button></div><?php endif; ?>
   </form>
   <p class="ajuda">Os textos de abertura e a linha do tempo vêm de <a href="/destino-textos">O destino</a>; as experiências aprovadas entram como anexo.</p>
 </div>
