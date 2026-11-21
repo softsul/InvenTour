@@ -67,19 +67,19 @@ PortalLayout::inicio($destino, $titulo, !$busca, ['ativo' => $busca ? '' : $pila
     <?php if ($filtros['aberto']): ?><input type="hidden" name="aberto" value="1"><?php endif; ?>
     <?php if ($busca): ?><input type="hidden" name="q" value="<?= e($filtros['q']) ?>"><?php endif; ?>
     <?php if (count($fichasDoPilar) > 1): ?>
-      <label class="campo-filtro"><span>Tipo</span><span class="entrada"><select name="ficha"><option value="">Todos</option>
+      <div class="campo-filtro"><span class="campo-rotulo">Tipo</span><span class="entrada"><select name="ficha"><option value="">Todos</option>
         <?php foreach ($fichasDoPilar as $ordem => $nomeFicha): ?><option value="<?= $ordem ?>"<?= $filtros['ficha'] === $ordem ? ' selected' : '' ?>><?= e($nomeFicha) ?></option><?php endforeach; ?>
-      </select></span></label>
+      </select></span></div>
     <?php endif; ?>
-    <label class="campo-filtro"><span>Zona</span><span class="entrada"><select name="zona"><option value="">Cidade e campo</option>
+    <div class="campo-filtro"><span class="campo-rotulo">Zona</span><span class="entrada"><select name="zona"><option value="">Cidade e campo</option>
       <option value="urbana"<?= $filtros['zona'] === 'urbana' ? ' selected' : '' ?>>Na cidade</option>
-      <option value="rural"<?= $filtros['zona'] === 'rural' ? ' selected' : '' ?>>No campo</option></select></span></label>
-    <label class="campo-filtro"><span>Acessibilidade</span><span class="entrada"><select name="acess"><option value="">Todas</option>
+      <option value="rural"<?= $filtros['zona'] === 'rural' ? ' selected' : '' ?>>No campo</option></select></span></div>
+    <div class="campo-filtro"><span class="campo-rotulo">Acessibilidade</span><span class="entrada"><select name="acess"><option value="">Todas</option>
       <?php foreach (Portal::SELOS_ACESSIBILIDADE as $k => $r): ?><option value="<?= $k ?>"<?= $filtros['acess'] === $k ? ' selected' : '' ?>><?= e($r) ?></option><?php endforeach; ?>
-    </select></span></label>
-    <label class="campo-filtro"><span>Perfil de viajante</span><span class="entrada"><select name="tribo"><option value="">Todos</option>
+    </select></span></div>
+    <div class="campo-filtro"><span class="campo-rotulo">Perfil de viajante</span><span class="entrada"><select name="tribo"><option value="">Todos</option>
       <?php foreach ($tribos as $t): ?><option value="<?= (int) $t['id'] ?>"<?= $filtros['tribo'] === (int) $t['id'] ? ' selected' : '' ?>><?= e((string) $t['nome']) ?></option><?php endforeach; ?>
-    </select></span></label>
+    </select></span></div>
     <button type="submit" class="botao-filtrar">Filtrar</button>
   </form>
 </details>

@@ -14,16 +14,15 @@
 @font-face { font-family: "Plex Mono"; font-weight: 600; font-display: swap; src: url("fontes/ibm-plex-mono-latin-600-normal.woff2") format("woff2"); }
 
 :root {
+  /* Caderno de anotações de viagem: papel creme, tinta azul de caneta, traço fino. Sempre claro, também com o celular no modo escuro. */
+  color-scheme: light;
   --acento: #0E7C66; --acento-escuro: #0A5A4A; --acento-sup: rgba(14, 124, 102, .10);
-  --papel: #F2EEE6; --papel-2: #E8E1D3; --cartao: #FBF9F4; --tinta: #14161B; --grafite: #4B5260; --apagado: #857D70; --linha: #D6CEBF;
-  --noite: #2E4A8F; --brasa: #C8502A; --musgo: #2F7D4F; --terra: #8A7A5C;
+  --papel: #F7F2E7; --papel-2: #EFE6D4; --cartao: #FFFDF8; --tinta: #2B3542; --grafite: #55606D; --apagado: #8E8371; --linha: #E0D5C0; --linha-forte: #C9BA9E;
+  --noite: #3A5A9C; --brasa: #C25A33; --musgo: #3E8159; --terra: #8F7C58;
   --mono: "Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --texto: "Open Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --pontos: rgba(20, 22, 27, .09);
-}
-@media (prefers-color-scheme: dark) {
-  :root { --papel: #111214; --papel-2: #1B1C20; --cartao: #17181C; --tinta: #EEE9DF; --grafite: #B9B2A5; --apagado: #8C8579; --linha: #2E2F35;
-          --noite: #7C9BE0; --brasa: #E8754E; --musgo: #5DB383; --terra: #B9A57E; --pontos: rgba(238, 233, 223, .06); }
+  --pontos: rgba(43, 53, 66, .055);
+  --sombra: 0 1px 2px rgba(90, 70, 40, .06), 0 6px 18px rgba(90, 70, 40, .08);
 }
 
 * { box-sizing: border-box; }
@@ -411,3 +410,106 @@ details.refinar[open] summary::after { content: " ×"; }
 .busca-pagina { border: 2px solid var(--tinta); margin: 0 0 18px; }
 .dist-fixa { font-family: var(--mono); font-size: .72rem; color: var(--brasa); font-weight: 600; }
 .busca-eventos { margin: 8px 0 34px; }
+
+/* ==========================================================================
+   Caderno de viagem (21/11/2026): mais leve. Nada de bloco preto; traço fino
+   em tinta de caneta, etiquetas de papel, cantos levemente arredondados e
+   sombra suave no lugar da sombra dura deslocada.
+   ========================================================================== */
+h1, h2, h3 { font-weight: 700; letter-spacing: -.025em; }
+h1 { letter-spacing: -.035em; }
+.capa h1 { font-weight: 700; letter-spacing: -.045em; }
+.agora b, .indice-pilares b, .rodape-grande, .menu-portal.aberto a { font-weight: 700; }
+.lugar-nome { font-weight: 700; }
+
+.cta { background: var(--acento); border: 1.5px solid var(--acento); color: #fff; border-radius: 8px; }
+.cta:hover { transform: translateY(-1px); box-shadow: var(--sombra); }
+.cta.claro { background: transparent; color: var(--tinta); border-color: var(--linha-forte); }
+.carimbo { border-width: 1px; border-color: var(--linha-forte); border-radius: 999px; }
+.carimbo[aria-pressed="true"], .carimbo.ligado { background: var(--acento); color: #fff; border-color: var(--acento); }
+.capa .carimbo { border-color: rgba(255, 255, 255, .7); }
+.capa .carimbo:hover { background: rgba(255, 253, 248, .95); color: var(--tinta); }
+
+.topo { background: rgba(247, 242, 231, .96); border-bottom: 1px solid var(--linha-forte); }
+.abrir-menu-portal { border: 1px solid var(--linha-forte); border-radius: 8px; }
+.busca-menu .entrada { border: 1px solid var(--linha-forte); border-radius: 8px; }
+
+.capa { background: var(--papel-2); }
+.capa::after { background: linear-gradient(180deg, rgba(40, 30, 18, .28) 0%, rgba(40, 30, 18, 0) 38%, rgba(40, 30, 18, .62) 100%); }
+.capa-busca { border-radius: 10px; overflow: hidden; box-shadow: var(--sombra); }
+
+.agora div { border-top: 1px dashed var(--linha-forte); }
+.secao-cab { border-bottom: 1px dashed var(--linha-forte); }
+.indice-pilares a:hover { background: var(--papel-2); color: var(--tinta); }
+.indice-pilares a:hover span { color: var(--grafite); }
+.indice-pilares a:hover::before { color: var(--apagado); }
+
+.lugar { border-radius: 10px; overflow: hidden; border-color: var(--linha); box-shadow: 0 1px 2px rgba(90, 70, 40, .05); }
+.lugar:hover { transform: translateY(-2px); box-shadow: var(--sombra); }
+.codigo { background: var(--cartao); color: var(--tinta); border: 1px solid var(--linha-forte); border-radius: 4px; }
+.dist-figura { background: rgba(255, 253, 248, .94); color: var(--tinta); border-radius: 4px; }
+.guardar { border: 1px solid var(--linha-forte); background: rgba(255, 253, 248, .94); border-radius: 8px; }
+.selo { border-width: 1px; border-radius: 6px; }
+
+.mapa-caixa, .mapa-palco { border-radius: 10px; }
+.mapa-filtro button { border: 1px solid var(--linha-forte); border-radius: 999px; background: var(--cartao); }
+.mapa-filtro button.ativo { background: var(--acento); border-color: var(--acento); color: #fff; }
+.mapa-zoom { border: 1px solid var(--linha-forte); border-radius: 8px; overflow: hidden; box-shadow: var(--sombra); background: var(--cartao); }
+.mapa-dica { background: var(--cartao); color: var(--tinta); border: 1px solid var(--linha-forte); border-radius: 8px; box-shadow: var(--sombra); }
+.balao-mapa, .mapa-cartao { border: 1px solid var(--linha-forte); border-radius: 10px; box-shadow: var(--sombra); background: var(--cartao); overflow: hidden; }
+.balao { background: var(--cartao); color: var(--tinta); border: 1px solid var(--linha-forte); border-radius: 8px; box-shadow: var(--sombra); }
+.balao b { color: var(--acento); }
+
+.botao-filtrar { background: var(--acento); color: #fff; border-radius: 8px; font-weight: 700; }
+.ficha-capa { background: var(--papel-2); }
+.ficha-dados { border-top: 1px dashed var(--linha-forte); }
+.selos-lista li { border-width: 1px; border-radius: 8px; }
+@media (max-width: 959px) {
+  .barra-acoes { background: rgba(255, 253, 248, .97); border-top: 1px solid var(--linha-forte); box-shadow: 0 -4px 16px rgba(90, 70, 40, .08); }
+  .barra-acoes a, .barra-acoes button { color: var(--tinta); }
+  .barra-acoes [aria-pressed="true"] { color: var(--brasa); }
+}
+.lista-eventos { border-top: 1px dashed var(--linha-forte); }
+.roteiro-linha { border: 1px solid var(--linha-forte); border-radius: 10px; }
+.roteiro-linha:hover { box-shadow: var(--sombra); }
+.xp.destaque { border: 1px solid var(--linha-forte); border-radius: 12px; box-shadow: var(--sombra); overflow: hidden; }
+.indice a { border: 1px solid var(--linha-forte); border-radius: 999px; }
+.indice a:hover { background: var(--papel-2); color: var(--tinta); }
+.narrativa h2 { border-bottom: 1px dashed var(--linha-forte); }
+.convite { border: 1px solid var(--linha-forte); border-radius: 12px; box-shadow: var(--sombra); }
+.busca-pagina { border: 1px solid var(--linha-forte); border-radius: 10px; overflow: hidden; }
+
+/* Rodapé: a contracapa do caderno, em papel kraft. */
+.rodape { background: var(--papel-2); color: var(--tinta); border-top: 1px dashed var(--linha-forte); }
+.rodape-grande { color: var(--acento); opacity: 1; }
+.rodape-colunas b { color: var(--apagado); opacity: 1; }
+.rodape-colunas p { color: var(--grafite); opacity: 1; }
+.rodape-colunas a:hover { color: var(--acento); }
+
+/* Lista própria no lugar do select: botão e folha de opções (no celular sobe do rodapé; no computador, janela no centro). */
+.campo-rotulo { display: block; }
+.seletor { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-width: 0; padding: 11px 12px; font: inherit; font-family: var(--texto);
+           font-size: .98rem; text-transform: none; letter-spacing: 0; color: var(--tinta); background: var(--cartao); border: 1px solid var(--linha-forte); border-radius: 8px; cursor: pointer; text-align: left; }
+.seletor span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.seletor svg { width: 16px; height: 16px; color: var(--apagado); }
+.seletor:hover { border-color: var(--acento); }
+.folha-fundo { position: fixed; inset: 0; z-index: 90; background: rgba(43, 35, 22, .32); display: flex; align-items: flex-end; justify-content: center; }
+.folha-opcoes { width: 100%; max-height: 82svh; display: flex; flex-direction: column; background: var(--cartao); color: var(--tinta);
+                border-radius: 16px 16px 0 0; box-shadow: 0 -8px 30px rgba(60, 45, 25, .18); padding-bottom: env(safe-area-inset-bottom); animation: sobe .18s ease-out; }
+@keyframes sobe { from { transform: translateY(24px); opacity: .6; } }
+@media (prefers-reduced-motion: reduce) { .folha-opcoes { animation: none; } }
+.folha-cab { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px 12px; border-bottom: 1px dashed var(--linha-forte); }
+.folha-cab b { font-family: var(--mono); font-size: .74rem; font-weight: 600; text-transform: uppercase; letter-spacing: .12em; color: var(--apagado); }
+.folha-fechar { width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--linha-forte); border-radius: 8px; background: transparent; color: var(--tinta); cursor: pointer; }
+.folha-lista { list-style: none; margin: 0; padding: 6px 8px 10px; overflow-y: auto; overscroll-behavior: contain; }
+.folha-lista button { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 50px; padding: 10px 12px; font: inherit; font-size: 1rem;
+                      line-height: 1.3; text-align: left; color: var(--tinta); background: transparent; border: 0; border-radius: 8px; cursor: pointer; }
+.folha-lista li + li button { border-top: 1px solid var(--linha); border-radius: 0; }
+.folha-lista button::after { content: ""; width: 20px; height: 20px; flex: none; border: 1.5px solid var(--linha-forte); border-radius: 50%; }
+.folha-lista button[aria-pressed="true"] { color: var(--acento); font-weight: 700; }
+.folha-lista button[aria-pressed="true"]::after { border-color: var(--acento); background: radial-gradient(var(--acento) 45%, transparent 50%); }
+.folha-lista button:hover, .folha-lista button:focus-visible { background: var(--acento-sup); }
+@media (min-width: 700px) {
+  .folha-fundo { align-items: center; padding: 24px; }
+  .folha-opcoes { max-width: 460px; max-height: 70vh; border-radius: 14px; box-shadow: 0 18px 50px rgba(60, 45, 25, .22); }
+}

@@ -28,6 +28,78 @@
   }
 
   // ---------------------------------------------------------------- filtros
+  // Lista própria no lugar do select (nada do seletor do sistema, que no
+  // Android abre a lista nativa): botão com o valor escolhido e uma folha de
+  // opções da casa, com título e marcação. O select fica no formulário,
+  // escondido, e recebe o valor e o evento change.
+  function folhaDeOpcoes(select) {
+    var caixa = select.closest('.campo-filtro');
+    var rotulo = caixa ? (caixa.querySelector('.campo-rotulo') || {}).textContent || '' : '';
+    var botao = document.createElement('button');
+    botao.type = 'button';
+    botao.className = 'seletor';
+    botao.setAttribute('aria-haspopup', 'dialog');
+    var texto = document.createElement('span');
+    botao.appendChild(texto);
+    botao.insertAdjacentHTML('beforeend', '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>');
+    function pintar() { var o = select.options[select.selectedIndex]; texto.textContent = o ? o.text : ''; botao.setAttribute('aria-label', rotulo + ': ' + texto.textContent); }
+    pintar();
+    select.hidden = true;
+    select.tabIndex = -1;
+    select.parentNode.insertBefore(botao, select);
+    botao.addEventListener('click', function () {
+      var fundo = document.createElement('div');
+      fundo.className = 'folha-fundo';
+      var folha = document.createElement('div');
+      folha.className = 'folha-opcoes';
+      folha.setAttribute('role', 'dialog');
+      folha.setAttribute('aria-modal', 'true');
+      folha.setAttribute('aria-label', rotulo);
+      var cab = document.createElement('div');
+      cab.className = 'folha-cab';
+      var tit = document.createElement('b');
+      tit.textContent = rotulo;
+      var fechar = document.createElement('button');
+      fechar.type = 'button';
+      fechar.className = 'folha-fechar';
+      fechar.setAttribute('aria-label', 'Fechar');
+      fechar.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+      cab.appendChild(tit);
+      cab.appendChild(fechar);
+      var lista = document.createElement('ul');
+      lista.className = 'folha-lista';
+      Array.prototype.forEach.call(select.options, function (o, i) {
+        var li = document.createElement('li');
+        var op = document.createElement('button');
+        op.type = 'button';
+        op.setAttribute('aria-pressed', i === select.selectedIndex ? 'true' : 'false');
+        op.textContent = o.text;
+        op.addEventListener('click', function () {
+          var mudou = select.selectedIndex !== i;
+          select.selectedIndex = i;
+          pintar();
+          sair();
+          if (mudou) { select.dispatchEvent(new Event('change', { bubbles: true })); }
+        });
+        li.appendChild(op);
+        lista.appendChild(li);
+      });
+      folha.appendChild(cab);
+      folha.appendChild(lista);
+      fundo.appendChild(folha);
+      document.body.appendChild(fundo);
+      document.body.style.overflow = 'hidden';
+      function sair() { fundo.remove(); document.body.style.overflow = ''; document.removeEventListener('keydown', tecla); botao.focus(); }
+      function tecla(ev) { if (ev.key === 'Escape') { sair(); } }
+      document.addEventListener('keydown', tecla);
+      fechar.addEventListener('click', sair);
+      fundo.addEventListener('click', function (ev) { if (ev.target === fundo) { sair(); } });
+      var marcado = lista.querySelector('[aria-pressed="true"]') || lista.querySelector('button');
+      if (marcado) { marcado.focus(); marcado.scrollIntoView({ block: 'nearest' }); }
+    });
+  }
+  document.querySelectorAll('select').forEach(folhaDeOpcoes);
+
   document.querySelectorAll('form[data-envia-ao-mudar]').forEach(function (form) {
     form.setAttribute('data-com-js', '');
     form.querySelectorAll('select').forEach(function (s) { s.addEventListener('change', function () { form.submit(); }); });
