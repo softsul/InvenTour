@@ -43,6 +43,7 @@
  *   api/organizadores-busca     120 por minuto      usuário  busca ao vivo do campo de escolha
  *   api/apelido-organizador     120 por minuto      usuário  conferência do apelido do link do organizador
  *   api/municipios              120 por minuto      usuário  busca ao vivo do campo de município
+ *   api/itens                   120 por minuto      usuário  busca ao vivo do item na experiência nova
  *   api/regioes-turisticas      120 por minuto      usuário  busca ao vivo do filtro de região turística
  *   api/datas-do-periodo        120 por minuto      usuário  aviso de feriado ao escolher a data do evento
  *   api/comandos                30 por minuto       usuário  carregada ao abrir a paleta, não a cada tecla

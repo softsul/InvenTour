@@ -11,6 +11,8 @@
  * aprova, com parecer. Devolvida para ajuste, volta a ser editável.
  *
  *   /experiencia?item=12   nova experiência do item 12
+ *   /experiencia           nova experiência, com o item escolhido na tela
+ *                          (aberta pela lista de Experiências)
  *   /experiencia/5         experiência existente
  */
 declare(strict_types=1);
@@ -46,7 +48,10 @@ if ($id) {
     $x = $q->fetch() ?: negarRegistro();
     $item = Inventario::buscar((int) $x['item_id']) ?: negarRegistro();
 } else {
-    $item = Inventario::buscar((int) ($_GET['item'] ?? $_POST['item'] ?? 0)) ?: negarRegistro();
+    // Sem item (a experiência nova aberta pela lista), o item é escolhido
+    // no próprio formulário e chega no POST.
+    $itemId = (int) ($_GET['item'] ?? $_POST['item'] ?? 0);
+    $item = $itemId ? (Inventario::buscar($itemId) ?: negarRegistro()) : null;
     $x = ['id' => 0, 'situacao' => 'rascunho', 'titulo' => '', 'dimensoes' => '{}', 'narrativa' => '', 'duracao_minutos' => '',
           'pessoas_min' => 1, 'pessoas_max' => '', 'agendamento' => 1, 'antecedencia_horas' => '', 'faixa_valor' => '', 'valor_texto' => '', 'parecer' => ''];
 }
@@ -54,7 +59,7 @@ $curador = Auth::ehSoftsul() || Auth::temPapel('gestor') || Auth::temPapel('cons
 $podeEditar = Auth::pode('inventario.editar') && in_array($x['situacao'], ['rascunho', 'ajuste'], true);
 $dimensoes = json_decode((string) $x['dimensoes'], true) ?: [];
 $erro = '';
-$aqui = $id ? endereco('experiencia', $id, (string) $x['titulo']) : '/experiencia?item=' . (int) $item['id'];
+$aqui = $id ? endereco('experiencia', $id, (string) $x['titulo']) : ($item && !empty($_GET['item']) ? '/experiencia?item=' . (int) $item['id'] : '/experiencia');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $acao = (string) ($_POST['acao'] ?? 'salvar');
@@ -112,7 +117,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $q = $pdo->prepare('SELECT COUNT(*) FROM inventario_midias WHERE experiencia_id = ? AND empresa_id = ?');
         $q->execute([$id, $eid]);
         $temEvidencia = $id && (int) $q->fetchColumn() > 0;
-        if ($campos['titulo'] === '') {
+        if (!$item) {
+            $erro = 'Escolha o item do inventário onde a experiência acontece.';
+        } elseif ($campos['titulo'] === '') {
             $erro = 'Dê um título à experiência.';
         } elseif ($campos['faixa_valor'] === '') {
             $erro = 'Escolha a faixa de preço (pode ser gratuita).';
@@ -153,18 +160,18 @@ $ro = $podeEditar ? '' : ' readonly';
 $dis = $podeEditar ? '' : ' disabled';
 [$rotuloSit, $tomSit] = SITUACOES_EXPERIENCIA[$x['situacao']] ?? [$x['situacao'], 'nu'];
 $csrf = Auth::tokenCsrf();
-paginaFicha($x['titulo'] ?: 'Nova experiência', 'inventario');
+paginaFicha($x['titulo'] ?: 'Nova experiência', 'experiencias');
 ?>
-<div class="trilha"><a href="/inventario">Inventário</a><?= icone('seta') ?><a href="<?= e(endereco('item', (int) $item['id'], (string) $item['nome'])) ?>"><?= e((string) $item['nome']) ?></a><?= icone('seta') ?><span>Experiência</span></div>
+<div class="trilha"><a href="/experiencias">Experiências</a><?= icone('seta') ?><?php if ($item): ?><a href="<?= e(endereco('item', (int) $item['id'], (string) $item['nome'])) ?>"><?= e((string) $item['nome']) ?></a><?= icone('seta') ?><?php endif; ?><span><?= e($x['titulo'] ?: 'Nova experiência') ?></span></div>
 <?php if ($erro !== ''): ?><p class="aviso ruim" role="alert"><?= icone('alerta') ?><span><?= e($erro) ?></span></p><?php endif; ?>
 <?php if ($x['situacao'] === 'ajuste' && $x['parecer']): ?><p class="aviso atencao"><?= icone('alerta') ?><span><strong>Ajuste pedido pela curadoria:</strong> <?= e((string) $x['parecer']) ?></span></p><?php endif; ?>
 
 <form method="post" action="<?= e($aqui) ?>" id="form-experiencia">
   <button type="submit" class="oculto-visual" tabindex="-1" aria-hidden="true" name="acao" value="salvar">Salvar</button>
-  <input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="item" value="<?= (int) $item['id'] ?>">
+  <input type="hidden" name="csrf" value="<?= e($csrf) ?>"><?php if ($item): ?><input type="hidden" name="item" value="<?= (int) $item['id'] ?>"><?php endif; ?>
   <div class="cab-pag">
     <div><h1 data-titulo><?= e($x['titulo'] ?: 'Nova experiência') ?></h1>
-      <p><?= e((string) $item['nome']) ?> · <span class="pilula <?= $tomSit ?>"><?= e($rotuloSit) ?></span></p></div>
+      <p><?= $item ? e((string) $item['nome']) . ' · ' : '' ?><span class="pilula <?= $tomSit ?>"><?= e($rotuloSit) ?></span></p></div>
     <?php if ($podeEditar): ?>
       <div class="acoes"><button type="submit" class="botao claro" name="acao" value="salvar"><?= icone('check') ?>Salvar</button>
         <button type="submit" class="botao" name="acao" value="enviar"><?= icone('enviar') ?>Enviar à curadoria</button></div>
@@ -172,6 +179,14 @@ paginaFicha($x['titulo'] ?: 'Nova experiência', 'inventario');
   </div>
   <div class="cartao">
     <div class="grade">
+      <?php if (!$item): ?>
+      <div class="campo c-12">
+        <label for="item_texto">Item do inventário <span class="obrig">obrigatório</span></label>
+        <?= seletorBuscavel(['campo' => 'item', 'fonte' => '/api/itens', 'obrigatorio' => true, 'oque' => 'o item do inventário',
+            'vazio' => 'Digite o nome do atrativo, equipamento ou serviço', 'nada' => 'Nenhum item com esse nome.']) ?>
+        <span class="ajuda">O lugar onde a vivência acontece. A experiência aparece na aba Experiências dele.</span>
+      </div>
+      <?php endif; ?>
       <div class="campo c-12">
         <label for="titulo">Título <span class="obrig">obrigatório</span></label>
         <div class="entrada"><input type="text" id="titulo" name="titulo" maxlength="160" placeholder="Colheita noturna e degustação na vinícola" value="<?= e((string) $x['titulo']) ?>"<?= $ro ?>></div>

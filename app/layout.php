@@ -31,9 +31,10 @@ if (isset($_GET['pp']) && Auth::usuarioOuNulo()) {
 }
 
 /**
- * Os números do menu: fichas esperando conferência (Homologação) e fichas
- * devolvidas para o campo no escopo da pessoa (Coleta de campo). O mesmo cálculo serve
- * a tela e o /api/contadores.
+ * Os números do menu: fichas esperando conferência (Homologação), experiências
+ * esperando curadoria (Experiências) e fichas devolvidas para o campo no
+ * escopo da pessoa (Coleta de campo). O mesmo cálculo serve a tela e o
+ * /api/contadores.
  */
 function contadoresDoMenu(): array
 {
@@ -45,6 +46,12 @@ function contadoresDoMenu(): array
     $n = [];
     if (Auth::pode('homologacao.ver')) {
         $n['homologacao'] = Esteira::naFila($eid);
+    }
+    if (Auth::pode('experiencias.ver') && (Auth::ehSoftsul() || Auth::temPapel('gestor') || Auth::temPapel('consultor') || Auth::temPapel('coordenador'))) {
+        // Para quem faz a curadoria: as experiências que esperam por ela.
+        $q = Database::conexao()->prepare("SELECT COUNT(*) FROM inventario_experiencias WHERE empresa_id = ? AND situacao = 'aguardando'");
+        $q->execute([$eid]);
+        $n['experiencias'] = (int) $q->fetchColumn();
     }
     if (Auth::pode('coleta.ver')) {
         // Na coleta, só o que pede ação: o que a conferência devolveu.
@@ -268,6 +275,7 @@ function explicacaoDoMenu(string $chave): string
             ? 'Visão da plataforma: destinos ativos, andamento dos inventários de cada destino, saúde das integrações e atividade da equipe.'
             : 'Resumo do destino: fichas do inventário por categoria e por situação, coleta em andamento e homologação pendente.',
         'inventario' => 'Fichas da oferta turística do destino: infraestrutura de apoio, serviços e equipamentos turísticos e atrativos, como no Inventário do Ministério do Turismo.',
+        'experiencias' => 'Vivências que os lugares do inventário oferecem (colheita, oficina, degustação), nos 4 Es, com a curadoria antes de irem para o portal.',
         'coleta' => 'Coleta de campo: as fichas que pesquisadores e o trade preencheram, com a localização e as fotos, a caminho da homologação.',
         'homologacao' => 'Fila das fichas que esperam a homologação do município: abra cada uma para homologar, devolver para ajuste ou recusar.',
         'caderno' => 'Caderno oficial do inventário do destino, gerado em PDF por versão, a partir das fichas homologadas.',
