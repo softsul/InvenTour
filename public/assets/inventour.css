@@ -1704,3 +1704,6 @@ td.arquivos-caderno .botao.mini{display:inline-flex; width:auto; margin-left:4px
   table.dados td.arquivos-caderno{white-space:normal; text-align:left}
   td.arquivos-caderno .botao.mini{margin:4px 6px 0 0}
 }
+
+.foto-capa-atual{display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap; margin:0 0 14px}
+.foto-capa-atual img{width:260px; max-width:100%; height:150px; object-fit:cover; border-radius:10px; display:block}

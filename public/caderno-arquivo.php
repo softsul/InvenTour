@@ -14,6 +14,24 @@ Auth::exigirLogin();
 $empresa = Empresa::exigir();
 Auth::exigirPermissao('caderno.ver');
 $tipo = (string) ($_GET['tipo'] ?? 'pdf');
+// A foto da capa escolhida na Encadernação (a miniatura e a grande).
+if ($tipo === 'capa') {
+    $foto = Caderno::fotoDaCapa((int) $empresa['id']) ?? negarRegistro();
+    if (!empty($_GET['mini'])) {
+        require_once __DIR__ . '/../app/Imagem.php';
+        $m = Imagem::miniaturas((string) file_get_contents($foto))['m'] ?? null;
+        if ($m) {
+            header('Content-Type: image/jpeg');
+            header('Cache-Control: private, max-age=60');
+            echo $m;
+            exit;
+        }
+    }
+    header('Content-Type: image/jpeg');
+    header('Cache-Control: private, max-age=60');
+    readfile($foto);
+    exit;
+}
 if (!in_array($tipo, ['pdf', 'xlsx', 'csv'], true)) {
     negarRegistro();
 }

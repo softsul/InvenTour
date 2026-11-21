@@ -47,10 +47,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'ano'       => $ano >= 2000 && $ano <= 2100 ? (string) $ano : '',
             'equipe'    => mb_substr(trim((string) ($_POST['equipe'] ?? '')), 0, 4000),
             'fontes'    => mb_substr(trim((string) ($_POST['fontes'] ?? '')), 0, 4000),
+            'credito_capa' => mb_substr(trim((string) ($_POST['credito_capa'] ?? '')), 0, 160),
         ];
         Ajustes::salvar('caderno', $valores, $eid, (int) Auth::usuarioOuNulo()['id']);
         Auditoria::registrar('alterou', 'ajustes', null, 'alterou a encadernação do caderno oficial', null, $valores, $eid);
         avisar('Encadernação salva. Vale para a próxima versão gerada.');
+        redirecionar('/caderno?aba=encadernacao');
+    }
+    elseif ($acao === 'foto_capa' && $podeEditar) {
+        $falha = Caderno::guardarFotoDaCapa($eid, $_FILES['foto_capa'] ?? []);
+        if ($falha === null) {
+            Auditoria::registrar('alterou', 'ajustes', null, 'trocou a foto da capa do caderno oficial', null, null, $eid);
+        }
+        avisar($falha ?? 'Foto da capa guardada. Vale para a próxima versão gerada.', $falha ? 'ruim' : 'bom');
+        redirecionar('/caderno?aba=encadernacao');
+    } elseif ($acao === 'tirar_foto_capa' && $podeEditar) {
+        @unlink(Caderno::pasta($eid) . '/capa.jpg');
+        Auditoria::registrar('alterou', 'ajustes', null, 'tirou a foto da capa do caderno oficial', null, null, $eid);
+        avisar('Foto da capa retirada: a capa volta a ser a do emblema.');
         redirecionar('/caderno?aba=encadernacao');
     }
     redirecionar('/caderno');
@@ -167,6 +181,8 @@ paginaInicio('Caderno oficial', 'caderno');
         <div class="entrada"><input type="number" id="ano" name="ano" min="2000" max="2100" value="<?= (int) $cfg['ano'] ?>"<?= $ro ?>></div></div>
       <div class="campo c-12"><label for="subtitulo">Subtítulo</label>
         <div class="entrada"><input type="text" id="subtitulo" name="subtitulo" maxlength="200" placeholder="Por exemplo, Edição do Conselho Municipal de Turismo" value="<?= e($cfg['subtitulo']) ?>"<?= $ro ?>></div></div>
+      <div class="campo c-12"><label for="credito_capa">Legenda da foto da capa</label>
+        <div class="entrada"><input type="text" id="credito_capa" name="credito_capa" maxlength="160" placeholder="Parque Estadual Vitório Piassa. Foto: Prefeitura" value="<?= e($cfg['credito_capa']) ?>"<?= $ro ?>></div></div>
       <div class="campo c-6"><label for="equipe">Equipe técnica</label>
         <div class="entrada"><textarea id="equipe" name="equipe" rows="6" maxlength="4000" placeholder="Nome: função, uma pessoa por linha"<?= $ro ?>><?= e($cfg['equipe']) ?></textarea></div>
         <span class="ajuda">Uma pessoa por linha, no formato Nome: função. Sai na ficha técnica.</span></div>
@@ -176,6 +192,25 @@ paginaInicio('Caderno oficial', 'caderno');
     </div>
     <?php if ($podeEditar): ?><div class="acoes acoes-gerar"><button type="submit" class="botao"><?= icone('check') ?>Salvar</button></div><?php endif; ?>
   </form>
+  <div class="cartao">
+    <div class="cab-cartao"><h2>Foto da capa</h2></div>
+    <p class="ajuda">Uma foto marcante do destino, de preferência deitada. Sem foto, a capa sai com o emblema na cor do destino.</p>
+    <?php if (Caderno::fotoDaCapa($eid)): ?>
+      <div class="foto-capa-atual">
+        <a href="/caderno-arquivo?tipo=capa" data-visualizar="foto" data-legenda="Foto da capa"><img src="/caderno-arquivo?tipo=capa&amp;mini=1" alt="Foto da capa atual"></a>
+        <?php if ($podeEditar): ?>
+          <form method="post" action="/caderno?aba=encadernacao"><input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="acao" value="tirar_foto_capa">
+            <button type="submit" class="botao claro mini" data-confirmar="Tirar a foto da capa?"><?= icone('lixeira') ?>Tirar a foto</button></form>
+        <?php endif; ?>
+      </div>
+    <?php endif; ?>
+    <?php if ($podeEditar): ?>
+      <form method="post" action="/caderno?aba=encadernacao" enctype="multipart/form-data">
+        <input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="acao" value="foto_capa">
+        <?= zonaDeUpload('foto_capa', 'image/jpeg,image/png,image/webp', 'Arraste a foto da capa aqui', 'ou clique para escolher') ?>
+      </form>
+    <?php endif; ?>
+  </div>
   <p class="ajuda">Os textos de abertura e a linha do tempo vêm de <a href="/destino-textos">O destino</a>; as experiências aprovadas entram como anexo.</p>
 </div>
 <?php paginaFim();

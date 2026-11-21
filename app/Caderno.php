@@ -63,6 +63,7 @@ final class Caderno
             'ano'       => (int) ($g['ano'] ?? 0) ?: (int) date('Y'),
             'equipe'    => (string) ($g['equipe'] ?? ''),
             'fontes'    => (string) ($g['fontes'] ?? ''),
+            'credito_capa' => (string) ($g['credito_capa'] ?? ''),
         ];
     }
 
@@ -134,6 +135,30 @@ final class Caderno
             @mkdir($pasta, 0770, true);
         }
         return $pasta;
+    }
+
+    /** A foto da capa escolhida na Encadernação (storage/cadernos/<destino>/capa.jpg), ou null. */
+    public static function fotoDaCapa(int $eid): ?string
+    {
+        $f = self::pasta($eid) . '/capa.jpg';
+        return is_readable($f) ? $f : null;
+    }
+
+    /** Guarda a foto da capa (redesenhada, sem metadados). Devolve o erro ou null. */
+    public static function guardarFotoDaCapa(int $eid, array $arquivo): ?string
+    {
+        require_once __DIR__ . '/Imagem.php';
+        if (($arquivo['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK || !is_uploaded_file((string) $arquivo['tmp_name'])) {
+            return 'A foto não chegou inteira.';
+        }
+        if ((int) $arquivo['size'] > 20 * 1048576) {
+            return 'A foto passa de 20 MB.';
+        }
+        $foto = Imagem::foto((string) file_get_contents((string) $arquivo['tmp_name']), 2400);
+        if ($foto === null) {
+            return 'O arquivo não é uma imagem válida.';
+        }
+        return @file_put_contents(self::pasta($eid) . '/capa.jpg', $foto[0]) === false ? 'Não consegui guardar a foto agora.' : null;
     }
 
     public static function arquivo(array $c, string $ext): string
@@ -422,6 +447,7 @@ final class Caderno
             'marcos'       => $marcos,
             'experiencias' => $experiencias,
             'pasta_fotos'  => rtrim((string) $cfgApp['caminhos']['midias'], '/') . '/inventario/' . $eid,
+            'foto_capa'    => self::fotoDaCapa($eid),
             'raiz'         => dirname(__DIR__),
         ];
     }

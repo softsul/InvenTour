@@ -181,25 +181,15 @@ CSS;
             $numeros[3] = [count($this->d['experiencias']), 'experiências'];
         }
 
-        // A foto da capa: a de um atrativo (C), senão a de um serviço (B).
-        $foto = null;
-        foreach (['C', 'B', 'A'] as $cat) {
-            foreach ($this->d['itens'] as $i) {
-                if ($i['foto'] && ($this->d['fichas'][(int) $i['ficha_id']]['categoria'] ?? '') === $cat) {
-                    $arquivo = $this->d['pasta_fotos'] . '/' . basename((string) $i['foto']['arquivo']);
-                    if (is_readable($arquivo)) {
-                        $foto = ['arquivo' => $arquivo, 'nome' => $i['nome']];
-                        break 2;
-                    }
-                }
-            }
-        }
+        // A foto da capa é a escolhida na Encadernação: tirada sozinha do
+        // inventário, saía a primeira que houvesse, às vezes uma foto de teste.
+        $foto = $this->d['foto_capa'] ? ['arquivo' => $this->d['foto_capa'], 'nome' => $cfg['credito_capa'] ?? ''] : null;
 
         $chancela = $this->c['previa'] ? 'Versão preliminar: inclui fichas ainda não homologadas'
             : ($e['modo_operacao'] === 'projeto' ? 'Documento estruturado via InvenTour' : '');
         $topo = $foto
             ? '<div class="c-foto" style="background-image:url(\'file://' . self::e($foto['arquivo']) . '\')"><div class="c-veu"></div>'
-              . '<div class="c-credito">' . self::e($foto['nome']) . '</div></div>'
+              . ($foto['nome'] !== '' ? '<div class="c-credito">' . self::e($foto['nome']) . '</div>' : '') . '</div>'
             : '<div class="c-foto c-sem-foto" style="background:' . $cor . '"><div class="c-circulo c1"></div><div class="c-circulo c2"></div><div class="c-circulo c3"></div>'
               . '<img class="c-emblema" src="' . self::e($marca) . '" alt=""></div>';
         $h = '<div class="c-pagina">' . $topo
