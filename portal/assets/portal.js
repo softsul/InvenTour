@@ -71,13 +71,22 @@
   // vira o roteiro deste aparelho só se ele ainda não tiver um).
   var pagina = document.querySelector('[data-meu-roteiro]');
   if (pagina) {
+    // data-ids: os lugares que a página achou e mostra (só os públicos).
     var doEndereco = (pagina.getAttribute('data-ids') || '').split('.').map(Number).filter(function (n) { return n > 0; });
     var guardados = ler();
-    if (!doEndereco.length && guardados.length) {
+    var jaPediu = /[?&]i=/.test(location.search);
+    if (!jaPediu && guardados.length) {
+      // Uma vez só: o endereço passa a levar a lista guardada. Se a página
+      // não achar algum lugar, não volta a recarregar (era o pisca-pisca).
       location.replace(enderecoDoRoteiro(guardados));
       return;
     }
-    if (doEndereco.length && !guardados.length) { gravar(doEndereco); }
+    if (jaPediu && !guardados.length) { gravar(doEndereco); }
+    // Lugar guardado que não está mais no guia (ou só existia na prévia) sai da lista.
+    if (jaPediu && guardados.length && !previa()) {
+      var validos = guardados.filter(function (n) { return doEndereco.indexOf(n) !== -1; });
+      if (validos.length !== guardados.length) { gravar(validos); }
+    }
     var limpar = pagina.querySelector('[data-limpar-roteiro]');
     if (limpar) {
       limpar.addEventListener('click', function () { gravar([]); location.replace(enderecoDoRoteiro([])); });
