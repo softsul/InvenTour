@@ -15,7 +15,7 @@ require_once __DIR__ . '/../app/Portal.php';
 $destino = Tenant::exigir();
 $eid = (int) $destino['id'];
 $pdo = Database::conexaoPortal();
-$q = $pdo->prepare('SELECT * FROM qr_pontos WHERE empresa_id = ? AND apelido = ? AND ativo = 1');
+$q = $pdo->prepare('SELECT id, apelido, destino_tipo, destino_ref FROM qr_pontos WHERE empresa_id = ? AND apelido = ? AND ativo = 1');
 $q->execute([$eid, strtolower((string) ($_GET['a'] ?? ''))]);
 $p = $q->fetch();
 header('Cache-Control: no-store');

@@ -207,7 +207,7 @@ final class Portal
 
     public static function item(int $eid, int $id): ?array
     {
-        $q = self::pdo()->prepare('SELECT i.*, f.codigo, f.nome AS ficha_nome, f.ordem AS ficha_ordem, f.categoria, t.nome AS tipo_nome
+        $q = self::pdo()->prepare('SELECT i.id, i.empresa_id, i.ficha_id, i.tipo_id, i.situacao, i.nome, i.nome_popular, i.logradouro, i.numero, i.complemento, i.bairro, i.distrito, i.zona, i.cep, i.telefone, i.whatsapp, i.email, i.site, i.instagram, i.latitude, i.longitude, i.plus_code, i.referencia, i.horario, i.formas_pagamento, i.idiomas, i.capacidade_uh, i.capacidade_leitos, i.capacidade_assentos, i.capacidade_publico, i.acessibilidade_possui, i.descricao_promocional, i.cadastur, i.cadastur_validade, i.possui_experiencia, f.codigo, f.nome AS ficha_nome, f.ordem AS ficha_ordem, f.categoria, t.nome AS tipo_nome
                                    FROM inventario_itens i JOIN inventario_fichas f ON f.id = i.ficha_id LEFT JOIN inventario_tipos t ON t.id = i.tipo_id
                                    WHERE i.id = ? AND i.empresa_id = ? AND ' . self::situacoes($eid));
         $q->execute([$id, $eid]);
@@ -221,7 +221,7 @@ final class Portal
         $q = self::pdo()->prepare('SELECT arquivo, legenda, credito FROM inventario_midias WHERE item_id = ? AND empresa_id = ? AND experiencia_id IS NULL ORDER BY capa DESC, ordem, id');
         $q->execute([$id, $eid]);
         $i['fotos'] = $q->fetchAll();
-        $q = self::pdo()->prepare("SELECT * FROM inventario_experiencias WHERE item_id = ? AND empresa_id = ? AND situacao = 'aprovada' ORDER BY titulo");
+        $q = self::pdo()->prepare("SELECT id, empresa_id, item_id, situacao, titulo, dimensoes, narrativa, duracao_minutos, pessoas_min, pessoas_max, agendamento, antecedencia_horas, faixa_valor, valor_texto FROM inventario_experiencias WHERE item_id = ? AND empresa_id = ? AND situacao = 'aprovada' ORDER BY titulo");
         $q->execute([$id, $eid]);
         $i['experiencias'] = $q->fetchAll();
         return $i;
@@ -277,7 +277,7 @@ final class Portal
 
     public static function experiencias(int $eid): array
     {
-        $q = self::pdo()->prepare("SELECT x.*, i.nome AS item_nome,
+        $q = self::pdo()->prepare("SELECT x.id, x.empresa_id, x.item_id, x.situacao, x.titulo, x.dimensoes, x.narrativa, x.duracao_minutos, x.pessoas_min, x.pessoas_max, x.agendamento, x.antecedencia_horas, x.faixa_valor, x.valor_texto, i.nome AS item_nome,
                                           (SELECT m.arquivo FROM inventario_midias m WHERE m.experiencia_id = x.id ORDER BY m.ordem, m.id LIMIT 1) AS foto,
                                           (SELECT m.arquivo FROM inventario_midias m WHERE m.item_id = x.item_id AND m.experiencia_id IS NULL ORDER BY m.capa DESC, m.ordem LIMIT 1) AS foto_item
                                    FROM inventario_experiencias x JOIN inventario_itens i ON i.id = x.item_id
@@ -296,14 +296,14 @@ final class Portal
 
     public static function marcos(int $eid): array
     {
-        $q = self::pdo()->prepare('SELECT * FROM destino_linha_tempo WHERE empresa_id = ?' . (self::previa($eid) ? '' : ' AND no_portal = 1') . ' ORDER BY data_marco, id');
+        $q = self::pdo()->prepare('SELECT id, empresa_id, data_marco, precisao, categoria, titulo, descricao, no_portal FROM destino_linha_tempo WHERE empresa_id = ?' . (self::previa($eid) ? '' : ' AND no_portal = 1') . ' ORDER BY data_marco, id');
         $q->execute([$eid]);
         return $q->fetchAll();
     }
 
     public static function roteiros(int $eid): array
     {
-        $q = self::pdo()->prepare('SELECT r.*, (SELECT COUNT(*) FROM roteiro_itens ri WHERE ri.roteiro_id = r.id) AS paradas
+        $q = self::pdo()->prepare('SELECT r.id, r.empresa_id, r.titulo, r.tipo, r.tribo_id, r.descricao, r.duracao, r.publicado, r.ordem, (SELECT COUNT(*) FROM roteiro_itens ri WHERE ri.roteiro_id = r.id) AS paradas
                                    FROM roteiros r WHERE r.empresa_id = ?' . (self::previa($eid) ? '' : ' AND r.publicado = 1') . ' ORDER BY r.ordem, r.titulo');
         $q->execute([$eid]);
         return $q->fetchAll();
@@ -311,7 +311,7 @@ final class Portal
 
     public static function roteiro(int $eid, int $id): ?array
     {
-        $q = self::pdo()->prepare('SELECT * FROM roteiros WHERE id = ? AND empresa_id = ?' . (self::previa($eid) ? '' : ' AND publicado = 1'));
+        $q = self::pdo()->prepare('SELECT id, empresa_id, titulo, tipo, tribo_id, descricao, duracao, publicado, ordem FROM roteiros WHERE id = ? AND empresa_id = ?' . (self::previa($eid) ? '' : ' AND publicado = 1'));
         $q->execute([$id, $eid]);
         $r = $q->fetch();
         if (!$r) {
