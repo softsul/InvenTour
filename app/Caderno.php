@@ -224,6 +224,11 @@ final class Caderno
         try {
             $marcar('gerando', 'Lendo as fichas');
             $d = self::dados($c);
+            // O emblema em PNG de alta resolução: o wkhtmltopdf rasteriza o SVG
+            // em baixa resolução, e o logo saía quadriculado na capa.
+            $emblema = $tmp . '/emblema.png';
+            exec('rsvg-convert -w 1024 -o ' . escapeshellarg($emblema) . ' ' . escapeshellarg($d['raiz'] . '/public/assets/marca/emblema.svg') . ' 2>/dev/null');
+            $d['emblema'] = is_file($emblema) && filesize($emblema) > 0 ? $emblema : null;
             if ($d['foto_capa'] && $d['config']['desfocar_capa']) {
                 $d['foto_capa'] = self::desfocar($d['foto_capa'], $tmp . '/capa-desfocada.jpg') ?? $d['foto_capa'];
             }

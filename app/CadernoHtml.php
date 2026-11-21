@@ -158,7 +158,7 @@ CSS;
         $cfg = $this->d['config'];
         $cor = preg_match('/^#[0-9A-Fa-f]{6}$/', (string) $e['cor_acento']) ? (string) $e['cor_acento'] : '#0E7C66';
         $verificar = $this->d['portal'] . '/verificar/' . $this->c['codigo'];
-        $marca = 'file://' . $this->d['raiz'] . '/public/assets/marca/emblema.svg';
+        $marca = 'file://' . ($this->d['emblema'] ?? ($this->d['raiz'] . '/public/assets/icone-512.png'));
 
         // Os números do inventário que o caderno traz.
         $porCat = ['A' => 0, 'B' => 0, 'C' => 0];
