@@ -1085,10 +1085,16 @@ table.tabela-campo td input{width:100%; min-width:90px}
 .editor-area:focus{box-shadow:inset var(--anel)}
 .editor-area table{border-collapse:collapse}
 .editor-area td, .editor-area th{border:1px solid var(--traco); padding:4px 8px}
-.linha-tempo{list-style:none; margin:0; padding:0}
-.linha-tempo li{display:grid; grid-template-columns:96px 1fr auto; gap:12px; padding:10px 0; border-bottom:1px solid var(--traco); align-items:start}
+/* Linha do tempo de O destino: o componente do tema (linha à esquerda e o
+   ponto em cada marco) com uma terceira coluna para o botão de excluir. O
+   recuo à esquerda é o do tema: sem ele o ponto cai em cima da data. */
+.linha-tempo li{grid-template-columns:76px minmax(0,1fr) auto; gap:12px; align-items:start}
 .linha-tempo li p{margin:4px 0 0; color:var(--suave)}
-.linha-tempo .data{font-weight:600; color:var(--indigo-fte)}
+.linha-tempo .data{font-family:var(--dado); font-size:12.5px; font-weight:700; color:var(--indigo-fte); padding-top:2px; white-space:nowrap}
+@media (max-width:640px){
+  .linha-tempo li{grid-template-columns:minmax(0,1fr) auto; gap:4px 10px}
+  .linha-tempo .data{grid-column:1 / -1}
+}
 details.tribo{border-bottom:1px solid var(--traco); padding:6px 0}
 details.tribo summary{cursor:pointer; display:flex; align-items:center; gap:8px; list-style:none}
 details.tribo summary::-webkit-details-marker{display:none}
