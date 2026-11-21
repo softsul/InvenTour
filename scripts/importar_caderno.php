@@ -4,7 +4,7 @@
  * pré-cadastro no InvenTour.
  * Softsul Software
  *
- *   php scripts/importar_caderno.php <empresa_id> <quadros.json> [--gravar]
+ *   php scripts/importar_caderno.php <empresa_id> <quadros.json> --origem="Importado do ..." [--gravar]
  *
  * O JSON vem de scripts/ler_quadros_caderno.py (lê os quadros NOME,
  * ENDEREÇO, TELEFONE, PLUS CODE das páginas do PDF). Sem --gravar, só mostra
@@ -24,8 +24,10 @@ require_once __DIR__ . '/../app/svg.php';
 
 [$empresaId, $arquivo] = [(int) ($argv[1] ?? 0), (string) ($argv[2] ?? '')];
 $gravar = in_array('--gravar', $argv, true);
+require_once __DIR__ . '/origem_importacao.php';
+$fonte = origemDaImportacao($argv, 'Uso: php scripts/importar_caderno.php <empresa_id> <quadros.json> --origem="Importado do ..." [--gravar]');
 if (!$empresaId || !is_file($arquivo)) {
-    fwrite(STDERR, "Uso: php scripts/importar_caderno.php <empresa_id> <quadros.json> [--gravar]\n");
+    fwrite(STDERR, "Uso: php scripts/importar_caderno.php <empresa_id> <quadros.json> --origem=\"Importado do ...\" [--gravar]\n");
     exit(1);
 }
 $pdo = Database::conexao();
@@ -138,7 +140,7 @@ foreach ($linhas as $l) {
     if ($alvo[0] === 20 && preg_match('/^([SN])\s+(\d+)\s+(\d+)/', (string) $l['resto'], $m)) {
         [$uh, $leitos] = [(int) $m[2], (int) $m[3]];
     }
-    $origem = 'Importado do Inventário da Oferta Turística ' . $destino['nome_fantasia'] . ' 2025, seção ' . $l['secao'] . ' (folha ' . $l['folha'] . ' do PDF).';
+    $origem = $fonte . ', seção ' . $l['secao'] . ' (folha ' . $l['folha'] . ' do PDF).';
     $tecnica = null;
     if (!empty($l['artista']) || !empty($l['ano'])) {
         $tecnica = trim(($l['ano'] ? 'Ano: ' . $l['ano'] . '. ' : '') . ($l['artista'] ? 'Artista: ' . $l['artista'] . '. ' : '') . ($l['local'] ? 'Local: ' . $l['local'] . '.' : ''));
@@ -173,7 +175,7 @@ foreach ($linhas as $l) {
         }
         $nota = $origem;
         if ($uh !== null) {
-            $nota .= " Inventário 2025: {$uh} UH e {$leitos} leitos; Cadastur: " . ($par['capacidade_uh'] ?? '?') . ' UH e ' . ($par['capacidade_leitos'] ?? '?') . ' leitos.';
+            $nota .= " Na fonte: {$uh} UH e {$leitos} leitos; Cadastur: " . ($par['capacidade_uh'] ?? '?') . ' UH e ' . ($par['capacidade_leitos'] ?? '?') . ' leitos.';
             $sets[] = 'capacidade_uh = ?, capacidade_leitos = ?';
             array_push($args, $uh, $leitos);
         }
@@ -183,7 +185,7 @@ foreach ($linhas as $l) {
         if ($gravar) {
             $pdo->prepare('UPDATE inventario_itens SET ' . implode(', ', $sets) . ', atualizado_em = NOW() WHERE id = ? AND empresa_id = ?')
                 ->execute([...$args, $par['id'], $empresaId]);
-            $hist->execute([$par['id'], $empresaId, null, 'Completado com a importação do Inventário 2025: ' . $l['secao']]);
+            $hist->execute([$par['id'], $empresaId, null, $fonte . ', completando a ficha: ' . $l['secao']]);
         }
         $conta['completados']++;
         continue;
@@ -198,7 +200,7 @@ foreach ($linhas as $l) {
     if ($gravar) {
         $ins->execute([$empresaId, $fichaId, $tipoId($fichaId, $alvo[1]), mb_substr($nome, 0, 180), $endereco ? mb_substr($endereco, 0, 200) : null,
                        $tel, $l['plus'], $coord[0] ?? null, $coord[1] ?? null, $uh, $leitos, $tecnica, $origem]);
-        $hist->execute([(int) $pdo->lastInsertId(), $empresaId, 'pre_cadastro', 'Importado do Inventário 2025: ' . $l['secao']]);
+        $hist->execute([(int) $pdo->lastInsertId(), $empresaId, 'pre_cadastro', $fonte . ': ' . $l['secao']]);
     }
     $conta['novos']++;
 }

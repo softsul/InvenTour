@@ -6,7 +6,7 @@
  * serviços, horário de atendimento).
  * Softsul Software
  *
- *   php scripts/importar_dados_caderno.php <empresa_id> [--gravar] < dados.json
+ *   php scripts/importar_dados_caderno.php <empresa_id> --origem="Importado do ..." [--gravar] < dados.json
  *
  * A entrada é uma lista JSON de {"item": id, "nucleo": {coluna: valor},
  * "attr": {atributo_id: {"numero"|"opcoes"|"outro"}}, "regras": [texto]}.
@@ -24,14 +24,15 @@ if (PHP_SAPI !== 'cli') {
 }
 $eid = (int) ($argv[1] ?? 0);
 $gravar = in_array('--gravar', $argv, true);
+require_once __DIR__ . '/origem_importacao.php';
+$origem = origemDaImportacao($argv, 'Uso: php scripts/importar_dados_caderno.php <empresa_id> --origem="Importado do ..." [--gravar] < dados.json');
 $lista = json_decode((string) stream_get_contents(STDIN), true);
 if (!$eid || !is_array($lista)) {
-    fwrite(STDERR, "Uso: php scripts/importar_dados_caderno.php <empresa_id> [--gravar] < dados.json\n");
+    fwrite(STDERR, "Uso: php scripts/importar_dados_caderno.php <empresa_id> --origem=\"Importado do ...\" [--gravar] < dados.json\n");
     exit(1);
 }
 const COLUNAS = ['site', 'email', 'instagram', 'razao_social', 'cnpj', 'inicio_atividade_data', 'rede', 'natureza', 'descricao_tecnica',
                  'descricao_promocional', 'capacidade_uh', 'capacidade_leitos', 'capacidade_assentos', 'capacidade_publico', 'observacoes'];
-const ORIGEM = 'Importado do Inventário 2025';
 
 $pdo = Database::conexao();
 $buscaItem = $pdo->prepare("SELECT * FROM inventario_itens WHERE id = ? AND empresa_id = ? AND situacao <> 'arquivada'");
@@ -77,7 +78,7 @@ foreach ($lista as $d) {
     $novos = [];
     $regras = array_values(array_filter((array) ($d['regras'] ?? []), 'is_string'));
     if ($regras) {
-        $texto = ORIGEM . ":\n" . implode("\n", $regras);
+        $texto = $origem . ":\n" . implode("\n", $regras);
         $aidRegras = $porChave[(int) $item['ficha_id']]['outras_regras'] ?? null;
         if ($aidRegras) {
             $d['attr'][$aidRegras] = ['texto' => $texto];
@@ -126,14 +127,14 @@ foreach ($lista as $d) {
         foreach ($novos as $aid => [, $texto, $numero, $outro]) {
             $insAttr->execute([(int) $item['id'], $aid, $eid, $texto, $numero, $outro]);
         }
-        $hist->execute([(int) $item['id'], $eid, 'Completado com os dados importados do Inventário 2025 (só campos vazios).']);
+        $hist->execute([(int) $item['id'], $eid, $origem . ': completou só os campos vazios.']);
         $pdo->commit();
     } catch (Throwable $e) {
         $pdo->rollBack();
         echo "  erro em #{$item['id']}: {$e->getMessage()}\n";
         continue;
     }
-    Auditoria::registrar('alterou', 'inventario_itens', (int) $item['id'], 'completou ' . $item['nome'] . ' com a importação do Inventário 2025',
+    Auditoria::registrar('alterou', 'inventario_itens', (int) $item['id'], 'completou ' . $item['nome'] . ' (' . $origem . ')',
         array_intersect_key($item, $muda) ?: null,
         $muda + ($novos ? ['campos_da_ficha' => array_combine(array_column($novos, 0), array_map(fn ($n) => $n[1] ?? $n[2], $novos))] : []), $eid);
 }

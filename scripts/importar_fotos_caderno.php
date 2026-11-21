@@ -4,7 +4,7 @@
  * InvenTour, com legenda e crédito.
  * Softsul Software
  *
- *   php scripts/importar_fotos_caderno.php <empresa_id> [--gravar] < fotos.ndjson
+ *   php scripts/importar_fotos_caderno.php <empresa_id> --origem="Importado do ..." [--gravar] < fotos.ndjson
  *
  * Cada linha da entrada é um JSON {"item": id, "legenda": "...",
  * "credito": "...", "jpeg": "<base64>"}. A entrada vem pelo stdin porque o
@@ -26,8 +26,10 @@ if (PHP_SAPI !== 'cli') {
 }
 $eid = (int) ($argv[1] ?? 0);
 $gravar = in_array('--gravar', $argv, true);
+require_once __DIR__ . '/origem_importacao.php';
+$origem = origemDaImportacao($argv, 'Uso: php scripts/importar_fotos_caderno.php <empresa_id> --origem="Importado do ..." [--gravar] < fotos.ndjson');
 if (!$eid) {
-    fwrite(STDERR, "Uso: php scripts/importar_fotos_caderno.php <empresa_id> [--gravar] < fotos.ndjson\n");
+    fwrite(STDERR, "Uso: php scripts/importar_fotos_caderno.php <empresa_id> --origem=\"Importado do ...\" [--gravar] < fotos.ndjson\n");
     exit(1);
 }
 $cfg = require __DIR__ . '/../app/config.php';
@@ -36,7 +38,7 @@ if ($gravar && !is_dir($pasta) && !@mkdir($pasta, 0770, true)) {
     exit("Não consegui criar {$pasta}.\n");
 }
 $pdo = Database::conexao();
-$item = $pdo->prepare('SELECT id, nome FROM inventario_itens WHERE id = ? AND empresa_id = ?');
+$item = $pdo->prepare("SELECT id, nome FROM inventario_itens WHERE id = ? AND empresa_id = ? AND situacao <> 'arquivada'");
 $ja = $pdo->prepare('SELECT COUNT(*), COALESCE(SUM(legenda <=> ? AND credito <=> ?), 0) FROM inventario_midias WHERE item_id = ? AND empresa_id = ? AND experiencia_id IS NULL');
 $insere = $pdo->prepare('INSERT INTO inventario_midias (empresa_id, item_id, experiencia_id, arquivo, largura, altura, legenda, credito, capa, ordem, criado_em)
                          VALUES (?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, NOW())');
@@ -51,7 +53,7 @@ while (($linha = fgets(STDIN)) !== false) {
     $legenda = mb_substr(trim((string) $f['legenda']), 0, 200);
     $credito = mb_substr(trim((string) $f['credito']), 0, 120);
     if (!$i) {
-        echo "  item {$f['item']} não existe no destino: {$legenda}\n";
+        echo "  item {$f['item']} não existe no destino ou está arquivado: {$legenda}\n";
         $erros++;
         continue;
     }
@@ -83,7 +85,7 @@ while (($linha = fgets(STDIN)) !== false) {
         @file_put_contents($pasta . '/' . Imagem::nomeMiniatura($nome, $sufixo), $miniatura);
     }
     $insere->execute([$eid, (int) $i['id'], $nome, $l, $a, $legenda, $credito, $quantas === 0 ? 1 : 0, $quantas + 1]);
-    Auditoria::registrar('item.foto', 'inventario_item', (int) $i['id'], 'Foto importada do Inventário 2025: ' . $legenda, null,
+    Auditoria::registrar('item.foto', 'inventario_item', (int) $i['id'], 'Foto (' . $origem . '): ' . $legenda, null,
         ['arquivo' => $nome, 'legenda' => $legenda, 'credito' => $credito], $eid);
     $novas++;
 }
