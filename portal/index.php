@@ -38,7 +38,7 @@ PortalLayout::inicio($destino, $nome, true, ['ativo' => 'inicio', 'imagem' => $t
     <?php if ($apresentacao !== ''): ?><p class="lead"><?= e(mb_strimwidth($apresentacao, 0, 220, '...')) ?></p><?php endif; ?>
     <form class="busca-grande" method="get" action="/busca" role="search">
       <?php if (Portal::previa($eid)): ?><input type="hidden" name="previa" value="<?= e((string) $_GET['previa']) ?>"><?php endif; ?>
-      <span class="entrada"><?= icone('busca') ?><input type="search" name="q" placeholder="O que você procura em <?= e($nome) ?>?" aria-label="Buscar no portal"></span>
+      <span class="entrada"><?= icone('busca') ?><input type="search" name="q" placeholder="O que você procura?" aria-label="Buscar no portal"></span>
       <button type="submit">Buscar</button>
     </form>
   </div>

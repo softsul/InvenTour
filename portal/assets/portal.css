@@ -5,6 +5,7 @@
   :root { --texto: #E8ECF2; --suave: #A4ADBD; --fraca: #7F8899; --fundo: #12161C; --branco: #1B212A; --traco: #2A323E; }
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { margin: 0; }
 body { font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--texto); background: var(--fundo);
        min-height: 100vh; display: flex; flex-direction: column; line-height: 1.55; font-size: 16px; }
@@ -207,3 +208,6 @@ h2 { font-size: 1.2rem; margin: 28px 0 12px; }
 .entrada { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
 .busca-grande .entrada, .busca-topo .entrada { gap: 8px; }
 .campo-filtro .entrada { display: block; }
+
+/* Na ficha, no celular, o contato vem antes do mapa e da descrição. */
+@media (max-width: 899px) { .ficha-lado { order: -1; } }
