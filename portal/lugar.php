@@ -1,10 +1,11 @@
 <?php
 /**
- * Ficha pública de um lugar: /lugar/12-nome. Fotos (galeria), descrição,
- * contato (WhatsApp com a mensagem pronta, telefone, site, Instagram), mapa
- * e como chegar, funcionamento, selos de acessibilidade e de perfis de
- * viajante, experiências e os próximos eventos no local (EventCity, quando
- * a ponte responde). Nunca mostra CNPJ nem dado técnico. Softsul Software.
+ * Ficha pública de um lugar: /lugar/12-nome. Capa com a foto (ou a inicial
+ * gigante), a linha de dados do inventário (código da ficha, plus code,
+ * coordenada, aberto agora), galeria, descrição, para quem é (selos com o
+ * que a ficha registra), experiências, eventos no local (EventCity), mapa,
+ * contato e funcionamento. No celular, a barra fixa de ações (WhatsApp,
+ * ligar, rota, guardar). Nunca mostra CNPJ nem dado técnico. Softsul Software.
  */
 declare(strict_types=1);
 require __DIR__ . '/inc/abrir.php';
@@ -19,12 +20,15 @@ if (strtok((string) $_SERVER['REQUEST_URI'], '?') !== $certo) {
 $nome = (string) $i['nome'];
 $pilar = Portal::pilarDe((int) $i['ficha_ordem']);
 $foto = Portal::foto($eid, $i['foto'], 'm');
+$fotoGrande = Portal::foto($eid, $i['foto'], '');
 $end = trim(implode(', ', array_filter([trim(($i['logradouro'] ?? '') . ($i['numero'] ? ', ' . $i['numero'] : '')), $i['complemento'], $i['bairro']])));
 $zap = preg_replace('/\D/', '', (string) ($i['whatsapp'] ?? ''));
 $zap = $zap !== '' && strlen($zap) <= 11 ? '55' . $zap : $zap;
 $mensagem = 'Olá! Vi ' . $nome . ' no guia de turismo de ' . $destino['nome_fantasia'] . ' e gostaria de mais informações.';
 $tel = preg_replace('/\D/', '', (string) ($i['telefone'] ?? ''));
 $coord = $i['latitude'] !== null ? $i['latitude'] . ',' . $i['longitude'] : null;
+$rota = $coord ? 'https://www.google.com/maps/dir/?api=1&destination=' . rawurlencode($coord) : null;
+$agora = Portal::agora($i['horario']);
 $horario = Portal::horario($i['horario']);
 $pagamentos = array_filter((array) (json_decode((string) $i['formas_pagamento'], true) ?: []), 'is_string');
 $idiomas = array_filter((array) (json_decode((string) $i['idiomas'], true) ?: []), 'is_string');
@@ -35,31 +39,51 @@ if ($site !== '' && !preg_match('#^https?://#i', $site)) {
     $site = 'https://' . $site;
 }
 $insta = ltrim(preg_replace('#^(https?://)?(www\.)?instagram\.com/#i', '', (string) ($i['instagram'] ?? '')), '@/');
+$tipo = (string) ($i['tipo_nome'] ?: $i['ficha_nome']);
 
-PortalLayout::inicio($destino, $nome, true, ['ativo' => (string) $pilar, 'imagem' => $foto,
-    'descricao' => $descricao !== '' ? mb_strimwidth($descricao, 0, 200, '...') : ($i['tipo_nome'] ?: $i['ficha_nome']) . ' em ' . $destino['nome_fantasia'] . '.']);
+// Perto daqui: os lugares mais próximos de outros pilares (comer perto do hotel, dormir perto do atrativo).
+$perto = [];
+if ($coord) {
+    foreach (Portal::itens($eid, null, [], 2000) as $o) {
+        if ((int) $o['id'] === (int) $i['id'] || $o['latitude'] === null) {
+            continue;
+        }
+        $o['_m'] = (int) round(Portal::distancia((float) $i['latitude'], (float) $i['longitude'], (float) $o['latitude'], (float) $o['longitude']));
+        $perto[] = $o;
+    }
+    usort($perto, fn ($a, $b) => $a['_m'] <=> $b['_m']);
+    $perto = array_slice($perto, 0, 4);
+}
+
+PortalLayout::inicio($destino, $nome, true, ['ativo' => (string) $pilar, 'imagem' => $foto, 'classe' => 'com-barra',
+    'descricao' => $descricao !== '' ? mb_strimwidth($descricao, 0, 200, '...') : $tipo . ' em ' . $destino['nome_fantasia'] . '.']);
 ?>
-<nav class="trilha"><a href="<?= e(Portal::url('/')) ?>">Início</a> ›
-  <?php if ($pilar): ?><a href="<?= e(Portal::url('/' . $pilar)) ?>"><?= e(Portal::PILARES[$pilar][0]) ?></a> › <?php endif; ?><span><?= e($nome) ?></span></nav>
-
-<div class="ficha-topo">
-  <div>
+<section class="ficha-capa<?= $fotoGrande ? '' : ' sem-capa' ?>">
+  <?php if ($fotoGrande): ?><img src="<?= e($fotoGrande) ?>" alt=""><?php else: ?><span class="inicial-gigante" aria-hidden="true"><?= e(PortalLayout::inicial($nome)) ?></span><?php endif; ?>
+  <div class="ficha-capa-txt">
+    <nav class="trilha"><a href="<?= e(Portal::url('/')) ?>">Início</a><?php if ($pilar): ?> / <a href="<?= e(Portal::url('/' . $pilar)) ?>"><?= e(Portal::PILARES[$pilar][0]) ?></a><?php endif; ?></nav>
+    <span class="rotulo"><?= e($tipo) ?><?= $i['bairro'] ? ' · ' . e((string) $i['bairro']) : '' ?></span>
     <h1><?= e($nome) ?></h1>
-    <p class="lead"><?= e((string) ($i['tipo_nome'] ?: $i['ficha_nome'])) ?><?= $i['bairro'] ? ' · ' . e((string) $i['bairro']) : '' ?></p>
+    <div class="ficha-meta">
+      <span>Ficha <?= e((string) $i['codigo']) ?></span>
+      <?php if ($i['plus_code']): ?><span><?= e((string) $i['plus_code']) ?></span><?php endif; ?>
+      <?php if ($coord): ?><span><?= e(Portal::coordenada((float) $i['latitude'], (float) $i['longitude'])) ?></span><?php endif; ?>
+      <?php if ($agora): ?><span class="estado<?= $agora['aberto'] ? ' aberto' : '' ?>"><?= e($agora['texto']) ?></span><?php endif; ?>
+      <span class="dist" data-dist data-lat="<?= e((string) $i['latitude']) ?>" data-lng="<?= e((string) $i['longitude']) ?>"></span>
+    </div>
   </div>
-  <button type="button" class="guardar grande" data-roteiro="<?= (int) $i['id'] ?>" aria-pressed="false"><?= icone('mais') ?><span>Guardar no meu roteiro</span></button>
-</div>
-
-<?php if ($i['fotos']): ?>
-<div class="galeria" data-galeria>
-  <?php foreach (array_slice($i['fotos'], 0, 9) as $k => $f): ?>
-    <a href="<?= e(Portal::foto($eid, $f['arquivo'], '')) ?>" data-foto class="<?= $k === 0 ? 'principal' : '' ?>"><img src="<?= e(Portal::foto($eid, $f['arquivo'], $k === 0 ? 'm' : 'p')) ?>" alt="<?= e((string) ($f['legenda'] ?: $nome)) ?>" loading="lazy"></a>
-  <?php endforeach; ?>
-</div>
-<?php endif; ?>
+</section>
 
 <div class="ficha-colunas">
   <div class="ficha-principal">
+    <?php if (count($i['fotos']) > 1): ?>
+    <div class="galeria" data-galeria>
+      <?php foreach (array_slice($i['fotos'], 0, 9) as $f): ?>
+        <a href="<?= e(Portal::foto($eid, $f['arquivo'], '')) ?>" data-foto><img src="<?= e(Portal::foto($eid, $f['arquivo'], 'p')) ?>" alt="<?= e((string) ($f['legenda'] ?: $nome)) ?>" loading="lazy"></a>
+      <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
+
     <?php if ($descricao !== ''): ?><div class="texto"><?= nl2br(e($descricao)) ?></div><?php endif; ?>
 
     <?php if ($i['selos'] || $i['tribos']): ?>
@@ -73,7 +97,7 @@ PortalLayout::inicio($destino, $nome, true, ['ativo' => (string) $pilar, 'imagem
     <?php endif; ?>
 
     <?php if ($i['experiencias']): ?>
-    <h2>Experiências aqui</h2>
+    <h2>Para viver aqui</h2>
     <?php foreach ($i['experiencias'] as $x): ?>
       <div class="xp-caixa"><b><?= e((string) $x['titulo']) ?></b>
         <p><?= e(mb_strimwidth((string) $x['narrativa'], 0, 260, '...')) ?></p>
@@ -92,20 +116,26 @@ PortalLayout::inicio($destino, $nome, true, ['ativo' => (string) $pilar, 'imagem
     <h2>Onde fica</h2>
     <div class="mapa"><iframe src="https://www.google.com/maps?q=<?= e($coord) ?>&amp;z=16&amp;hl=pt-BR&amp;output=embed" title="Mapa de <?= e($nome) ?>" loading="lazy" referrerpolicy="no-referrer"></iframe></div>
     <?php endif; ?>
+
+    <?php if ($perto): ?>
+    <h2>Perto daqui</h2>
+    <div class="grade-lugares"><?php foreach ($perto as $o) { echo PortalLayout::cartao($eid, $o, '<span class="dist-fixa">a ' . e(Portal::metros($o['_m'])) . '</span>'); } ?></div>
+    <?php endif; ?>
   </div>
 
   <aside class="ficha-lado">
     <div class="caixa-contato">
-      <?php if ($zap !== ''): ?><a class="cta" href="https://wa.me/<?= e($zap) ?>?text=<?= e(rawurlencode($mensagem)) ?>" rel="noopener"><?= icone('whatsapp') ?>Chamar no WhatsApp</a><?php endif; ?>
+      <button type="button" class="guardar grande" data-roteiro="<?= (int) $i['id'] ?>" aria-pressed="false"><?= icone('mais') ?><span>Guardar no meu roteiro</span></button>
+      <?php if ($zap !== ''): ?><a class="cta acento" href="https://wa.me/<?= e($zap) ?>?text=<?= e(rawurlencode($mensagem)) ?>" rel="noopener"><?= icone('whatsapp') ?>Chamar no WhatsApp</a><?php endif; ?>
       <?php if ($tel !== ''): ?><a class="cta claro" href="tel:+55<?= e($tel) ?>"><?= icone('contatos') ?>Ligar <?= e(formatarTelefone((string) $i['telefone'])) ?></a><?php endif; ?>
-      <?php if ($coord): ?><a class="cta claro" href="https://www.google.com/maps/dir/?api=1&amp;destination=<?= e(rawurlencode($coord)) ?>" rel="noopener"><?= icone('mapa') ?>Como chegar</a><?php endif; ?>
+      <?php if ($rota): ?><a class="cta claro" href="<?= e($rota) ?>" rel="noopener"><?= icone('mapa') ?>Como chegar</a><?php endif; ?>
       <?php if ($site !== ''): ?><a class="link-lado" href="<?= e($site) ?>" rel="noopener nofollow"><?= icone('rede') ?>Site</a><?php endif; ?>
       <?php if ($insta !== ''): ?><a class="link-lado" href="https://instagram.com/<?= e($insta) ?>" rel="noopener nofollow"><?= icone('imagem') ?>@<?= e($insta) ?></a><?php endif; ?>
     </div>
     <dl class="ficha-dados">
       <?php if ($end !== ''): ?><dt>Endereço</dt><dd><?= e($end) ?></dd><?php endif; ?>
       <?php if ($i['referencia']): ?><dt>Referência</dt><dd><?= e((string) $i['referencia']) ?></dd><?php endif; ?>
-      <?php if ($horario): ?><dt>Funcionamento</dt><dd><?= implode('<br>', array_map('e', $horario)) ?></dd><?php endif; ?>
+      <?php if ($horario): ?><dt>Funciona</dt><dd><?= implode('<br>', array_map('e', $horario)) ?></dd><?php endif; ?>
       <?php if ($pagamentos): ?><dt>Pagamento</dt><dd><?= e(implode(', ', $pagamentos)) ?></dd><?php endif; ?>
       <?php if ($idiomas): ?><dt>Idiomas</dt><dd><?= e(implode(', ', $idiomas)) ?></dd><?php endif; ?>
       <?php if ($i['capacidade_uh']): ?><dt>Quartos</dt><dd><?= milhar((int) $i['capacidade_uh']) ?></dd><?php endif; ?>
@@ -115,4 +145,11 @@ PortalLayout::inicio($destino, $nome, true, ['ativo' => (string) $pilar, 'imagem
     </dl>
   </aside>
 </div>
+
+<nav class="barra-acoes" aria-label="Ações rápidas">
+  <?php if ($zap !== ''): ?><a href="https://wa.me/<?= e($zap) ?>?text=<?= e(rawurlencode($mensagem)) ?>" rel="noopener"><?= icone('whatsapp') ?>WhatsApp</a><?php endif; ?>
+  <?php if ($tel !== ''): ?><a href="tel:+55<?= e($tel) ?>"><?= icone('contatos') ?>Ligar</a><?php endif; ?>
+  <?php if ($rota): ?><a href="<?= e($rota) ?>" rel="noopener"><?= icone('mapa') ?>Rota</a><?php endif; ?>
+  <button type="button" data-roteiro="<?= (int) $i['id'] ?>" aria-pressed="false"><?= icone('mais') ?>Guardar</button>
+</nav>
 <?php PortalLayout::fim();

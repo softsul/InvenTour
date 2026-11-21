@@ -127,7 +127,7 @@ final class Portal
                 array_push($args, ...array_fill(0, 4, '%' . $p . '%'));
             }
         }
-        $sql = "SELECT i.id, i.nome, i.nome_popular, i.bairro, i.zona, i.latitude, i.longitude, i.telefone, i.whatsapp, i.cadastur,
+        $sql = "SELECT i.id, i.nome, i.nome_popular, i.bairro, i.zona, i.latitude, i.longitude, i.telefone, i.whatsapp, i.cadastur, i.horario, i.plus_code,
                        i.capacidade_uh, i.capacidade_leitos, i.descricao_promocional, i.situacao, f.codigo, f.ordem AS ficha_ordem, f.nome AS ficha_nome,
                        t.nome AS tipo_nome,
                        (SELECT COUNT(*) FROM inventario_experiencias x WHERE x.item_id = i.id AND x.empresa_id = i.empresa_id AND x.situacao = 'aprovada') AS experiencias,
@@ -139,7 +139,7 @@ final class Portal
         $st->execute($args);
         $itens = [];
         foreach ($st->fetchAll() as $i) {
-            $itens[(int) $i['id']] = $i + ['foto' => null, 'selos' => [], 'tribos' => []];
+            $itens[(int) $i['id']] = $i + ['foto' => null, 'selos' => [], 'tribos' => [], 'pilar' => self::pilarDe((int) $i['ficha_ordem'])];
         }
         if (!$itens) {
             return [];
@@ -150,6 +150,9 @@ final class Portal
         }
         if (!empty($filtros['tribo'])) {
             $itens = array_filter($itens, fn ($i) => isset($i['tribos'][(int) $filtros['tribo']]));
+        }
+        if (!empty($filtros['aberto'])) {
+            $itens = array_filter($itens, fn ($i) => (self::agora($i['horario'] ?? null)['aberto'] ?? false) === true);
         }
         return $itens;
     }
@@ -341,14 +344,14 @@ final class Portal
             return [];
         }
         $marcas = implode(',', $ids);
-        $q = self::pdo()->prepare("SELECT i.id, i.nome, i.bairro, i.latitude, i.longitude, i.telefone, i.whatsapp, i.descricao_promocional,
-                                          f.ordem AS ficha_ordem, f.nome AS ficha_nome, t.nome AS tipo_nome
+        $q = self::pdo()->prepare("SELECT i.id, i.nome, i.bairro, i.latitude, i.longitude, i.telefone, i.whatsapp, i.descricao_promocional, i.horario, i.plus_code,
+                                          f.ordem AS ficha_ordem, f.nome AS ficha_nome, f.codigo, t.nome AS tipo_nome
                                    FROM inventario_itens i JOIN inventario_fichas f ON f.id = i.ficha_id LEFT JOIN inventario_tipos t ON t.id = i.tipo_id
                                    WHERE i.empresa_id = ? AND i.id IN ({$marcas}) AND " . self::situacoes($eid));
         $q->execute([$eid]);
         $achados = [];
         foreach ($q->fetchAll() as $i) {
-            $achados[(int) $i['id']] = $i + ['foto' => null, 'selos' => [], 'tribos' => []];
+            $achados[(int) $i['id']] = $i + ['foto' => null, 'selos' => [], 'tribos' => [], 'pilar' => self::pilarDe((int) $i['ficha_ordem'])];
         }
         if ($achados) {
             self::completar($eid, $achados);
@@ -374,6 +377,189 @@ final class Portal
         $inicio = array_shift($pontos);
         return 'https://www.google.com/maps/dir/?api=1&origin=' . rawurlencode($inicio) . '&destination=' . rawurlencode($fim)
             . ($pontos ? '&waypoints=' . rawurlencode(implode('|', $pontos)) : '') . '&travelmode=driving';
+    }
+
+    // ------------------------------------------------------------ guia de campo
+
+    /** Arquivo do contorno do município para o mapa do portal (gravado pela fila, job portal_mapa). */
+    private static function arquivoMapa(int $eid): string
+    {
+        $cfg = require __DIR__ . '/config.php';
+        return rtrim((string) $cfg['caminhos']['cache'], '/') . '/portal/mapa-' . $eid . '.json';
+    }
+
+    /** Grava o contorno simplificado da divisa (IBGE) para o mapa do portal. Roda na fila. */
+    public static function gravarMapa(int $eid): bool
+    {
+        require_once __DIR__ . '/AreaDestino.php';
+        $a = AreaDestino::doDestino($eid);
+        if (!$a) {
+            return false;
+        }
+        $aneis = [];
+        foreach ($a['poligonos'] as $anel) {
+            $passo = max(1, (int) ceil(count($anel) / 500));
+            $simples = [];
+            foreach ($anel as $k => $pt) {
+                if ($k % $passo === 0) {
+                    $simples[] = [round((float) $pt[0], 5), round((float) $pt[1], 5)];
+                }
+            }
+            $aneis[] = $simples;
+        }
+        $f = self::arquivoMapa($eid);
+        @mkdir(dirname($f), 02770, true);
+        return (bool) file_put_contents($f, json_encode(['aneis' => $aneis, 'municipio' => $a['municipio']]));
+    }
+
+    /** O contorno do município: ['aneis' => [[[lng, lat], ...]], 'municipio'] ou null. */
+    public static function mapa(int $eid): ?array
+    {
+        $j = json_decode((string) @file_get_contents(self::arquivoMapa($eid)), true);
+        return is_array($j) && !empty($j['aneis']) ? $j : null;
+    }
+
+    /**
+     * O lugar cai dentro do retângulo da divisa do município (com folga de
+     * 15%)? Coordenada digitada errada (outro estado, zero) fica de fora do
+     * mapa e do "Um dia aqui". Sem divisa conhecida, vale tudo.
+     */
+    public static function naArea(int $eid, array $i): bool
+    {
+        static $caixa = [];
+        if (!array_key_exists($eid, $caixa)) {
+            $m = self::mapa($eid);
+            $caixa[$eid] = null;
+            if ($m) {
+                $pts = array_merge(...$m['aneis']);
+                [$x0, $x1, $y0, $y1] = [min(array_column($pts, 0)), max(array_column($pts, 0)), min(array_column($pts, 1)), max(array_column($pts, 1))];
+                $fx = ($x1 - $x0) * .15;
+                $fy = ($y1 - $y0) * .15;
+                $caixa[$eid] = [$x0 - $fx, $x1 + $fx, $y0 - $fy, $y1 + $fy];
+            }
+        }
+        if ($i['latitude'] === null) {
+            return false;
+        }
+        $c = $caixa[$eid];
+        return !$c || ((float) $i['longitude'] >= $c[0] && (float) $i['longitude'] <= $c[1] && (float) $i['latitude'] >= $c[2] && (float) $i['latitude'] <= $c[3]);
+    }
+
+    /**
+     * Aberto agora, pelo horário da ficha: ['aberto' => bool, 'texto' => 'Aberto · fecha às 18:00']
+     * ou null quando a ficha não tem horário.
+     */
+    public static function agora(?string $json): ?array
+    {
+        $h = json_decode((string) $json, true) ?: [];
+        if (!empty($h['24h'])) {
+            return ['aberto' => true, 'texto' => 'Aberto 24 horas'];
+        }
+        $dias = ['seg', 'ter', 'qua', 'qui', 'sex', 'sab', 'dom'];
+        if (!array_filter(array_intersect_key($h, array_flip($dias)))) {
+            return null;
+        }
+        $hoje = (int) date('N') - 1;
+        $agora = date('H:i');
+        foreach ((array) ($h[$dias[$hoje]] ?? []) as $p) {
+            if (is_array($p) && ($p[0] ?? '') !== '' && ($p[1] ?? '') !== '' && $agora >= $p[0] && $agora < $p[1]) {
+                return ['aberto' => true, 'texto' => 'Aberto · fecha às ' . $p[1]];
+            }
+        }
+        // Fechado: quando abre de novo (hoje mais tarde ou num dos próximos dias).
+        for ($d = 0; $d < 7; $d++) {
+            $dia = $dias[($hoje + $d) % 7];
+            foreach ((array) ($h[$dia] ?? []) as $p) {
+                if (is_array($p) && ($p[0] ?? '') !== '' && ($d > 0 || $p[0] > $agora)) {
+                    $quando = $d === 0 ? 'hoje' : ($d === 1 ? 'amanhã' : ['segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado', 'domingo'][($hoje + $d) % 7]);
+                    return ['aberto' => false, 'texto' => 'Fechado · abre ' . $quando . ' às ' . $p[0]];
+                }
+            }
+        }
+        return ['aberto' => false, 'texto' => 'Fechado'];
+    }
+
+    /** Distância em metros entre dois pontos. */
+    public static function distancia(float $lat1, float $lng1, float $lat2, float $lng2): float
+    {
+        $r = 6371000;
+        $a = sin(deg2rad($lat2 - $lat1) / 2) ** 2 + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin(deg2rad($lng2 - $lng1) / 2) ** 2;
+        return 2 * $r * asin(min(1, sqrt($a)));
+    }
+
+    /**
+     * Um dia no destino, montado pela proximidade: manhã num atrativo, almoço
+     * perto dele, tarde no atrativo mais perto do almoço, jantar e pouso por
+     * perto. A semente muda o dia ("montar outro") e o mantém no link.
+     *
+     * @return list<array{hora:string,rotulo:string,item:array,metros:?int}>
+     */
+    public static function umDia(int $eid, int $semente): array
+    {
+        $comPonto = fn (array $l) => array_values(array_filter($l, fn ($i) => self::naArea($eid, $i)));
+        $atrativos = $comPonto(self::itens($eid, 'o-que-fazer'));
+        $comer = $comPonto(self::itens($eid, 'onde-comer'));
+        $dormir = $comPonto(self::itens($eid, 'onde-dormir'));
+        if (!$atrativos || !$comer) {
+            return [];
+        }
+        mt_srand($semente);
+        $comFoto = array_values(array_filter($atrativos, fn ($i) => $i['foto']));
+        $base = $comFoto ?: $atrativos;
+        $usados = [];
+        $perto = function (array $de, array $lista) use (&$usados): ?array {
+            $melhor = null;
+            $dist = PHP_FLOAT_MAX;
+            foreach ($lista as $i) {
+                if (isset($usados[(int) $i['id']])) {
+                    continue;
+                }
+                $d = self::distancia((float) $de['latitude'], (float) $de['longitude'], (float) $i['latitude'], (float) $i['longitude']);
+                if ($d < $dist) {
+                    [$melhor, $dist] = [$i, $d];
+                }
+            }
+            return $melhor ? $melhor + ['_metros' => (int) round($dist)] : null;
+        };
+        $passos = [];
+        $manha = $base[mt_rand(0, count($base) - 1)];
+        $usados[(int) $manha['id']] = true;
+        $passos[] = ['hora' => '09:00', 'rotulo' => 'Comece por', 'item' => $manha, 'metros' => null];
+        $etapas = [['12:30', 'Almoce em', $comer], ['14:30', 'À tarde', $atrativos], ['17:00', 'No fim da tarde', $atrativos], ['20:00', 'Jante em', $comer]];
+        if ($dormir) {
+            $etapas[] = ['22:00', 'Durma em', $dormir];
+        }
+        $ultimo = $manha;
+        foreach ($etapas as [$hora, $rotulo, $lista]) {
+            $i = $perto($ultimo, $lista);
+            if (!$i) {
+                continue;
+            }
+            $usados[(int) $i['id']] = true;
+            $passos[] = ['hora' => $hora, 'rotulo' => $rotulo, 'item' => $i, 'metros' => $i['_metros']];
+            $ultimo = $i;
+        }
+        mt_srand();
+        return $passos;
+    }
+
+    /** Distância para ler: "350 m", "1,2 km". */
+    public static function metros(?int $m): string
+    {
+        if ($m === null) {
+            return '';
+        }
+        return $m < 1000 ? (int) (round($m / 10) * 10) . ' m' : number_format($m / 1000, 1, ',', '') . ' km';
+    }
+
+    /** Coordenada para ler: 26°10′S 52°39′O */
+    public static function coordenada(float $lat, float $lng): string
+    {
+        $f = function (float $v, string $pos, string $neg): string {
+            $a = abs($v);
+            return (int) $a . '°' . str_pad((string) (int) round(($a - (int) $a) * 60), 2, '0', STR_PAD_LEFT) . '′' . ($v < 0 ? $neg : $pos);
+        };
+        return $f($lat, 'N', 'S') . ' ' . $f($lng, 'L', 'O');
     }
 
     /** Slug para o endereço: /lugar/12-hotel-bedin */

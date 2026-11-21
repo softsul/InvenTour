@@ -131,6 +131,14 @@ $tratadores = [
         PontosQr::gerarCartaz((int) ($payload['id'] ?? 0));
     },
 
+    // O contorno do município para o mapa do portal (diário, e quando pedido).
+    'portal_mapa' => function (array $payload): void {
+        require_once __DIR__ . '/../app/Portal.php';
+        foreach (Database::conexao()->query('SELECT id FROM empresas WHERE ativo = 1 AND municipio_id IS NOT NULL')->fetchAll(PDO::FETCH_COLUMN) as $eid) {
+            echo '#' . $eid . (Portal::gravarMapa((int) $eid) ? ' ok ' : ' sem divisa ');
+        }
+    },
+
     'importar_mapa_turismo' => function (array $payload): void {
         require_once __DIR__ . '/../app/MapaTurismo.php';
         echo MapaTurismo::importar() . ' ';
@@ -169,6 +177,9 @@ if (!in_array('faxina', $pendentes, true)) {
 // há planilha nova.
 if (!in_array('importar_cadastur', $pendentes, true)) {
     Fila::enfileirar('importar_cadastur', [], date('Y-m-d H:i:s', strtotime('next sunday 04:00')));
+}
+if (!in_array('portal_mapa', $pendentes, true)) {
+    Fila::enfileirar('portal_mapa', [], date('Y-m-d H:i:s', strtotime('tomorrow 03:30')));
 }
 if (!in_array('eventcity_agenda', $pendentes, true)) {
     Fila::enfileirar('eventcity_agenda', [], date('Y-m-d H:i:s', strtotime('+5 minutes')));
