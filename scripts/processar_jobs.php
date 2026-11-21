@@ -61,6 +61,31 @@ $tratadores = [
         echo $r['paginas'] . ' páginas, ' . $r['itens'] . ' itens ';
     },
 
+    // Uma vez (21/11/2026): os PDFs unidos pelo pdfunite, com o índice
+    // inconsistente, regravados pelo qpdf e linearizados. O SHA-256 da
+    // verificação acompanha o arquivo novo.
+    'caderno_reparar' => function (array $payload): void {
+        require_once __DIR__ . '/../app/Caderno.php';
+        $pdo = Database::conexao();
+        foreach ($pdo->query("SELECT * FROM cadernos WHERE situacao = 'pronto'")->fetchAll() as $c) {
+            $pdf = Caderno::arquivo($c, 'pdf');
+            if (!is_file($pdf)) {
+                continue;
+            }
+            exec('pdfinfo ' . escapeshellarg($pdf) . ' 2>/dev/null | grep -c "Optimized:  *yes"', $s);
+            if ((int) end($s) > 0) {
+                continue;
+            }
+            $novo = $pdf . '.novo';
+            exec(implode(' ', array_map('escapeshellarg', ['qpdf', '--linearize', '--object-streams=generate', $pdf, $novo])) . ' 2>/dev/null');
+            if (is_file($novo) && filesize($novo) > 0) {
+                rename($novo, $pdf);
+                $pdo->prepare('UPDATE cadernos SET sha256 = ?, bytes = ? WHERE id = ?')->execute([hash_file('sha256', $pdf), filesize($pdf), (int) $c['id']]);
+                echo 'v' . $c['versao'] . ' ';
+            }
+        }
+    },
+
     'importar_mapa_turismo' => function (array $payload): void {
         require_once __DIR__ . '/../app/MapaTurismo.php';
         echo MapaTurismo::importar() . ' ';
