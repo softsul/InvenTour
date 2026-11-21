@@ -35,9 +35,24 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{DOCUMENT_ROOT}/$1.php -f
 RewriteRule ^(.+?)/?$ /$1.php [L]
 
+# Bloco do mapa base que não existe (mar, fora do recorte): 404, nunca a
+# página inicial (o mapa leria HTML como bloco).
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^mapa-base/ - [R=404,L]
+
 # Qualquer outro endereço cai na página inicial do destino.
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^ index.php [L]
+
+# Mapa base do destino: blocos vetoriais do OpenStreetMap (scripts/gerar_mapa_base.mjs)
+# e as fontes dos rótulos. Mudam só quando o recorte é refeito.
+AddType application/x-protobuf .pbf
+<IfModule mod_expires.c>
+    <FilesMatch "\.pbf$">
+        ExpiresActive On
+        ExpiresDefault "access plus 7 days"
+    </FilesMatch>
+</IfModule>
 
 <FilesMatch "^\.">
     Require all denied
@@ -45,11 +60,11 @@ RewriteRule ^ index.php [L]
 
 <IfModule mod_headers.c>
     Header always set X-Content-Type-Options "nosniff"
-    Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://app.eventcity.com.br https://*.eventcity.com.br; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src https://www.google.com; frame-ancestors 'self'"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://app.eventcity.com.br https://*.eventcity.com.br; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; frame-ancestors 'self'"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
     Header always set Permissions-Policy "geolocation=(self), microphone=(), camera=(), payment=()"
 </IfModule>
 
 <IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/html text/plain text/css text/javascript application/javascript image/svg+xml application/json
+    AddOutputFilterByType DEFLATE text/html text/plain text/css text/javascript application/javascript image/svg+xml application/json application/x-protobuf
 </IfModule>

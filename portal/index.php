@@ -89,7 +89,7 @@ PortalLayout::inicio($destino, $nome, true, ['ativo' => '', 'imagem' => $temCapa
 <?php $mapa = PortalLayout::mapa($eid, $todos, 'Mapa de ' . $nome . ' com os lugares do guia'); ?>
 <?php if ($mapa !== ''): ?>
 <section class="secao">
-  <div class="secao-cab"><div><span class="rotulo">Divisa oficial do município · IBGE</span><h2>O mapa do destino</h2></div></div>
+  <div class="secao-cab"><div><span class="rotulo">Ruas do OpenStreetMap · divisa do IBGE</span><h2>O mapa do destino</h2></div></div>
   <div class="mapa-caixa" data-mapa><?= $mapa ?></div>
 </section>
 <?php endif; ?>

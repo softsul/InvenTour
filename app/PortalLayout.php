@@ -243,7 +243,18 @@ final class PortalLayout
      *
      * @param array<int,array> $itens com latitude, longitude e 'pilar'
      */
-    public static function mapa(int $eid, array $itens, string $rotulo = 'Mapa do destino'): string
+    /**
+     * O mapa do destino: o mapa base próprio (ruas, rios, praças e bairros do
+     * OpenStreetMap, no estilo do caderno de viagem, servido pelo portal em
+     * /mapa-base/<destino>) com a divisa do município e um ponto por lugar,
+     * na cor do pilar. O portal.js desenha com o MapLibre; aqui vão o filtro,
+     * os botões de zoom e a lista dos pontos (que também é o mapa para quem
+     * usa leitor de tela). Sem o recorte do destino, fica só a divisa no papel.
+     *
+     * @param array<int,array> $itens com latitude, longitude e 'pilar'
+     * @param array{filtro?:bool,zoom?:int,destaque?:int} $opcoes no mapa de um lugar: sem filtro, zoom fixo e o lugar em destaque
+     */
+    public static function mapa(int $eid, array $itens, string $rotulo = 'Mapa do destino', array $opcoes = []): string
     {
         $m = Portal::mapa($eid);
         // Só o que cai na área do município: coordenada errada não estica o mapa.
@@ -252,23 +263,32 @@ final class PortalLayout
             return '';
         }
         $todos = [];
+        $divisa = [];
         foreach ($m['aneis'] ?? [] as $anel) {
+            $linha = [];
             foreach ($anel as $p) {
                 $todos[] = $p;
+                $linha[] = [round((float) $p[0], 5), round((float) $p[1], 5)];
             }
+            $divisa[] = $linha;
         }
         foreach ($pontos as $i) {
             $todos[] = [(float) $i['longitude'], (float) $i['latitude']];
         }
         $lngs = array_column($todos, 0);
         $lats = array_column($todos, 1);
-        [$x0, $x1, $y0, $y1] = [min($lngs), max($lngs), min($lats), max($lats)];
-        $kx = cos(deg2rad(($y0 + $y1) / 2));
-        $larg = 1000;
-        $escala = $larg / max(1e-6, ($x1 - $x0) * $kx);
-        $alt = (int) ceil(($y1 - $y0) * $escala) ?: 600;
-        $px = fn (float $lng) => round(($lng - $x0) * $kx * $escala, 1);
-        $py = fn (float $lat) => round(($y1 - $lat) * $escala, 1);
+        $limites = implode(',', array_map(fn ($v) => round((float) $v, 5), [min($lngs), min($lats), max($lngs), max($lats)]));
+        // Onde o mapa abre: o miolo dos lugares (sem os 8% mais afastados de
+        // cada lado), que costuma ser a cidade; o botão do mapa mostra tudo.
+        $inicio = $limites;
+        if (count($pontos) >= 10) {
+            $pl = array_map(fn ($i) => (float) $i['longitude'], $pontos);
+            $pa = array_map(fn ($i) => (float) $i['latitude'], $pontos);
+            sort($pl);
+            sort($pa);
+            $q = fn (array $v, float $f) => $v[(int) floor($f * (count($v) - 1))];
+            $inicio = implode(',', array_map(fn ($v) => round($v, 5), [$q($pl, .08), $q($pa, .08), $q($pl, .92), $q($pa, .92)]));
+        }
 
         // O filtro: com lugares de mais de um pilar, um botão por pilar; num
         // pilar só, um por tipo (os seis mais comuns e "Outros").
@@ -303,20 +323,12 @@ final class PortalLayout
             }
         }
 
-        $svg = '<svg class="mapa-svg" viewBox="-30 -30 ' . ($larg + 60) . ' ' . ($alt + 60) . '" role="img" aria-label="' . e($rotulo) . '"><g class="mapa-camada">';
-        foreach ($m['aneis'] ?? [] as $anel) {
-            $d = '';
-            foreach ($anel as $k => $p) {
-                $d .= ($k ? 'L' : 'M') . $px((float) $p[0]) . ' ' . $py((float) $p[1]);
-            }
-            $svg .= '<path class="divisa" d="' . $d . 'Z"/>';
-        }
+        $lista = '';
         foreach ($pontos as $id => $i) {
-            $svg .= '<circle class="ponto p-' . e((string) ($i['pilar'] ?? 'o-que-fazer')) . '" cx="' . $px((float) $i['longitude']) . '" cy="' . $py((float) $i['latitude']) . '"'
-                . ' tabindex="0" role="button" aria-label="' . e((string) $i['nome']) . '" data-grupo="' . e($grupoDe[$id] ?? '') . '"'
-                . ' data-url="' . e(self::urlLugar($i)) . '" data-lugar="' . e(json_encode(self::dadosDoPonto($eid, $i), JSON_UNESCAPED_UNICODE)) . '"></circle>';
+            $lista .= '<li><a href="' . e(self::urlLugar($i)) . '"' . ((int) ($opcoes['destaque'] ?? 0) === (int) $id ? ' data-destaque' : '') . ' data-lng="' . round((float) $i['longitude'], 6) . '" data-lat="' . round((float) $i['latitude'], 6) . '"'
+                . ' data-pilar="' . e((string) ($i['pilar'] ?? 'o-que-fazer')) . '" data-grupo="' . e($grupoDe[$id] ?? '') . '"'
+                . ' data-lugar="' . e(json_encode(self::dadosDoPonto($eid, $i), JSON_UNESCAPED_UNICODE)) . '">' . e((string) $i['nome']) . '</a></li>';
         }
-        $svg .= '</g></svg>';
 
         $filtro = '<div class="mapa-filtro" role="group" aria-label="Mostrar no mapa"><button type="button" class="ativo" aria-pressed="true" data-grupo-filtro="">Tudo <small>' . milhar(count($pontos)) . '</small></button>';
         foreach ($grupos as $chave => [$nome, $n, $cor]) {
@@ -324,9 +336,16 @@ final class PortalLayout
                 . ($cor !== '' ? '<i class="l-' . e($cor) . '"></i>' : '') . e($nome) . ' <small>' . milhar($n) . '</small></button>';
         }
         $filtro .= '</div>';
+        if (($opcoes['filtro'] ?? true) === false || count($pontos) < 2) {
+            $filtro = '';
+        }
+        $base = is_dir(dirname(__DIR__) . '/portal/mapa-base/' . $eid) ? ' data-mapa-base="/mapa-base/' . $eid . '"' : '';
         $zoom = '<div class="mapa-zoom"><button type="button" data-zoom="1" aria-label="Aproximar">+</button><button type="button" data-zoom="-1" aria-label="Afastar">&minus;</button>'
             . '<button type="button" data-zoom="0" aria-label="Ver o município inteiro">' . icone('mapa') . '</button></div>';
-        return $filtro . '<div class="mapa-palco">' . $svg . $zoom . '<p class="mapa-dica" hidden>Use Ctrl + rolagem para aproximar, ou os botões + e &minus;</p></div>';
+        return $filtro . '<div class="mapa-palco"' . $base . ' data-limites="' . $limites . '" data-inicio="' . $inicio . '"' . (!empty($opcoes['zoom']) ? ' data-zoom-inicial="' . (int) $opcoes['zoom'] . '"' : '')
+            . ' data-divisa="' . e(json_encode($divisa)) . '" role="region" aria-label="' . e($rotulo) . '">'
+            . '<div class="mapa-tela"></div>' . $zoom
+            . '<ul class="mapa-lista-pontos">' . $lista . '</ul></div>';
     }
 
     /** O que o balão do mapa mostra de cada lugar (chaves curtas: são centenas de pontos). */

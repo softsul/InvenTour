@@ -25,3 +25,7 @@
 /public/baixar/
 __pycache__/
 docs/especificacao/fichas-2011/texto-dos-pdfs/
+
+# Mapa base de cada destino (blocos do OpenStreetMap, ~10 MB): gerado por
+# scripts/gerar_mapa_base.mjs, fora do Git.
+/portal/mapa-base/

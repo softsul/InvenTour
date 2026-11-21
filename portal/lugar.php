@@ -116,7 +116,10 @@ PortalLayout::inicio($destino, $nome, true, ['ativo' => (string) $pilar, 'imagem
 
     <?php if ($coord): ?>
     <h2>Onde fica</h2>
-    <div class="mapa"><iframe src="https://www.google.com/maps?q=<?= e($coord) ?>&amp;z=16&amp;hl=pt-BR&amp;output=embed" title="Mapa de <?= e($nome) ?>" loading="lazy" referrerpolicy="no-referrer"></iframe></div>
+    <?php // O mapa próprio do destino, centrado no lugar e com os vizinhos do "Perto daqui".
+      $noMapa = [(int) $i['id'] => $i + ['pilar' => $pilar ?? 'o-que-fazer']];
+      foreach ($perto as $o) { $noMapa[(int) $o['id']] ??= $o; } ?>
+    <div class="mapa-caixa mapa-do-lugar" data-mapa><?= PortalLayout::mapa($eid, $noMapa, 'Mapa de ' . $nome . ' e arredores', ['filtro' => false, 'zoom' => 16, 'destaque' => (int) $i['id']]) ?></div>
     <?php endif; ?>
 
     <?php if ($perto): ?>
