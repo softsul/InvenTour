@@ -1731,7 +1731,11 @@ body.arrastando-parada { user-select: none; -webkit-user-select: none; cursor: g
 .parada-num { grid-area: num; font-weight: 800; font-size: 13px; color: var(--indigo-fte); text-align: right; align-self: start; padding-top: 2px; }
 .parada-lugar { grid-area: lugar; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .parada-lugar b { font-size: 14px; }
-.parada-campos { grid-area: campos; display: grid; grid-template-columns: minmax(0, 120px) minmax(0, 140px) minmax(0, 1fr); gap: 8px; }
+.parada-campos { grid-area: campos; display: grid; grid-template-columns: minmax(0, 150px) minmax(0, 100px) minmax(0, 130px) minmax(0, 1fr); gap: 8px; align-items: end; }
+.parada-campo { display: grid; gap: 4px; min-width: 0; }
+.parada-campo > span:first-child { font-size: 11.5px; font-weight: 600; color: var(--fraca); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.parada-campo input[readonly] { color: var(--indigo-fte); font-weight: 700; }
+.parada-primeira .parada-desloc { visibility: hidden; }
 .parada-tirar { grid-area: tirar; display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid var(--traco); border-radius: 8px;
   background: var(--branco); color: var(--rubi); cursor: pointer; }
 .parada-tirar:hover { background: var(--rubi-sup); }
@@ -1743,7 +1747,8 @@ body.arrastando-parada { user-select: none; -webkit-user-select: none; cursor: g
 @media (max-width: 600px) {
   .parada-linha { grid-template-columns: 30px 22px minmax(0, 1fr) 40px; grid-template-areas: "alca num lugar tirar" "campos campos campos campos"; }
   .parada-campos { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-  .parada-campos > .entrada:last-child { grid-column: 1 / -1; }
+  .parada-campos > .parada-dica { grid-column: 1 / -1; }
+  .parada-primeira .parada-desloc { display: none; }
   .cartao-perigo-linha .botao { flex: 1 1 100%; justify-content: center; }
 }
 
@@ -1755,3 +1760,5 @@ body.arrastando-parada { user-select: none; -webkit-user-select: none; cursor: g
 /* Botão no fim de um cartão nunca colado nos campos (regra do Luiz, 21/11/2026). */
 .cartao > .acoes, .cartao > form > .acoes, form.cartao > .acoes, .cartao .grade + .acoes { margin-top: 22px; }
 .entrada.invalida{border-color:var(--rubi); background:var(--rubi-sup)}
+.acoes-linha button.perigo:hover{color:var(--rubi); border-color:var(--rubi); background:var(--rubi-sup)}
+.parada-campo .entrada { min-width: 0; width: 100%; } .parada-campo .entrada input { min-width: 0; width: 100%; }

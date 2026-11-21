@@ -21,6 +21,38 @@ final class UmDia
         return preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $v) ? $v : null;
     }
 
+    /** HH:MM + minutos (para no fim do dia, 23:59). */
+    public static function somar(string $hora, int $min): string
+    {
+        [$h, $m] = array_map('intval', explode(':', $hora));
+        $t = min(23 * 60 + 59, $h * 60 + $m + max(0, $min));
+        return sprintf('%02d:%02d', intdiv($t, 60), $t % 60);
+    }
+
+    /**
+     * Tempo de deslocamento estimado pela distância em linha reta: a pé até
+     * 1,2 km (80 m por minuto), de carro acima (500 m por minuto, mais 5 de
+     * estacionar), arredondado para 5 minutos. O redator ajusta na tela.
+     * A mesma conta está no inventour.js (paradas do roteiro).
+     */
+    public static function deslocamento(?float $metros): int
+    {
+        if ($metros === null) {
+            return 10;
+        }
+        $min = $metros <= 1200 ? $metros / 80 : $metros / 500 + 5;
+        return max(5, (int) (ceil($min / 5) * 5));
+    }
+
+    /** Distância em metros entre dois lugares com latitude e longitude (null sem coordenada). */
+    public static function metros(array $a, array $b): ?float
+    {
+        if (($a['latitude'] ?? null) === null || ($b['latitude'] ?? null) === null) {
+            return null;
+        }
+        return self::distancia($a, $b);
+    }
+
     /** Os roteiros "Um dia aqui" que o portal pode mostrar (ids). */
     public static function roteiros(int $eid, bool $previa): array
     {

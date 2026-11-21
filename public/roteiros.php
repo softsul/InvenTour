@@ -19,6 +19,8 @@ $q = $pdo->prepare('SELECT r.*, t.nome AS tribo_nome, (SELECT COUNT(*) FROM rote
 $q->execute([$eid]);
 $roteiros = $q->fetchAll();
 $tipos = ['permanente' => 'Permanente', 'evento' => 'De evento', 'tribo' => 'Por perfil de viajante', 'um_dia' => 'Um dia aqui'];
+$podeExcluir = Auth::pode('roteiros.excluir') && Auth::pode('roteiros.editar');
+$csrf = Auth::tokenCsrf();
 paginaInicio('Roteiros', 'roteiros');
 ?>
 <div class="cab-pag">
@@ -43,7 +45,10 @@ paginaInicio('Roteiros', 'roteiros');
           <td><?= e($tipos[$r['tipo']] ?? $r['tipo']) ?><?= $r['tribo_nome'] ? ': ' . e((string) $r['tribo_nome']) : '' ?></td>
           <td class="num dado"><?= milhar((int) $r['paradas']) ?></td>
           <td><?= $r['publicado'] ? '<span class="pilula ok">No portal</span>' : '<span class="pilula nu">Rascunho</span>' ?></td>
-          <td class="acao"><div class="acoes-linha"><a href="<?= e($url) ?>" data-ficha="<?= e($r['titulo']) ?>" title="Abrir" aria-label="Abrir <?= e($r['titulo']) ?>"><?= icone('lapis') ?></a></div></td>
+          <td class="acao"><div class="acoes-linha"><a href="<?= e($url) ?>" data-ficha="<?= e($r['titulo']) ?>" data-balao-titulo="Abrir" data-balao="Editar o roteiro e as paradas." aria-label="Abrir <?= e($r['titulo']) ?>"><?= icone('lapis') ?></a>
+            <?php if ($podeExcluir): ?><form method="post" action="<?= e($url) ?>"><input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="acao" value="excluir">
+              <button type="submit" class="perigo" data-confirmar="Excluir o roteiro <?= e((string) $r['titulo']) ?>? Ele sai do painel e do portal; os lugares continuam no inventário."
+                data-balao-titulo="Excluir" data-balao="Tira o roteiro do painel e do portal." aria-label="Excluir <?= e($r['titulo']) ?>"><?= icone('lixeira') ?></button></form><?php endif; ?></div></td>
         </tr>
       <?php endforeach; ?>
       </tbody>

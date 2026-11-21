@@ -6924,6 +6924,8 @@ window.inventourMarcarNoFiltro = function (form, campo, ids, nome) {
     li.querySelector('[data-parada-nome]').textContent = item.texto || '';
     li.querySelector('[data-parada-codigo]').textContent = item.codigo || '';
     li.querySelector('[data-parada-pendente]').hidden = !!item.homologado;
+    li.querySelector('[data-parada-lat]').value = item.lat === null || item.lat === undefined ? '' : item.lat;
+    li.querySelector('[data-parada-lng]').value = item.lng === null || item.lng === undefined ? '' : item.lng;
     lista.appendChild(li);
     renumerar();
     limpar();
@@ -6986,4 +6988,64 @@ window.inventourMarcarNoFiltro = function (form, campo, ids, nome) {
   }
   lista.addEventListener('pointerup', soltar);
   lista.addEventListener('pointercancel', soltar);
+})();
+
+/*
+ * Horário das paradas do roteiro, calculado na tela: a primeira tem a hora
+ * de início (o redator digita); cada seguinte chega na anterior + o tempo
+ * nela + o deslocamento até aqui. O deslocamento vazio usa a estimativa pela
+ * distância (mostrada em cinza no campo); digitado, vale o do redator. A
+ * mesma conta do servidor (UmDia::deslocamento e public/roteiro.php).
+ * Softsul Software
+ */
+(function () {
+  'use strict';
+  var lista = document.querySelector('[data-paradas-lista]');
+  if (!lista) { return; }
+  function num(v) { var n = parseFloat(String(v || '').replace(',', '.')); return isFinite(n) ? n : null; }
+  function metros(a, b) {
+    if (a.lat === null || b.lat === null) { return null; }
+    var r = Math.PI / 180, dla = (b.lat - a.lat) * r, dlo = (b.lng - a.lng) * r;
+    var h = Math.pow(Math.sin(dla / 2), 2) + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.pow(Math.sin(dlo / 2), 2);
+    return 2 * 6371000 * Math.asin(Math.min(1, Math.sqrt(h)));
+  }
+  function estimar(m) {
+    if (m === null) { return 10; }
+    var min = m <= 1200 ? m / 80 : m / 500 + 5;
+    return Math.max(5, Math.ceil(min / 5) * 5);
+  }
+  function somar(hora, min) {
+    var p = /^(\d{2}):(\d{2})$/.exec(hora || '');
+    if (!p) { return ''; }
+    var t = Math.min(23 * 60 + 59, (+p[1]) * 60 + (+p[2]) + Math.max(0, min));
+    return String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0');
+  }
+  function calcular() {
+    var linhas = Array.prototype.slice.call(lista.querySelectorAll('[data-parada]'));
+    var anterior = null;
+    linhas.forEach(function (li, k) {
+      var hora = li.querySelector('[data-parada-hora]');
+      var desloc = li.querySelector('[data-parada-desloc]');
+      var tempo = li.querySelector('[data-parada-tempo]');
+      var aqui = { lat: num(li.querySelector('[data-parada-lat]').value), lng: num(li.querySelector('[data-parada-lng]').value) };
+      li.classList.toggle('parada-primeira', k === 0);
+      li.querySelector('[data-parada-rotulo-hora]').textContent = k === 0 ? 'Início' : 'Chegada';
+      if (k === 0) {
+        hora.readOnly = hora.hasAttribute('data-so-leitura');
+        desloc.value = '';
+      } else {
+        var est = estimar(metros(anterior.ponto, aqui));
+        desloc.placeholder = String(est);
+        var d = num(desloc.value);
+        hora.readOnly = true;
+        hora.value = anterior.hora ? somar(anterior.hora, (anterior.tempo || 0) + (d === null ? est : d)) : '';
+      }
+      anterior = { ponto: aqui, hora: hora.value, tempo: num(tempo.value) };
+    });
+  }
+  lista.querySelectorAll('[data-parada-hora][readonly]').forEach(function (h) { h.setAttribute('data-so-leitura', ''); });
+  lista.addEventListener('input', function (ev) { if (ev.target.matches('[data-parada-hora], [data-parada-desloc], [data-parada-tempo]')) { calcular(); } });
+  // Ordem mudou, parada entrou ou saiu: recalcula.
+  new MutationObserver(calcular).observe(lista, { childList: true });
+  calcular();
 })();
