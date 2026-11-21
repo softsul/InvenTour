@@ -43,6 +43,29 @@ final class Comercial
         ];
     }
 
+    /**
+     * O convite e o contato comercial para a prévia do QR no portal. O
+     * portal não lê a tabela ajustes (que guarda segredos de integração):
+     * lê este arquivo, regravado a cada salvar da tela Comercial.
+     */
+    public static function publicarParaOPortal(): void
+    {
+        $d = self::dados();
+        $cfg = require __DIR__ . '/config.php';
+        @file_put_contents(rtrim((string) $cfg['caminhos']['cache'], '/') . '/portal-comercial.json', json_encode([
+            'convite' => $d['convite'], 'email' => $d['contato_email'], 'whatsapp' => $d['contato_whatsapp'],
+        ], JSON_UNESCAPED_UNICODE));
+    }
+
+    /** O que o portal mostra na prévia (o arquivo, ou o texto de partida). */
+    public static function paraOPortal(): array
+    {
+        $cfg = require __DIR__ . '/config.php';
+        $j = json_decode((string) @file_get_contents(rtrim((string) $cfg['caminhos']['cache'], '/') . '/portal-comercial.json'), true);
+        return is_array($j) ? $j + ['convite' => self::CONVITE_PADRAO, 'email' => '', 'whatsapp' => '']
+            : ['convite' => self::CONVITE_PADRAO, 'email' => '', 'whatsapp' => ''];
+    }
+
     public static function diasDeAvaliacao(): int
     {
         return self::dados()['dias_avaliacao'];

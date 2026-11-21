@@ -6838,3 +6838,18 @@ window.inventourMarcarNoFiltro = function (form, campo, ids, nome) {
     window.inventourEtiquetas();
   }
 })();
+
+/*
+ * Tela que espera um trabalho da fila (o caderno sendo gerado): o elemento
+ * com data-recarregar-em="N" recarrega a página a cada N segundos, enquanto
+ * a aba está visível. Softsul Software.
+ */
+(function () {
+  'use strict';
+  var el = document.querySelector('[data-recarregar-em]');
+  if (!el) { return; }
+  var segundos = Math.max(3, parseInt(el.getAttribute('data-recarregar-em'), 10) || 6);
+  setInterval(function () {
+    if (document.visibilityState === 'visible' && !document.querySelector('dialog[open]')) { location.reload(); }
+  }, segundos * 1000);
+})();

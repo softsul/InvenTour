@@ -9,3 +9,19 @@
 GRANT SELECT (id, slug, nome_fantasia, cor_acento, logo, logo_no_portal, cidade, uf, dominio_proprio, ativo, modo_operacao, avaliacao_ate)
     ON inventour.empresas TO 'inventour_portal'@'localhost', 'inventour_portal'@'127.0.0.1';
 GRANT SELECT, INSERT, UPDATE, DELETE ON inventour.limites TO 'inventour_portal'@'localhost', 'inventour_portal'@'127.0.0.1';
+
+-- Etapa 4 (21/11/2026): o QR das fichas do caderno e a verificação do PDF.
+-- O QR conta a leitura (caderno_leituras) e mostra a prévia bloqueada (modo
+-- projeto) ou a ficha (destino licenciado ou em avaliação).
+GRANT SELECT (id, empresa_id, codigo, titulo, ano, versao, previa, situacao, paginas, itens, sha256, gerado_em)
+    ON inventour.cadernos TO 'inventour_portal'@'localhost', 'inventour_portal'@'127.0.0.1';
+GRANT SELECT, INSERT, UPDATE ON inventour.caderno_leituras TO 'inventour_portal'@'localhost', 'inventour_portal'@'127.0.0.1';
+GRANT SELECT (id, empresa_id, ficha_id, tipo_id, situacao, nome, logradouro, numero, bairro, telefone, whatsapp, site, instagram,
+              latitude, longitude, plus_code, descricao_promocional)
+    ON inventour.inventario_itens TO 'inventour_portal'@'localhost', 'inventour_portal'@'127.0.0.1';
+GRANT SELECT (id, empresa_id, item_id, experiencia_id, arquivo, capa, ordem)
+    ON inventour.inventario_midias TO 'inventour_portal'@'localhost', 'inventour_portal'@'127.0.0.1';
+GRANT SELECT (id, codigo, nome) ON inventour.inventario_fichas TO 'inventour_portal'@'localhost', 'inventour_portal'@'127.0.0.1';
+GRANT SELECT (id, nome) ON inventour.inventario_tipos TO 'inventour_portal'@'localhost', 'inventour_portal'@'127.0.0.1';
+-- O convite e o contato comercial da prévia não vêm do banco: a tela Comercial
+-- grava só eles em storage/cache/portal-comercial.json (Comercial::paraOPortal).

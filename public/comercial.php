@@ -57,6 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'contato_whatsapp' => telefoneParaBanco($_POST['contato_whatsapp'] ?? null) ?? '',
             ];
             Ajustes::salvar('comercial', $novo, 0, (int) Auth::usuarioOuNulo()['id']);
+            Comercial::publicarParaOPortal();
             Auditoria::registrar('alterou', 'ajustes', null, 'alterou a política comercial (preços, avaliação e convite)', null, $novo);
             avisar('Política comercial salva.');
             redirecionar('/configuracoes/comercial');

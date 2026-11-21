@@ -68,6 +68,16 @@ if ($empresa) {
         [$textosD, $marcosD] = array_map('intval', $q->fetch(PDO::FETCH_NUM));
         $metricas[] = ['O destino', $textosD, 'de 5 textos · ' . plural($marcosD, 'marco', 'marcos') . ' na linha do tempo', '/destino-textos'];
     }
+    if (Auth::pode('caderno.ver')) {
+        // Etapa 4: o caderno oficial, a última versão pronta e as leituras dos QR.
+        $q = $pdo->prepare("SELECT versao, paginas, previa, (SELECT COALESCE(SUM(leituras), 0) FROM caderno_leituras WHERE empresa_id = ?)
+                            FROM cadernos WHERE empresa_id = ? AND situacao = 'pronto' ORDER BY id DESC LIMIT 1");
+        $q->execute([$eid, $eid]);
+        $ultimo = $q->fetch(PDO::FETCH_NUM);
+        $metricas[] = ['Caderno oficial', $ultimo ? (int) $ultimo[1] : 0, $ultimo
+            ? 'páginas na versão ' . (int) $ultimo[0] . ($ultimo[2] ? ' (prévia)' : '') . ' · ' . plural((int) $ultimo[3], 'leitura do QR', 'leituras do QR')
+            : 'nenhuma versão gerada ainda', '/caderno'];
+    }
     $metricas[] = ['Equipe', Painel::equipe($eid), 'pessoas com acesso ao destino', Auth::pode('usuarios.ver') ? '/configuracoes/usuarios' : null];
 } elseif ($u['softsul']) {
     $destinos = Painel::destinosPlataforma();

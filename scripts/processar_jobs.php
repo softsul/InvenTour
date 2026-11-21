@@ -54,6 +54,13 @@ $tratadores = [
 
     // Mensal: o Mapa do Turismo (regiões turísticas e categorias) muda uma
     // vez por ano; importar de novo só regrava o ano corrente.
+    // Etapa 4: o caderno oficial do inventário (PDF, XLSX e CSV).
+    'caderno' => function (array $payload): void {
+        require_once __DIR__ . '/../app/Caderno.php';
+        $r = Caderno::gerar((int) ($payload['id'] ?? 0));
+        echo $r['paginas'] . ' páginas, ' . $r['itens'] . ' itens ';
+    },
+
     'importar_mapa_turismo' => function (array $payload): void {
         require_once __DIR__ . '/../app/MapaTurismo.php';
         echo MapaTurismo::importar() . ' ';
