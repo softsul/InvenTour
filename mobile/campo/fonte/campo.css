@@ -98,3 +98,9 @@ dialog.coleta-dialogo.atualizar-app{height:fit-content; max-height:calc(100vh - 
    é em linha: lá "100%" é largura; aqui, em coluna, virava altura. */
 .menu-sinc .coleta-botoes{flex-wrap:nowrap}
 .menu-sinc .coleta-botoes .botao, .menu-sinc .coleta-botoes #col-sincronizar, .menu-sinc .coleta-botoes #col-historico{flex:none; width:100%; order:0; padding:14px; white-space:nowrap}
+
+/* Janelas de pergunta do app (sair, desconectar, descartar): compactas e centradas. */
+#campo-sair .acoes-sair, #campo-pergunta .acoes-sair{display:flex; gap:10px; width:100%; margin-top:6px}
+#campo-sair .acoes-sair .botao, #campo-pergunta .acoes-sair .botao{flex:1; white-space:nowrap}
+#campo-pergunta-texto{margin:0; font-size:15px; color:var(--tinta); line-height:1.5; text-align:center}
+#campo-sair-texto{margin:0; color:var(--suave); text-align:center}

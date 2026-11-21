@@ -123,6 +123,39 @@
     this.value = v.length > 4 ? v.slice(0, 4) + ' ' + v.slice(4) : v;
   });
 
+  // ------------------------------------------------------------ perguntas
+  // Nada de caixa do Android: a pergunta é uma janela do próprio app.
+  // perguntar(texto, 'Sim, descartar') devolve uma promessa com true ou false;
+  // com nao === null, é só um aviso com um botão.
+  function perguntar(texto, sim, nao) {
+    return new Promise(function (ok) {
+      var d = $('campo-pergunta');
+      var resposta = false;
+      $('campo-pergunta-texto').textContent = texto;
+      $('campo-pergunta-sim').textContent = sim || 'Sim';
+      $('campo-pergunta-nao').hidden = nao === null;
+      $('campo-pergunta-nao').textContent = nao || 'Não';
+      $('campo-pergunta-sim').onclick = function () { resposta = true; d.close(); };
+      $('campo-pergunta-nao').onclick = function () { d.close(); };
+      d.addEventListener('close', function fim() { d.removeEventListener('close', fim); ok(resposta); });
+      d.showModal();
+    });
+  }
+
+  // Sair: o voltar do Android, sem janela aberta, pergunta antes (MainActivity).
+  window.inventourSair = function () {
+    var n = parseInt((($('col-fila') && $('col-fila').textContent) || '').replace(/\D.*$/, '') || '0', 10);
+    $('campo-sair-texto').textContent = n ? 'Há ' + (n === 1 ? '1 gravação' : n + ' gravações') + ' no aparelho esperando Sincronizar. Elas continuam guardadas.'
+      : 'O que está gravado continua no aparelho.';
+    $('campo-sair').showModal();
+  };
+  $('campo-sair').addEventListener('click', function (ev) {
+    if (ev.target.closest('[data-fechar]')) { $('campo-sair').close(); }
+  });
+  $('campo-sair-sim').addEventListener('click', function () {
+    if (window.InvenTourNativo && window.InvenTourNativo.sair) { window.InvenTourNativo.sair(); } else { $('campo-sair').close(); }
+  });
+
   // ------------------------------------------------------------ menu
   $('campo-menu').addEventListener('click', function () { $('campo-sobre').showModal(); });
   $('campo-sobre').addEventListener('click', function (ev) {
@@ -132,10 +165,12 @@
     var pendentes = parseInt(($('col-fila') && $('col-fila').textContent.match(/\d+/) || ['0'])[0], 10);
     var aviso = pendentes ? 'Ainda há gravações no aparelho que não subiram. Desconectando, elas ficam guardadas, mas só sobem se conectar de novo com a mesma pessoa e o mesmo destino. Desconectar assim mesmo?'
       : 'Desconectar este aparelho? Para voltar, gere um código novo no painel.';
-    if (!confirm(aviso)) { return; }
+    perguntar(aviso, 'Sim, desconectar').then(function (sim) { if (sim) { desconectar(); } });
+  });
+  function desconectar() {
     gravarConexao(null);
     location.reload();
-  });
+  }
 
   // ------------------------------------------------------------ início
   if (!conexao) {
@@ -174,6 +209,7 @@
     token: function () { return conexao.token; },
     posicao: posicao,
     foto: foto,
+    perguntar: perguntar,
     mostrarQuem: function (usuario, destino) {
       if (usuario) { b.textContent = usuario; }
       if (destino) { s.textContent = destino; }

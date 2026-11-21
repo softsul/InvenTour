@@ -121,7 +121,29 @@ $html = '<!doctype html>
   </div>
 </dialog>
 
-<dialog class="coleta-dialogo pequeno atualizar-app" id="campo-atualizar" aria-labelledby="campo-atualizar-titulo">
+<dialog class="coleta-dialogo pequeno atualizar-app" id="campo-sair" aria-labelledby="campo-sair-titulo">
+  <div class="corpo-dialogo">
+    <span class="atualizar-icone">' . icone('sair') . '</span>
+    <h2 id="campo-sair-titulo">Sair do InvenTour Campo?</h2>
+    <p id="campo-sair-texto">O que está gravado continua no aparelho.</p>
+    <div class="acoes-sair">
+      <button type="button" class="botao claro" data-fechar>Não, continuar</button>
+      <button type="button" class="botao" id="campo-sair-sim">Sim, sair</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="coleta-dialogo pequeno atualizar-app" id="campo-pergunta" aria-labelledby="campo-pergunta-texto">
+  <div class="corpo-dialogo">
+    <p id="campo-pergunta-texto"></p>
+    <div class="acoes-sair">
+      <button type="button" class="botao claro" id="campo-pergunta-nao">Não</button>
+      <button type="button" class="botao" id="campo-pergunta-sim">Sim</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="coleta-dialogo pequeno atualizar-app" id="campo-atualizar" data-fixo aria-labelledby="campo-atualizar-titulo">
   <div class="corpo-dialogo">
     <span class="atualizar-icone">' . icone('baixar') . '</span>
     <h2 id="campo-atualizar-titulo">Atualize o InvenTour Campo</h2>

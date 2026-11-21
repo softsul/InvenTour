@@ -1492,7 +1492,7 @@
       mostrarResultado('Gravado no aparelho. Toque em Sincronizar quando tiver sinal.', 'bom');
       return recarregarTela();
     }).catch(function () {
-      alert('Não consegui guardar no aparelho. Veja se há espaço livre e tente de novo.');
+      avisar('Não consegui guardar no aparelho. Veja se há espaço livre e tente de novo.');
     });
   });
 
@@ -1617,13 +1617,24 @@
     $('col-escolha').close();
     abrirItem({ id: null, local_id: null, ficha_id: parseInt(b.getAttribute('data-nova-ficha'), 10), situacao: 'em_campo', nome: '', fotos: 0 });
   });
+  // Pergunta e aviso: no app, a janela do próprio app (nada de caixa do
+  // Android); no navegador, a do navegador.
+  function perguntar(texto, sim) {
+    return APP && APP.perguntar ? APP.perguntar(texto, sim) : Promise.resolve(window.confirm(texto));
+  }
+  function avisar(texto) {
+    if (APP && APP.perguntar) { APP.perguntar(texto, 'Entendi', null); } else { window.alert(texto); }
+  }
   $('col-erros').addEventListener('click', function (ev) {
     var b = ev.target.closest('[data-descartar]');
-    if (!b || !confirm('Descartar esta gravação? O que ela trazia não vai subir.')) { return; }
+    if (!b) { return; }
     var id = b.getAttribute('data-descartar');
-    fotosDa(id).then(function (fotos) {
-      return Promise.all(fotos.map(function (f) { return apagar('fotos', f.uuid); }));
-    }).then(function () { return apagar('fila', id); }).then(recarregarTela);
+    perguntar('Descartar esta gravação? O que ela trazia não vai subir.', 'Sim, descartar').then(function (sim) {
+      if (!sim) { return null; }
+      return fotosDa(id).then(function (fotos) {
+        return Promise.all(fotos.map(function (f) { return apagar('fotos', f.uuid); }));
+      }).then(function () { return apagar('fila', id); }).then(recarregarTela);
+    });
   });
   ['col-busca', 'col-ficha-filtro'].forEach(function (id) {
     $(id).addEventListener(id === 'col-busca' ? 'input' : 'change', function () { mostrar = POR_PAGINA; desenharLista(); });
