@@ -22,6 +22,7 @@ require_once __DIR__ . '/../../app/Limite.php';
 require_once __DIR__ . '/../../app/Campo.php';
 require_once __DIR__ . '/../../app/PlusCode.php';
 require_once __DIR__ . '/../../app/FichaFormulario.php';
+require_once __DIR__ . '/../../app/AreaDestino.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
@@ -121,7 +122,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     responder(['ok' => true, 'destino' => $empresa['nome_fantasia'] ?? '', 'usuario' => $u['nome'] ?? '', 'em' => date('c'),
                'csrf' => Auth::porAparelho() ? null : Auth::tokenCsrf(),
                'pode_criar' => Auth::pode('coleta.criar') || Auth::pode('inventario.criar'), 'fichas' => $fichas, 'itens' => $itens,
-               'catalogo' => FichaFormulario::catalogo(array_column($fichas, 'id')), 'formato' => 2]);
+               'catalogo' => FichaFormulario::catalogo(array_column($fichas, 'id')), 'formato' => 2,
+               // A área do destino, para o app conferir GPS e fotos sem sinal.
+               'area' => AreaDestino::doDestino()]);
 }
 
 // ------------------------------------------------------------------ ENVIOS
@@ -241,6 +244,7 @@ if (array_key_exists('nome', $campos) && $campos['nome'] === '') {
 // A observação vai pela nota de campo (abaixo), que soma em vez de trocar.
 unset($campos['observacoes']);
 $avisos = array_values($lido['erros']);
+$alertas = $lido['alertas'];
 $lat = $campos['latitude'] ?? null;
 $lng = $campos['longitude'] ?? null;
 unset($campos['latitude'], $campos['longitude']);
@@ -252,6 +256,10 @@ if ($lat !== null && $lng !== null) {
     $r = $ref->fetch() ?: [];
     if ($c = PlusCode::coordenada($campos['plus_code'], isset($r['latitude']) ? (float) $r['latitude'] : null, isset($r['longitude']) ? (float) $r['longitude'] : null)) {
         [$campos['latitude'], $campos['longitude']] = $c;
+        $area = AreaDestino::conferir((float) $c[0], (float) $c[1]);
+        if (!$area['dentro']) {
+            $alertas[] = 'O plus code aponta para um lugar ' . AreaDestino::descrever($area) . '. Confira se é mesmo o lugar do item.';
+        }
     }
 }
 $nota = $txt('nota', 2000);
@@ -300,7 +308,8 @@ try {
         $pdo->prepare('UPDATE inventario_itens SET ' . implode(' = ?, ', array_keys($capacidades)) . ' = ? WHERE id = ? AND empresa_id = ?')
             ->execute([...array_values($capacidades), $itemId, $eid]);
     }
-    $r = ['ok' => true, 'item_id' => $itemId, 'situacao' => 'em_campo'] + ($avisos ? ['aviso' => 'Ficou de fora: ' . implode(' ', $avisos)] : []);
+    $texto = trim(($avisos ? 'Ficou de fora: ' . implode(' ', $avisos) . ' ' : '') . ($alertas ? 'Atenção: ' . implode(' ', $alertas) : ''));
+    $r = ['ok' => true, 'item_id' => $itemId, 'situacao' => 'em_campo'] + ($texto !== '' ? ['aviso' => $texto] : []);
     $registrar('item', $itemId, $r);
     $pdo->commit();
 } catch (Throwable $e) {

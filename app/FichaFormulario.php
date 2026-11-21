@@ -176,6 +176,17 @@ final class FichaFormulario
         $facilidades = !$municipio && $veio('facilidades') ? array_map('intval', (array) ($p['facilidades'] ?? [])) : null;
 
         $erros = [];
+        $alertas = [];
+        // Coordenada fora da área do destino (com a margem da divisa): por
+        // enquanto grava e alerta (decisão do Luiz em 21/11/2026; bloquear
+        // ou não fica para depois de ver o uso).
+        if (isset($n['latitude'], $n['longitude']) && $n['latitude'] !== null && $n['longitude'] !== null) {
+            require_once __DIR__ . '/AreaDestino.php';
+            $c = AreaDestino::conferir((float) $n['latitude'], (float) $n['longitude']);
+            if (!$c['dentro']) {
+                $alertas[] = 'A coordenada fica ' . AreaDestino::descrever($c) . '. Confira se é mesmo o lugar do item.';
+            }
+        }
         if (!empty($n['cnpj']) && !Cnpj::valido($n['cnpj'])) {
             $erros['cnpj'] = 'CNPJ inválido. Confira os dígitos.';
         }
@@ -187,7 +198,7 @@ final class FichaFormulario
                 $erros[$c] = $rotulo . ' incompleto. Use DDD e número.';
             }
         }
-        return ['nucleo' => $n, 'especificos' => $esp, 'acess' => $acess, 'acess_outro' => $acessOutro, 'facilidades' => $facilidades, 'erros' => $erros];
+        return ['nucleo' => $n, 'especificos' => $esp, 'acess' => $acess, 'acess_outro' => $acessOutro, 'facilidades' => $facilidades, 'erros' => $erros, 'alertas' => $alertas];
     }
 
     /**

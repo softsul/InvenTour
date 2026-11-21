@@ -22,6 +22,7 @@ require_once __DIR__ . '/../app/Cnpj.php';
 require_once __DIR__ . '/../app/PlusCode.php';
 require_once __DIR__ . '/../app/Esteira.php';
 require_once __DIR__ . '/../app/FichaFormulario.php';
+require_once __DIR__ . '/../app/AreaDestino.php';
 require_once __DIR__ . '/../app/ColetaTela.php';
 
 Auth::exigirLogin();
@@ -179,6 +180,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $acaoFoto === '' && $acaoEsteira ==
             $r = $ref->fetch() ?: [];
             if ($c = PlusCode::coordenada($nucleo['plus_code'], isset($r['latitude']) ? (float) $r['latitude'] : null, isset($r['longitude']) ? (float) $r['longitude'] : null)) {
                 [$nucleo['latitude'], $nucleo['longitude']] = $c;
+                $area = AreaDestino::conferir((float) $c[0], (float) $c[1]);
+                if (!$area['dentro']) {
+                    $lido['alertas'][] = 'O plus code aponta para um lugar ' . AreaDestino::descrever($area) . '. Confira se é mesmo o lugar do item.';
+                }
             }
         }
         if ($novo) {
@@ -206,6 +211,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $acaoFoto === '' && $acaoEsteira ==
                 Inventario::salvarFacilidades($id, (array) ($_POST['facilidades'] ?? []));
             }
             avisar(($novo ? $nucleo['nome'] . ' entrou no inventário.' : $nucleo['nome'] . ' salvo.'));
+            foreach ($lido['alertas'] as $alerta) {
+                avisar($alerta, 'atencao');
+            }
             fichaSalva(endereco('item', $id, $nucleo['nome']));
         }
         // O que foi digitado volta para a tela.
@@ -281,6 +289,7 @@ paginaFicha($titulo, 'inventario');
 
   <?php if (!$novo):
     $pendencias = Esteira::pendencias($item);
+    $alertasArea = Esteira::alertas($item);
     $coordenaAqui = Esteira::coordena();
     $emColeta = in_array($d['situacao'], Esteira::EM_COLETA, true); ?>
     <?php if ($emColeta && !empty($item['devolucao_nota'])): ?>
@@ -295,6 +304,9 @@ paginaFicha($titulo, 'inventario');
         <?php else: ?>
           <b><?= icone('check') ?>Núcleo mínimo completo</b>
           <span><?= $d['situacao'] === 'em_conferencia' ? 'Confira os dados e as fotos e homologue.' : 'Pronto para a conferência.' ?></span>
+        <?php endif; ?>
+        <?php if ($alertasArea): ?>
+          <span class="alerta-area"><?= icone('mapa') ?>Atenção: <?= e(implode('; ', $alertasArea)) ?>. Confira antes de homologar.</span>
         <?php endif; ?>
       </div>
       <div class="esteira-acoes">
@@ -850,7 +862,8 @@ paginaFicha($titulo, 'inventario');
           <a href="<?= e(Inventario::urlFoto($eid, (string) $f['arquivo'])) ?>" data-visualizar="foto" data-galeria="item-<?= $id ?>" data-legenda="<?= e(trim((string) $f['legenda'] . ($f['credito'] ? ' · Foto: ' . $f['credito'] : ''), ' ·')) ?>"><img src="<?= e(Inventario::urlFoto($eid, (string) $f['arquivo'], 'm')) ?>" alt="<?= e((string) ($f['legenda'] ?: $d['nome'])) ?>" loading="lazy"></a>
           <figcaption>
             <?php if ($f['capa']): ?><span class="pilula ok">Capa</span><?php endif; ?>
-            <?php if ($f['latitude']): ?><span class="pilula nu" title="A foto trouxe a coordenada da câmera"><?= icone('mapa') ?>GPS</span><?php endif; ?>
+            <?php if (!empty($f['fora_area'])): ?><span class="pilula at" title="O GPS da foto fica fora da área do destino: confira se ela é deste lugar"><?= icone('alerta') ?>Fora do destino<?= $f['distancia_area_m'] ? ' (' . e(number_format($f['distancia_area_m'] / 1000, 1, ',', '')) . ' km)' : '' ?></span>
+            <?php elseif ($f['latitude']): ?><span class="pilula nu" title="A foto trouxe a coordenada da câmera"><?= icone('mapa') ?>GPS</span><?php endif; ?>
             <?php if ($podeEditar): ?>
               <form method="post" action="<?= e($acao) ?>" class="legenda-foto">
                 <input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="acao_foto" value="legenda"><input type="hidden" name="foto_id" value="<?= (int) $f['id'] ?>">

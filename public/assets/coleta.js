@@ -562,6 +562,7 @@
             form.append('item_id', String(c.item_id));
             if (f.lat != null) { form.append('latitude', String(f.lat)); form.append('longitude', String(f.lng)); }
             if (f.precisao != null) { form.append('precisao', String(f.precisao)); }
+            form.append('origem', f.origem || 'galeria');
             form.append('foto', f.blob, f.nome || 'foto.jpg');
             return postar('/api/coleta-foto', form, true).then(function (r) {
               if (r.status >= 500 || r.status === 429) { throw new Error('servidor'); }
@@ -1038,6 +1039,7 @@
     enderecoAchado = null;
     var lat = $('c-lat').value, lng = $('c-lng').value;
     $('c-gps-texto').textContent = textoGps(lat || null, lng);
+    $('c-gps-texto').classList.remove('gps-aviso');
     $('c-gps-quando').textContent = lat ? 'já gravada; toque no botão para trocar pela daqui' : '';
     form.elements.nota.value = '';
     $('c-enviar').checked = false;
@@ -1060,7 +1062,8 @@
 
   function desenharMiniaturas() {
     $('c-miniaturas').innerHTML = fotosNovas.map(function (x, n) {
-      return '<li><img src="' + x.url + '" alt="">' + (x.lat != null ? '<span class="foto-gps">' + icone('mapa') + 'GPS</span>' : '')
+      return '<li><img src="' + x.url + '" alt="">' + (x.fora ? '<span class="foto-gps foto-fora">' + icone('alerta') + 'Fora</span>'
+        : (x.lat != null ? '<span class="foto-gps">' + icone('mapa') + 'GPS</span>' : ''))
         + '<button type="button" data-tirar-foto="' + n + '" aria-label="Tirar esta foto">' + icone('fechar') + '</button></li>';
     }).join('');
     $('aba-fotos-conta').textContent = String((atual ? (atual.fotos || 0) + (atual.fotos_fila || 0) : 0) + fotosNovas.length);
@@ -1120,6 +1123,41 @@
     }
   });
 
+  // ------------------------------------------------------------ área do destino
+  // GPS e foto só valem dentro da área do destino, com a margem da divisa
+  // (o GPS varia ali e há atrativos na própria linha). A divisa vem na lista
+  // baixada (base.area), e a conta é a mesma do servidor (app/AreaDestino.php),
+  // para funcionar sem sinal. Sem área conhecida, nada é barrado.
+  function noPoligono(x, y, anel) {
+    var dentro = false;
+    for (var i = 0, j = anel.length - 1; i < anel.length; j = i++) {
+      var xi = anel[i][0], yi = anel[i][1], xj = anel[j][0], yj = anel[j][1];
+      if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / ((yj - yi) || 1e-12) + xi)) { dentro = !dentro; }
+    }
+    return dentro;
+  }
+  function distanciaAoAnel(lat, lng, anel) {
+    var kx = 111320 * Math.cos(lat * Math.PI / 180), ky = 110574, min = Infinity;
+    for (var i = 0; i < anel.length - 1; i++) {
+      var ax = (anel[i][0] - lng) * kx, ay = (anel[i][1] - lat) * ky, bx = (anel[i + 1][0] - lng) * kx, by = (anel[i + 1][1] - lat) * ky;
+      var dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy;
+      var t = l2 > 0 ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / l2)) : 0;
+      min = Math.min(min, Math.sqrt(Math.pow(ax + t * dx, 2) + Math.pow(ay + t * dy, 2)));
+    }
+    return min;
+  }
+  function conferirArea(lat, lng) {
+    var a = base && base.area;
+    if (!a || !a.poligonos || !a.poligonos.length) { return { dentro: true, distancia: 0 }; }
+    if (a.poligonos.some(function (anel) { return noPoligono(lng, lat, anel); })) { return { dentro: true, distancia: 0, municipio: a.municipio }; }
+    var d = Math.round(Math.min.apply(null, a.poligonos.map(function (anel) { return distanciaAoAnel(lat, lng, anel); })));
+    return { dentro: d <= a.margem_m, distancia: d, municipio: a.municipio };
+  }
+  function foraDoDestino(c) {
+    var km = c.distancia >= 1000 ? (c.distancia / 1000).toFixed(1).replace('.', ',') + ' km' : c.distancia + ' m';
+    return 'fora de ' + (c.municipio || 'o destino') + ' (a ' + km + ' da divisa)';
+  }
+
   // GPS: o nativo no app, o do navegador no painel.
   function pegarPosicao() {
     if (APP && APP.posicao) { return APP.posicao(); }
@@ -1136,26 +1174,34 @@
     $('c-gps-texto').textContent = 'Buscando o GPS...';
     pegarPosicao().then(function (p) {
       botao.disabled = false;
+      var area = conferirArea(p.lat, p.lng);
       posicao = [p.lat, p.lng, p.precisao, Date.now()];
+      $('c-gps-texto').classList.remove('gps-aviso');
       $('c-lat').value = p.lat.toFixed(6);
       $('c-lng').value = p.lng.toFixed(6);
       $('c-gps-texto').textContent = textoGps(p.lat, p.lng, p.precisao);
       $('c-gps-quando').textContent = 'agora, ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      // Fora da área do destino: grava, mas alerta (bloquear ou não está em análise).
+      $('c-gps-quando').classList.toggle('gps-aviso', !area.dentro);
+      if (!area.dentro) { $('c-gps-quando').textContent = 'Atenção: este ponto fica ' + foraDoDestino(area) + '. Confira se você está no lugar do item.'; }
       mostrarPendencias();
       mostrarMapa();
       buscarEndereco(p.lat, p.lng);
     }).catch(function (e) {
       botao.disabled = false;
+      $('c-gps-texto').classList.add('gps-aviso');
       $('c-gps-texto').textContent = e.message === 'negado' ? 'O aparelho não deixou usar a localização. Libere nas permissões do app.'
         : (e.message === 'sem-gps' ? 'Este aparelho não dá a localização.' : 'Não deu para pegar o GPS agora. Tente ao ar livre.');
     });
   });
 
   // Fotos: no app pela câmera (com o GPS do momento), no painel pela zona da casa.
-  function juntarFotos(arquivos, gps) {
+  // origem: camera (tirada agora, o GPS do aparelho é o da foto) ou galeria
+  // (tirada antes; o servidor usa o GPS do próprio arquivo).
+  function juntarFotos(arquivos, gps, origem, fora) {
     Array.prototype.forEach.call(arquivos || [], function (a) {
       if (!/^image\/(jpeg|png|webp)$/.test(a.type)) { return; }
-      fotosNovas.push({ uuid: uuid(), blob: a, nome: a.name || 'foto.jpg', url: URL.createObjectURL(a),
+      fotosNovas.push({ uuid: uuid(), blob: a, nome: a.name || 'foto.jpg', url: URL.createObjectURL(a), origem: origem || 'galeria', fora: !!fora,
         lat: gps ? gps.lat : null, lng: gps ? gps.lng : null, precisao: gps ? gps.precisao : null });
     });
     desenharMiniaturas();
@@ -1170,7 +1216,13 @@
         APP.foto(id === 'c-tirar-foto' ? 'camera' : 'galeria').then(function (r) {
           b.disabled = false;
           if (!r) { return; }
-          juntarFotos(r.arquivos || (r.arquivo ? [r.arquivo] : []), r.gps);
+          var camera = id === 'c-tirar-foto';
+          var area = r.gps ? conferirArea(r.gps.lat, r.gps.lng) : { dentro: true };
+          if (camera && !area.dentro) {
+            // Foto tirada fora da área do destino: entra marcada, com o alerta.
+            avisar('Atenção: esta foto foi tirada ' + foraDoDestino(area) + '. Ela entra marcada como fora do destino, para a conferência ver.');
+          }
+          juntarFotos(r.arquivos || (r.arquivo ? [r.arquivo] : []), r.gps, camera ? 'camera' : 'galeria', camera && !area.dentro);
           // Sem coordenada no item ainda: a da primeira foto já serve.
           if (r.gps && !$('c-lat').value) {
             $('c-lat').value = r.gps.lat.toFixed(6);
@@ -1191,7 +1243,7 @@
         var aviso = document.querySelector('#c-zona-fotos .zona-escolhido');
         if (aviso) { aviso.hidden = true; }
         try { campoFotos.value = ''; } catch (e) {}
-        juntarFotos(arquivos, posicao ? { lat: posicao[0], lng: posicao[1], precisao: posicao[2] } : null);
+        juntarFotos(arquivos, posicao ? { lat: posicao[0], lng: posicao[1], precisao: posicao[2] } : null, 'galeria');
       });
     }
   }
@@ -1478,7 +1530,7 @@
       aqui: posicao ? [posicao[0], posicao[1]] : null, etapa: 'salvar'
     };
     var fotos = fotosNovas.map(function (x) {
-      return { uuid: x.uuid, coleta: c.uuid, blob: x.blob, nome: x.nome, lat: x.lat, lng: x.lng, precisao: x.precisao };
+      return { uuid: x.uuid, coleta: c.uuid, blob: x.blob, nome: x.nome, lat: x.lat, lng: x.lng, precisao: x.precisao, origem: x.origem || 'galeria' };
     });
     Promise.all([gravar('fila', c)].concat(fotos.map(function (f) { return gravar('fotos', f); }))).then(function () {
       fotosNovas.forEach(function (x) { URL.revokeObjectURL(x.url); });

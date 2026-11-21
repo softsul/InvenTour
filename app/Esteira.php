@@ -106,6 +106,30 @@ final class Esteira
         return $falta;
     }
 
+    /**
+     * Alertas que não travam a homologação: coordenada e fotos fora da área
+     * do destino (por enquanto o sistema aceita e alerta; decisão em aberto).
+     *
+     * @return list<string>
+     */
+    public static function alertas(array $item): array
+    {
+        require_once __DIR__ . '/AreaDestino.php';
+        $alertas = [];
+        if ($item['latitude'] !== null && $item['longitude'] !== null) {
+            $area = AreaDestino::conferir((float) $item['latitude'], (float) $item['longitude'], (int) $item['empresa_id']);
+            if (!$area['dentro']) {
+                $alertas[] = 'a coordenada fica ' . AreaDestino::descrever($area);
+            }
+        }
+        $q = self::pdo()->prepare('SELECT COUNT(*) FROM inventario_midias WHERE item_id = ? AND empresa_id = ? AND fora_area = 1');
+        $q->execute([(int) $item['id'], (int) $item['empresa_id']]);
+        if ($n = (int) $q->fetchColumn()) {
+            $alertas[] = ($n === 1 ? '1 foto tem GPS' : $n . ' fotos têm GPS') . ' fora do destino';
+        }
+        return $alertas;
+    }
+
     /** Pesquisador manda o item para a conferência. */
     public static function enviar(int $id, ?string $nota = null): bool
     {

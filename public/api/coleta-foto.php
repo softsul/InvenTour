@@ -13,6 +13,7 @@ require_once __DIR__ . '/../../app/layout.php';
 require_once __DIR__ . '/../../app/Esteira.php';
 require_once __DIR__ . '/../../app/Limite.php';
 require_once __DIR__ . '/../../app/Campo.php';
+require_once __DIR__ . '/../../app/AreaDestino.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
@@ -62,21 +63,34 @@ if (!$item || !Esteira::dentroDoEscopo((string) $item['ficha_codigo'])) {
 if (in_array($item['situacao'], ['homologada', 'arquivada'], true) && !Auth::pode('inventario.editar')) {
     responder(['ok' => false, 'motivo' => 'situacao', 'situacao' => $item['situacao']]);
 }
+// O GPS do aparelho (o app manda). Vale para a foto tirada na hora pela
+// câmera; a da galeria foi tirada em outro momento e usa só o GPS do arquivo.
+$origem = (string) ($_POST['origem'] ?? '');
+$lat = is_numeric($_POST['latitude'] ?? null) ? (float) $_POST['latitude'] : null;
+$lng = is_numeric($_POST['longitude'] ?? null) ? (float) $_POST['longitude'] : null;
+if ($origem === 'galeria' || $lat === null || $lng === null || abs($lat) > 90 || abs($lng) > 180) {
+    $lat = $lng = null;
+}
+// Foto tirada pela câmera fora da área do destino (com a margem da divisa):
+// por enquanto entra, marcada Fora do destino, para quem homologa ver.
+$areaCamera = $lat !== null && $origem === 'camera' ? AreaDestino::conferir($lat, $lng) : null;
 $usuario = Auth::usuarioOuNulo();
 $falha = Inventario::guardarFoto($itemId, $_FILES['foto'] ?? [], (string) ($usuario['nome'] ?? '') ?: null);
 if ($falha !== null) {
     // Sem registrar o uuid: o celular pode tentar de novo.
     responder(['ok' => false, 'motivo' => 'foto', 'mensagem' => $falha], 422);
 }
-// O GPS do aparelho na hora da foto (o app manda): completa o que o EXIF não trouxe.
-$lat = is_numeric($_POST['latitude'] ?? null) ? (float) $_POST['latitude'] : null;
-$lng = is_numeric($_POST['longitude'] ?? null) ? (float) $_POST['longitude'] : null;
+// O GPS do aparelho na hora da foto: completa o que o EXIF não trouxe.
 $precisao = is_numeric($_POST['precisao'] ?? null) ? min(65000, max(0, (int) round((float) $_POST['precisao']))) : null;
 if ($lat !== null && $lng !== null && abs($lat) <= 90 && abs($lng) <= 180) {
     $m = $pdo->prepare('SELECT id FROM inventario_midias WHERE item_id = ? AND empresa_id = ? ORDER BY id DESC LIMIT 1');
     $m->execute([$itemId, $eid]);
+    $midia = (int) $m->fetchColumn();
     $pdo->prepare('UPDATE inventario_midias SET latitude = COALESCE(latitude, ?), longitude = COALESCE(longitude, ?), precisao_m = ? WHERE id = ?')
-        ->execute([round($lat, 6), round($lng, 6), $precisao, (int) $m->fetchColumn()]);
+        ->execute([round($lat, 6), round($lng, 6), $precisao, $midia]);
+    if ($areaCamera && !$areaCamera['dentro']) {
+        $pdo->prepare('UPDATE inventario_midias SET fora_area = 1, distancia_area_m = ? WHERE id = ?')->execute([$areaCamera['distancia_m'], $midia]);
+    }
     $pdo->prepare('UPDATE inventario_itens SET latitude = ?, longitude = ? WHERE id = ? AND empresa_id = ? AND latitude IS NULL')
         ->execute([round($lat, 6), round($lng, 6), $itemId, $eid]);
 }

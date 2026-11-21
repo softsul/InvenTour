@@ -484,10 +484,15 @@ final class Inventario
         $q = $pdo->prepare('SELECT COUNT(*) FROM inventario_midias WHERE item_id = ? AND empresa_id = ? AND experiencia_id <=> ?');
         $q->execute([$itemId, $eid, $experienciaId]);
         $ja = (int) $q->fetchColumn();
-        $pdo->prepare('INSERT INTO inventario_midias (empresa_id, item_id, experiencia_id, arquivo, largura, altura, credito, capa, ordem, latitude, longitude, criado_em, criado_por)
-                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)')
+        // GPS da foto fora da área do destino (com a margem): a foto entra
+        // marcada, para quem homologa decidir, e não dá a coordenada do item.
+        require_once __DIR__ . '/AreaDestino.php';
+        $area = $gps ? AreaDestino::conferir((float) $gps[0], (float) $gps[1], $eid) : null;
+        $fora = $area && !$area['dentro'];
+        $pdo->prepare('INSERT INTO inventario_midias (empresa_id, item_id, experiencia_id, arquivo, largura, altura, credito, capa, ordem, latitude, longitude, fora_area, distancia_area_m, criado_em, criado_por)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)')
             ->execute([$eid, $itemId, $experienciaId, $nome, $l, $a, $credito, $ja === 0 ? 1 : 0, $ja + 1, $gps[0] ?? null, $gps[1] ?? null,
-                       Auth::usuarioOuNulo()['id'] ?? null]);
+                       $fora ? 1 : 0, $fora ? $area['distancia_m'] : null, Auth::usuarioOuNulo()['id'] ?? null]);
         if ($gps && $experienciaId === null) {
             $pdo->prepare('UPDATE inventario_itens SET latitude = ?, longitude = ? WHERE id = ? AND empresa_id = ? AND latitude IS NULL')
                 ->execute([$gps[0], $gps[1], $itemId, $eid]);

@@ -1662,3 +1662,12 @@ dialog.folha-opcoes{width:min(560px, calc(100vw - 32px)); height:auto; max-heigh
 @media (max-width:640px){
   .so-pendentes-barra{top:-16px; margin:-16px -16px 4px; padding:10px 16px}
 }
+
+/* Aviso no lugar da coordenada (fora do destino, GPS negado): texto comum, em âmbar. */
+.coleta-gps .gps-texto span.gps-aviso{font-family:inherit; font-size:14px; line-height:1.45; color:#7A4808}
+
+/* Alerta de área (coordenada ou foto fora do destino): não trava a homologação. */
+.esteira-texto .alerta-area{display:inline-flex; align-items:flex-start; gap:6px; margin-top:6px; color:#7A4808; font-weight:600}
+.esteira-texto .alerta-area svg{width:15px; height:15px; flex:none; margin-top:2px}
+.coleta-miniaturas .foto-gps.foto-fora{background:rgba(176,106,12,.92)}
+.coleta-gps .gps-texto small.gps-aviso{font-size:13px; line-height:1.45; color:#7A4808; font-weight:600}
