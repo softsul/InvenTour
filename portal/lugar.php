@@ -143,6 +143,7 @@ PortalLayout::inicio($destino, $nome, true, ['ativo' => (string) $pilar, 'imagem
       <?php if ($i['capacidade_uh']): ?><dt>Quartos</dt><dd><?= milhar((int) $i['capacidade_uh']) ?></dd><?php endif; ?>
       <?php if ($i['capacidade_leitos']): ?><dt>Leitos</dt><dd><?= milhar((int) $i['capacidade_leitos']) ?></dd><?php endif; ?>
       <?php if ($i['capacidade_assentos']): ?><dt>Lugares</dt><dd><?= milhar((int) $i['capacidade_assentos']) ?></dd><?php endif; ?>
+      <?php if ($i['capacidade_publico']): ?><dt>Capacidade</dt><dd><?= plural((int) $i['capacidade_publico'], 'pessoa', 'pessoas') ?></dd><?php endif; ?>
       <?php if ($i['cadastur'] && (!$i['cadastur_validade'] || $i['cadastur_validade'] >= date('Y-m-d'))): ?><dt>Cadastur</dt><dd>Cadastro ativo no Ministério do Turismo</dd><?php endif; ?>
     </dl>
   </aside>
