@@ -310,7 +310,12 @@
     var itens = todosItens.filter(function (i) {
       if (ficha && i.ficha_id !== ficha) { return false; }
       if (!naSituacao(i, situacao)) { return false; }
-      return !busca || semAcento([i.nome, i.logradouro, i.bairro].join(' ')).indexOf(busca) !== -1;
+      if (!busca) { return true; }
+      // Nome, nome popular, razão social, rua e bairro; o CNPJ com ou sem pontuação.
+      var f = i.f || {};
+      if (semAcento([i.nome, f.nome_popular, f.razao_social, i.logradouro, i.bairro].join(' ')).indexOf(busca) !== -1) { return true; }
+      var doc = busca.toUpperCase().replace(/[^0-9A-Z]/g, '');
+      return doc.length >= 4 && /\d/.test(doc) && String(f.cnpj || '').toUpperCase().replace(/[^0-9A-Z]/g, '').indexOf(doc) !== -1;
     });
     // Devolvidos primeiro, depois o que está no aparelho, depois por nome.
     var peso = function (i) { return i.devolucao_nota && !i.na_fila ? 0 : (i.na_fila ? 1 : 2); };

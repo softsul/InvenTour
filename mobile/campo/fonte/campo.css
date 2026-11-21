@@ -92,3 +92,9 @@ dialog.coleta-dialogo.atualizar-app{height:fit-content; max-height:calc(100vh - 
 .campo-topo .marca-svg{height:auto}
 .campo-topo .marca-nome-svg{height:18px}
 .campo-conectar .marca-campo{font-size:12px}
+
+/* Menu do app: os botões empilhados (Sincronizar em cima, Histórico embaixo).
+   Tem de ganhar da regra de celular da barra no painel (inventour.css), que
+   é em linha: lá "100%" é largura; aqui, em coluna, virava altura. */
+.menu-sinc .coleta-botoes{flex-wrap:nowrap}
+.menu-sinc .coleta-botoes .botao, .menu-sinc .coleta-botoes #col-sincronizar, .menu-sinc .coleta-botoes #col-historico{flex:none; width:100%; order:0; padding:14px; white-space:nowrap}

@@ -109,7 +109,7 @@ function telaColeta(bool $noApp, bool $comEstado = true): string
 
 <div class="coleta-fixo">
 <div class="filtros coleta-filtros">
-  <div class="entrada"><?= icone('busca') ?><input type="search" id="col-busca" placeholder="Nome, rua ou bairro" aria-label="Buscar na coleta" autocomplete="off"></div>
+  <div class="entrada"><?= icone('busca') ?><input type="search" id="col-busca" placeholder="Nome, nome popular, CNPJ, rua ou bairro" aria-label="Buscar na coleta" autocomplete="off"></div>
   <div class="entrada"><?= icone('manual') ?><select id="col-ficha-filtro" aria-label="Ficha"><option value="">Todas as fichas</option></select></div>
 </div>
 <?php /* Situação em fichas com a contagem: o devolvido pela conferência é o
