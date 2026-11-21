@@ -145,9 +145,12 @@ $ja->execute([$eid, $uuid]);
 if (($anterior = $ja->fetchColumn()) !== false) {
     responder((json_decode((string) $anterior, true) ?: ['ok' => true]) + ['repetido' => true]);
 }
-$registrar = function (string $tipo, ?int $itemId, array $resultado) use ($pdo, $eid, $uuid, $uid): void {
-    $pdo->prepare('INSERT INTO inventario_coletas (empresa_id, uuid, tipo, usuario_id, aparelho_id, item_id, resultado, recebido_em) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())')
-        ->execute([$eid, $uuid, $tipo, $uid, Auth::aparelhoId(), $itemId, json_encode($resultado, JSON_UNESCAPED_UNICODE)]);
+// A identificação do item no aparelho, enquanto ele não tem número.
+$localId = strtolower((string) ($corpo['local_id'] ?? ''));
+$localId = preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $localId) ? $localId : null;
+$registrar = function (string $tipo, ?int $itemId, array $resultado) use ($pdo, $eid, $uuid, $uid, $localId): void {
+    $pdo->prepare('INSERT INTO inventario_coletas (empresa_id, uuid, local_id, tipo, usuario_id, aparelho_id, item_id, resultado, recebido_em) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())')
+        ->execute([$eid, $uuid, $localId, $tipo, $uid, Auth::aparelhoId(), $itemId, json_encode($resultado, JSON_UNESCAPED_UNICODE)]);
 };
 $acao = (string) ($corpo['acao'] ?? '');
 $itemId = (int) ($corpo['item_id'] ?? 0);
@@ -180,6 +183,26 @@ if ($acao !== 'salvar') {
 // ------------------------------------------------------------------ SALVAR
 $d = (array) ($corpo['dados'] ?? []);
 $txt = fn (string $c, int $max) => ($v = mb_substr(trim((string) ($d[$c] ?? '')), 0, $max)) !== '' ? $v : null;
+
+// Gravação de um item novo que o aparelho editou de novo antes de ter o
+// número: o item que aquela identificação local já criou. Para gravações
+// presas de antes desta correção (sem local_id guardado), o item com o mesmo
+// nome, na mesma ficha, criado em campo pela mesma pessoa, se for um só.
+if (!$itemId && !isset($d['nome'])) {
+    if ($localId) {
+        $q = $pdo->prepare('SELECT item_id FROM inventario_coletas WHERE empresa_id = ? AND local_id = ? AND item_id IS NOT NULL ORDER BY id LIMIT 1');
+        $q->execute([$eid, $localId]);
+        $itemId = (int) $q->fetchColumn();
+    }
+    $nomeLocal = mb_substr(trim((string) ($corpo['nome'] ?? '')), 0, 180);
+    if (!$itemId && $nomeLocal !== '') {
+        $q = $pdo->prepare("SELECT id FROM inventario_itens WHERE empresa_id = ? AND ficha_id = ? AND nome = ? AND origem = 'campo' AND criado_por = ?
+                            AND criado_em > NOW() - INTERVAL 30 DAY LIMIT 2");
+        $q->execute([$eid, (int) ($corpo['ficha_id'] ?? 0), $nomeLocal, $uid]);
+        $achados = $q->fetchAll(PDO::FETCH_COLUMN);
+        $itemId = count($achados) === 1 ? (int) $achados[0] : 0;
+    }
+}
 
 if ($itemId) {
     $item = $itemEmColeta($itemId) ?? responder(['ok' => false, 'motivo' => 'item'], 404);

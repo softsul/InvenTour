@@ -414,12 +414,19 @@
       mostrarEstado();
       return todos('fila').then(function (fila) {
         fila.sort(function (a, b) { return a.ordem - b.ordem; });
+        // Gravações presas por "falta o nome" (item novo editado antes de
+        // sincronizar, antes da correção 1.2.4): tentam de novo; o servidor
+        // agora acha o item que a primeira gravação criou.
+        fila.forEach(function (c) { if (c.erro && /falta o nome/.test(c.erro)) { delete c.erro; gravar('fila', c); } });
         var pendentes = fila.filter(function (c) { return !c.erro; });
         var total = pendentes.reduce(function (s, c) { return s + 1 + (c.fotos || 0); }, 0) || 1;
         var feito = 0;
         var passo = Promise.resolve();
-        pendentes.forEach(function (c) {
-          passo = passo.then(function () {
+        pendentes.forEach(function (c0) {
+          // Relê a gravação na hora de enviar: a anterior do mesmo item novo
+          // pode ter acabado de anotar nela o número que o servidor devolveu.
+          passo = passo.then(function () { return ler('fila', c0.uuid); }).then(function (c) {
+            c = c || c0;
             if (falhou) { return null; }
             progresso(feito, total, 'Enviando ' + (c.nome || 'item') + '...');
             var fotosDoItem = 0;
@@ -523,7 +530,7 @@
     var p = Promise.resolve();
     if (c.etapa === 'salvar') {
       p = p.then(function () {
-        return postar('/api/coleta', { acao: 'salvar', uuid: c.uuid, item_id: c.item_id, ficha_id: c.ficha_id, dados: c.dados, aqui: c.aqui });
+        return postar('/api/coleta', { acao: 'salvar', uuid: c.uuid, item_id: c.item_id, local_id: c.local_id, nome: c.nome, ficha_id: c.ficha_id, dados: c.dados, aqui: c.aqui });
       }).then(function (r) {
         if (!r.ok) {
           if (r.status >= 500 || r.motivo === 'resposta' || r.status === 429) { throw new Error('servidor'); }
