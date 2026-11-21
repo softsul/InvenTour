@@ -1,8 +1,8 @@
 <?php
 /**
- * Um dia no destino, definido pela equipe (app/UmDia.php): um dos roteiros
- * "Um dia aqui" que ela montou (hora e tempo livres em cada parada) ou o dia
- * montado pelos blocos de regras, sorteado. Cada dia tem
+ * Um dia no destino, montado pela equipe de turismo: um dos roteiros do tipo
+ * "Um dia aqui" publicados (onde começa, a hora de cada parada, o tempo em
+ * cada lugar e onde termina são dela), sorteado. Cada dia tem
  * um número (?s=): o link guarda o mesmo dia, e "Outro dia" sorteia de novo.
  * Sem nada definido pela equipe, a página não existe. Softsul Software.
  */

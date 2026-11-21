@@ -152,7 +152,7 @@ paginaFicha($r['titulo'] ?: 'Novo roteiro', 'roteiros');
         <div class="entrada"><select id="tribo_id" name="tribo_id"<?= $podeEditar ? '' : ' disabled' ?>><option value="">Nenhum</option>
           <?php foreach ($tribos as $tid => $t): ?><option value="<?= (int) $tid ?>"<?= (int) $r['tribo_id'] === (int) $tid ? ' selected' : '' ?>><?= e((string) $t) ?></option><?php endforeach; ?></select></div>
         <span class="ajuda">Vale para o tipo Por perfil de viajante.</span></div>
-      <?php if ($r['tipo'] === 'um_dia'): ?><div class="campo c-12"><p class="ajuda"><?= icone('calendario') ?> Um dia aqui: o portal sorteia entre os roteiros deste tipo publicados e o dia montado pelos blocos de regras (em Roteiros). Ponha em cada parada a hora de chegada e o tempo de visita que fizerem sentido: cinco pontos numa manhã ou um lugar o dia inteiro.</p></div><?php endif; ?>
+      <?php if ($r['tipo'] === 'um_dia'): ?><div class="campo c-12"><p class="ajuda"><?= icone('calendario') ?> Um dia aqui: você decide o dia inteiro. As paradas vão na ordem da visita, da primeira (onde o dia começa) à última (onde termina), cada uma com a hora de chegada e o tempo no lugar: cinco pontos numa manhã ou um lugar o dia todo. O portal sorteia entre os roteiros deste tipo publicados.</p></div><?php endif; ?>
       <div class="campo c-12"><label for="descricao">Descrição</label>
         <div class="entrada"><textarea id="descricao" name="descricao" rows="4" maxlength="4000"<?= $ro ?>><?= e((string) $r['descricao']) ?></textarea></div></div>
       <div class="campo c-12"><?= interruptor('publicado', 'Publicar no portal', (bool) $r['publicado'], 'No portal, com a rota no mapa', 'Rascunho: só no painel', !$podeEditar) ?></div>

@@ -512,16 +512,13 @@ final class Portal
     }
 
     /**
-     * O "Um dia aqui" que a equipe do destino definiu (roteiros do tipo Um
-     * dia aqui, com horário livre, e blocos de regras, app/UmDia.php), sorteado.
-     * Null quando a equipe não definiu nada.
+     * O "Um dia aqui": um dos roteiros desse tipo que a equipe montou e
+     * publicou (app/UmDia.php), sorteado pela semente. Null sem roteiro.
      */
     public static function umDia(int $eid, int $semente): ?array
     {
         require_once __DIR__ . '/UmDia.php';
-        return UmDia::montar($eid, $semente, self::previa($eid),
-            fn (int $id) => self::roteiro($eid, $id),
-            fn () => array_filter(self::itens($eid, null, [], 3000), fn ($i) => self::naArea($eid, $i)));
+        return UmDia::montar($eid, $semente, self::previa($eid), fn (int $id) => self::roteiro($eid, $id));
     }
 
     /** O portal tem "Um dia aqui" (algo definido pela equipe)? */
