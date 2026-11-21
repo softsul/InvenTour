@@ -520,3 +520,4 @@ h1 { letter-spacing: -.035em; }
 .mapa-palco .maplibregl-canvas:focus-visible { outline: 3px solid var(--acento); outline-offset: -3px; }
 .mapa-zoom { z-index: 3; }
 .mapa-cartao { z-index: 4; }
+.faixa-previa.vencida { background: var(--papel-2); color: var(--tinta); border-bottom: 1px dashed var(--linha-forte); }

@@ -74,7 +74,8 @@ final class PortalLayout
 </head>
 <body class="<?= e((string) ($og['classe'] ?? '')) ?>">
 <?php svgSprite(); ?>
-<?php if ($previa): ?><div class="faixa-previa">Prévia interna · mostra também o que ainda não foi homologado · não compartilhe este link</div><?php endif; ?>
+<?php if ($previa): ?><div class="faixa-previa">Prévia interna · mostra também o que ainda não foi homologado · não compartilhe este link</div>
+<?php elseif (isset($_GET['previa'])): ?><div class="faixa-previa vencida">Este link de prévia venceu (vale 2 horas) · aqui só aparece o que já foi homologado · gere outro em Prévia do portal, no Início do painel</div><?php endif; ?>
 <?php if ($destino): ?>
 <header class="topo">
   <div class="topo-dados">
