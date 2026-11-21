@@ -74,7 +74,7 @@ paginaInicio('Coleta de campo', 'coleta');
   <div class="cartao app-sinc">
     <div class="cab-cartao"><h2>Sincronização deste navegador</h2></div>
     <?php /* No painel, o Histórico é o da equipe (o do aparelho fica só no app). */ ?>
-    <?= telaEstadoColeta('<button type="button" class="botao claro" data-abre-dialogo="app-instalar">' . icone('baixar') . 'Baixar / validar app</button>', false) ?>
+    <?= telaEstadoColeta('<button type="button" class="botao claro" data-abre-dialogo="app-instalar">' . icone('baixar') . '<span class="rotulo-longo">Baixar / validar app</span><span class="rotulo-curto">Baixar app</span></button>', false) ?>
     <p class="ajuda">Na aba Coleta, o que você grava aqui no painel já sobe na hora. No celular, quem envia é o botão Sincronizar do app.</p>
   </div>
   <?php /* Os três passos (instalar, gerar o código, digitar no app) num

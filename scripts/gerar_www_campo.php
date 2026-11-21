@@ -55,6 +55,8 @@ $sprite = (string) ob_get_clean();
 $logo = logoInvenTour('logo');
 // Dentro do app o endereço da marca não leva a versão do painel.
 $logo = (string) preg_replace('#/assets/marca/emblema\.svg\?v=\d+#', '/assets/marca/emblema.svg', $logo);
+// "CAMPO" logo abaixo do "inventour", alinhado à direita da palavra.
+$logo = (string) preg_replace('#(<svg class="marca-nome-svg".*?</svg>)#s', '<span class="marca-nome-campo">$1<span class="marca-campo">CAMPO</span></span>', $logo);
 
 $html = '<!doctype html>
 <html lang="pt-BR">
@@ -80,7 +82,7 @@ $html = '<!doctype html>
 <main class="campo-corpo">
   <section id="campo-conectar" hidden>
     <form class="campo-conectar" id="campo-form" novalidate>
-      ' . logoInvenTour('logo') . '
+      ' . $logo . '
       <h1>Conectar este aparelho</h1>
       <ol>
         <li>No computador, entre no painel do InvenTour.</li>

@@ -1632,3 +1632,33 @@ dialog.folha-opcoes{width:min(560px, calc(100vw - 32px)); height:auto; max-heigh
 .seletor.seletor-pilula span, .seletor.seletor-pilula.sem-escolha span{color:inherit}
 /* A lista escondida fica dentro do próprio campo (ver coleta.js). */
 .com-seletor{position:relative}
+
+/* Celular: a barra de sincronização com Sincronizar na linha inteira e os
+   outros botões lado a lado, sem quebrar palavra. Rótulo curto no estreito. */
+.rotulo-curto{display:none}
+@media (max-width:640px){
+  .coleta-botoes{flex-wrap:wrap}
+  .coleta-botoes .botao{flex:1 1 0; min-width:0; white-space:nowrap; padding:12px 10px; font-size:14px}
+  .coleta-botoes #col-sincronizar{flex:1 1 100%; order:-1; padding:14px}
+  .rotulo-longo{display:none}
+  .rotulo-curto{display:inline}
+}
+
+/* Celular: as janelas da Coleta (Baixar e conectar, Histórico da equipe)
+   ocupam a tela inteira, e o corpo rola. No computador elas têm tamanho
+   próprio, que no celular cortava o fim ou deixava uma faixa de lado. */
+@media (max-width:640px){
+  #app-instalar, #app-historico-dialogo{width:100vw; height:100dvh; max-width:none; max-height:none; margin:0; inset:0; border-radius:0}
+  #app-instalar .corpo-dialogo{flex:1; min-height:0; overflow-y:auto}
+}
+
+/* Só pendentes: a chave parada no alto da ficha enquanto ela rola. */
+.so-pendentes-barra{position:sticky; top:-22px; z-index:3; display:flex; align-items:center; justify-content:space-between; gap:12px;
+  margin:-22px -24px 4px; padding:12px 24px; background:var(--nuvem); border-bottom:1px solid var(--traco)}
+.so-pendentes-barra[hidden], .vazio-pendentes[hidden], .grupo-ficha[hidden], .campo-ficha[hidden]{display:none}
+.so-pendentes-barra .liga{font-weight:600}
+.pendentes-conta{font-size:12.5px; color:var(--suave); white-space:nowrap}
+.vazio-pendentes{margin:8px 0; padding:22px 16px; border-radius:var(--r-g); background:var(--verde-sup); color:#0A6B4F; text-align:center; font-weight:600}
+@media (max-width:640px){
+  .so-pendentes-barra{top:-16px; margin:-16px -16px 4px; padding:10px 16px}
+}

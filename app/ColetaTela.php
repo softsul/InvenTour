@@ -285,6 +285,14 @@ function telaColeta(bool $noApp, bool $comEstado = true): string
       </section>
 
       <section class="painel-coleta" data-painel-coleta="ficha" hidden>
+        <?php /* Lista longa: a chave esconde o que já foi resolvido (respondido
+                 ou NA, NI, NE). Fica parada no alto enquanto a ficha rola. */ ?>
+        <div class="so-pendentes-barra" id="c-pendentes-barra" hidden>
+          <label class="liga"><input type="checkbox" id="c-so-pendentes" aria-describedby="c-pendentes-conta"><i></i>
+            <em class="liga-sim">Só pendentes</em><em class="liga-nao">Só pendentes</em></label>
+          <span class="pendentes-conta" id="c-pendentes-conta"></span>
+        </div>
+        <p class="vazio-pendentes" id="c-pendentes-fim" hidden>Nenhum campo pendente nesta ficha. Desligue "Só pendentes" para rever tudo.</p>
         <div class="grade" data-so-capacidade>
           <?= $campo('capacidade_publico', 'Público simultâneo (pessoas)', 'c-6', ['tipo' => 'number', 'attrs' => ['min' => 0, 'inputmode' => 'numeric'],
               'ajuda' => 'Vai para o EventCity, que compara com o público esperado dos eventos.']) ?>

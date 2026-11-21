@@ -5675,7 +5675,9 @@ window.inventourMarcarNoFiltro = function (form, campo, ids, nome) {
   if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', ajustar); } else { ajustar(); }
   if (estreita.addEventListener) { estreita.addEventListener('change', ajustar); }
   var main = document.querySelector('main');
-  if (main && window.MutationObserver) { new MutationObserver(depois).observe(main, { childList: true, subtree: true }); }
+  // Também quando uma aba se abre (hidden muda): tabela em aba escondida não
+  // tem largura ao carregar e só virava cartão na primeira atualização.
+  if (main && window.MutationObserver) { new MutationObserver(depois).observe(main, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden'] }); }
 })();
 
 /*

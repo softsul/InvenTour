@@ -957,7 +957,7 @@
     if (window.inventourSituarCampos) { window.inventourSituarCampos($('c-especificos')); }
     var campos = $('c-especificos').querySelectorAll('[data-campo-at]');
     var marca = $('aba-ficha-conta');
-    if (!campos.length) { marca.hidden = true; return; }
+    if (!campos.length) { marca.hidden = true; $('c-pendentes-barra').hidden = true; $('c-pendentes-fim').hidden = true; return; }
     var feito = function (c) { return c.classList.contains('respondido') || c.classList.contains('sem-resposta'); };
     var total = Array.prototype.filter.call(campos, feito).length;
     marca.hidden = false;
@@ -969,7 +969,38 @@
       c.textContent = n + '/' + cs.length;
       c.classList.toggle('completo', n === cs.length);
     });
+    var pend = campos.length - total;
+    $('c-pendentes-barra').hidden = false;
+    $('c-pendentes-conta').textContent = pend === 0 ? 'Nada pendente' : (pend === 1 ? '1 pendente' : pend + ' pendentes') + ' de ' + campos.length;
+    aplicarPendentes();
   }
+
+  // Só pendentes: esconde o campo resolvido (respondido ou NA, NI, NE) e o
+  // grupo completo. O campo em que a pessoa está não some enquanto ela
+  // digita: sai da lista quando ela passa para o próximo.
+  var soPendentes = $('c-so-pendentes');
+  try { soPendentes.checked = localStorage.getItem('inventour-so-pendentes') === '1'; } catch (e) {}
+  function aplicarPendentes() {
+    var ligado = soPendentes.checked;
+    var ativo = document.activeElement;
+    var visiveis = 0;
+    $('c-especificos').querySelectorAll('[data-campo-at]').forEach(function (c) {
+      var feito = c.classList.contains('respondido') || c.classList.contains('sem-resposta');
+      var esconder = ligado && feito && !(ativo && c.contains(ativo));
+      c.hidden = esconder;
+      if (!esconder) { visiveis++; }
+    });
+    $('c-especificos').querySelectorAll('.grupo-ficha').forEach(function (g) {
+      g.hidden = ligado && !g.querySelector('[data-campo-at]:not([hidden])');
+    });
+    $('c-pendentes-fim').hidden = !(ligado && visiveis === 0);
+  }
+  soPendentes.addEventListener('change', function () {
+    try { localStorage.setItem('inventour-so-pendentes', soPendentes.checked ? '1' : '0'); } catch (e) {}
+    aplicarPendentes();
+    form.querySelector('.corpo-dialogo').scrollTop = 0;
+  });
+  $('c-especificos').addEventListener('focusout', function () { setTimeout(aplicarPendentes, 150); });
   $('c-especificos').addEventListener('input', contarFicha);
   $('c-tribos').addEventListener('change', contarTribos);
   $('c-especificos').addEventListener('change', contarFicha);
