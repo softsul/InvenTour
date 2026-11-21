@@ -852,7 +852,7 @@ paginaFicha($titulo, 'inventario');
       <ul class="lista-simples">
         <?php foreach ($hist as $h): ?>
           <li><span class="dado"><?= e(dataBr((string) $h['criado_em'], 'd/m/Y H:i')) ?></span> <?= e((string) ($h['usuario_nome'] ?? 'Sistema')) ?>
-            <?= e(match ($h['acao']) { 'criou' => 'cadastrou', 'alterou' => 'alterou', 'mudou_situacao' => 'mudou de ' . (Inventario::SITUACOES[$h['de']][0] ?? $h['de']) . ' para ' . (Inventario::SITUACOES[$h['para']][0] ?? $h['para']), 'importou' => 'importou', default => $h['acao'] }) ?>
+            <?= e(match ($h['acao']) { 'criou' => 'cadastrou', 'alterou' => 'alterou', 'mudou_situacao' => 'mudou de ' . (Inventario::SITUACOES[$h['de']][0] ?? $h['de']) . ' para ' . (Inventario::SITUACOES[$h['para']][0] ?? $h['para']), 'importou' => 'importou', 'trade' => 'trade turístico', default => $h['acao'] }) ?>
             <?= $h['nota'] ? '<span class="nulo">' . e((string) $h['nota']) . '</span>' : '' ?></li>
         <?php endforeach; ?>
       </ul>

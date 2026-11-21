@@ -21,7 +21,12 @@ require_once __DIR__ . '/../app/Inventario.php';
 
 Auth::exigirLogin();
 $empresa = Empresa::exigir();
-Auth::exigirPermissao('inventario.ver');
+// O responsável pelo lugar (etapa 6, papel prestador) cadastra e manda as
+// experiências do próprio lugar; a curadoria continua com a equipe.
+$responsavel = !Auth::pode('inventario.ver') && Auth::pode('meus-lugares.ver');
+if (!$responsavel) {
+    Auth::exigirPermissao('inventario.ver');
+}
 $pdo = Database::conexao();
 $eid = (int) $empresa['id'];
 
@@ -55,8 +60,14 @@ if ($id) {
     $x = ['id' => 0, 'situacao' => 'rascunho', 'titulo' => '', 'dimensoes' => '{}', 'narrativa' => '', 'duracao_minutos' => '',
           'pessoas_min' => 1, 'pessoas_max' => '', 'agendamento' => 1, 'antecedencia_horas' => '', 'faixa_valor' => '', 'valor_texto' => '', 'parecer' => ''];
 }
+if ($responsavel) {
+    require_once __DIR__ . '/../app/Trade.php';
+    if (!$item || !Trade::responde((int) Auth::usuarioOuNulo()['id'], (int) $item['id'])) {
+        negarRegistro();
+    }
+}
 $curador = Auth::ehSoftsul() || Auth::temPapel('gestor') || Auth::temPapel('consultor') || Auth::temPapel('coordenador');
-$podeEditar = Auth::pode('inventario.editar') && in_array($x['situacao'], ['rascunho', 'ajuste'], true);
+$podeEditar = (Auth::pode('inventario.editar') || ($responsavel && Auth::pode('meus-lugares.editar'))) && in_array($x['situacao'], ['rascunho', 'ajuste'], true);
 $dimensoes = json_decode((string) $x['dimensoes'], true) ?: [];
 $erro = '';
 $aqui = $id ? endereco('experiencia', $id, (string) $x['titulo']) : ($item && !empty($_GET['item']) ? '/experiencia?item=' . (int) $item['id'] : '/experiencia');
@@ -160,9 +171,13 @@ $ro = $podeEditar ? '' : ' readonly';
 $dis = $podeEditar ? '' : ' disabled';
 [$rotuloSit, $tomSit] = SITUACOES_EXPERIENCIA[$x['situacao']] ?? [$x['situacao'], 'nu'];
 $csrf = Auth::tokenCsrf();
-paginaFicha($x['titulo'] ?: 'Nova experiência', 'experiencias');
+paginaFicha($x['titulo'] ?: 'Nova experiência', $responsavel ? 'meus-lugares' : 'experiencias');
 ?>
+<?php if ($responsavel): ?>
+<div class="trilha"><a href="/meus-lugares">Meus lugares</a><?= icone('seta') ?><a href="<?= e(noPopup('/meu-lugar?id=' . (int) $item['id'])) ?>"><?= e((string) $item['nome']) ?></a><?= icone('seta') ?><span><?= e($x['titulo'] ?: 'Nova experiência') ?></span></div>
+<?php else: ?>
 <div class="trilha"><a href="/experiencias">Experiências</a><?= icone('seta') ?><?php if ($item): ?><a href="<?= e(endereco('item', (int) $item['id'], (string) $item['nome'])) ?>"><?= e((string) $item['nome']) ?></a><?= icone('seta') ?><?php endif; ?><span><?= e($x['titulo'] ?: 'Nova experiência') ?></span></div>
+<?php endif; ?>
 <?php if ($erro !== ''): ?><p class="aviso ruim" role="alert"><?= icone('alerta') ?><span><?= e($erro) ?></span></p><?php endif; ?>
 <?php if ($x['situacao'] === 'ajuste' && $x['parecer']): ?><p class="aviso atencao"><?= icone('alerta') ?><span><strong>Ajuste pedido pela curadoria:</strong> <?= e((string) $x['parecer']) ?></span></p><?php endif; ?>
 

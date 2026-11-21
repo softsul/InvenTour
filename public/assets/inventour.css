@@ -1775,3 +1775,26 @@ body.arrastando-parada { user-select: none; -webkit-user-select: none; cursor: g
 @media (max-width: 600px) {
   .parada-linha { grid-template-areas: "alca num lugar tirar" "meio meio meio meio" "campos campos campos campos"; }
 }
+
+/* Etapa 6, trade turístico: o pedido público, Meus lugares e a revisão. */
+.termo-trade{border:1px solid var(--traco); border-radius:12px; padding:14px 16px; margin:6px 0 18px; background:var(--fundo, transparent)}
+.termo-trade b{display:block; margin-bottom:6px}
+.termo-trade ul{margin:0 0 12px; padding-left:18px; font-size:13.5px; color:var(--suave)}
+.termo-trade li{margin-bottom:4px}
+.form-reivindicar .zona-upload{margin-top:6px}
+.form-reivindicar > .botao{margin-top:4px}
+.grade-lugares{display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:16px}
+.cartao-lugar{display:flex; flex-direction:column; padding:0; overflow:hidden}
+.cartao-lugar > img, .cartao-lugar .sem-foto{width:100%; aspect-ratio:16/9; object-fit:cover; display:block; background:var(--traco)}
+.cartao-lugar .sem-foto{display:flex; align-items:center; justify-content:center; color:var(--suave)}
+.cartao-lugar .sem-foto svg{width:34px; height:34px}
+.cartao-lugar-txt{padding:14px 16px 0; flex:1}
+.cartao-lugar-txt h2{font-size:17px; margin:0 0 4px}
+.cartao-lugar-txt p{margin:0 0 10px; color:var(--suave); font-size:13.5px}
+.cartao-lugar .cartao-rodape{margin-top:14px; padding:14px 16px 16px; flex-wrap:wrap}
+table.comparar td{vertical-align:top}
+table.comparar td.proposta{font-weight:600}
+table.comparar .nota svg{width:14px; height:14px; vertical-align:-2px; margin-right:4px}
+.cartao > form + form{margin-top:22px}
+.acoes-linha form{display:contents}
+.acoes-linha button.aprovar:hover{color:var(--verde); border-color:var(--verde); background:var(--verde-sup)}

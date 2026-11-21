@@ -53,6 +53,11 @@ function contadoresDoMenu(): array
         $q->execute([$eid]);
         $n['experiencias'] = (int) $q->fetchColumn();
     }
+    if (Auth::pode('trade.ver')) {
+        // Pedidos de responsável e revisões do trade que esperam a equipe.
+        require_once __DIR__ . '/Trade.php';
+        $n['trade'] = Trade::esperando($eid);
+    }
     if (Auth::pode('coleta.ver')) {
         // Na coleta, só o que pede ação: o que a conferência devolveu.
         $n['coleta'] = Esteira::devolvidos($eid);
@@ -280,6 +285,8 @@ function explicacaoDoMenu(string $chave): string
         'homologacao' => 'Fila das fichas que esperam a homologação do município: abra cada uma para homologar, devolver para ajuste ou recusar.',
         'caderno' => 'Caderno oficial do inventário do destino, gerado em PDF por versão, a partir das fichas homologadas.',
         'roteiros' => 'Roteiros prontos para o visitante, com os lugares do inventário em ordem e a rota no mapa do portal.',
+        'trade' => 'Quem responde pelos lugares do inventário: os pedidos feitos pelo portal, as atualizações que os responsáveis mandam e a transferência de titularidade.',
+        'meus-lugares' => 'Os lugares por que você responde no portal: mande horário, contato, capacidade e fotos para a conferência da equipe.',
         'phygital' => 'Placas e cartazes com QR Code nos atrativos e equipamentos: para onde cada leitura leva e quantas leituras teve.',
         'relatorios' => 'Relatórios e indicadores do inventário do destino.',
         'mapa-turismo' => 'Municípios do Mapa do Turismo Brasileiro, com região turística, categoria e os números que o Ministério do Turismo usa para categorizar.',

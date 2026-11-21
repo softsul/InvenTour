@@ -559,3 +559,9 @@ h1 { letter-spacing: -.035em; }
   .tl-txt b { font-size: .98rem; }
   .tl-cartao .guardar { width: 32px; height: 32px; top: 8px; right: 8px; }
 }
+
+/* Etapa 6: o responsável pelo lugar pede o acesso (abre o painel). */
+.sou-responsavel { display: flex; gap: 10px; align-items: flex-start; text-decoration: none; font-size: .88rem; color: var(--apagado); border-top: 1px dashed var(--linha-forte); padding-top: 14px; }
+.sou-responsavel b { color: var(--tinta); display: block; }
+.sou-responsavel svg { flex: none; width: 18px; height: 18px; margin-top: 2px; }
+.sou-responsavel:hover b { color: var(--acento); }

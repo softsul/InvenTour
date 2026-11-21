@@ -57,7 +57,7 @@ final class Inventario
      * valor do campo da ficha alimenta a coluna, que vai ao EventCity e ao BI.
      * [ordem da ficha => [chave do atributo => coluna]]
      */
-    private const CAPACIDADES = [
+    public const CAPACIDADES = [
         20 => ['total_uh' => 'capacidade_uh', 'total_leitos' => 'capacidade_leitos'],
         22 => ['capacidade_simultanea' => 'capacidade_assentos'],
         29 => ['capacidade_total' => 'capacidade_publico'],
@@ -172,10 +172,17 @@ final class Inventario
     public static function registrarHistorico(int $itemId, string $acao, ?string $de = null, ?string $para = null, ?string $nota = null,
                                               ?float $lat = null, ?float $lng = null): void
     {
+        self::registrarHistoricoDe(Empresa::id(), $itemId, $acao, $de, $para, $nota, $lat, $lng);
+    }
+
+    /** O mesmo, com o destino dito (telas públicas, sem destino na sessão, como o pedido de responsável). */
+    public static function registrarHistoricoDe(int $empresaId, int $itemId, string $acao, ?string $de = null, ?string $para = null, ?string $nota = null,
+                                                ?float $lat = null, ?float $lng = null): void
+    {
         $u = Auth::usuarioOuNulo();
         self::pdo()->prepare('INSERT INTO inventario_item_historico (item_id, empresa_id, usuario_id, acao, de, para, nota, latitude, longitude, criado_em)
                               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())')
-            ->execute([$itemId, Empresa::id(), $u['id'] ?? null, $acao, $de, $para, $nota !== null ? mb_substr($nota, 0, 500) : null, $lat, $lng]);
+            ->execute([$itemId, $empresaId, $u['id'] ?? null, $acao, $de, $para, $nota !== null ? mb_substr($nota, 0, 500) : null, $lat, $lng]);
     }
 
     /**
@@ -465,12 +472,23 @@ final class Inventario
         if ((int) $arquivo['size'] > 20 * 1048576) {
             return 'A foto passa de 20 MB.';
         }
-        $dados = (string) file_get_contents((string) $arquivo['tmp_name']);
+        return self::guardarFotoDeDados($itemId, (string) file_get_contents((string) $arquivo['tmp_name']), $credito, $experienciaId);
+    }
+
+    /**
+     * O mesmo de guardarFoto, a partir do conteúdo do arquivo (a foto que o
+     * responsável mandou e esperou a revisão, em storage/trade). $gps vale
+     * quando o EXIF já foi lido antes: a foto guardada para a revisão já
+     * saiu sem os metadados.
+     */
+    public static function guardarFotoDeDados(int $itemId, string $dados, ?string $credito, ?int $experienciaId = null, ?array $gps = null): ?string
+    {
+        require_once __DIR__ . '/Imagem.php';
         $mime = (new finfo(FILEINFO_MIME_TYPE))->buffer($dados);
         if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true)) {
             return 'Use fotos em JPG, PNG ou WebP.';
         }
-        $gps = $mime === 'image/jpeg' ? Imagem::gpsDoExif($dados) : null;
+        $gps ??= $mime === 'image/jpeg' ? Imagem::gpsDoExif($dados) : null;
         $foto = Imagem::foto($dados);
         if ($foto === null) {
             return 'O arquivo não é uma imagem válida.';

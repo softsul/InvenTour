@@ -150,6 +150,11 @@ PortalLayout::inicio($destino, $nome, true, ['ativo' => (string) $pilar, 'imagem
       <?php if ($i['capacidade_publico']): ?><dt>Capacidade</dt><dd><?= plural((int) $i['capacidade_publico'], 'pessoa', 'pessoas') ?></dd><?php endif; ?>
       <?php if ($i['cadastur'] && (!$i['cadastur_validade'] || $i['cadastur_validade'] >= date('Y-m-d'))): ?><dt>Cadastur</dt><dd>Cadastro ativo no Ministério do Turismo</dd><?php endif; ?>
     </dl>
+    <?php /* Etapa 6: o trade pede o acesso pelo painel (público, /reivindicar),
+             só em destino ativo e para lugar homologado. */
+    if (($destino['modo_operacao'] ?? '') === 'ativo' && in_array($i['situacao'] ?? 'homologada', ['homologada', 'desatualizada'], true)): ?>
+      <a class="sou-responsavel" target="_blank" rel="noopener" href="<?= e(rtrim((string) ((require __DIR__ . '/../app/config.php')['app']['url'] ?? 'https://app.inventour.com.br'), '/') . '/reivindicar?i=' . (int) $i['id']) ?>"><?= icone('lapis') ?><span><b>É o responsável por este lugar?</b> Mantenha horário, contato e fotos em dia</span></a>
+    <?php endif; ?>
   </aside>
 </div>
 

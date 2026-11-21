@@ -428,6 +428,19 @@ Só para destinos `ativo`:
 - Prestador mantém horários, contatos, fotos, capacidade, tribos e submete
   experiências.
 
+Entregue em 21/11/2026 (migração 031, app/Trade.php): pedido público em
+/reivindicar (link "É o responsável por este lugar?" na ficha do portal,
+só em destino ativo e lugar homologado), tela Trade turístico (/trade:
+Pedidos, Revisões, Responsáveis; pedido em /reivindicacao, revisão em
+/revisao, comprovante e fotos à espera em storage/trade, por
+/trade-arquivo), Meus lugares para o prestador (/meus-lugares e
+/meu-lugar em abas, com experiências do próprio lugar). Confere = CNPJ da
+ficha ou Cadastur deste lugar na base, mais e-mail ou telefone igual ao
+do Cadastur ou da ficha. Aprovar a revisão renova ultima_auditoria_em
+(desatualizada volta a homologada) e avisa o EventCity. Fora daqui:
+edição expressa sem moderação (nivel_confianca do resumo do Drive) e o
+link de uso único do radar, que é da etapa 7.
+
 ### Etapa 7. Inteligência e diagnóstico DTI (2 a 3 semanas)
 
 - Fotografia mensal, painel executivo e relatórios no molde do Orbit.

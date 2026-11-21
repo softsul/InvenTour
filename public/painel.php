@@ -61,6 +61,22 @@ if ($empresa) {
         [$totalX, $aguardandoX, $aprovadasX] = array_map('intval', $q->fetch(PDO::FETCH_NUM));
         $metricas[] = ['Experiências', $totalX, plural($aprovadasX, 'aprovada', 'aprovadas') . ' · ' . milhar($aguardandoX) . ' aguardando curadoria', '/experiencias'];
     }
+    // Etapa 6: o trade. A equipe vê quem responde pelos lugares e o que
+    // espera por ela; o responsável, os lugares dele.
+    if (Auth::pode('trade.ver')) {
+        $q = $pdo->prepare("SELECT (SELECT COUNT(*) FROM inventario_reivindicacoes WHERE empresa_id = ? AND situacao = 'aprovada'),
+                                   (SELECT COUNT(*) FROM inventario_reivindicacoes WHERE empresa_id = ? AND situacao = 'pendente'),
+                                   (SELECT COUNT(*) FROM inventario_revisoes WHERE empresa_id = ? AND situacao = 'aguardando')");
+        $q->execute([$eid, $eid, $eid]);
+        [$respT, $pedT, $revT] = array_map('intval', $q->fetch(PDO::FETCH_NUM));
+        $metricas[] = ['Trade turístico', $respT, plural($pedT, 'pedido', 'pedidos') . ' e ' . plural($revT, 'revisão', 'revisões') . ' esperando', '/trade'];
+    }
+    if (Auth::pode('meus-lugares.ver')) {
+        require_once __DIR__ . '/../app/Trade.php';
+        $meus = Trade::meusLugares((int) $u['id']);
+        $esperaM = count(array_filter($meus, fn ($l) => in_array($l['revisao'], ['aguardando', 'devolvida'], true)));
+        $metricas[] = ['Meus lugares', count($meus), $esperaM ? plural($esperaM, 'atualização em conferência', 'atualizações em conferência') : 'tudo em dia no portal', '/meus-lugares'];
+    }
     if (Auth::pode('destino-textos.ver')) {
         $q = $pdo->prepare("SELECT (SELECT COUNT(*) FROM destino_narrativas WHERE empresa_id = ? AND conteudo_html <> ''),
                                    (SELECT COUNT(*) FROM destino_linha_tempo WHERE empresa_id = ?)");
