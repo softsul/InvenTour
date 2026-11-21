@@ -29,18 +29,32 @@ final class UmDia
         return sprintf('%02d:%02d', intdiv($t, 60), $t % 60);
     }
 
+    /** Como se chega: chave => [no portal, metros por minuto, minutos a mais (estacionar, esperar)]. */
+    public const MEIOS = [
+        'pe'        => ['A pé', 80, 0],
+        'bicicleta' => ['De bicicleta', 220, 0],
+        'carro'     => ['De carro', 500, 5],
+        'onibus'    => ['De ônibus', 300, 10],
+    ];
+
+    /** O meio escolhido pelo redator ou, sem escolha, o da distância (a pé até 1,2 km). */
+    public static function meio(?string $meio, ?float $metros): string
+    {
+        return isset(self::MEIOS[(string) $meio]) ? (string) $meio : ($metros !== null && $metros > 1200 ? 'carro' : 'pe');
+    }
+
     /**
-     * Tempo de deslocamento estimado pela distância em linha reta: a pé até
-     * 1,2 km (80 m por minuto), de carro acima (500 m por minuto, mais 5 de
-     * estacionar), arredondado para 5 minutos. O redator ajusta na tela.
-     * A mesma conta está no inventour.js (paradas do roteiro).
+     * Tempo de deslocamento estimado pela distância em linha reta e pelo
+     * meio, arredondado para 5 minutos. O redator ajusta na tela. A mesma
+     * conta está no inventour.js (paradas do roteiro).
      */
-    public static function deslocamento(?float $metros): int
+    public static function deslocamento(?float $metros, ?string $meio = null): int
     {
         if ($metros === null) {
             return 10;
         }
-        $min = $metros <= 1200 ? $metros / 80 : $metros / 500 + 5;
+        [, $porMinuto, $extra] = self::MEIOS[self::meio($meio, $metros)];
+        $min = $metros / $porMinuto + $extra;
         return max(5, (int) (ceil($min / 5) * 5));
     }
 
@@ -105,15 +119,30 @@ final class UmDia
         if (!$r || empty($r['paradas'])) {
             return null;
         }
+        return ['titulo' => (string) $r['titulo'], 'descricao' => (string) ($r['descricao'] ?? ''), 'roteiro_id' => (int) $r['id'], 'passos' => self::passos($r['paradas'])];
+    }
+
+    /**
+     * As paradas de um roteiro como linha do tempo: hora de chegada, tempo no
+     * lugar, deslocamento desde a anterior (o ajustado pelo redator ou o
+     * estimado pela distância) e a dica.
+     *
+     * @return list<array{hora:string,rotulo:string,duracao:string,deslocamento:?int,item:array,metros:?int,nota:?string}>
+     */
+    public static function passos(array $paradas): array
+    {
         $passos = [];
         $ultimo = null;
-        foreach ($r['paradas'] as $item) {
-            $metros = $ultimo && $item['latitude'] !== null && $ultimo['latitude'] !== null ? (int) round(self::distancia($ultimo, $item)) : null;
+        foreach (array_values($paradas) as $item) {
+            $m = $ultimo ? self::metros($ultimo, $item) : null;
+            $meio = $ultimo ? self::meio($item['meio'] ?? null, $m) : null;
             $passos[] = ['hora' => (string) ($item['hora'] ?? ''), 'rotulo' => '', 'duracao' => self::duracao(isset($item['duracao_min']) ? (int) $item['duracao_min'] : null),
-                         'item' => $item, 'metros' => $metros, 'nota' => $item['nota'] ?? null];
+                         'deslocamento' => $ultimo ? (isset($item['deslocamento_min']) ? (int) $item['deslocamento_min'] : self::deslocamento($m, $meio)) : null,
+                         'meio' => $meio,
+                         'item' => $item, 'metros' => $m !== null ? (int) round($m) : null, 'nota' => $item['nota'] ?? null];
             $ultimo = $item;
         }
-        return ['titulo' => (string) $r['titulo'], 'descricao' => (string) ($r['descricao'] ?? ''), 'roteiro_id' => (int) $r['id'], 'passos' => $passos];
+        return $passos;
     }
 
     private static function distancia(array $a, array $b): float

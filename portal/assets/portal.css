@@ -524,3 +524,38 @@ h1 { letter-spacing: -.035em; }
 .rodape-grande { font-size: clamp(2.2rem, 6vw, 3.6rem); line-height: 1; letter-spacing: -.035em; margin-bottom: 22px; }
 .rodape-colunas .assinatura a, .assinatura a { display: inline; padding: 0; color: var(--acento); text-decoration: underline; text-underline-offset: 2px; }
 .assinatura a:hover { color: var(--acento-escuro); }
+
+/* Linha do tempo do roteiro e do Um dia aqui: trilho tracejado com a hora e
+   o ponto de cada parada, cartão baixo e o deslocamento entre as paradas. */
+.tl { list-style: none; margin: 28px 0 0; padding: 0; max-width: 860px; position: relative; --col-hora: 64px; --col-ponto: 28px; }
+.tl::before { content: ""; position: absolute; top: 18px; bottom: 18px; left: calc(var(--col-hora) + 12px + var(--col-ponto) / 2 - 1px); border-left: 2px dashed var(--linha-forte); }
+.tl-parada, .tl-trajeto { display: grid; grid-template-columns: var(--col-hora) var(--col-ponto) minmax(0, 1fr); column-gap: 12px; align-items: center; position: relative; }
+.tl-hora { font-family: var(--mono); font-weight: 600; font-size: 1.05rem; color: var(--acento); text-align: right; }
+.tl-ponto { width: 16px; height: 16px; justify-self: center; border-radius: 50%; background: var(--cartao); border: 3px solid var(--acento); position: relative; z-index: 1; }
+.tl-inicio .tl-ponto, .tl-fim .tl-ponto { background: var(--acento); }
+.tl-cartao { position: relative; background: var(--cartao); border: 1px solid var(--linha); border-radius: 10px; overflow: hidden; box-shadow: 0 1px 2px rgba(90, 70, 40, .05); transition: box-shadow .2s, transform .2s; }
+.tl-cartao:hover { box-shadow: var(--sombra); transform: translateY(-1px); }
+.tl-cartao > a { display: grid; grid-template-columns: 128px minmax(0, 1fr); align-items: stretch; text-decoration: none; color: inherit; min-height: 96px; }
+.tl-cartao figure { margin: 0; position: relative; background: var(--papel-2); overflow: hidden; }
+.tl-cartao figure img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+.tl-cartao .sem-foto b { font-size: 3rem; }
+.tl-txt { display: flex; flex-direction: column; gap: 3px; padding: 12px 56px 12px 14px; min-width: 0; }
+.tl-txt b { font-size: 1.08rem; font-weight: 700; line-height: 1.2; }
+.tl-tempo { font-family: var(--mono); font-size: .74rem; color: var(--grafite); }
+.tl-dica { font-size: .9rem; color: var(--grafite); margin-top: 2px; }
+.tl-cartao .guardar { top: 10px; right: 10px; width: 36px; height: 36px; }
+.tl-trajeto { margin: 6px 0; }
+.tl-trajeto span { grid-column: 3; justify-self: start; display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: .74rem; color: var(--grafite);
+  background: var(--papel); border: 1px dashed var(--linha-forte); border-radius: 999px; padding: 3px 10px; }
+.tl-trajeto svg { width: 14px; height: 14px; color: var(--brasa); }
+.tl-parada + .tl-parada { margin-top: 12px; }
+@media (max-width: 560px) {
+  .tl { --col-hora: 44px; --col-ponto: 18px; }
+  .tl-parada, .tl-trajeto { column-gap: 8px; }
+  .tl-hora { font-size: .86rem; }
+  .tl-ponto { width: 13px; height: 13px; border-width: 2.5px; }
+  .tl-cartao > a { grid-template-columns: 84px minmax(0, 1fr); min-height: 84px; }
+  .tl-txt { padding: 10px 48px 10px 10px; }
+  .tl-txt b { font-size: .98rem; }
+  .tl-cartao .guardar { width: 32px; height: 32px; top: 8px; right: 8px; }
+}

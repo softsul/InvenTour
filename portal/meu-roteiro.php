@@ -20,7 +20,7 @@ PortalLayout::inicio($destino, 'Meu roteiro', false, ['ativo' => '']);
 <?php else: ?>
   <p class="lead"><?= plural(count($itens), 'lugar', 'lugares') ?>, na ordem em que você guardou.</p>
   <div class="acoes-roteiro">
-    <?php if ($rota): ?><a class="cta" href="<?= e($rota) ?>" rel="noopener"><?= icone('mapa') ?>Abrir a rota no Google Maps</a><?php endif; ?>
+    <?php if ($rota): ?><a target="_blank" rel="noopener" class="cta" href="<?= e($rota) ?>"><?= icone('mapa') ?>Abrir a rota no Google Maps</a><?php endif; ?>
     <button type="button" class="cta claro" data-compartilhar-roteiro><?= icone('enviar') ?>Compartilhar o link</button>
     <button type="button" class="cta claro" data-limpar-roteiro><?= icone('lixeira') ?>Limpar</button>
   </div>

@@ -7009,10 +7009,13 @@ window.inventourMarcarNoFiltro = function (form, campo, ids, nome) {
     var h = Math.pow(Math.sin(dla / 2), 2) + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.pow(Math.sin(dlo / 2), 2);
     return 2 * 6371000 * Math.asin(Math.min(1, Math.sqrt(h)));
   }
-  function estimar(m) {
+  // Como se chega: metros por minuto e minutos a mais (o mesmo de UmDia::MEIOS).
+  var MEIOS = { pe: [80, 0, 'a pé'], bicicleta: [220, 0, 'de bicicleta'], carro: [500, 5, 'de carro'], onibus: [300, 10, 'de ônibus'] };
+  function meioDe(escolhido, m) { return MEIOS[escolhido] ? escolhido : (m !== null && m > 1200 ? 'carro' : 'pe'); }
+  function estimar(m, meio) {
     if (m === null) { return 10; }
-    var min = m <= 1200 ? m / 80 : m / 500 + 5;
-    return Math.max(5, Math.ceil(min / 5) * 5);
+    var x = MEIOS[meioDe(meio, m)];
+    return Math.max(5, Math.ceil((m / x[0] + x[1]) / 5) * 5);
   }
   function somar(hora, min) {
     var p = /^(\d{2}):(\d{2})$/.exec(hora || '');
@@ -7034,8 +7037,13 @@ window.inventourMarcarNoFiltro = function (form, campo, ids, nome) {
         hora.readOnly = hora.hasAttribute('data-so-leitura');
         desloc.value = '';
       } else {
-        var est = estimar(metros(anterior.ponto, aqui));
+        var mt = metros(anterior.ponto, aqui);
+        var escolhido = li.querySelector('[data-parada-meio]').value;
+        var est = estimar(mt, escolhido);
         desloc.placeholder = String(est);
+        // Sem escolha, a sugestão pela distância fica escrita ao lado.
+        var sug = li.querySelector('[data-meio-sugestao]');
+        if (sug) { sug.textContent = escolhido ? '' : 'Sugestão: ' + MEIOS[meioDe('', mt)][2] + (mt !== null ? ' (' + (mt < 1000 ? Math.round(mt / 10) * 10 + ' m' : (mt / 1000).toFixed(1).replace('.', ',') + ' km') + ')' : ''); }
         var d = num(desloc.value);
         hora.readOnly = true;
         hora.value = anterior.hora ? somar(anterior.hora, (anterior.tempo || 0) + (d === null ? est : d)) : '';
@@ -7045,7 +7053,31 @@ window.inventourMarcarNoFiltro = function (form, campo, ids, nome) {
   }
   lista.querySelectorAll('[data-parada-hora][readonly]').forEach(function (h) { h.setAttribute('data-so-leitura', ''); });
   lista.addEventListener('input', function (ev) { if (ev.target.matches('[data-parada-hora], [data-parada-desloc], [data-parada-tempo]')) { calcular(); } });
+  // Como chega: um botão por meio; tocar no escolhido volta para a sugestão.
+  lista.addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-meio]');
+    if (!b || b.disabled) { return; }
+    var grupo = b.closest('.parada-meio');
+    var oculto = grupo.querySelector('[data-parada-meio]');
+    var novo = oculto.value === b.getAttribute('data-meio') ? '' : b.getAttribute('data-meio');
+    oculto.value = novo;
+    grupo.querySelectorAll('[data-meio]').forEach(function (x) { x.setAttribute('aria-pressed', x.getAttribute('data-meio') === novo ? 'true' : 'false'); });
+    calcular();
+  });
   // Ordem mudou, parada entrou ou saiu: recalcula.
   new MutationObserver(calcular).observe(lista, { childList: true });
   calcular();
+})();
+
+/*
+ * Página de fora do painel abre sempre em nova aba, com rel="noopener"
+ * (regra do Luiz): links já na tela e os criados depois, no clique.
+ * Softsul Software
+ */
+(function () {
+  'use strict';
+  document.addEventListener('click', function (ev) {
+    var a = ev.target.closest && ev.target.closest('a[href]');
+    if (a && /^https?:/i.test(a.href) && a.host !== location.host && a.target !== '_blank' && a.target !== '_top') { a.target = '_blank'; a.rel = 'noopener'; }
+  }, true);
 })();

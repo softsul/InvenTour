@@ -111,7 +111,7 @@ PortalLayout::inicio($destino, $nome, true, ['ativo' => (string) $pilar, 'imagem
     <?php if ($eventos): ?>
     <h2>Próximos eventos aqui</h2>
     <ul class="lista-eventos">
-      <?php foreach ($eventos as $ev): ?><li><a href="<?= e((string) ($ev['url'] ?? '#')) ?>" rel="noopener"><span class="data"><?= e(date('d/m', strtotime((string) ($ev['proximo_dia'] ?? $ev['data_inicio'])))) ?></span><b><?= e((string) $ev['titulo']) ?></b></a></li><?php endforeach; ?>
+      <?php foreach ($eventos as $ev): ?><li><a target="_blank" rel="noopener" href="<?= e((string) ($ev['url'] ?? '#')) ?>"><span class="data"><?= e(date('d/m', strtotime((string) ($ev['proximo_dia'] ?? $ev['data_inicio'])))) ?></span><b><?= e((string) $ev['titulo']) ?></b></a></li><?php endforeach; ?>
     </ul>
     <?php endif; ?>
 
@@ -132,11 +132,11 @@ PortalLayout::inicio($destino, $nome, true, ['ativo' => (string) $pilar, 'imagem
   <aside class="ficha-lado">
     <div class="caixa-contato">
       <button type="button" class="guardar grande" data-roteiro="<?= (int) $i['id'] ?>" aria-pressed="false"><?= icone('mais') ?><span>Guardar no meu roteiro</span></button>
-      <?php if ($zap !== ''): ?><a class="cta acento" href="https://wa.me/<?= e($zap) ?>?text=<?= e(rawurlencode($mensagem)) ?>" rel="noopener"><?= icone('whatsapp') ?>Chamar no WhatsApp</a><?php endif; ?>
+      <?php if ($zap !== ''): ?><a target="_blank" rel="noopener" class="cta acento" href="https://wa.me/<?= e($zap) ?>?text=<?= e(rawurlencode($mensagem)) ?>"><?= icone('whatsapp') ?>Chamar no WhatsApp</a><?php endif; ?>
       <?php if ($tel !== ''): ?><a class="cta claro" href="tel:+<?= e($tel) ?>"><?= icone('contatos') ?>Ligar <?= e(formatarTelefone((string) $i['telefone'])) ?></a><?php endif; ?>
-      <?php if ($rota): ?><a class="cta claro" href="<?= e($rota) ?>" rel="noopener"><?= icone('mapa') ?>Como chegar</a><?php endif; ?>
-      <?php if ($site !== ''): ?><a class="link-lado" href="<?= e($site) ?>" rel="noopener nofollow"><?= icone('rede') ?>Site</a><?php endif; ?>
-      <?php if ($insta !== ''): ?><a class="link-lado" href="https://instagram.com/<?= e($insta) ?>" rel="noopener nofollow"><?= icone('imagem') ?>@<?= e($insta) ?></a><?php endif; ?>
+      <?php if ($rota): ?><a target="_blank" rel="noopener" class="cta claro" href="<?= e($rota) ?>"><?= icone('mapa') ?>Como chegar</a><?php endif; ?>
+      <?php if ($site !== ''): ?><a target="_blank" rel="noopener nofollow" class="link-lado" href="<?= e($site) ?>"><?= icone('rede') ?>Site</a><?php endif; ?>
+      <?php if ($insta !== ''): ?><a target="_blank" rel="noopener nofollow" class="link-lado" href="https://instagram.com/<?= e($insta) ?>"><?= icone('imagem') ?>@<?= e($insta) ?></a><?php endif; ?>
     </div>
     <dl class="ficha-dados">
       <?php if ($end !== ''): ?><dt>Endereço</dt><dd><?= e($end) ?></dd><?php endif; ?>
@@ -154,9 +154,9 @@ PortalLayout::inicio($destino, $nome, true, ['ativo' => (string) $pilar, 'imagem
 </div>
 
 <nav class="barra-acoes" aria-label="Ações rápidas">
-  <?php if ($zap !== ''): ?><a href="https://wa.me/<?= e($zap) ?>?text=<?= e(rawurlencode($mensagem)) ?>" rel="noopener"><?= icone('whatsapp') ?>WhatsApp</a><?php endif; ?>
+  <?php if ($zap !== ''): ?><a target="_blank" rel="noopener" href="https://wa.me/<?= e($zap) ?>?text=<?= e(rawurlencode($mensagem)) ?>"><?= icone('whatsapp') ?>WhatsApp</a><?php endif; ?>
   <?php if ($tel !== ''): ?><a href="tel:+<?= e($tel) ?>"><?= icone('contatos') ?>Ligar</a><?php endif; ?>
-  <?php if ($rota): ?><a href="<?= e($rota) ?>" rel="noopener"><?= icone('mapa') ?>Rota</a><?php endif; ?>
+  <?php if ($rota): ?><a target="_blank" rel="noopener" href="<?= e($rota) ?>"><?= icone('mapa') ?>Rota</a><?php endif; ?>
   <button type="button" data-roteiro="<?= (int) $i['id'] ?>" aria-pressed="false"><?= icone('mais') ?>Guardar</button>
 </nav>
 <?php PortalLayout::fim();

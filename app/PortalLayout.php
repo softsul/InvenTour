@@ -151,7 +151,7 @@ final class PortalLayout
     </div>
     <div>
       <b>Fale com o turismo</b>
-      <?php if (!empty($d['whatsapp'])): ?><a href="https://wa.me/<?= e((string) telefoneParaBanco((string) $d['whatsapp'])) ?>" rel="noopener">WhatsApp</a><?php endif; ?>
+      <?php if (!empty($d['whatsapp'])): ?><a target="_blank" rel="noopener" href="https://wa.me/<?= e((string) telefoneParaBanco((string) $d['whatsapp'])) ?>">WhatsApp</a><?php endif; ?>
       <?php if (!empty($d['email'])): ?><a href="mailto:<?= e((string) $d['email']) ?>"><?= e((string) $d['email']) ?></a><?php endif; ?>
       <a href="/privacidade">Privacidade</a>
     </div>
@@ -349,6 +349,41 @@ final class PortalLayout
             . ' data-divisa="' . e(json_encode($divisa)) . '" role="region" aria-label="' . e($rotulo) . '">'
             . '<div class="mapa-tela"></div>' . $zoom
             . '<ul class="mapa-lista-pontos">' . $lista . '</ul></div>';
+    }
+
+    /**
+     * A linha do tempo de um roteiro (página do roteiro e Um dia aqui):
+     * trilho vertical com a hora e um ponto em cada parada, um cartão baixo
+     * (miniatura, tipo, nome, tempo no lugar e dica) e, entre as paradas, o
+     * deslocamento (a pé ou de carro, minutos e distância).
+     */
+    public static function linhaDoTempo(int $eid, array $passos): string
+    {
+        require_once __DIR__ . '/UmDia.php';
+        $h = '<ol class="tl">';
+        foreach ($passos as $k => $p) {
+            $i = $p['item'];
+            $m = $p['metros'] ?? null;
+            if ($k > 0 && $p['deslocamento'] !== null) {
+                $meio = UmDia::MEIOS[$p['meio'] ?? 'pe'][0] ?? 'A pé';
+                $texto = (int) $p['deslocamento'] === 0 ? 'Ao lado' : $meio . ', cerca de ' . UmDia::duracao((int) $p['deslocamento']);
+                $h .= '<li class="tl-trajeto"><span>' . icone('mapa') . e($texto . ($m !== null && $m >= 20 ? ' · ' . Portal::metros($m) : '')) . '</span></li>';
+            }
+            $foto = Portal::foto($eid, $i['foto'] ?? null, 'p');
+            $tipo = trim((string) (($i['tipo_nome'] ?? '') ?: ($i['ficha_nome'] ?? '')));
+            $h .= '<li class="tl-parada' . ($k === 0 ? ' tl-inicio' : '') . ($k === count($passos) - 1 ? ' tl-fim' : '') . '">'
+                . '<span class="tl-hora">' . e((string) $p['hora']) . '</span><span class="tl-ponto" aria-hidden="true"></span>'
+                . '<div class="tl-cartao"><a href="' . e(self::urlLugar($i)) . '">'
+                . '<figure>' . ($foto ? '<img src="' . e($foto) . '" alt="" loading="lazy">' : '<span class="sem-foto"><b>' . e(self::inicial((string) $i['nome'])) . '</b></span>') . '</figure>'
+                . '<span class="tl-txt">' . ($tipo !== '' ? '<span class="lugar-tipo">' . e($tipo) . '</span>' : '')
+                . '<b>' . e((string) $i['nome']) . '</b>'
+                . ($p['duracao'] !== '' ? '<span class="tl-tempo">' . e('Cerca de ' . $p['duracao'] . ' aqui') . '</span>' : '')
+                . (!empty($p['nota']) ? '<span class="tl-dica">' . e((string) $p['nota']) . '</span>' : '') . '</span></a>'
+                . '<button type="button" class="guardar" data-roteiro="' . (int) $i['id'] . '" aria-pressed="false" data-balao-titulo="Guardar no meu roteiro" data-balao="'
+                . e((string) $i['nome']) . ' entra na sua lista de lugares para visitar, guardada só neste aparelho." aria-label="Guardar ' . e((string) $i['nome']) . ' no meu roteiro">'
+                . icone('mais') . '</button></div></li>';
+        }
+        return $h . '</ol>';
     }
 
     /** O que o balão do mapa mostra de cada lugar (chaves curtas: são centenas de pontos). */

@@ -1,5 +1,9 @@
 <?php
-/** Um roteiro: as paradas em ordem, com a dica de cada uma e a rota no mapa. Softsul Software. */
+/**
+ * Um roteiro em linha do tempo: a hora de chegada de cada parada, o tempo no
+ * lugar, o deslocamento desde a anterior, a dica e a rota no mapa.
+ * Softsul Software.
+ */
 declare(strict_types=1);
 require __DIR__ . '/inc/abrir.php';
 $r = Portal::roteiro($eid, (int) ($_GET['id'] ?? 0)) ?? naoAchou($destino, 'Este roteiro não está publicado.');
@@ -12,10 +16,8 @@ PortalLayout::inicio($destino, (string) $r['titulo'], true, ['ativo' => 'roteiro
 <h1><?= e((string) $r['titulo']) ?></h1>
 <p class="lead"><?= plural(count($r['paradas']), 'parada', 'paradas') ?><?= $r['duracao'] ? ' · ' . e((string) $r['duracao']) : '' ?></p>
 <?php if ($r['descricao']): ?><div class="texto"><?= nl2br(e((string) $r['descricao'])) ?></div><?php endif; ?>
-<?php if ($rota): ?><p><a class="cta" href="<?= e($rota) ?>" rel="noopener"><?= icone('mapa') ?>Abrir a rota no Google Maps</a></p><?php endif; ?>
-<ol class="paradas">
-  <?php foreach ($r['paradas'] as $p): ?>
-    <li><?= PortalLayout::cartao($eid, $p) ?><?php if ($p['nota']): ?><p class="nota-parada"><?= e((string) $p['nota']) ?></p><?php endif; ?></li>
-  <?php endforeach; ?>
-</ol>
+<?php if ($rota): ?><div class="acoes-roteiro"><a target="_blank" rel="noopener" class="cta" href="<?= e($rota) ?>" target="_blank" rel="noopener"><?= icone('mapa') ?>Abrir a rota no Google Maps</a>
+  <button type="button" class="cta claro" data-guardar-varios="<?= e(implode('.', array_map(fn ($p) => (int) $p['id'], $r['paradas']))) ?>"><?= icone('mais') ?>Guardar no meu roteiro</button></div><?php endif; ?>
+<?php require_once __DIR__ . '/../app/UmDia.php'; ?>
+<?= PortalLayout::linhaDoTempo($eid, UmDia::passos($r['paradas'])) ?>
 <?php PortalLayout::fim();

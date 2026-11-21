@@ -124,7 +124,7 @@ PortalLayout::inicio($destino, $nome, true, ['ativo' => '', 'imagem' => $temCapa
   <div class="secao-cab"><div><span class="rotulo">Agenda oficial · EventCity</span><h2>Vem aí</h2></div><a href="<?= e(Portal::url('/agenda')) ?>">A agenda</a></div>
   <ul class="lista-eventos">
     <?php foreach ($agenda as $ev): ?>
-      <li><a href="<?= e((string) ($ev['url'] ?? '#')) ?>" rel="noopener"><span class="data"><?= e(date('d/m', strtotime((string) ($ev['proximo_dia'] ?? $ev['data_inicio'])))) ?><?= !empty($ev['hora_inicio']) ? '<br>' . e(substr((string) $ev['hora_inicio'], 0, 5)) : '' ?></span>
+      <li><a target="_blank" rel="noopener" href="<?= e((string) ($ev['url'] ?? '#')) ?>"><span class="data"><?= e(date('d/m', strtotime((string) ($ev['proximo_dia'] ?? $ev['data_inicio'])))) ?><?= !empty($ev['hora_inicio']) ? '<br>' . e(substr((string) $ev['hora_inicio'], 0, 5)) : '' ?></span>
         <b><?= e((string) $ev['titulo']) ?></b><?php if (!empty($ev['segmento'])): ?><em><?= e((string) $ev['segmento']) ?></em><?php endif; ?></a></li>
     <?php endforeach; ?>
   </ul>

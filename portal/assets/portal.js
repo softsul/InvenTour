@@ -539,3 +539,26 @@
     if (alvo && !balao.contains(ev.target)) { fecharBalao(); }
   }, { passive: false });
 })();
+
+/*
+ * Página de fora (Google Maps, site do lugar, WhatsApp, EventCity...) abre
+ * sempre em nova aba, com rel="noopener" (regra do Luiz). Vale para os
+ * links que já estão na página e para os que o JavaScript cria depois.
+ * Softsul Software
+ */
+(function () {
+  'use strict';
+  function externo(a) {
+    return a.href && /^https?:/i.test(a.href) && a.host !== location.host;
+  }
+  function marcar(raiz) {
+    (raiz.querySelectorAll ? raiz.querySelectorAll('a[href]') : []).forEach(function (a) {
+      if (externo(a) && a.target !== '_blank') { a.target = '_blank'; a.rel = 'noopener'; }
+    });
+  }
+  marcar(document);
+  document.addEventListener('click', function (ev) {
+    var a = ev.target.closest && ev.target.closest('a[href]');
+    if (a && externo(a) && a.target !== '_blank') { a.target = '_blank'; a.rel = 'noopener'; }
+  }, true);
+})();

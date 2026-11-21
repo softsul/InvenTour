@@ -76,7 +76,7 @@ PortalLayout::inicio($destino, (string) $item['nome'], false);
   </div>
   <div class="convite">
     <p><?= e((string) $c['convite']) ?></p>
-    <?php if ($c['whatsapp']): ?><a class="cta" href="https://wa.me/<?= e((string) telefoneParaBanco((string) $c['whatsapp'])) ?>">Falar pelo WhatsApp</a><?php endif; ?>
+    <?php if ($c['whatsapp']): ?><a target="_blank" rel="noopener" class="cta" href="https://wa.me/<?= e((string) telefoneParaBanco((string) $c['whatsapp'])) ?>">Falar pelo WhatsApp</a><?php endif; ?>
     <?php if ($c['email']): ?><a class="cta claro" href="mailto:<?= e((string) $c['email']) ?>">Escrever um e-mail</a><?php endif; ?>
   </div>
 <?php elseif (!$homologado): ?>
@@ -92,8 +92,8 @@ PortalLayout::inicio($destino, (string) $item['nome'], false);
     <?php if ($item['site']): ?><dt>Site</dt><dd><a href="<?= e((string) $item['site']) ?>" rel="noopener nofollow"><?= e((string) $item['site']) ?></a></dd><?php endif; ?>
   </dl>
   <p>
-    <?php if ($tel !== ''): ?><a class="cta" href="https://wa.me/<?= e(strlen($tel) <= 11 ? '55' . $tel : $tel) ?>">WhatsApp</a><?php endif; ?>
-    <?php if ($item['latitude'] !== null): ?><a class="cta claro" href="https://www.google.com/maps/search/?api=1&amp;query=<?= e($item['latitude'] . ',' . $item['longitude']) ?>" rel="noopener">Como chegar</a><?php endif; ?>
+    <?php if ($tel !== ''): ?><a target="_blank" rel="noopener" class="cta" href="https://wa.me/<?= e(strlen($tel) <= 11 ? '55' . $tel : $tel) ?>">WhatsApp</a><?php endif; ?>
+    <?php if ($item['latitude'] !== null): ?><a target="_blank" rel="noopener" class="cta claro" href="https://www.google.com/maps/search/?api=1&amp;query=<?= e($item['latitude'] . ',' . $item['longitude']) ?>">Como chegar</a><?php endif; ?>
   </p>
 <?php endif; ?>
 <?php PortalLayout::fim();

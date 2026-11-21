@@ -33,7 +33,7 @@ $aqui = $id ? endereco('roteiro', $id, (string) $r['titulo']) : '/roteiro';
 
 /** As paradas como estão no banco, com o que a tela mostra de cada lugar. */
 $lerParadas = function (int $rid) use ($pdo): array {
-    $q = $pdo->prepare('SELECT ri.item_id, ri.nota, ri.hora, ri.duracao_min, ri.deslocamento_min, i.nome, i.situacao, i.latitude, i.longitude, f.codigo FROM roteiro_itens ri
+    $q = $pdo->prepare('SELECT ri.item_id, ri.nota, ri.hora, ri.duracao_min, ri.deslocamento_min, ri.meio, i.nome, i.situacao, i.latitude, i.longitude, f.codigo FROM roteiro_itens ri
                         JOIN inventario_itens i ON i.id = ri.item_id JOIN inventario_fichas f ON f.id = i.ficha_id WHERE ri.roteiro_id = ? ORDER BY ri.ordem');
     $q->execute([$rid]);
     return $q->fetchAll();
@@ -81,6 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             'latitude' => $lugar['latitude'], 'longitude' => $lugar['longitude'],
                             'hora' => UmDia::hora($_POST['parada_hora'][$k] ?? null), 'duracao_min' => $min > 0 ? min($min, 1440) : null,
                             'deslocamento_min' => ctype_digit($desl) ? min((int) $desl, 600) : null,
+                            'meio' => isset(UmDia::MEIOS[(string) ($_POST['parada_meio'][$k] ?? '')]) ? (string) $_POST['parada_meio'][$k] : null,
                             'nota' => mb_substr(trim((string) ($_POST['parada_nota'][$k] ?? '')), 0, 300) ?: null];
         }
         // A hora de chegada é calculada: a primeira parada dá o início; cada
@@ -90,11 +91,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         foreach ($novas as $k => &$p) {
             if ($k === 0) {
                 $p['deslocamento_min'] = null;
+                $p['meio'] = null;
                 continue;
             }
             // Deslocamento vazio é o estimado (fica null no banco e se refaz se a ordem mudar).
             $ant = $novas[$k - 1];
-            $desloc = $p['deslocamento_min'] ?? UmDia::deslocamento(UmDia::metros($ant, $p));
+            $desloc = $p['deslocamento_min'] ?? UmDia::deslocamento(UmDia::metros($ant, $p), $p['meio']);
             $p['hora'] = $ant['hora'] !== null ? UmDia::somar($ant['hora'], (int) $ant['duracao_min'] + $desloc) : null;
         }
         unset($p);
@@ -112,10 +114,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 $novoId = $id ?: (int) $pdo->lastInsertId();
                 $pdo->prepare('DELETE FROM roteiro_itens WHERE roteiro_id = ?')->execute([$novoId]);
-                $ins = $pdo->prepare('INSERT INTO roteiro_itens (roteiro_id, item_id, empresa_id, ordem, hora, duracao_min, deslocamento_min, nota) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+                $ins = $pdo->prepare('INSERT INTO roteiro_itens (roteiro_id, item_id, empresa_id, ordem, hora, duracao_min, deslocamento_min, meio, nota) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
                 $n = 0;
                 foreach ($novas as $p) {
-                    $ins->execute([$novoId, $p['item_id'], $eid, ++$n, $p['hora'], $p['duracao_min'], $p['deslocamento_min'], $p['nota']]);
+                    $ins->execute([$novoId, $p['item_id'], $eid, ++$n, $p['hora'], $p['duracao_min'], $p['deslocamento_min'], $p['meio'], $p['nota']]);
                 }
                 $pdo->commit();
             } catch (Throwable $ex) {
@@ -145,6 +147,12 @@ $linha = function (array $p) use ($ro, $podeEditar, $homologado): string {
         <span class="pilula at" data-parada-pendente<?= $homologado((string) ($p['situacao'] ?? 'homologada')) ? ' hidden' : '' ?>>Ainda não homologado</span>
         <input type="hidden" name="parada_item[]" value="<?= (int) ($p['item_id'] ?? 0) ?>" data-parada-item></div>
       <input type="hidden" data-parada-lat value="<?= e((string) ($p['latitude'] ?? '')) ?>"><input type="hidden" data-parada-lng value="<?= e((string) ($p['longitude'] ?? '')) ?>">
+      <div class="parada-meio" role="group" aria-label="Como chega a esta parada">
+        <span>Como chega</span>
+        <input type="hidden" name="parada_meio[]" data-parada-meio value="<?= e((string) ($p['meio'] ?? '')) ?>">
+        <?php foreach (UmDia::MEIOS as $chave => [$rotuloMeio]): ?><button type="button" data-meio="<?= $chave ?>" aria-pressed="<?= ($p['meio'] ?? '') === $chave ? 'true' : 'false' ?>"<?= $podeEditar ? '' : ' disabled' ?>><?= e($rotuloMeio) ?></button><?php endforeach; ?>
+        <small data-meio-sugestao></small>
+      </div>
       <div class="parada-campos">
         <label class="parada-campo parada-desloc"><span>Deslocamento até aqui</span>
           <span class="entrada com-sufixo"><input type="text" name="parada_desloc[]" data-parada-desloc inputmode="numeric" maxlength="3" autocomplete="off" value="<?= e((string) ($p['deslocamento_min'] ?? '')) ?>"<?= $ro ?>><span class="sufixo">min</span></span></label>
@@ -201,7 +209,7 @@ if ($r['publicado'] && $paradas && $visiveis < count($paradas)): ?>
 
   <div class="cartao" id="paradas" data-paradas>
     <h2 class="titulo-secao">Paradas</h2>
-    <p class="ajuda">Na ordem da visita: a primeira é onde o roteiro começa e a última onde termina. Arraste pela alça para mudar a ordem. Na primeira, ponha a hora de início; as outras chegadas se calculam pelo tempo no lugar e pelo deslocamento, que vem estimado pela distância e você ajusta.</p>
+    <p class="ajuda">Na ordem da visita: a primeira é onde o roteiro começa e a última onde termina. Arraste pela alça para mudar a ordem. Na primeira, ponha a hora de início; as outras chegadas se calculam pelo tempo no lugar e pelo deslocamento. Em cada parada, escolha como se chega (a pé, de carro, de bicicleta, de ônibus): o tempo vem estimado pela distância e pelo meio, e você ajusta.</p>
     <p class="paradas-vazio" data-paradas-vazio<?= $paradas ? ' hidden' : '' ?>>Nenhuma parada ainda. Busque o lugar abaixo: ele entra no fim do roteiro.</p>
     <ol class="paradas-editor" data-paradas-lista>
       <?php foreach ($paradas as $p) { echo $linha($p); } ?>

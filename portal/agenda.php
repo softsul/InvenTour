@@ -11,7 +11,7 @@ PortalLayout::inicio($destino, 'Agenda', true, ['ativo' => 'agenda', 'descricao'
 <p class="lead">Os próximos eventos, da agenda oficial do destino no EventCity.</p>
 <ul class="lista-eventos grande">
   <?php foreach ($eventos as $ev): ?>
-    <li><a href="<?= e((string) ($ev['url'] ?? '#')) ?>" rel="noopener">
+    <li><a target="_blank" rel="noopener" href="<?= e((string) ($ev['url'] ?? '#')) ?>">
       <?php if (!empty($ev['capa'])): ?><img src="<?= e((string) $ev['capa']) ?>" alt="" loading="lazy"><?php endif; ?>
       <span class="data"><?= e(date('d/m', strtotime((string) ($ev['proximo_dia'] ?? $ev['data_inicio'])))) ?><?= !empty($ev['hora_inicio']) ? ' · ' . e(substr((string) $ev['hora_inicio'], 0, 5)) : '' ?></span>
       <b><?= e((string) $ev['titulo']) ?></b><?php if (!empty($ev['segmento'])): ?><em><?= e((string) $ev['segmento']) ?></em><?php endif; ?></a></li>

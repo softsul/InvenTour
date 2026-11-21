@@ -349,7 +349,7 @@ final class Portal
         if (!$r) {
             return null;
         }
-        $q = self::pdo()->prepare('SELECT item_id, nota, hora, duracao_min FROM roteiro_itens WHERE roteiro_id = ? ORDER BY ordem');
+        $q = self::pdo()->prepare('SELECT item_id, nota, hora, duracao_min, deslocamento_min, meio FROM roteiro_itens WHERE roteiro_id = ? ORDER BY ordem');
         $q->execute([$id]);
         $paradas = [];
         foreach ($q->fetchAll() as $l) {
@@ -363,6 +363,8 @@ final class Portal
             $p['nota'] = $paradas[$iid]['nota'] ?? null;
             $p['hora'] = $paradas[$iid]['hora'] ?? null;
             $p['duracao_min'] = $paradas[$iid]['duracao_min'] ?? null;
+            $p['deslocamento_min'] = $paradas[$iid]['deslocamento_min'] ?? null;
+            $p['meio'] = $paradas[$iid]['meio'] ?? null;
         }
         return $r;
     }

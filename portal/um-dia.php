@@ -18,7 +18,6 @@ $passos = $dia['passos'] ?? [];
 $itens = array_map(fn ($p) => $p['item'], $passos);
 $rota = Portal::rotaNoMapa($itens);
 $ids = implode('.', array_map(fn ($i) => (int) $i['id'], $itens));
-$jeito = fn (?int $m) => $m === null ? '' : ($m <= 1200 ? 'a pé, ' . Portal::metros($m) : 'de carro, ' . Portal::metros($m));
 $titulo = ($dia['titulo'] ?? '') !== '' ? (string) $dia['titulo'] : 'Um dia em ' . $destino['nome_fantasia'];
 PortalLayout::inicio($destino, $titulo, true, ['ativo' => 'um-dia',
     'imagem' => $itens ? Portal::foto($eid, $itens[0]['foto'] ?? null, 'm') : null,
@@ -35,16 +34,8 @@ PortalLayout::inicio($destino, $titulo, true, ['ativo' => 'um-dia',
   <div class="acoes-roteiro">
     <a class="cta" href="<?= e(Portal::url('/um-dia', ['s' => random_int(10000, 99999999)])) ?>"><?= icone('trocar') ?>Outro dia</a>
     <button type="button" class="cta claro" data-guardar-varios="<?= e($ids) ?>"><?= icone('mais') ?>Guardar o dia no meu roteiro</button>
-    <?php if ($rota): ?><a class="cta claro" href="<?= e($rota) ?>" rel="noopener"><?= icone('mapa') ?>Abrir a rota</a><?php endif; ?>
+    <?php if ($rota): ?><a target="_blank" rel="noopener" class="cta claro" href="<?= e($rota) ?>" target="_blank" rel="noopener"><?= icone('mapa') ?>Abrir a rota</a><?php endif; ?>
   </div>
-  <ol class="dia">
-    <?php foreach ($passos as $p): ?>
-      <li><span class="hora"><?= e($p['hora']) ?></span>
-        <div><?php if ($p['rotulo'] !== '' || $p['duracao'] !== ''): ?><p class="passo-rotulo"><?= e(implode(' · ', array_filter([$p['rotulo'], $p['duracao'] !== '' ? 'cerca de ' . $p['duracao'] : '']))) ?></p><?php endif; ?>
-          <?php if ($p['metros'] !== null): ?><p class="trajeto"><?= e($jeito($p['metros'])) ?> da parada anterior</p><?php endif; ?>
-          <?php if (!empty($p['nota'])): ?><p class="trajeto"><?= e((string) $p['nota']) ?></p><?php endif; ?>
-          <?= PortalLayout::cartao($eid, $p['item']) ?></div></li>
-    <?php endforeach; ?>
-  </ol>
+  <?= PortalLayout::linhaDoTempo($eid, $passos) ?>
 <?php endif; ?>
 <?php PortalLayout::fim();
