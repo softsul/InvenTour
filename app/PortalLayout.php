@@ -221,12 +221,14 @@ final class PortalLayout
         $geo = $i['latitude'] !== null ? ' data-lat="' . e((string) $i['latitude']) . '" data-lng="' . e((string) $i['longitude']) . '"' : '';
         return '<article class="lugar"' . $geo . ' data-aberto="' . ($agora ? ($agora['aberto'] ? '1' : '0') : '') . '"><a href="' . e(self::urlLugar($i)) . '">'
             . '<figure>' . ($foto ? '<img src="' . e($foto) . '" alt="" loading="lazy">'
-                : '<span class="sem-foto"><b>' . e(self::inicial((string) $i['nome'])) . '</b>' . (!empty($i['plus_code']) ? '<i>' . e((string) $i['plus_code']) . '</i>' : '') . '</span>')
-            . (!empty($i['codigo']) ? '<span class="codigo">' . e((string) $i['codigo']) . '</span>' : '') . '</figure>'
+                : '<span class="sem-foto"><b>' . e(self::inicial((string) $i['nome'])) . '</b></span>')
+            . (!empty($i['codigo']) ? '<span class="codigo">' . e((string) $i['codigo']) . '</span>' : '')
+            // A distância até o visitante (quando ele tocou em Perto de mim), em destaque na imagem.
+            . '<span class="dist dist-figura" data-dist></span></figure>'
             . '<span class="lugar-txt"><span class="lugar-tipo">' . e($tipo) . '</span><b class="lugar-nome">' . e((string) $i['nome']) . '</b>'
             . ($agora ? '<span class="estado' . ($agora['aberto'] ? ' aberto' : '') . '">' . e($agora['texto']) . '</span>' : '')
             . (!empty($i['experiencias']) ? '<span class="tem-xp">Tem experiência para viver</span>' : '')
-            . '<span class="dist" data-dist></span>' . $extra
+            . $extra
             . ($selos !== '' ? '<span class="selos">' . $selos . '</span>' : '') . '</span></a>'
             . '<button type="button" class="guardar" data-roteiro="' . (int) $i['id'] . '" aria-pressed="false" data-balao-titulo="Guardar no meu roteiro" data-balao="'
             . e((string) $i['nome']) . ' entra na sua lista de lugares para visitar, guardada só neste aparelho. Toque de novo para tirar." aria-label="Guardar '

@@ -21,6 +21,9 @@ $nome = (string) $i['nome'];
 $pilar = Portal::pilarDe((int) $i['ficha_ordem']);
 $foto = Portal::foto($eid, $i['foto'], 'm');
 $fotoGrande = Portal::foto($eid, $i['foto'], '');
+// Legenda e crédito de cada foto, como vieram da ficha ("Fachada · Foto: Prefeitura").
+$rotuloDaFoto = fn (array $f): string => trim((string) ($f['legenda'] ?? '') . (!empty($f['credito']) ? ' · Foto: ' . $f['credito'] : ''), ' ·');
+$capaInfo = $i['fotos'][0] ?? null;
 $end = trim(implode(', ', array_filter([trim(($i['logradouro'] ?? '') . ($i['numero'] ? ', ' . $i['numero'] : '')), $i['complemento'], $i['bairro']])));
 $zap = preg_replace('/\D/', '', (string) ($i['whatsapp'] ?? ''));
 $zap = $zap !== '' && strlen($zap) <= 11 ? '55' . $zap : $zap;
@@ -59,14 +62,13 @@ PortalLayout::inicio($destino, $nome, true, ['ativo' => (string) $pilar, 'imagem
     'descricao' => $descricao !== '' ? mb_strimwidth($descricao, 0, 200, '...') : $tipo . ' em ' . $destino['nome_fantasia'] . '.']);
 ?>
 <section class="ficha-capa<?= $fotoGrande ? '' : ' sem-capa' ?>">
-  <?php if ($fotoGrande): ?><img src="<?= e($fotoGrande) ?>" alt=""><?php else: ?><span class="inicial-gigante" aria-hidden="true"><?= e(PortalLayout::inicial($nome)) ?></span><?php endif; ?>
+  <?php if ($fotoGrande): ?><img src="<?= e($fotoGrande) ?>" alt="<?= e((string) ($capaInfo['legenda'] ?? '')) ?>"><?php if (!empty($capaInfo['credito'])): ?><span class="capa-credito">Foto: <?= e((string) $capaInfo['credito']) ?></span><?php endif; ?><?php else: ?><span class="inicial-gigante" aria-hidden="true"><?= e(PortalLayout::inicial($nome)) ?></span><?php endif; ?>
   <div class="ficha-capa-txt">
     <nav class="trilha"><a href="<?= e(Portal::url('/')) ?>">Início</a><?php if ($pilar): ?> / <a href="<?= e(Portal::url('/' . $pilar)) ?>"><?= e(Portal::PILARES[$pilar][0]) ?></a><?php endif; ?></nav>
     <span class="rotulo"><?= e($tipo) ?><?= $i['bairro'] ? ' · ' . e((string) $i['bairro']) : '' ?></span>
     <h1><?= e($nome) ?></h1>
     <div class="ficha-meta">
       <span>Ficha <?= e((string) $i['codigo']) ?></span>
-      <?php if ($i['plus_code']): ?><span><?= e((string) $i['plus_code']) ?></span><?php endif; ?>
       <?php if ($coord): ?><span><?= e(Portal::coordenada((float) $i['latitude'], (float) $i['longitude'])) ?></span><?php endif; ?>
       <?php if ($agora): ?><span class="estado<?= $agora['aberto'] ? ' aberto' : '' ?>"><?= e($agora['texto']) ?></span><?php endif; ?>
       <span class="dist" data-dist data-lat="<?= e((string) $i['latitude']) ?>" data-lng="<?= e((string) $i['longitude']) ?>"></span>
@@ -79,7 +81,7 @@ PortalLayout::inicio($destino, $nome, true, ['ativo' => (string) $pilar, 'imagem
     <?php if (count($i['fotos']) > 1): ?>
     <div class="galeria" data-galeria>
       <?php foreach (array_slice($i['fotos'], 0, 9) as $f): ?>
-        <a href="<?= e(Portal::foto($eid, $f['arquivo'], '')) ?>" data-foto><img src="<?= e(Portal::foto($eid, $f['arquivo'], 'p')) ?>" alt="<?= e((string) ($f['legenda'] ?: $nome)) ?>" loading="lazy"></a>
+        <a href="<?= e(Portal::foto($eid, $f['arquivo'], '')) ?>" data-foto data-legenda="<?= e($rotuloDaFoto($f)) ?>"><img src="<?= e(Portal::foto($eid, $f['arquivo'], 'p')) ?>" alt="<?= e((string) ($f['legenda'] ?: $nome)) ?>" loading="lazy"></a>
       <?php endforeach; ?>
     </div>
     <?php endif; ?>

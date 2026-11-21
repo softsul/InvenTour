@@ -344,6 +344,9 @@
       atual = (i + fotos.length) % fotos.length;
       visor.querySelector('img').src = fotos[atual].href;
       visor.querySelector('img').alt = fotos[atual].querySelector('img').alt;
+      var leg = visor.querySelector('.visor-legenda');
+      leg.textContent = fotos[atual].getAttribute('data-legenda') || '';
+      leg.hidden = !leg.textContent;
     };
     var fecharVisor = function () { if (visor) { visor.remove(); visor = null; } };
     fotos.forEach(function (a, i) {
@@ -352,7 +355,7 @@
         visor = document.createElement('div');
         visor.className = 'visor';
         visor.setAttribute('role', 'dialog');
-        visor.innerHTML = '<img alt=""><button type="button" class="fechar" aria-label="Fechar">×</button>'
+        visor.innerHTML = '<img alt=""><p class="visor-legenda" hidden></p><button type="button" class="fechar" aria-label="Fechar">×</button>'
           + (fotos.length > 1 ? '<button type="button" class="antes" aria-label="Anterior">‹</button><button type="button" class="depois" aria-label="Próxima">›</button>' : '');
         document.body.appendChild(visor);
         mostrar(i);

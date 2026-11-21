@@ -152,7 +152,6 @@ h2 { font-style: italic; font-size: clamp(1.9rem, 5vw, 3.2rem); }
 .sem-foto { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 12px 14px;
             background-color: var(--acento-sup); background-image: radial-gradient(var(--pontos) 1.2px, transparent 1.3px); background-size: 14px 14px; }
 .sem-foto b { font-size: 6.5rem; font-weight: 800; font-style: italic; line-height: .9; color: var(--acento); letter-spacing: -.06em; margin-top: auto; }
-.sem-foto i { font-style: normal; font-family: var(--mono); font-size: .72rem; letter-spacing: .08em; color: var(--grafite); }
 .codigo { position: absolute; top: 10px; left: 10px; background: var(--tinta); color: var(--papel); font-family: var(--mono); font-size: .68rem; font-weight: 600; letter-spacing: .1em; padding: 3px 7px; }
 .lugar-txt { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px 16px; }
 .lugar-tipo { font-family: var(--mono); font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; color: var(--apagado); }
@@ -164,6 +163,7 @@ h2 { font-style: italic; font-size: clamp(1.9rem, 5vw, 3.2rem); }
 @keyframes pulso { 50% { box-shadow: 0 0 0 7px rgba(47, 125, 79, 0); } }
 .dist { font-family: var(--mono); font-size: .72rem; color: var(--brasa); font-weight: 600; }
 .dist:empty { display: none; }
+.dist-figura { position: absolute; left: 10px; bottom: 10px; z-index: 1; background: var(--tinta); color: var(--papel); padding: 5px 9px; font-size: .74rem; letter-spacing: .04em; }
 .tem-xp { font-size: .8rem; color: var(--brasa); font-weight: 700; }
 .selos { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
 .selo { width: 30px; height: 30px; border: 1.5px solid var(--acento); color: var(--acento); display: inline-flex; align-items: center; justify-content: center; cursor: help; }
@@ -373,6 +373,9 @@ details.refinar[open] summary::after { content: " ×"; }
 .visor img { max-width: 94vw; max-height: 86vh; }
 .visor button { position: absolute; background: transparent; color: #fff; border: 2px solid #fff; width: 46px; height: 46px; cursor: pointer; font-size: 1.4rem; }
 .visor .fechar { top: 14px; right: 14px; }
+.visor-legenda { position: absolute; left: 16px; right: 16px; bottom: 12px; margin: 0; text-align: center; color: #fff; font-size: .88rem; opacity: .9; }
+.capa-credito { position: absolute; z-index: 1; right: 12px; top: 10px; font-family: var(--mono); font-size: .62rem; letter-spacing: .06em; color: #fff; opacity: .8;
+                text-shadow: 0 1px 2px rgba(0,0,0,.7); max-width: 60%; text-align: right; }
 .visor .antes { left: 10px; top: 50%; }
 .visor .depois { right: 10px; top: 50%; }
 
