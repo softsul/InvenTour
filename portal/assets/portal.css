@@ -521,3 +521,6 @@ h1 { letter-spacing: -.035em; }
 .mapa-zoom { z-index: 3; }
 .mapa-cartao { z-index: 4; }
 .faixa-previa.vencida { background: var(--papel-2); color: var(--tinta); border-bottom: 1px dashed var(--linha-forte); }
+.rodape-grande { font-size: clamp(2.2rem, 6vw, 3.6rem); line-height: 1; letter-spacing: -.035em; margin-bottom: 22px; }
+.rodape-colunas .assinatura a, .assinatura a { display: inline; padding: 0; color: var(--acento); text-decoration: underline; text-underline-offset: 2px; }
+.assinatura a:hover { color: var(--acento-escuro); }

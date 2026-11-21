@@ -122,7 +122,9 @@ final class PortalLayout
                 $s[$k] = [$p[0], '/' . $k];
             }
         }
-        $s['um-dia'] = ['Um dia aqui', '/um-dia'];
+        if (Portal::temUmDia($eid)) {
+            $s['um-dia'] = ['Um dia aqui', '/um-dia'];
+        }
         $s['roteiros'] = ['Roteiros', '/roteiros'];
         $s['experiencias'] = ['Experiências', '/experiencias'];
         require_once __DIR__ . '/EventCity.php';
@@ -156,7 +158,7 @@ final class PortalLayout
     <div>
       <b>Sobre os dados</b>
       <p>Cada lugar deste guia vem do Inventário da Oferta Turística do destino, conferido em campo e homologado pela equipe de turismo.</p>
-      <p class="assinatura">Produto Softsul Software e Zapping Consultoria</p>
+      <p class="assinatura">Produto <a href="https://softsul.com" target="_blank" rel="noopener">Softsul Software</a> e <a href="https://azapping.com.br" target="_blank" rel="noopener">Zapping Consultoria</a></p>
     </div>
   </div>
   <?php endif; ?>

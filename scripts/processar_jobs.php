@@ -136,6 +136,9 @@ $tratadores = [
         require_once __DIR__ . '/../app/Portal.php';
         foreach (Database::conexao()->query('SELECT id FROM empresas WHERE ativo = 1 AND municipio_id IS NOT NULL')->fetchAll(PDO::FETCH_COLUMN) as $eid) {
             echo '#' . $eid . (Portal::gravarMapa((int) $eid) ? ' ok ' : ' sem divisa ');
+            // A cópia das regras do Um dia aqui que o portal lê (refeita por segurança).
+            require_once __DIR__ . '/../app/UmDia.php';
+            UmDia::publicarRegras((int) $eid);
         }
     },
 

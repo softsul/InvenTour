@@ -19,7 +19,8 @@ $experiencias = array_slice(Portal::experiencias($eid), 0, 6);
 $roteiros = array_slice(Portal::roteiros($eid), 0, 3);
 $agenda = array_slice(EventCity::agendaEmCache($eid) ?? [], 0, 5);
 $semente = (int) date('Ymd');
-$dia = array_slice(Portal::umDia($eid, $semente), 0, 4);
+$umDia = Portal::umDia($eid, $semente);
+$dia = array_slice($umDia['passos'] ?? [], 0, 4);
 $apresentacao = '';
 foreach (Portal::narrativas($eid) as $n) {
     if ($n['secao'] === 'apresentacao') {
@@ -50,7 +51,7 @@ PortalLayout::inicio($destino, $nome, true, ['ativo' => '', 'imagem' => $temCapa
       <a class="carimbo" href="<?= e(Portal::url('/busca', ['aberto' => 1])) ?>"><?= icone('relogio') ?>Aberto agora</a>
       <a class="carimbo" href="<?= e(Portal::url('/o-que-fazer', ['perto' => 1])) ?>"><?= icone('mapa') ?>Perto de mim</a>
       <a class="carimbo" href="<?= e(Portal::url('/surpresa')) ?>"><?= icone('trocar') ?>Surpreenda-me</a>
-      <a class="carimbo" href="<?= e(Portal::url('/um-dia')) ?>"><?= icone('calendario') ?>Um dia aqui</a>
+      <?php if ($umDia): ?><a class="carimbo" href="<?= e(Portal::url('/um-dia')) ?>"><?= icone('calendario') ?>Um dia aqui</a><?php endif; ?>
     </div>
   </div>
 </section>
@@ -73,7 +74,7 @@ PortalLayout::inicio($destino, $nome, true, ['ativo' => '', 'imagem' => $temCapa
 
 <?php if ($dia): ?>
 <section class="secao">
-  <div class="secao-cab"><div><span class="rotulo">Sugestão de hoje · montada pela distância</span><h2>Um dia em <?= e($nome) ?></h2></div>
+  <div class="secao-cab"><div><span class="rotulo">Sugestão de hoje · da equipe de turismo</span><h2><?= e(($umDia['titulo'] ?? '') !== '' ? (string) $umDia['titulo'] : 'Um dia em ' . $nome) ?></h2></div>
     <a href="<?= e(Portal::url('/um-dia', ['s' => $semente])) ?>">O dia completo</a></div>
   <div class="dia-mini">
     <?php foreach ($dia as $p): $f = Portal::foto($eid, $p['item']['foto'], 'm'); ?>

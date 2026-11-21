@@ -127,7 +127,7 @@ final class Portal
                 array_push($args, ...array_fill(0, 4, '%' . $p . '%'));
             }
         }
-        $sql = "SELECT i.id, i.nome, i.nome_popular, i.bairro, i.zona, i.latitude, i.longitude, i.telefone, i.whatsapp, i.cadastur, i.horario, i.plus_code,
+        $sql = "SELECT i.id, i.tipo_id, i.nome, i.nome_popular, i.bairro, i.zona, i.latitude, i.longitude, i.telefone, i.whatsapp, i.cadastur, i.horario, i.plus_code,
                        i.capacidade_uh, i.capacidade_leitos, i.descricao_promocional, i.situacao, f.codigo, f.ordem AS ficha_ordem, f.nome AS ficha_nome,
                        t.nome AS tipo_nome,
                        (SELECT COUNT(*) FROM inventario_experiencias x WHERE x.item_id = i.id AND x.empresa_id = i.empresa_id AND x.situacao = 'aprovada') AS experiencias,
@@ -345,12 +345,16 @@ final class Portal
         if (!$r) {
             return null;
         }
-        $q = self::pdo()->prepare('SELECT item_id, nota FROM roteiro_itens WHERE roteiro_id = ? ORDER BY ordem');
+        $q = self::pdo()->prepare('SELECT item_id, nota, etapa FROM roteiro_itens WHERE roteiro_id = ? ORDER BY ordem');
         $q->execute([$id]);
-        $paradas = $q->fetchAll(PDO::FETCH_KEY_PAIR);
+        $paradas = [];
+        foreach ($q->fetchAll() as $l) {
+            $paradas[(int) $l['item_id']] = $l;
+        }
         $r['paradas'] = self::porIds($eid, array_keys($paradas));
         foreach ($r['paradas'] as $iid => &$p) {
-            $p['nota'] = $paradas[$iid] ?? null;
+            $p['nota'] = $paradas[$iid]['nota'] ?? null;
+            $p['etapa'] = $paradas[$iid]['etapa'] ?? null;
         }
         return $r;
     }
@@ -507,59 +511,23 @@ final class Portal
     }
 
     /**
-     * Um dia no destino, montado pela proximidade: manhã num atrativo, almoço
-     * perto dele, tarde no atrativo mais perto do almoço, jantar e pouso por
-     * perto. A semente muda o dia ("montar outro") e o mantém no link.
-     *
-     * @return list<array{hora:string,rotulo:string,item:array,metros:?int}>
+     * O "Um dia aqui" que a equipe do destino definiu (roteiros do tipo Um
+     * dia aqui e regras por etapa, app/UmDia.php), sorteado pela semente.
+     * Null quando a equipe não definiu nada.
      */
-    public static function umDia(int $eid, int $semente): array
+    public static function umDia(int $eid, int $semente): ?array
     {
-        $comPonto = fn (array $l) => array_values(array_filter($l, fn ($i) => self::naArea($eid, $i)));
-        $atrativos = $comPonto(self::itens($eid, 'o-que-fazer'));
-        $comer = $comPonto(self::itens($eid, 'onde-comer'));
-        $dormir = $comPonto(self::itens($eid, 'onde-dormir'));
-        if (!$atrativos || !$comer) {
-            return [];
-        }
-        mt_srand($semente);
-        $comFoto = array_values(array_filter($atrativos, fn ($i) => $i['foto']));
-        $base = $comFoto ?: $atrativos;
-        $usados = [];
-        $perto = function (array $de, array $lista) use (&$usados): ?array {
-            $melhor = null;
-            $dist = PHP_FLOAT_MAX;
-            foreach ($lista as $i) {
-                if (isset($usados[(int) $i['id']])) {
-                    continue;
-                }
-                $d = self::distancia((float) $de['latitude'], (float) $de['longitude'], (float) $i['latitude'], (float) $i['longitude']);
-                if ($d < $dist) {
-                    [$melhor, $dist] = [$i, $d];
-                }
-            }
-            return $melhor ? $melhor + ['_metros' => (int) round($dist)] : null;
-        };
-        $passos = [];
-        $manha = $base[mt_rand(0, count($base) - 1)];
-        $usados[(int) $manha['id']] = true;
-        $passos[] = ['hora' => '09:00', 'rotulo' => 'Comece por', 'item' => $manha, 'metros' => null];
-        $etapas = [['12:30', 'Almoce em', $comer], ['14:30', 'À tarde', $atrativos], ['17:00', 'No fim da tarde', $atrativos], ['20:00', 'Jante em', $comer]];
-        if ($dormir) {
-            $etapas[] = ['22:00', 'Durma em', $dormir];
-        }
-        $ultimo = $manha;
-        foreach ($etapas as [$hora, $rotulo, $lista]) {
-            $i = $perto($ultimo, $lista);
-            if (!$i) {
-                continue;
-            }
-            $usados[(int) $i['id']] = true;
-            $passos[] = ['hora' => $hora, 'rotulo' => $rotulo, 'item' => $i, 'metros' => $i['_metros']];
-            $ultimo = $i;
-        }
-        mt_srand();
-        return $passos;
+        require_once __DIR__ . '/UmDia.php';
+        return UmDia::montar($eid, $semente, self::previa($eid),
+            fn (int $id) => self::roteiro($eid, $id),
+            fn () => array_filter(self::itens($eid, null, [], 3000), fn ($i) => self::naArea($eid, $i)));
+    }
+
+    /** O portal tem "Um dia aqui" (algo definido pela equipe)? */
+    public static function temUmDia(int $eid): bool
+    {
+        require_once __DIR__ . '/UmDia.php';
+        return UmDia::existe($eid, self::previa($eid));
     }
 
     /** Distância para ler: "350 m", "1,2 km". */

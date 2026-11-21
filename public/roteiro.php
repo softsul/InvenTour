@@ -9,6 +9,7 @@
  */
 declare(strict_types=1);
 require_once __DIR__ . '/../app/layout.php';
+require_once __DIR__ . '/../app/UmDia.php';
 
 Auth::exigirLogin();
 $empresa = Empresa::exigir();
@@ -23,7 +24,7 @@ if ($id) {
     $q->execute([$id, $eid]);
     $r = $q->fetch() ?: negarRegistro();
 }
-$tipos = ['permanente' => 'Permanente', 'evento' => 'De evento', 'tribo' => 'Por perfil de viajante'];
+$tipos = ['permanente' => 'Permanente', 'evento' => 'De evento', 'tribo' => 'Por perfil de viajante', 'um_dia' => 'Um dia aqui'];
 $tribos = $pdo->query('SELECT id, nome FROM tribos WHERE ativo = 1 ORDER BY ordem')->fetchAll(PDO::FETCH_KEY_PAIR);
 $erro = '';
 $aqui = $id ? endereco('roteiro', $id, (string) $r['titulo']) : '/roteiro';
@@ -88,11 +89,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($campos['tipo'] !== 'tribo') {
             $campos['tribo_id'] = null;
         }
-        // Notas das paradas vêm no mesmo formulário.
+        // Notas e etapas das paradas vêm no mesmo formulário.
         foreach ((array) ($_POST['nota'] ?? []) as $iid => $nota) {
             if ($id) {
-                $pdo->prepare('UPDATE roteiro_itens SET nota = ? WHERE roteiro_id = ? AND item_id = ?')
-                    ->execute([mb_substr(trim((string) $nota), 0, 300) ?: null, $id, (int) $iid]);
+                $etapa = (string) ($_POST['etapa'][$iid] ?? '');
+                $pdo->prepare('UPDATE roteiro_itens SET nota = ?, etapa = ? WHERE roteiro_id = ? AND item_id = ?')
+                    ->execute([mb_substr(trim((string) $nota), 0, 300) ?: null, isset(UmDia::ETAPAS[$etapa]) ? $etapa : null, $id, (int) $iid]);
             }
         }
         if ($campos['titulo'] === '') {
@@ -117,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $paradas = [];
 if ($id) {
-    $q = $pdo->prepare('SELECT ri.item_id, ri.nota, i.nome, i.situacao, f.codigo FROM roteiro_itens ri JOIN inventario_itens i ON i.id = ri.item_id
+    $q = $pdo->prepare('SELECT ri.item_id, ri.nota, ri.etapa, i.nome, i.situacao, f.codigo FROM roteiro_itens ri JOIN inventario_itens i ON i.id = ri.item_id
                         JOIN inventario_fichas f ON f.id = i.ficha_id WHERE ri.roteiro_id = ? ORDER BY ri.ordem');
     $q->execute([$id]);
     $paradas = $q->fetchAll();
@@ -149,6 +151,7 @@ paginaFicha($r['titulo'] ?: 'Novo roteiro', 'roteiros');
         <div class="entrada"><select id="tribo_id" name="tribo_id"<?= $podeEditar ? '' : ' disabled' ?>><option value="">Nenhum</option>
           <?php foreach ($tribos as $tid => $t): ?><option value="<?= (int) $tid ?>"<?= (int) $r['tribo_id'] === (int) $tid ? ' selected' : '' ?>><?= e((string) $t) ?></option><?php endforeach; ?></select></div>
         <span class="ajuda">Vale para o tipo Por perfil de viajante.</span></div>
+      <?php if ($r['tipo'] === 'um_dia'): ?><div class="campo c-12"><p class="ajuda"><?= icone('calendario') ?> Um dia aqui: o portal sorteia entre os roteiros deste tipo publicados e o dia montado pelas regras (em Roteiros). Marque a etapa de cada parada: manhã, almoço, tarde, fim da tarde, jantar ou pouso.</p></div><?php endif; ?>
       <div class="campo c-12"><label for="descricao">Descrição</label>
         <div class="entrada"><textarea id="descricao" name="descricao" rows="4" maxlength="4000"<?= $ro ?>><?= e((string) $r['descricao']) ?></textarea></div></div>
       <div class="campo c-12"><?= interruptor('publicado', 'Publicar no portal', (bool) $r['publicado'], 'No portal, com a rota no mapa', 'Rascunho: só no painel', !$podeEditar) ?></div>
@@ -166,7 +169,11 @@ paginaFicha($r['titulo'] ?: 'Novo roteiro', 'roteiros');
             <button type="submit" form="mover" name="subir" value="<?= (int) $p['item_id'] ?>" class="botao claro mini" title="Subir"<?= $n === 0 ? ' disabled' : '' ?>>↑</button>
             <button type="submit" form="mover" name="descer" value="<?= (int) $p['item_id'] ?>" class="botao claro mini" title="Descer"<?= $n === count($paradas) - 1 ? ' disabled' : '' ?>>↓</button>
             <button type="submit" form="mover" name="tirar" value="<?= (int) $p['item_id'] ?>" class="botao claro mini" title="Tirar do roteiro"><?= icone('lixeira') ?></button></span><?php endif; ?></div>
-          <div class="entrada"><input type="text" name="nota[<?= (int) $p['item_id'] ?>]" maxlength="300" placeholder="Dica desta parada (opcional)" value="<?= e((string) $p['nota']) ?>"<?= $ro ?>></div></li>
+          <div class="parada-campos">
+            <?php if ($r['tipo'] === 'um_dia'): ?><div class="entrada parada-etapa"><select name="etapa[<?= (int) $p['item_id'] ?>]" aria-label="Etapa do dia"<?= $podeEditar ? '' : ' disabled' ?>><option value="">Etapa do dia</option>
+              <?php foreach (UmDia::ETAPAS as $k => [$hora, , $nomeEtapa]): ?><option value="<?= $k ?>"<?= ($p['etapa'] ?? '') === $k ? ' selected' : '' ?>><?= e($nomeEtapa . ' · ' . $hora) ?></option><?php endforeach; ?></select></div><?php endif; ?>
+            <div class="entrada"><input type="text" name="nota[<?= (int) $p['item_id'] ?>]" maxlength="300" placeholder="Dica desta parada (opcional)" value="<?= e((string) $p['nota']) ?>"<?= $ro ?>></div>
+          </div></li>
       <?php endforeach; ?>
     </ol>
   </div>
