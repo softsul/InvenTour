@@ -55,7 +55,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         avisar('Encadernação salva. Vale para a próxima versão gerada.');
         redirecionar('/caderno?aba=encadernacao');
     }
-    elseif ($acao === 'foto_capa' && $podeEditar) {
+    elseif ($acao === 'apagar' && Auth::pode('caderno.excluir')) {
+        $vid = (int) ($_POST['id'] ?? 0);
+        if (Caderno::apagar($vid, $eid)) {
+            Auditoria::registrar('excluiu', 'cadernos', $vid, 'apagou uma versão do caderno oficial', null, null, $eid);
+            avisar('Versão apagada, com o PDF e as planilhas.');
+        }
+        redirecionar('/caderno');
+    } elseif ($acao === 'foto_capa' && $podeEditar) {
         $falha = Caderno::guardarFotoDaCapa($eid, $_FILES['foto_capa'] ?? []);
         if ($falha === null) {
             Auditoria::registrar('alterou', 'ajustes', null, 'trocou a foto da capa do caderno oficial', null, null, $eid);
@@ -159,6 +166,11 @@ paginaInicio('Caderno oficial', 'caderno');
                   <a class="botao claro mini" href="/caderno-arquivo?id=<?= (int) $v['id'] ?>&amp;tipo=xlsx" title="Baixar a planilha do Excel" aria-label="Baixar a planilha da versão <?= (int) $v['versao'] ?>"><?= icone('baixar') ?>XLSX</a>
                   <a class="botao claro mini" href="/caderno-arquivo?id=<?= (int) $v['id'] ?>&amp;tipo=csv" title="Baixar em CSV" aria-label="Baixar o CSV da versão <?= (int) $v['versao'] ?>"><?= icone('baixar') ?>CSV</a>
                 <?php endif; ?>
+              <?php endif; ?>
+              <?php if (Auth::pode('caderno.excluir') && in_array($v['situacao'], ['pronto', 'falhou'], true)): ?>
+                <form method="post" action="/caderno" class="em-linha"><input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="acao" value="apagar"><input type="hidden" name="id" value="<?= (int) $v['id'] ?>">
+                  <button type="submit" class="botao claro mini perigo" title="Apagar esta versão" aria-label="Apagar a versão <?= (int) $v['versao'] ?>"
+                          data-confirmar="Apagar a versão <?= (int) $v['versao'] ?>? O PDF, a planilha e o CSV saem, e os QR dela deixam de abrir."><?= icone('lixeira') ?></button></form>
               <?php endif; ?>
             </td>
           </tr>

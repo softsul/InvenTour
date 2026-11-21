@@ -168,6 +168,22 @@ final class Caderno
         return self::pasta((int) $c['empresa_id']) . '/caderno-' . (int) $c['id'] . '.' . $ext;
     }
 
+    /** Apaga uma versão: os arquivos (PDF, XLSX, CSV), as leituras do QR e o registro. */
+    public static function apagar(int $id, int $eid): bool
+    {
+        $q = self::pdo()->prepare("SELECT * FROM cadernos WHERE id = ? AND empresa_id = ? AND situacao IN ('pronto', 'falhou')");
+        $q->execute([$id, $eid]);
+        $c = $q->fetch();
+        if (!$c) {
+            return false;
+        }
+        foreach (['pdf', 'xlsx', 'csv'] as $ext) {
+            @unlink(self::arquivo($c, $ext));
+        }
+        self::pdo()->prepare('DELETE FROM cadernos WHERE id = ? AND empresa_id = ?')->execute([$id, $eid]);
+        return true;
+    }
+
     /** Nome do arquivo para quem baixa: inventario-pato-branco-2026-v3.pdf */
     public static function nomeParaBaixar(array $c, string $destino, string $ext): string
     {

@@ -86,6 +86,14 @@ $tratadores = [
         }
     },
 
+    // Versões do caderno apagadas fora da tela (os arquivos são do www-data).
+    'caderno_apagar' => function (array $payload): void {
+        require_once __DIR__ . '/../app/Caderno.php';
+        foreach ((array) ($payload['ids'] ?? []) as $id) {
+            echo Caderno::apagar((int) $id, (int) ($payload['empresa_id'] ?? 0)) ? '#' . (int) $id . ' ' : '';
+        }
+    },
+
     'importar_mapa_turismo' => function (array $payload): void {
         require_once __DIR__ . '/../app/MapaTurismo.php';
         echo MapaTurismo::importar() . ' ';
