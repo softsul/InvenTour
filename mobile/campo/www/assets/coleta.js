@@ -20,7 +20,12 @@
   // As janelas da coleta saem de dentro das abas: modal aberto dentro de
   // uma aba escondida fica invisível e trava a página inteira (o Histórico,
   // aberto da aba Aplicativo, ficava dentro da aba Coleta).
-  document.querySelectorAll('dialog.coleta-dialogo').forEach(function (d) { document.body.appendChild(d); });
+  document.querySelectorAll('dialog.coleta-dialogo').forEach(function (d) {
+    document.body.appendChild(d);
+    // A janela não rola (só o corpo dela): se o navegador rolar para mostrar
+    // algum campo, volta ao lugar, e a tela nunca fica vazia.
+    d.addEventListener('scroll', function () { if (d.scrollTop) { d.scrollTop = 0; } });
+  });
 
   var APP = window.INVENTOUR_CAMPO || null;
   var API = APP ? APP.servidor : '';
@@ -1059,15 +1064,15 @@
     if (ev.key !== 'Enter' || ev.target.tagName === 'TEXTAREA' || ev.target.tagName === 'BUTTON') { return; }
     ev.preventDefault();
     var painel = form.querySelector('[data-painel-coleta="' + abaAtual + '"]');
-    var campos = Array.prototype.filter.call(painel.querySelectorAll('input:not([type=hidden]):not([type=file]):not([type=checkbox]), select, textarea'), function (el) {
-      return !el.disabled && el.offsetParent !== null;
+    var campos = Array.prototype.filter.call(painel.querySelectorAll('input:not([type=hidden]):not([type=file]):not([type=checkbox]):not([type=radio]), select, textarea'), function (el) {
+      return !el.disabled && el.offsetParent !== null && !el.classList.contains('select-escondido');
     });
     var i = campos.indexOf(ev.target);
     if (i > -1 && campos[i + 1]) { campos[i + 1].focus(); return; }
     var proxima = ABAS[ABAS.indexOf(abaAtual) + 1];
     if (proxima) {
       abrirAba(proxima);
-      var primeiro = form.querySelector('[data-painel-coleta="' + proxima + '"] input:not([type=hidden]), [data-painel-coleta="' + proxima + '"] select');
+      var primeiro = form.querySelector('[data-painel-coleta="' + proxima + '"] input:not([type=hidden]):not([type=checkbox]):not([type=radio])');
       if (primeiro) { primeiro.focus(); }
     }
   });
@@ -1827,6 +1832,10 @@
     sel.classList.add('select-escondido');
     sel.tabIndex = -1;
     sel.setAttribute('aria-hidden', 'true');
+    // Preso dentro do próprio campo: solto, o navegador rolava a janela da
+    // ficha inteira até ele ao receber o foco (a tela ficava vazia).
+    if (sel.parentElement) { sel.parentElement.classList.add('com-seletor'); }
+    sel.addEventListener('focus', function () { var bt = sel.nextElementSibling; if (bt && bt.focus) { bt.focus({ preventScroll: true }); } });
     var b = document.createElement('button');
     b.type = 'button';
     b.className = 'seletor' + (sel.classList.contains('ausencia') ? ' seletor-pilula' : '');

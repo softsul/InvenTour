@@ -1630,3 +1630,5 @@ dialog.folha-opcoes{width:min(560px, calc(100vw - 32px)); height:auto; max-heigh
 }
 /* Na pílula de situação, o texto segue a cor da pílula (verde, âmbar ou neutra). */
 .seletor.seletor-pilula span, .seletor.seletor-pilula.sem-escolha span{color:inherit}
+/* A lista escondida fica dentro do próprio campo (ver coleta.js). */
+.com-seletor{position:relative}
