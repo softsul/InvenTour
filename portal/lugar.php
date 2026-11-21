@@ -82,7 +82,7 @@ PortalLayout::inicio($destino, $nome, true, ['ativo' => (string) $pilar, 'imagem
     <?php if ($eventos): ?>
     <h2>Próximos eventos aqui</h2>
     <ul class="lista-eventos">
-      <?php foreach ($eventos as $ev): ?><li><a href="<?= e((string) ($ev['url'] ?? '#')) ?>" rel="noopener"><span class="data"><?= e(date('d/m', strtotime((string) $ev['data_inicio']))) ?></span><b><?= e((string) $ev['titulo']) ?></b></a></li><?php endforeach; ?>
+      <?php foreach ($eventos as $ev): ?><li><a href="<?= e((string) ($ev['url'] ?? '#')) ?>" rel="noopener"><span class="data"><?= e(date('d/m', strtotime((string) ($ev['proximo_dia'] ?? $ev['data_inicio'])))) ?></span><b><?= e((string) $ev['titulo']) ?></b></a></li><?php endforeach; ?>
     </ul>
     <?php endif; ?>
 

@@ -95,6 +95,8 @@ final class EventCity
             return null;
         }
         $eventos = array_values(array_filter((array) ($j['eventos'] ?? $j), 'is_array'));
+        // Evento recorrente traz a data de início original: vale a próxima data (proximo_dia).
+        usort($eventos, fn ($a, $b) => strcmp((string) ($a['proximo_dia'] ?? $a['data_inicio'] ?? ''), (string) ($b['proximo_dia'] ?? $b['data_inicio'] ?? '')));
         $f = self::arquivoCache($eid);
         @mkdir(dirname($f), 02770, true);
         $tmp = $f . '.' . bin2hex(random_bytes(4));
@@ -103,25 +105,52 @@ final class EventCity
         return count($eventos);
     }
 
-    /** Envelope do aviso de um item (tipo item), no formato combinado. */
+    /**
+     * Envelope do aviso de um item (tipo item), nos campos combinados em
+     * 21/11/2026 (docs/INTEGRACAO-INVENTOUR.md, linha "API v1 no ar"): id e
+     * nome obrigatórios; categoria é o código da ficha (B1, C3); url é a
+     * ficha no portal; arquivado vai como situacao "arquivado". Campo nulo
+     * não apaga nada do lado do EventCity.
+     */
     public static function avisoDoItem(int $itemId): ?array
     {
-        $q = Database::conexao()->prepare('SELECT i.*, f.codigo AS ficha_codigo, f.nome AS ficha_nome, t.nome AS tipo_nome
+        $q = Database::conexao()->prepare('SELECT i.*, f.codigo AS ficha_codigo, t.nome AS tipo_nome, e.slug, e.dominio_proprio, e.municipio_id
                                            FROM inventario_itens i JOIN inventario_fichas f ON f.id = i.ficha_id LEFT JOIN inventario_tipos t ON t.id = i.tipo_id
-                                           WHERE i.id = ?');
+                                           JOIN empresas e ON e.id = i.empresa_id WHERE i.id = ?');
         $q->execute([$itemId]);
         $i = $q->fetch();
         if (!$i) {
             return null;
         }
-        return ['aviso_id' => self::uuid(), 'tipo' => 'item', 'versao' => (string) $i['atualizado_em'],
-                'dados' => ['id' => (int) $i['id'], 'situacao' => $i['situacao'], 'nome' => $i['nome'], 'ficha' => $i['ficha_codigo'] . ' ' . $i['ficha_nome'],
-                            'tipo' => $i['tipo_nome'], 'cnpj' => $i['cnpj'], 'cadastur' => $i['cadastur'], 'whatsapp' => $i['whatsapp'],
-                            'logradouro' => $i['logradouro'], 'numero' => $i['numero'], 'bairro' => $i['bairro'], 'cep' => $i['cep'],
-                            'latitude' => $i['latitude'] !== null ? (float) $i['latitude'] : null, 'longitude' => $i['longitude'] !== null ? (float) $i['longitude'] : null,
-                            'capacidade_uh' => $i['capacidade_uh'] !== null ? (int) $i['capacidade_uh'] : null,
-                            'capacidade_leitos' => $i['capacidade_leitos'] !== null ? (int) $i['capacidade_leitos'] : null,
-                            'capacidade_publico' => $i['capacidade_publico'] !== null ? (int) $i['capacidade_publico'] : null]];
+        require_once __DIR__ . '/Caderno.php';
+        require_once __DIR__ . '/Portal.php';
+        $int = fn ($v) => $v !== null ? (int) $v : null;
+        $dados = ['id' => (int) $i['id'], 'nome' => (string) $i['nome'], 'categoria' => (string) $i['ficha_codigo'], 'tipo' => $i['tipo_nome'],
+                  'cnpj' => $i['cnpj'], 'cadastur' => $i['cadastur'], 'whatsapp' => $i['whatsapp'], 'cep' => $i['cep'],
+                  'logradouro' => $i['logradouro'], 'numero' => $i['numero'], 'bairro' => $i['bairro'],
+                  'municipio_ibge' => $int($i['municipio_id']),
+                  'latitude' => $i['latitude'] !== null ? (float) $i['latitude'] : null, 'longitude' => $i['longitude'] !== null ? (float) $i['longitude'] : null,
+                  'capacidade' => $int($i['capacidade_publico']), 'leitos' => $int($i['capacidade_leitos']), 'uhs' => $int($i['capacidade_uh']),
+                  'url' => Caderno::portal($i) . '/lugar/' . (int) $i['id'] . '-' . Portal::slug((string) $i['nome'])];
+        if ($i['situacao'] === 'arquivada') {
+            $dados['situacao'] = 'arquivado';
+        }
+        return ['aviso_id' => self::uuid(), 'tipo' => 'item', 'versao' => (string) ($i['atualizado_em'] ?: $i['criado_em']),
+                'dados' => array_filter($dados, fn ($v) => $v !== null && $v !== '')];
+    }
+
+    /** Envelope dos totais do destino (tipo totais): leitos e UHs da hospedagem e capacidade dos espaços para eventos, homologados. */
+    public static function avisoDosTotais(int $eid): array
+    {
+        $q = Database::conexao()->prepare("SELECT COALESCE(SUM(CASE WHEN f.ordem IN (20, 21) THEN i.capacidade_leitos END), 0),
+                                                  COALESCE(SUM(CASE WHEN f.ordem IN (20, 21) THEN i.capacidade_uh END), 0),
+                                                  COALESCE(SUM(CASE WHEN f.ordem = 25 THEN i.capacidade_publico END), 0)
+                                           FROM inventario_itens i JOIN inventario_fichas f ON f.id = i.ficha_id
+                                           WHERE i.empresa_id = ? AND i.situacao IN ('homologada', 'desatualizada')");
+        $q->execute([$eid]);
+        [$leitos, $uhs, $eventos] = array_map('intval', $q->fetch(PDO::FETCH_NUM));
+        return ['aviso_id' => self::uuid(), 'tipo' => 'totais', 'versao' => date('Y-m-d H:i:s'),
+                'dados' => ['leitos' => $leitos, 'uhs' => $uhs, 'capacidade_eventos' => $eventos]];
     }
 
     /** Põe o aviso de um item na fila, se o destino tem a ponte ligada. */
@@ -132,6 +161,12 @@ final class EventCity
         }
         require_once __DIR__ . '/Fila.php';
         Fila::enfileirar('eventcity_aviso', ['empresa_id' => $eid, 'item_id' => $itemId], null, $eid);
+        // Os totais do destino mudam junto; um aviso de totais pendente por destino basta.
+        $q = Database::conexao()->prepare("SELECT 1 FROM jobs WHERE tipo = 'eventcity_aviso' AND status = 'pendente' AND empresa_id = ? AND payload LIKE '%\"totais\"%'");
+        $q->execute([$eid]);
+        if (!$q->fetchColumn()) {
+            Fila::enfileirar('eventcity_aviso', ['empresa_id' => $eid, 'totais' => true], date('Y-m-d H:i:s', strtotime('+1 minute')), $eid);
+        }
     }
 
     private static function uuid(): string

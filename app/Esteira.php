@@ -220,6 +220,11 @@ final class Esteira
             ->execute([$uid, $id, Empresa::id()]);
         Inventario::registrarHistorico($id, 'arquivou', $item['situacao'], 'arquivada');
         Auditoria::registrar('alterou', 'inventario_itens', $id, 'arquivou: ' . $item['nome']);
+        // O EventCity marca o lugar como arquivado (sem apagar nada), se já o conhecia.
+        if (in_array($item['situacao'], ['homologada', 'desatualizada'], true)) {
+            require_once __DIR__ . '/EventCity.php';
+            EventCity::avisarItem((int) Empresa::id(), $id);
+        }
         return true;
     }
 
@@ -239,6 +244,10 @@ final class Esteira
             ->execute([$volta, $uid, $id, Empresa::id()]);
         Inventario::registrarHistorico($id, 'desarquivou', 'arquivada', $volta);
         Auditoria::registrar('alterou', 'inventario_itens', $id, 'desarquivou: ' . $item['nome']);
+        if (in_array($volta, ['homologada', 'desatualizada'], true)) {
+            require_once __DIR__ . '/EventCity.php';
+            EventCity::avisarItem((int) Empresa::id(), $id);
+        }
         return true;
     }
 

@@ -88,7 +88,7 @@ PortalLayout::inicio($destino, $nome, true, ['ativo' => 'inicio', 'imagem' => $t
   <div class="bloco-cab"><h2>Agenda</h2><a href="<?= e(Portal::url('/agenda')) ?>">Ver a agenda</a></div>
   <ul class="lista-eventos">
     <?php foreach ($agenda as $ev): ?>
-      <li><a href="<?= e((string) ($ev['url'] ?? '#')) ?>" rel="noopener"><span class="data"><?= e(date('d/m', strtotime((string) $ev['data_inicio']))) ?></span>
+      <li><a href="<?= e((string) ($ev['url'] ?? '#')) ?>" rel="noopener"><span class="data"><?= e(date('d/m', strtotime((string) ($ev['proximo_dia'] ?? $ev['data_inicio'])))) ?></span>
         <b><?= e((string) $ev['titulo']) ?></b></a></li>
     <?php endforeach; ?>
   </ul>

@@ -107,14 +107,22 @@ $tratadores = [
     },
     'eventcity_aviso' => function (array $payload): void {
         require_once __DIR__ . '/../app/EventCity.php';
-        $aviso = EventCity::avisoDoItem((int) ($payload['item_id'] ?? 0));
+        $eid = (int) $payload['empresa_id'];
+        $aviso = !empty($payload['totais']) ? EventCity::avisoDosTotais($eid) : EventCity::avisoDoItem((int) ($payload['item_id'] ?? 0));
         if (!$aviso) {
             return;
         }
-        [$codigo] = EventCity::pedir((int) $payload['empresa_id'], 'POST', '/api/v1/inventour/aviso', $aviso);
-        if ($codigo !== 202 && $codigo !== 200) {
-            throw new RuntimeException('EventCity respondeu ' . $codigo . ' ao aviso do item ' . (int) $payload['item_id']);
+        [$codigo, $resposta] = EventCity::pedir($eid, 'POST', '/api/v1/inventour/aviso', $aviso);
+        if ($codigo === 202 || $codigo === 200) {
+            echo ($resposta['resultado'] ?? 'aceito') . ' ';
+            return;
         }
+        // 422: envelope recusado. Reenviar igual não adianta: registra e para.
+        if ($codigo === 422) {
+            echo 'recusado (422): ' . mb_substr((string) json_encode($resposta, JSON_UNESCAPED_UNICODE), 0, 300) . ' ';
+            return;
+        }
+        throw new RuntimeException('EventCity respondeu ' . $codigo . ' ao aviso ' . $aviso['tipo'] . (isset($payload['item_id']) ? ' do item ' . (int) $payload['item_id'] : ''));
     },
 
     // Etapa 5: o cartaz A4 de um ponto de QR (phygital).
