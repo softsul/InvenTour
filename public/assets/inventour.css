@@ -496,6 +496,13 @@ table.dados td .ev-linha2{overflow:hidden; text-overflow:ellipsis}
 .sugestoes.combo-lista li b{font-weight:500; font-size:13.5px}
 .sugestoes.combo-lista li[aria-selected="true"] b{font-weight:700; color:var(--indigo-fte)}
 .sugestoes.combo-lista li.desabilitada{opacity:.5; cursor:default}
+/* Lista longa: a busca fica parada no alto enquanto a lista rola; nome
+   comprido quebra a linha em vez de sumir na borda. */
+.sugestoes.combo-lista li b{white-space:normal}
+.sugestoes.combo-lista li.combo-busca{position:sticky; top:-5px; z-index:1; margin:-5px -5px 4px; padding:6px; background:var(--branco); border-bottom:1px solid var(--traco); cursor:default}
+.sugestoes.combo-lista li.combo-busca:hover{background:var(--branco)}
+.sugestoes.combo-lista li.combo-busca .entrada{display:flex; width:100%; min-height:38px}
+.sugestoes.combo-lista li.combo-busca input{flex:1; min-width:0}
 
 /* Limpar filtros (inventour.js): à direita da linha de filtros, pequeno. */
 .filtros .limpar-filtros{flex:0 0 auto; margin-left:auto; padding:7px 12px; font-size:12.5px; gap:6px; width:auto; text-decoration:none; white-space:nowrap}

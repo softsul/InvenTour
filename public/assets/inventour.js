@@ -3695,11 +3695,20 @@ window.erpPerguntar = function (opcoes) {
  * data-enviar-ao-mudar, listas vivas). Este bloco só troca a lista que abre:
  * o clique (ou Enter, Espaço, Alt+seta) abre a lista própria, alinhada à
  * caixa; setas, Enter e Esc andam nela. A lista fica em position:fixed
- * dentro do modal ou da página, para nenhum overflow cortá-la.
+ * dentro do modal ou da página, para nenhum overflow cortá-la, e nunca
+ * passa da borda da tela: perto da direita, alinha pelo lado direito da
+ * caixa. Lista longa (mais de 10 opções, como as 54 fichas) abre com uma
+ * busca no alto, que filtra sem acento enquanto se digita.
  */
 (function () {
   'use strict';
-  var aberto = null; // { sel, lista, marcado }
+  var aberto = null; // { sel, lista, marcado, busca }
+  var COM_BUSCA = 10;
+  function semAcento(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+  // Os itens que aparecem (a busca esconde os outros).
+  function visiveis() {
+    return aberto ? Array.prototype.filter.call(aberto.lista.querySelectorAll('li[data-i]'), function (li) { return !li.hidden; }) : [];
+  }
 
   function opcoesDe(sel) {
     return Array.prototype.filter.call(sel.options, function (o) { return !o.hidden; });
@@ -3715,15 +3724,32 @@ window.erpPerguntar = function (opcoes) {
     if (devolverFoco) { a.sel.focus(); }
   }
 
+  // marcar(posição entre os visíveis); aberto.marcado guarda essa posição.
   function marcar(i) {
     if (!aberto) { return; }
-    var itens = aberto.lista.querySelectorAll('li[data-i]');
-    if (!itens.length) { return; }
+    aberto.lista.querySelectorAll('li.marcado').forEach(function (li) { li.classList.remove('marcado'); });
+    var itens = visiveis();
+    if (!itens.length) { aberto.marcado = -1; return; }
     i = Math.max(0, Math.min(itens.length - 1, i));
-    itens.forEach(function (li) { li.classList.remove('marcado'); });
     itens[i].classList.add('marcado');
     itens[i].scrollIntoView({ block: 'nearest' });
     aberto.marcado = i;
+  }
+  function escolherMarcado() {
+    var li = visiveis()[aberto ? aberto.marcado : -1];
+    if (li && !li.classList.contains('desabilitada')) { escolher(parseInt(li.getAttribute('data-i'), 10)); }
+  }
+  function filtrar(termo) {
+    if (!aberto) { return; }
+    var t = semAcento(termo).trim();
+    var n = 0;
+    aberto.lista.querySelectorAll('li[data-i]').forEach(function (li) {
+      li.hidden = t !== '' && semAcento(li.textContent).indexOf(t) < 0;
+      if (!li.hidden) { n++; }
+    });
+    var nada = aberto.lista.querySelector('li.combo-nada');
+    if (nada) { nada.hidden = n > 0; }
+    marcar(0);
   }
 
   function escolher(i) {
@@ -3741,8 +3767,13 @@ window.erpPerguntar = function (opcoes) {
     if (!aberto) { return; }
     var caixa = aberto.sel.closest('.entrada').getBoundingClientRect();
     var l = aberto.lista;
-    l.style.left = caixa.left + 'px';
-    l.style.minWidth = caixa.width + 'px';
+    l.style.minWidth = Math.min(caixa.width, window.innerWidth - 16) + 'px';
+    // Nunca além da borda: a lista mais larga que o espaço à direita alinha
+    // pelo lado direito da caixa (o combo do canto da linha de filtros).
+    var largura = l.offsetWidth;
+    var esquerda = caixa.left;
+    if (esquerda + largura > window.innerWidth - 8) { esquerda = caixa.right - largura; }
+    l.style.left = Math.max(8, Math.min(esquerda, window.innerWidth - largura - 8)) + 'px';
     var abaixo = window.innerHeight - caixa.bottom - 12;
     var acima = caixa.top - 12;
     var alto = Math.min(l.scrollHeight, 320);
@@ -3765,7 +3796,17 @@ window.erpPerguntar = function (opcoes) {
     lista.className = 'sugestoes combo-lista';
     lista.setAttribute('role', 'listbox');
     var atual = 0;
-    opcoesDe(sel).forEach(function (op, i) {
+    var opcoes = opcoesDe(sel);
+    var busca = null;
+    if (opcoes.length > COM_BUSCA) {
+      var topo = document.createElement('li');
+      topo.className = 'combo-busca';
+      topo.innerHTML = '<div class="entrada"><svg aria-hidden="true" focusable="false"><use href="#i-busca"/></svg>'
+        + '<input type="search" autocomplete="off" spellcheck="false" placeholder="Buscar" aria-label="Buscar na lista"></div>';
+      lista.appendChild(topo);
+      busca = topo.querySelector('input');
+    }
+    opcoes.forEach(function (op, i) {
       var li = document.createElement('li');
       li.setAttribute('role', 'option');
       li.setAttribute('data-i', String(i));
@@ -3776,7 +3817,26 @@ window.erpPerguntar = function (opcoes) {
       li.appendChild(b);
       lista.appendChild(li);
     });
-    lista.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+    if (busca) {
+      var nada = document.createElement('li');
+      nada.className = 'vazia combo-nada';
+      nada.textContent = 'Nada encontrado.';
+      nada.hidden = true;
+      lista.appendChild(nada);
+      busca.addEventListener('input', function () { filtrar(busca.value); });
+      busca.addEventListener('keydown', function (ev) {
+        var k = ev.key;
+        if (k === 'ArrowDown') { ev.preventDefault(); marcar(aberto.marcado + 1); }
+        else if (k === 'ArrowUp') { ev.preventDefault(); marcar(aberto.marcado - 1); }
+        else if (k === 'Enter') { ev.preventDefault(); ev.stopPropagation(); escolherMarcado(); }
+        else if (k === 'Escape') { ev.preventDefault(); ev.stopPropagation(); fechar(true); }
+        else if (k === 'Tab') { ev.preventDefault(); fechar(true); }
+      });
+      busca.addEventListener('blur', function () {
+        setTimeout(function () { if (aberto && aberto.busca === busca && !aberto.lista.contains(document.activeElement) && document.activeElement !== sel) { fechar(false); } }, 120);
+      });
+    }
+    lista.addEventListener('mousedown', function (ev) { if (ev.target !== busca) { ev.preventDefault(); } });
     lista.addEventListener('click', function (ev) {
       var li = ev.target.closest('li[data-i]');
       if (li && !li.classList.contains('desabilitada')) { escolher(parseInt(li.getAttribute('data-i'), 10)); }
@@ -3786,11 +3846,15 @@ window.erpPerguntar = function (opcoes) {
       if (li) { marcar(parseInt(li.getAttribute('data-i'), 10)); }
     });
     (sel.closest('dialog') || document.body).appendChild(lista);
-    aberto = { sel: sel, lista: lista, marcado: atual };
+    aberto = { sel: sel, lista: lista, marcado: atual, busca: busca };
     sel.closest('.entrada').classList.add('combo-aberto');
     sel.setAttribute('aria-expanded', 'true');
     posicionar();
+    // Com busca, a largura fica a da lista inteira: filtrar não encolhe a
+    // caixa nem a faz pular de lugar a cada letra.
+    if (busca) { lista.style.width = lista.offsetWidth + 'px'; }
     marcar(atual);
+    if (busca) { busca.focus({ preventScroll: true }); }
   }
 
   function preparar(sel) {
@@ -3821,7 +3885,7 @@ window.erpPerguntar = function (opcoes) {
         else if (k === 'ArrowUp') { ev.preventDefault(); marcar(aberto.marcado - 1); }
         else if (k === 'Home') { ev.preventDefault(); marcar(0); }
         else if (k === 'End') { ev.preventDefault(); marcar(9999); }
-        else if (k === 'Enter' || k === ' ') { ev.preventDefault(); ev.stopPropagation(); escolher(aberto.marcado); }
+        else if (k === 'Enter' || k === ' ') { ev.preventDefault(); ev.stopPropagation(); escolherMarcado(); }
         else if (k === 'Escape') { ev.preventDefault(); ev.stopPropagation(); fechar(true); }
         else if (k === 'Tab') { fechar(false); }
         return;
@@ -3832,7 +3896,7 @@ window.erpPerguntar = function (opcoes) {
       }
     });
     sel.addEventListener('blur', function () {
-      setTimeout(function () { if (aberto && aberto.sel === sel && document.activeElement !== sel) { fechar(false); } }, 120);
+      setTimeout(function () { if (aberto && aberto.sel === sel && document.activeElement !== sel && !aberto.lista.contains(document.activeElement)) { fechar(false); } }, 120);
     });
   }
 
