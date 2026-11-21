@@ -848,7 +848,7 @@
 
   // O que mudou desde que a ficha abriu. Campo da ficha vai com a ausência;
   // o horário vai inteiro; a coordenada, em par.
-  var HORARIO = ['h24', 'h_abre', 'h_fecha', 'h_abre2', 'h_fecha2', 'h_feriados', 'h_feriados_abre', 'h_temporada'];
+  var HORARIO = ['h24', 'h_abre', 'h_fecha', 'h_abre2', 'h_fecha2', 'h_feriados', 'h_feriados_abre', 'h_temporada', 'h_periodos', 'h_periodos_veio'];
   function igual(a, b) { return JSON.stringify(a == null ? '' : a) === JSON.stringify(b == null ? '' : b); }
   function diferenca(antes, agora) {
     var mudou = {};

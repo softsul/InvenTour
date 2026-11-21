@@ -22,7 +22,7 @@ require_once __DIR__ . '/PlusCode.php';
 final class FichaFormulario
 {
     /** Teclas do funcionamento: chegando qualquer uma, o horário inteiro é regravado. */
-    private const CHAVES_HORARIO = ['h24', 'h_abre', 'h_fecha', 'h_abre2', 'h_fecha2', 'h_feriados', 'h_feriados_abre', 'h_temporada'];
+    private const CHAVES_HORARIO = ['h24', 'h_abre', 'h_fecha', 'h_abre2', 'h_fecha2', 'h_feriados', 'h_feriados_abre', 'h_temporada', 'h_periodos', 'h_periodos_veio'];
 
     /**
      * Lê o formulário e devolve o que gravar, já validado.
@@ -30,7 +30,7 @@ final class FichaFormulario
      * @return array{nucleo: array<string,mixed>, especificos: array<int,array{texto:?string,numero:?float,ausencia:?string}>,
      *               acess: array<string,list<string>>, facilidades: ?list<int>, erros: array<string,string>}
      */
-    public static function ler(array $p, array $ficha, bool $parcial = false): array
+    public static function ler(array $p, array $ficha, bool $parcial = false, ?string $horarioAntes = null): array
     {
         $fichaId = (int) $ficha['id'];
         $municipio = $ficha['forma'] === 'municipio';
@@ -119,6 +119,15 @@ final class FichaFormulario
                             $h[$dia][] = [$abre2, $fecha2];
                         }
                     }
+                }
+                // Períodos de atendimento: o app antigo não manda o campo, então
+                // sem a marca h_periodos_veio fica o que a ficha já tinha.
+                $periodos = array_key_exists('h_periodos_veio', $p) || array_key_exists('h_periodos', $p)
+                    ? (array) ($p['h_periodos'] ?? [])
+                    : (array) ((json_decode((string) $horarioAntes, true) ?: [])['periodos'] ?? []);
+                $periodos = array_values(array_intersect(array_keys(Inventario::PERIODOS), array_map('strval', array_filter($periodos, 'is_scalar'))));
+                if ($periodos) {
+                    $h['periodos'] = $periodos;
                 }
                 $n['horario'] = json_encode($h, JSON_UNESCAPED_UNICODE);
             }
@@ -516,6 +525,9 @@ final class FichaFormulario
             }
             if (!empty($h['temporada'])) {
                 $f['h_temporada'] = (string) $h['temporada'];
+            }
+            if (!empty($h['periodos'])) {
+                $f['h_periodos'] = array_values((array) $h['periodos']);
             }
             if (isset($h['feriados_abre']) && $h['feriados_abre'] !== null) {
                 $f['h_feriados_abre'] = $h['feriados_abre'] ? '1' : '0';

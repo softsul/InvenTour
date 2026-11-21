@@ -236,7 +236,7 @@ if ($itemId) {
 // aparelho manda o que mudou). Valor inválido (CNPJ, e-mail, telefone) não
 // derruba a gravação feita sem sinal: fica de fora e volta como aviso.
 $fichaRow = Inventario::ficha($fichaId) ?? responder(['ok' => false, 'motivo' => 'ficha'], 400);
-$lido = FichaFormulario::ler($d, $fichaRow, true);
+$lido = FichaFormulario::ler($d, $fichaRow, true, $item['horario'] ?? null);
 $campos = array_diff_key($lido['nucleo'], $lido['erros']);
 if (array_key_exists('nome', $campos) && $campos['nome'] === '') {
     unset($campos['nome']);

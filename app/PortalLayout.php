@@ -226,7 +226,8 @@ final class PortalLayout
             // A distância até o visitante (quando ele tocou em Perto de mim), em destaque na imagem.
             . '<span class="dist dist-figura" data-dist></span></figure>'
             . '<span class="lugar-txt"><span class="lugar-tipo">' . e($tipo) . '</span><b class="lugar-nome">' . e((string) $i['nome']) . '</b>'
-            . ($agora ? '<span class="estado' . ($agora['aberto'] ? ' aberto' : '') . '">' . e($agora['texto']) . '</span>' : '')
+            . ($agora ? '<span class="estado' . ($agora['aberto'] ? ' aberto' : '') . '">' . e($agora['texto']) . '</span>'
+                : (($per = Portal::periodos($i['horario'] ?? null)) ? '<span class="estado">' . e($per) . '</span>' : ''))
             . (!empty($i['experiencias']) ? '<span class="tem-xp">Tem experiência para viver</span>' : '')
             . $extra
             . ($selos !== '' ? '<span class="selos">' . $selos . '</span>' : '') . '</span></a>'
@@ -348,7 +349,7 @@ final class PortalLayout
             'c' => (string) ($i['codigo'] ?? ''),
             'f' => Portal::foto($eid, $i['foto'] ?? null, 'p'),
             'b' => implode(' · ', array_filter([trim((string) ($i['bairro'] ?? '')), ($i['zona'] ?? '') === 'rural' ? 'no campo' : ''])),
-            'a' => $agora ? $agora['texto'] : null,
+            'a' => $agora ? $agora['texto'] : Portal::periodos($i['horario'] ?? null),
             'o' => $agora ? (int) $agora['aberto'] : null,
             'x' => $extra,
             's' => array_values(array_map(fn ($k) => Portal::SELOS_ACESSIBILIDADE[$k], array_filter($i['selos'] ?? [], fn ($k) => isset(Portal::SELOS_ACESSIBILIDADE[$k])))),

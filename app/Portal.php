@@ -263,7 +263,26 @@ final class Portal
         if ($linhas && isset($h['feriados_abre'])) {
             $linhas[] = $h['feriados_abre'] ? 'Abre em feriados' : 'Fecha em feriados';
         }
+        if (!$linhas && ($p = self::periodos($json))) {
+            $linhas[] = $p;
+        }
         return $linhas;
+    }
+
+    /**
+     * Sem a hora exata, o período de atendimento: "Atende no almoço e no
+     * jantar". Null quando a ficha tem horário por dia ou não tem período.
+     */
+    public static function periodos(?string $json): ?string
+    {
+        $h = json_decode((string) $json, true) ?: [];
+        $nomes = ['cafe' => 'no café da manhã', 'almoco' => 'no almoço', 'tarde' => 'à tarde', 'jantar' => 'no jantar'];
+        $p = array_values(array_intersect_key($nomes, array_flip(array_filter((array) ($h['periodos'] ?? []), 'is_string'))));
+        if (!$p || !empty($h['24h']) || array_filter(array_intersect_key($h, array_flip(['seg', 'ter', 'qua', 'qui', 'sex', 'sab', 'dom'])))) {
+            return null;
+        }
+        $ultimo = array_pop($p);
+        return 'Atende ' . ($p ? implode(', ', $p) . ' e ' : '') . $ultimo;
     }
 
     /** O pilar de um item, pela ficha. */

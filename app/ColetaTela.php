@@ -93,6 +93,13 @@ function semanaDeHorario(array $horario, string $marca = 'data-semana', bool $so
     </li>
   <?php endforeach; ?>
   </ul>
+  <div class="semana-periodos">
+    <span class="semana-periodos-rot">Atende em</span>
+    <input type="hidden" name="h_periodos_veio" value="1">
+    <?php foreach (Inventario::PERIODOS as $k => $rotulo): ?>
+    <label class="check"><input type="checkbox" name="h_periodos[]" value="<?= $k ?>"<?= in_array($k, (array) ($horario['periodos'] ?? []), true) ? ' checked' : '' ?><?= $dis ?>><i></i><?= e($rotulo) ?></label>
+    <?php endforeach; ?>
+  </div>
 </div>
 <?php
     return (string) ob_get_clean();

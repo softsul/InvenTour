@@ -504,6 +504,9 @@ CSS;
         if (isset($h['feriados_abre'])) {
             $partes[] = $h['feriados_abre'] ? 'abre em feriados' : 'fecha em feriados';
         }
+        if (!$partes && !empty($h['periodos'])) {
+            $partes[] = 'atende em: ' . mb_strtolower(implode(', ', array_intersect_key(Inventario::PERIODOS, array_flip((array) $h['periodos']))));
+        }
         return $partes ? implode('; ', $partes) : null;
     }
 

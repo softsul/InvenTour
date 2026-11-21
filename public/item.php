@@ -172,7 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $acaoFoto === '' && $acaoEsteira ==
     } else {
         $situacao = in_array($_POST['situacao'] ?? '', $situacoesPermitidas, true) ? (string) $_POST['situacao'] : (string) $d['situacao'];
         // A mesma leitura da coleta de campo (app/FichaFormulario.php).
-        $lido = FichaFormulario::ler($_POST, $ficha);
+        $lido = FichaFormulario::ler($_POST, $ficha, false, $d['horario'] ?? null);
         $nucleo = ['situacao' => $situacao] + $lido['nucleo'];
         $especificos = $lido['especificos'];
         $acessNovo = $lido['acess'];

@@ -1124,7 +1124,11 @@ details.tribo .chaves-facilidades button.interruptor{height:100%}
 .semana-24h svg{font-size:18px}
 .semana.dia-todo .semana-24h{display:flex}
 .semana.dia-todo .semana-dias,
-.semana.dia-todo .semana-atalhos{display:none}
+.semana.dia-todo .semana-atalhos,
+.semana.dia-todo .semana-periodos{display:none}
+.semana-periodos{display:flex; align-items:center; gap:8px 18px; flex-wrap:wrap; padding:10px 14px; border:1px solid var(--traco);
+  border-radius:var(--r); background:var(--branco)}
+.semana-periodos-rot{font-size:12.5px; font-weight:700; color:var(--fraca); margin-right:4px}
 
 .semana-dias{list-style:none; margin:0; padding:0; border:1px solid var(--traco); border-radius:var(--r); overflow:hidden; background:var(--branco)}
 .dia{display:grid; grid-template-columns:120px 118px 1fr; align-items:center; gap:14px; padding:8px 14px; min-height:54px}

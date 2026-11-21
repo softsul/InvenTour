@@ -47,6 +47,8 @@ final class Inventario
     public const TIPOS_ORGANIZACAO = ['associacao' => 'Associação', 'sindicato' => 'Sindicato', 'cooperativa' => 'Cooperativa', 'sistema_s' => 'Sistema S',
                                       'empresa' => 'Empresa', 'outros' => 'Outros'];
     public const MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+    /** Períodos de atendimento (o caderno anota assim quando não há a hora exata). */
+    public const PERIODOS = ['cafe' => 'Café da manhã', 'almoco' => 'Almoço', 'tarde' => 'Tarde', 'jantar' => 'Jantar'];
     public const DIAS = ['seg' => 'Segunda', 'ter' => 'Terça', 'qua' => 'Quarta', 'qui' => 'Quinta', 'sex' => 'Sexta', 'sab' => 'Sábado', 'dom' => 'Domingo'];
 
     /**
