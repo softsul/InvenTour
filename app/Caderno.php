@@ -10,7 +10,7 @@
  * aparece, mesmo sem item, marcada "inexistente", como no caderno de Pato
  * Branco 2025. O campo vazio fica de fora; NA, NI e NE aparecem por extenso.
  *
- * O PDF sai em blocos pelo wkhtmltopdf e é unido em disco (pdfunite), para
+ * O PDF sai em blocos pelo wkhtmltopdf e é unido em disco (qpdf, linearizado), para
  * um caderno de centenas de páginas não estourar a memória. O sumário usa
  * o mapa de títulos que o wkhtmltopdf devolve (--dump-outline), e a
  * numeração segue de um bloco para o outro (--page-offset). Rodapé com o
@@ -287,7 +287,10 @@ final class Caderno
                 $partes[] = $tmp . '/' . $nome . '.pdf';
             }
             $destinoPdf = $pastaSaida ? $pastaSaida . '/caderno-' . $id . '.pdf' : self::arquivo($c, 'pdf');
-            self::rodar(['pdfunite', ...$partes, $destinoPdf]);
+            // União pelo qpdf, já linearizada: o pdfunite deixava o índice do
+            // PDF inconsistente, e o leitor do navegador refazia o arquivo
+            // inteiro antes de mostrar a primeira página (uns 10 segundos).
+            self::rodar(['qpdf', '--empty', '--linearize', '--object-streams=generate', '--pages', ...$partes, '--', $destinoPdf]);
 
             $marcar('gerando', 'Planilhas');
             $destinoXlsx = $pastaSaida ? $pastaSaida . '/caderno-' . $id . '.xlsx' : self::arquivo($c, 'xlsx');
