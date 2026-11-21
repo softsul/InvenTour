@@ -91,7 +91,6 @@ PortalLayout::inicio($destino, $nome, true, ['ativo' => '', 'imagem' => $temCapa
 <section class="secao">
   <div class="secao-cab"><div><span class="rotulo">Divisa oficial do município · IBGE</span><h2>O mapa do destino</h2></div></div>
   <div class="mapa-caixa" data-mapa><?= $mapa ?></div>
-  <div class="legenda"><?php foreach (Portal::PILARES as $k => [$titulo]): ?><span><i class="l-<?= $k ?>"></i><?= e($titulo) ?></span><?php endforeach; ?></div>
 </section>
 <?php endif; ?>
 

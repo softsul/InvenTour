@@ -147,22 +147,193 @@
       b.lastChild.textContent = m.hidden ? 'Ver no mapa' : 'Esconder o mapa';
     });
   });
-  function abrirPonto(c) {
+  // Cada mapa: zoom pelos botões, por Ctrl + rolagem, duplo clique e pinça;
+  // arrastar quando aproximado; filtro por pilar ou tipo; balão completo ao
+  // parar o mouse num ponto (no toque, o cartão embaixo).
+  function lugarDe(c) { try { return JSON.parse(c.getAttribute('data-lugar') || '{}'); } catch (e) { return {}; } }
+  function el(tag, cls, texto) { var x = document.createElement(tag); if (cls) { x.className = cls; } if (texto) { x.textContent = texto; } return x; }
+  function conteudoDoLugar(d, alvo, comFoto) {
+    if (comFoto && d.f) { var img = el('img'); img.src = d.f; img.alt = ''; alvo.appendChild(img); }
+    var s = el('span', 'mapa-txt');
+    s.appendChild(el('em', '', [d.c, d.t].filter(Boolean).join(' · ')));
+    s.appendChild(el('b', '', d.n || ''));
+    if (d.a) { s.appendChild(el('i', 'mapa-estado' + (d.o ? ' aberto' : ''), d.a)); }
+    if (d.b) { s.appendChild(el('small', '', d.b)); }
+    if (d.x) { s.appendChild(el('small', '', d.x.join(' · '))); }
+    if (d.s) { s.appendChild(el('small', 'mapa-selos', 'Acessível: ' + d.s.join(', '))); }
+    if (d.p) { s.appendChild(el('small', 'mapa-selos', 'Bom para: ' + d.p.join(', '))); }
+    alvo.appendChild(s);
+  }
+  var balaoMapa = el('div', 'balao-mapa');
+  balaoMapa.setAttribute('role', 'tooltip');
+  balaoMapa.hidden = true;
+  document.body.appendChild(balaoMapa);
+  function mostrarBalaoMapa(c) {
+    balaoMapa.innerHTML = '';
+    conteudoDoLugar(lugarDe(c), balaoMapa, true);
+    balaoMapa.appendChild(el('span', 'mapa-ir', 'Clique para abrir a ficha'));
+    balaoMapa.hidden = false;
+    var r = c.getBoundingClientRect(), larg = balaoMapa.offsetWidth, alt = balaoMapa.offsetHeight;
+    var esq = Math.min(Math.max(8, r.left + r.width / 2 - larg / 2), window.innerWidth - larg - 8);
+    var cima = r.top - alt - 12;
+    if (cima < 8) { cima = r.bottom + 12; }
+    balaoMapa.style.left = (esq + window.scrollX) + 'px';
+    balaoMapa.style.top = (cima + window.scrollY) + 'px';
+  }
+  function esconderBalaoMapa() { balaoMapa.hidden = true; }
+  function abrirCartao(c) {
     var caixa = c.closest('[data-mapa]');
     caixa.querySelectorAll('.ponto.ativo').forEach(function (p) { p.classList.remove('ativo'); });
     c.classList.add('ativo');
     var cartao = caixa.querySelector('.mapa-cartao');
-    if (!cartao) { cartao = document.createElement('a'); cartao.className = 'mapa-cartao'; caixa.appendChild(cartao); }
+    if (!cartao) { cartao = el('a', 'mapa-cartao'); caixa.querySelector('.mapa-palco').appendChild(cartao); }
     cartao.href = c.getAttribute('data-url');
     cartao.innerHTML = '';
-    if (c.getAttribute('data-foto')) { var img = document.createElement('img'); img.src = c.getAttribute('data-foto'); img.alt = ''; cartao.appendChild(img); }
-    var s = document.createElement('span');
-    var em = document.createElement('em'); em.textContent = c.getAttribute('data-tipo') || '';
-    var b = document.createElement('b'); b.textContent = c.getAttribute('data-nome') || '';
-    s.appendChild(em); s.appendChild(b); cartao.appendChild(s);
+    conteudoDoLugar(lugarDe(c), cartao, true);
+    cartao.appendChild(el('span', 'mapa-ir', 'Abrir ›'));
   }
-  document.addEventListener('click', function (ev) { var c = ev.target.closest && ev.target.closest('.ponto'); if (c) { abrirPonto(c); } });
-  document.addEventListener('keydown', function (ev) { var c = ev.target.closest && ev.target.closest('.ponto'); if (c && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); abrirPonto(c); } });
+
+  document.querySelectorAll('[data-mapa]').forEach(function (caixa) {
+    var svg = caixa.querySelector('.mapa-svg');
+    if (!svg) { return; }
+    var palco = caixa.querySelector('.mapa-palco');
+    var dica = caixa.querySelector('.mapa-dica');
+    var vb0 = svg.getAttribute('viewBox').split(' ').map(Number);
+    var vb = vb0.slice();
+    var MAX = 14;
+    function aplicar() {
+      var k = vb[2] / vb0[2];
+      svg.setAttribute('viewBox', vb.join(' '));
+      svg.style.setProperty('--k', k);
+      palco.classList.toggle('aproximado', k < 0.999);
+    }
+    function prender() {
+      vb[2] = Math.min(vb0[2], Math.max(vb0[2] / MAX, vb[2]));
+      vb[3] = vb[2] * vb0[3] / vb0[2];
+      vb[0] = Math.min(vb0[0] + vb0[2] - vb[2], Math.max(vb0[0], vb[0]));
+      vb[1] = Math.min(vb0[1] + vb0[3] - vb[3], Math.max(vb0[1], vb[1]));
+    }
+    function noSvg(x, y) {
+      var m = svg.getScreenCTM().inverse();
+      return [m.a * x + m.c * y + m.e, m.b * x + m.d * y + m.f];
+    }
+    function zoomEm(fator, px, py) {
+      var r = svg.getBoundingClientRect();
+      if (px === undefined) { px = r.left + r.width / 2; py = r.top + r.height / 2; }
+      var p = noSvg(px, py);
+      var w = vb[2] / fator;
+      var fx = (p[0] - vb[0]) / vb[2], fy = (p[1] - vb[1]) / vb[3];
+      vb[2] = w; vb[3] = w * vb0[3] / vb0[2];
+      vb[0] = p[0] - fx * vb[2]; vb[1] = p[1] - fy * vb[3];
+      prender(); aplicar(); esconderBalaoMapa();
+    }
+    caixa.querySelectorAll('[data-zoom]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var z = Number(b.getAttribute('data-zoom'));
+        if (z === 0) { vb = vb0.slice(); aplicar(); } else { zoomEm(z > 0 ? 1.8 : 1 / 1.8); }
+      });
+    });
+    var tempoDica = null;
+    svg.addEventListener('wheel', function (ev) {
+      if (!ev.ctrlKey && !ev.metaKey) {
+        if (dica) { dica.hidden = false; clearTimeout(tempoDica); tempoDica = setTimeout(function () { dica.hidden = true; }, 1500); }
+        return;
+      }
+      ev.preventDefault();
+      zoomEm(Math.exp(-ev.deltaY * 0.0025), ev.clientX, ev.clientY);
+    }, { passive: false });
+    svg.addEventListener('dblclick', function (ev) { ev.preventDefault(); zoomEm(2, ev.clientX, ev.clientY); });
+
+    // Arrastar e pinçar (só aproximado: no tamanho inteiro, o dedo rola a página).
+    var dedos = {}, inicio = null, arrastou = false;
+    function distancia() { var p = Object.keys(dedos).map(function (k) { return dedos[k]; }); return Math.hypot(p[0][0] - p[1][0], p[0][1] - p[1][1]); }
+    svg.addEventListener('pointerdown', function (ev) {
+      if (ev.pointerType === 'mouse' && ev.button !== 0) { return; }
+      dedos[ev.pointerId] = [ev.clientX, ev.clientY];
+      arrastou = false;
+      var n = Object.keys(dedos).length;
+      if (n === 2) { inicio = { d: distancia(), w: vb[2] }; } else if (n === 1) { inicio = { x: ev.clientX, y: ev.clientY, vb: vb.slice() }; }
+    });
+    svg.addEventListener('pointermove', function (ev) {
+      if (!dedos[ev.pointerId] || !inicio) { return; }
+      dedos[ev.pointerId] = [ev.clientX, ev.clientY];
+      var n = Object.keys(dedos).length;
+      if (n === 2 && inicio.d) {
+        var p = Object.keys(dedos).map(function (k) { return dedos[k]; });
+        var alvoW = inicio.w * inicio.d / Math.max(1, distancia());
+        zoomEm(vb[2] / alvoW, (p[0][0] + p[1][0]) / 2, (p[0][1] + p[1][1]) / 2);
+        arrastou = true;
+      } else if (n === 1 && inicio.vb && vb[2] < vb0[2]) {
+        var dx = ev.clientX - inicio.x, dy = ev.clientY - inicio.y;
+        if (!arrastou && Math.hypot(dx, dy) < 5) { return; }
+        if (!arrastou) { svg.setPointerCapture(ev.pointerId); }
+        arrastou = true;
+        var esc = svg.getScreenCTM().a;
+        vb[0] = inicio.vb[0] - dx / esc;
+        vb[1] = inicio.vb[1] - dy / esc;
+        prender(); aplicar(); esconderBalaoMapa();
+      }
+    });
+    function soltar(ev) {
+      delete dedos[ev.pointerId];
+      var n = Object.keys(dedos).length;
+      if (n === 1) { var k = Object.keys(dedos)[0]; inicio = { x: dedos[k][0], y: dedos[k][1], vb: vb.slice() }; } else if (!n) { inicio = null; }
+    }
+    svg.addEventListener('pointerup', soltar);
+    svg.addEventListener('pointercancel', soltar);
+
+    // Ponto: mouse abre a ficha no clique e o balão ao parar; toque abre o cartão.
+    var ultimoToque = false;
+    svg.addEventListener('pointerdown', function (ev) { ultimoToque = ev.pointerType !== 'mouse'; }, true);
+    svg.addEventListener('click', function (ev) {
+      var c = ev.target.closest('.ponto');
+      if (!c || arrastou) { return; }
+      if (ultimoToque) { abrirCartao(c); } else { location.href = c.getAttribute('data-url'); }
+    });
+    svg.addEventListener('pointerover', function (ev) { var c = ev.target.closest('.ponto'); if (c && ev.pointerType === 'mouse' && !Object.keys(dedos).length) { mostrarBalaoMapa(c); } });
+    svg.addEventListener('pointerout', function (ev) { if (ev.target.closest('.ponto')) { esconderBalaoMapa(); } });
+    // Pelo teclado (Tab), o balão também; o foco que vem de um toque ou clique, não.
+    var porPonteiro = false;
+    svg.addEventListener('pointerdown', function () { porPonteiro = true; setTimeout(function () { porPonteiro = false; }, 400); }, true);
+    svg.addEventListener('focusin', function (ev) { var c = ev.target.closest('.ponto'); if (c && !porPonteiro) { mostrarBalaoMapa(c); } });
+    svg.addEventListener('focusout', esconderBalaoMapa);
+    svg.addEventListener('keydown', function (ev) {
+      var c = ev.target.closest('.ponto');
+      if (c && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); location.href = c.getAttribute('data-url'); }
+    });
+
+    // Enquadra os pontos do grupo (o município inteiro quando é tudo).
+    function enquadrar(g) {
+      var xs = [], ys = [];
+      if (g !== '') {
+        caixa.querySelectorAll('.ponto:not(.oculto)').forEach(function (p) { xs.push(+p.getAttribute('cx')); ys.push(+p.getAttribute('cy')); });
+      }
+      if (!xs.length) { vb = vb0.slice(); aplicar(); return; }
+      var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs), y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
+      var w = Math.max((x1 - x0) * 1.25, (y1 - y0) * 1.25 * vb0[2] / vb0[3], vb0[2] / 8);
+      vb[2] = w; vb[3] = w * vb0[3] / vb0[2];
+      vb[0] = (x0 + x1) / 2 - vb[2] / 2; vb[1] = (y0 + y1) / 2 - vb[3] / 2;
+      prender(); aplicar();
+    }
+
+    // Filtro: um grupo por vez; tocar de novo volta a mostrar tudo.
+    var botoes = caixa.querySelectorAll('[data-grupo-filtro]');
+    botoes.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var g = b.getAttribute('data-grupo-filtro');
+        if (b.classList.contains('ativo') && g !== '') { g = ''; }
+        botoes.forEach(function (o) { var on = o.getAttribute('data-grupo-filtro') === g; o.classList.toggle('ativo', on); o.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+        caixa.querySelectorAll('.ponto').forEach(function (p) { p.classList.toggle('oculto', g !== '' && p.getAttribute('data-grupo') !== g); });
+        var cartao = caixa.querySelector('.mapa-cartao'); if (cartao) { cartao.remove(); }
+        esconderBalaoMapa();
+        enquadrar(g);
+      });
+    });
+    aplicar();
+    // O mapa de uma lista abre já enquadrado nos lugares dela.
+    if (caixa.hasAttribute('data-mapa-lista')) { enquadrar('*'); }
+  });
+  window.addEventListener('scroll', esconderBalaoMapa, { passive: true });
 
   // ---------------------------------------------------------------- fotos
   var galeria = document.querySelector('[data-galeria]');

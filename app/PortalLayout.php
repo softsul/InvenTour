@@ -266,7 +266,41 @@ final class PortalLayout
         $alt = (int) ceil(($y1 - $y0) * $escala) ?: 600;
         $px = fn (float $lng) => round(($lng - $x0) * $kx * $escala, 1);
         $py = fn (float $lat) => round(($y1 - $lat) * $escala, 1);
-        $svg = '<svg class="mapa-svg" viewBox="-30 -30 ' . ($larg + 60) . ' ' . ($alt + 60) . '" role="img" aria-label="' . e($rotulo) . '">';
+
+        // O filtro: com lugares de mais de um pilar, um botão por pilar; num
+        // pilar só, um por tipo (os seis mais comuns e "Outros").
+        $grupoDe = [];
+        $pilares = array_unique(array_map(fn ($i) => (string) ($i['pilar'] ?? 'o-que-fazer'), $pontos));
+        if (count($pilares) > 1) {
+            $grupos = [];
+            foreach (Portal::PILARES as $k => $pil) {
+                $n = count(array_filter($pontos, fn ($i) => ($i['pilar'] ?? '') === $k));
+                if ($n) {
+                    $grupos[$k] = [$pil[0], $n, $k];
+                }
+            }
+            foreach ($pontos as $id => $i) {
+                $grupoDe[$id] = (string) ($i['pilar'] ?? 'o-que-fazer');
+            }
+        } else {
+            $porTipo = [];
+            foreach ($pontos as $id => $i) {
+                $porTipo[(string) ($i['tipo_nome'] ?: $i['ficha_nome'])][] = $id;
+            }
+            uasort($porTipo, fn ($a, $b) => count($b) <=> count($a));
+            $grupos = [];
+            $n = 0;
+            foreach ($porTipo as $tipo => $ids) {
+                $chave = ++$n <= 6 || count($porTipo) === 7 ? 't' . $n : 'outros';
+                $grupos[$chave] ??= [$chave === 'outros' ? 'Outros' : $tipo, 0, ''];
+                $grupos[$chave][1] += count($ids);
+                foreach ($ids as $id) {
+                    $grupoDe[$id] = $chave;
+                }
+            }
+        }
+
+        $svg = '<svg class="mapa-svg" viewBox="-30 -30 ' . ($larg + 60) . ' ' . ($alt + 60) . '" role="img" aria-label="' . e($rotulo) . '"><g class="mapa-camada">';
         foreach ($m['aneis'] ?? [] as $anel) {
             $d = '';
             foreach ($anel as $k => $p) {
@@ -274,12 +308,49 @@ final class PortalLayout
             }
             $svg .= '<path class="divisa" d="' . $d . 'Z"/>';
         }
-        foreach ($pontos as $i) {
-            $foto = Portal::foto($eid, $i['foto'] ?? null, 'p');
-            $svg .= '<circle class="ponto p-' . e((string) ($i['pilar'] ?? 'o-que-fazer')) . '" cx="' . $px((float) $i['longitude']) . '" cy="' . $py((float) $i['latitude']) . '" r="7"'
-                . ' tabindex="0" role="button" aria-label="' . e((string) $i['nome']) . '" data-nome="' . e((string) $i['nome']) . '" data-tipo="' . e((string) ($i['tipo_nome'] ?: $i['ficha_nome'])) . '"'
-                . ' data-url="' . e(self::urlLugar($i)) . '"' . ($foto ? ' data-foto="' . e($foto) . '"' : '') . '></circle>';
+        foreach ($pontos as $id => $i) {
+            $svg .= '<circle class="ponto p-' . e((string) ($i['pilar'] ?? 'o-que-fazer')) . '" cx="' . $px((float) $i['longitude']) . '" cy="' . $py((float) $i['latitude']) . '"'
+                . ' tabindex="0" role="button" aria-label="' . e((string) $i['nome']) . '" data-grupo="' . e($grupoDe[$id] ?? '') . '"'
+                . ' data-url="' . e(self::urlLugar($i)) . '" data-lugar="' . e(json_encode(self::dadosDoPonto($eid, $i), JSON_UNESCAPED_UNICODE)) . '"></circle>';
         }
-        return $svg . '</svg>';
+        $svg .= '</g></svg>';
+
+        $filtro = '<div class="mapa-filtro" role="group" aria-label="Mostrar no mapa"><button type="button" class="ativo" aria-pressed="true" data-grupo-filtro="">Tudo <small>' . milhar(count($pontos)) . '</small></button>';
+        foreach ($grupos as $chave => [$nome, $n, $cor]) {
+            $filtro .= '<button type="button" aria-pressed="false" data-grupo-filtro="' . e((string) $chave) . '">'
+                . ($cor !== '' ? '<i class="l-' . e($cor) . '"></i>' : '') . e($nome) . ' <small>' . milhar($n) . '</small></button>';
+        }
+        $filtro .= '</div>';
+        $zoom = '<div class="mapa-zoom"><button type="button" data-zoom="1" aria-label="Aproximar">+</button><button type="button" data-zoom="-1" aria-label="Afastar">&minus;</button>'
+            . '<button type="button" data-zoom="0" aria-label="Ver o município inteiro">' . icone('mapa') . '</button></div>';
+        return $filtro . '<div class="mapa-palco">' . $svg . $zoom . '<p class="mapa-dica" hidden>Use Ctrl + rolagem para aproximar, ou os botões + e &minus;</p></div>';
+    }
+
+    /** O que o balão do mapa mostra de cada lugar (chaves curtas: são centenas de pontos). */
+    private static function dadosDoPonto(int $eid, array $i): array
+    {
+        $agora = Portal::agora($i['horario'] ?? null);
+        $extra = [];
+        if (!empty($i['capacidade_leitos'])) {
+            $extra[] = plural((int) $i['capacidade_leitos'], 'leito', 'leitos') . (!empty($i['capacidade_uh']) ? ' em ' . plural((int) $i['capacidade_uh'], 'quarto', 'quartos') : '');
+        }
+        if (!empty($i['cadastur_ok'])) {
+            $extra[] = 'Cadastur em dia';
+        }
+        if (!empty($i['experiencias'])) {
+            $extra[] = plural((int) $i['experiencias'], 'experiência', 'experiências');
+        }
+        return array_filter([
+            'n' => (string) $i['nome'],
+            't' => (string) ($i['tipo_nome'] ?: $i['ficha_nome']),
+            'c' => (string) ($i['codigo'] ?? ''),
+            'f' => Portal::foto($eid, $i['foto'] ?? null, 'p'),
+            'b' => implode(' · ', array_filter([trim((string) ($i['bairro'] ?? '')), ($i['zona'] ?? '') === 'rural' ? 'no campo' : ''])),
+            'a' => $agora ? $agora['texto'] : null,
+            'o' => $agora ? (int) $agora['aberto'] : null,
+            'x' => $extra,
+            's' => array_values(array_map(fn ($k) => Portal::SELOS_ACESSIBILIDADE[$k], array_filter($i['selos'] ?? [], fn ($k) => isset(Portal::SELOS_ACESSIBILIDADE[$k])))),
+            'p' => array_values(array_map(fn ($t) => (string) $t['nome'], $i['tribos'] ?? [])),
+        ], fn ($v) => $v !== null && $v !== '' && $v !== []);
     }
 }
