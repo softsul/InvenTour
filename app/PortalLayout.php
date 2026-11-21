@@ -67,7 +67,7 @@ final class PortalLayout
     <a class="marca" href="<?= e(Portal::url('/')) ?>"><span class="marca-nome"><?= e($nome) ?></span><span class="marca-sub">Turismo oficial</span></a>
     <form class="busca-topo" method="get" action="/busca" role="search">
       <?php if ($previa): ?><input type="hidden" name="previa" value="<?= e((string) $_GET['previa']) ?>"><?php endif; ?>
-      <?= icone('busca') ?><input type="search" name="q" placeholder="Buscar hotel, restaurante, atrativo" aria-label="Buscar no portal" value="<?= e((string) ($_GET['q'] ?? '')) ?>">
+      <span class="entrada"><?= icone('busca') ?><input type="search" name="q" placeholder="Buscar hotel, restaurante, atrativo" aria-label="Buscar no portal" value="<?= e((string) ($_GET['q'] ?? '')) ?>"></span>
     </form>
     <a class="meu-roteiro-link" href="<?= e(Portal::url('/meu-roteiro')) ?>" title="Meu roteiro"><?= icone('mapa') ?><span>Meu roteiro</span><b data-conta-roteiro hidden>0</b></a>
     <button type="button" class="abrir-menu-portal" aria-controls="menu-portal" aria-expanded="false" aria-label="Abrir o menu"><?= icone('menu') ?></button>

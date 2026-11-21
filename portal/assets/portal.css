@@ -202,3 +202,8 @@ h2 { font-size: 1.2rem; margin: 28px 0 12px; }
 .convite p { margin: 0 0 14px; }
 .texto-legal li { margin-bottom: 8px; }
 .texto-legal-data { color: var(--suave); font-size: .9rem; margin-top: 32px; }
+
+/* .entrada: o invólucro de todo campo (regra da casa), aqui sem moldura própria. */
+.entrada { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+.busca-grande .entrada, .busca-topo .entrada { gap: 8px; }
+.campo-filtro .entrada { display: block; }

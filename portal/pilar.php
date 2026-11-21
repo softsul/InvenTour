@@ -36,22 +36,22 @@ PortalLayout::inicio($destino, $busca ? 'Busca' : $titulo, !$busca, ['ativo' => 
 <form class="filtros-portal" method="get" action="<?= e($acao) ?>" data-envia-ao-mudar>
   <?php if (Portal::previa($eid)): ?><input type="hidden" name="previa" value="<?= e((string) $_GET['previa']) ?>"><?php endif; ?>
   <?php if ($busca): ?>
-    <label class="campo-filtro largo"><span>Buscar</span><input type="search" name="q" value="<?= e($filtros['q']) ?>" placeholder="Nome, tipo ou bairro"></label>
+    <label class="campo-filtro largo"><span>Buscar</span><span class="entrada"><input type="search" name="q" value="<?= e($filtros['q']) ?>" placeholder="Nome, tipo ou bairro"></span></label>
   <?php endif; ?>
   <?php if (count($fichasDoPilar) > 1): ?>
-    <label class="campo-filtro"><span>Tipo</span><select name="ficha"><option value="">Todos</option>
+    <label class="campo-filtro"><span>Tipo</span><span class="entrada"><select name="ficha"><option value="">Todos</option>
       <?php foreach ($fichasDoPilar as $ordem => $nomeFicha): ?><option value="<?= $ordem ?>"<?= $filtros['ficha'] === $ordem ? ' selected' : '' ?>><?= e($nomeFicha) ?></option><?php endforeach; ?>
-    </select></label>
+    </select></span></label>
   <?php endif; ?>
-  <label class="campo-filtro"><span>Zona</span><select name="zona"><option value="">Cidade e campo</option>
+  <label class="campo-filtro"><span>Zona</span><span class="entrada"><select name="zona"><option value="">Cidade e campo</option>
     <option value="urbana"<?= $filtros['zona'] === 'urbana' ? ' selected' : '' ?>>Na cidade</option>
-    <option value="rural"<?= $filtros['zona'] === 'rural' ? ' selected' : '' ?>>No campo</option></select></label>
-  <label class="campo-filtro"><span>Acessibilidade</span><select name="acess"><option value="">Todas</option>
+    <option value="rural"<?= $filtros['zona'] === 'rural' ? ' selected' : '' ?>>No campo</option></select></span></label>
+  <label class="campo-filtro"><span>Acessibilidade</span><span class="entrada"><select name="acess"><option value="">Todas</option>
     <?php foreach (Portal::SELOS_ACESSIBILIDADE as $k => $r): ?><option value="<?= $k ?>"<?= $filtros['acess'] === $k ? ' selected' : '' ?>><?= e($r) ?></option><?php endforeach; ?>
-  </select></label>
-  <label class="campo-filtro"><span>Perfil de viajante</span><select name="tribo"><option value="">Todos</option>
+  </select></span></label>
+  <label class="campo-filtro"><span>Perfil de viajante</span><span class="entrada"><select name="tribo"><option value="">Todos</option>
     <?php foreach ($tribos as $t): ?><option value="<?= (int) $t['id'] ?>"<?= $filtros['tribo'] === (int) $t['id'] ? ' selected' : '' ?>><?= e((string) $t['nome']) ?></option><?php endforeach; ?>
-  </select></label>
+  </select></span></label>
   <button type="submit" class="botao-filtrar">Filtrar</button>
 </form>
 
