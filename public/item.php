@@ -90,6 +90,11 @@ $subitensAcess = (array) ($blocos['acessibilidade'] ?? []);
 $d = $item ?? ['nome' => '', 'situacao' => 'em_campo', 'zona' => null, 'conservacao' => null, 'natureza' => null, 'jurisdicao' => null,
                'tipo_id' => null, 'horario' => null, 'formas_pagamento' => null, 'idiomas' => null];
 $horario = json_decode((string) ($d['horario'] ?? ''), true) ?: [];
+// Hotel e motel funcionam 24 horas: num meio de hospedagem novo (ou ainda
+// sem horário), a caixa já vem marcada. Quem preenche desmarca se não for.
+if (!$horario && (int) ($ficha['ordem'] ?? 0) === 20) {
+    $horario = ['24h' => true];
+}
 $pagamentos = json_decode((string) ($d['formas_pagamento'] ?? ''), true) ?: [];
 $idiomas = json_decode((string) ($d['idiomas'] ?? ''), true) ?: [];
 $erro = '';
