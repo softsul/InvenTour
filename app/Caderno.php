@@ -64,6 +64,8 @@ final class Caderno
             'equipe'    => (string) ($g['equipe'] ?? ''),
             'fontes'    => (string) ($g['fontes'] ?? ''),
             'credito_capa' => (string) ($g['credito_capa'] ?? ''),
+            // A foto da capa sai desfocada (fundo, como a foto aérea do município), a não ser que se peça nítida.
+            'desfocar_capa' => ($g['desfocar_capa'] ?? '1') !== '0',
         ];
     }
 
@@ -206,6 +208,9 @@ final class Caderno
         try {
             $marcar('gerando', 'Lendo as fichas');
             $d = self::dados($c);
+            if ($d['foto_capa'] && $d['config']['desfocar_capa']) {
+                $d['foto_capa'] = self::desfocar($d['foto_capa'], $tmp . '/capa-desfocada.jpg') ?? $d['foto_capa'];
+            }
             $html = new CadernoHtml($c, $d);
 
             $marcar('gerando', 'Montando as páginas');
@@ -302,6 +307,39 @@ final class Caderno
             }
             @rmdir($tmp);
         }
+    }
+
+    /**
+     * A foto desfocada para o fundo da capa: reduz, amplia de volta e passa
+     * o desfoque, que é o que o wkhtmltopdf não faz (não tem filter no CSS).
+     */
+    private static function desfocar(string $origem, string $destino): ?string
+    {
+        $img = @imagecreatefromjpeg($origem);
+        if (!$img) {
+            return null;
+        }
+        [$l, $a] = [imagesx($img), imagesy($img)];
+        // Em degraus: cada redução e ampliação suave, com desfoque no meio, não deixa o quadriculado.
+        $atual = $img;
+        foreach ([240, 120, 60] as $largura) {
+            $prox = imagecreatetruecolor($largura, max(1, (int) round($largura * $a / max(1, $l))));
+            imagecopyresampled($prox, $atual, 0, 0, 0, 0, imagesx($prox), imagesy($prox), imagesx($atual), imagesy($atual));
+            for ($i = 0; $i < 3; $i++) {
+                imagefilter($prox, IMG_FILTER_GAUSSIAN_BLUR);
+            }
+            $atual = $prox;
+        }
+        foreach ([200, 500, 900] as $largura) {
+            $prox = imagecreatetruecolor($largura, max(1, (int) round($largura * $a / max(1, $l))));
+            imagecopyresampled($prox, $atual, 0, 0, 0, 0, imagesx($prox), imagesy($prox), imagesx($atual), imagesy($atual));
+            for ($i = 0; $i < 4; $i++) {
+                imagefilter($prox, IMG_FILTER_GAUSSIAN_BLUR);
+            }
+            $atual = $prox;
+        }
+        $saida = $atual;
+        return imagejpeg($saida, $destino, 86) ? $destino : null;
     }
 
     private static function rodar(array $args): void

@@ -48,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'equipe'    => mb_substr(trim((string) ($_POST['equipe'] ?? '')), 0, 4000),
             'fontes'    => mb_substr(trim((string) ($_POST['fontes'] ?? '')), 0, 4000),
             'credito_capa' => mb_substr(trim((string) ($_POST['credito_capa'] ?? '')), 0, 160),
+            'desfocar_capa' => empty($_POST['desfocar_capa']) ? '0' : '1',
         ];
         Ajustes::salvar('caderno', $valores, $eid, (int) Auth::usuarioOuNulo()['id']);
         Auditoria::registrar('alterou', 'ajustes', null, 'alterou a encadernação do caderno oficial', null, $valores, $eid);
@@ -183,6 +184,8 @@ paginaInicio('Caderno oficial', 'caderno');
         <div class="entrada"><input type="text" id="subtitulo" name="subtitulo" maxlength="200" placeholder="Por exemplo, Edição do Conselho Municipal de Turismo" value="<?= e($cfg['subtitulo']) ?>"<?= $ro ?>></div></div>
       <div class="campo c-12"><label for="credito_capa">Legenda da foto da capa</label>
         <div class="entrada"><input type="text" id="credito_capa" name="credito_capa" maxlength="160" placeholder="Parque Estadual Vitório Piassa. Foto: Prefeitura" value="<?= e($cfg['credito_capa']) ?>"<?= $ro ?>></div></div>
+      <div class="campo c-12"><?= interruptor('desfocar_capa', 'Foto da capa desfocada', $cfg['desfocar_capa'], 'Desfocada, como fundo: o título fica em destaque',
+          'Nítida, como está na foto', !$podeEditar) ?></div>
       <div class="campo c-6"><label for="equipe">Equipe técnica</label>
         <div class="entrada"><textarea id="equipe" name="equipe" rows="6" maxlength="4000" placeholder="Nome: função, uma pessoa por linha"<?= $ro ?>><?= e($cfg['equipe']) ?></textarea></div>
         <span class="ajuda">Uma pessoa por linha, no formato Nome: função. Sai na ficha técnica.</span></div>

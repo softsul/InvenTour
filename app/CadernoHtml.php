@@ -189,6 +189,7 @@ CSS;
             : ($e['modo_operacao'] === 'projeto' ? 'Documento estruturado via InvenTour' : '');
         $topo = $foto
             ? '<div class="c-foto" style="background-image:url(\'file://' . self::e($foto['arquivo']) . '\')"><div class="c-veu"></div>'
+              . ($cfg['desfocar_capa'] ? '<img class="c-emblema" src="' . self::e($marca) . '" alt="">' : '')
               . ($foto['nome'] !== '' ? '<div class="c-credito">' . self::e($foto['nome']) . '</div>' : '') . '</div>'
             : '<div class="c-foto c-sem-foto" style="background:' . $cor . '"><div class="c-circulo c1"></div><div class="c-circulo c2"></div><div class="c-circulo c3"></div>'
               . '<img class="c-emblema" src="' . self::e($marca) . '" alt=""></div>';
