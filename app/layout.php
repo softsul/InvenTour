@@ -279,6 +279,7 @@ function explicacaoDoMenu(string $chave): string
         'coleta' => 'Coleta de campo: as fichas que pesquisadores e o trade preencheram, com a localização e as fotos, a caminho da homologação.',
         'homologacao' => 'Fila das fichas que esperam a homologação do município: abra cada uma para homologar, devolver para ajuste ou recusar.',
         'caderno' => 'Caderno oficial do inventário do destino, gerado em PDF por versão, a partir das fichas homologadas.',
+        'roteiros' => 'Roteiros prontos para o visitante, com os lugares do inventário em ordem e a rota no mapa do portal.',
         'phygital' => 'Placas e cartazes com QR Code nos atrativos e equipamentos: para onde cada leitura leva e quantas leituras teve.',
         'relatorios' => 'Relatórios e indicadores do inventário do destino.',
         'mapa-turismo' => 'Municípios do Mapa do Turismo Brasileiro, com região turística, categoria e os números que o Ministério do Turismo usa para categorizar.',

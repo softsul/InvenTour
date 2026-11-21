@@ -352,7 +352,7 @@ function apelido(?string $texto, int $limite = 60): string
  * As telas que moram em Configurações: o endereço delas começa por
  * /configuracoes/. A lista é a mesma do .htaccess (regra 1b).
  */
-const TELAS_DE_CONFIGURACOES = ['usuarios', 'usuario', 'auditoria', 'destino', 'email', 'modulos', 'comercial'];
+const TELAS_DE_CONFIGURACOES = ['usuarios', 'usuario', 'auditoria', 'destino', 'email', 'modulos', 'comercial', 'eventcity'];
 
 /**
  * Endereço de um registro, no formato /recurso/id-apelido.

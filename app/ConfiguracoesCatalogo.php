@@ -15,6 +15,7 @@
  */
 declare(strict_types=1);
 require_once __DIR__ . '/Database.php';
+require_once __DIR__ . '/Ajustes.php';
 
 final class ConfiguracoesCatalogo
 {
@@ -72,6 +73,16 @@ final class ConfiguracoesCatalogo
                              . 'subdomínio e domínio próprio do portal.',
                 'total'     => fn () => $conta('SELECT COUNT(*) FROM usuario_empresa WHERE empresa_id = ? AND ativo = 1'),
                 'unidade'   => 'pessoas com acesso',
+                'pronto'    => true,
+            ],
+            [
+                'endereco'  => '/configuracoes/eventcity',
+                'grupo'     => 'Integrações',
+                'icone'     => 'calendario',
+                'nome'      => 'EventCity',
+                'descricao' => 'A agenda de eventos do destino no portal e o aviso dos lugares homologados para o EventCity. Segredo combinado, cifrado.',
+                'total'     => fn () => (int) (Ajustes::ler('eventcity', 'ligado', '0', $empresaId) === '1'),
+                'unidade'   => 'ponte ligada',
                 'pronto'    => true,
             ],
             [

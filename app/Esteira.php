@@ -179,6 +179,9 @@ final class Esteira
             ->execute([$uid, $uid, $id, Empresa::id()]);
         Inventario::registrarHistorico($id, 'homologou', $item['situacao'], 'homologada');
         Auditoria::registrar('alterou', 'inventario_itens', $id, 'homologou: ' . $item['nome']);
+        // Etapa 5: o EventCity fica sabendo do lugar homologado (se a ponte estiver ligada).
+        require_once __DIR__ . '/EventCity.php';
+        EventCity::avisarItem((int) Empresa::id(), $id);
         return [];
     }
 

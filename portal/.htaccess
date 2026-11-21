@@ -14,6 +14,18 @@ RewriteCond %{THE_REQUEST} \s/+([^?\s]+)\.php[\s?] [NC]
 RewriteRule ^ /%1 [R=301,L,NE]
 
 # /pagina serve pagina.php, desde que o arquivo exista.
+# Etapa 5: os pilares, a ficha, o roteiro, o ponto de QR da cidade, a cor,
+# a foto do destino, o sitemap e o robots.
+RewriteRule ^(onde-dormir|onde-comer|o-que-fazer|servicos)/?$ /pilar.php?p=$1 [L,QSA]
+RewriteRule ^busca/?$ /pilar.php [L,QSA]
+RewriteRule ^lugar/([0-9]+)(?:-[^/]*)?/?$ /lugar.php?id=$1 [L,QSA]
+RewriteRule ^roteiro/([0-9]+)(?:-[^/]*)?/?$ /roteiro.php?id=$1 [L,QSA]
+RewriteRule ^qr/([a-z0-9-]{2,40})/?$ /ponto.php?a=$1 [L,QSA]
+RewriteRule ^acento\.css$ /acento.php [L,QSA]
+RewriteRule ^capa\.jpg$ /capa.php [L]
+RewriteRule ^sitemap\.xml$ /sitemap.php [L]
+RewriteRule ^robots\.txt$ /robots.php [L]
+
 # QR das fichas do caderno (/qr/CODIGO/item) e verificação (/verificar/CODIGO).
 RewriteRule ^qr/([A-Za-z0-9]{10})/([0-9]+)/?$ /qr.php?c=$1&i=$2 [L,QSA]
 RewriteRule ^verificar/([A-Za-z0-9-]{10,12})/?$ /verificar.php?c=$1 [L,QSA]
@@ -33,7 +45,7 @@ RewriteRule ^ index.php [L]
 
 <IfModule mod_headers.c>
     Header always set X-Content-Type-Options "nosniff"
-    Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://app.eventcity.com.br https://*.eventcity.com.br; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src https://www.google.com; frame-ancestors 'self'"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
     Header always set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=()"
 </IfModule>

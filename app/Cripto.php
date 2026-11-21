@@ -43,6 +43,12 @@ final class Cripto
     }
 
     /** Devolve texto guardável, com o nonce junto. */
+    /** Assinatura HMAC com a chave do sistema (link de prévia do portal, por exemplo). */
+    public static function assinar(string $dados): string
+    {
+        return hash_hmac('sha256', $dados, self::chave());
+    }
+
     public static function guardar(string $claro): string
     {
         if ($claro === '') {

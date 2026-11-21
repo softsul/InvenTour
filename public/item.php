@@ -211,6 +211,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $acaoFoto === '' && $acaoEsteira ==
         }
         if ($erro === '') {
             $id = Inventario::salvar($novo ? null : $id, $fichaId, $nucleo, $especificos, $acessNovo, $lido['acess_outro']);
+            // Lugar já homologado que muda: o EventCity recebe a versão nova.
+            if (!$novo && in_array($item['situacao'] ?? '', ['homologada', 'desatualizada'], true)) {
+                require_once __DIR__ . '/../app/EventCity.php';
+                EventCity::avisarItem((int) Empresa::id(), $id);
+            }
             if ($ficha['forma'] !== 'municipio') {
                 Inventario::salvarFacilidades($id, (array) ($_POST['facilidades'] ?? []));
             }

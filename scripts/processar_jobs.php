@@ -94,6 +94,35 @@ $tratadores = [
         }
     },
 
+    // Etapa 5: ponte com o EventCity. A agenda de cada destino com a ponte
+    // ligada vai para o cache que o portal lê; o aviso de item homologado
+    // vai assinado e, se falhar, a fila tenta de novo (10, 20, 40 minutos).
+    'eventcity_agenda' => function (array $payload): void {
+        require_once __DIR__ . '/../app/EventCity.php';
+        foreach (Database::conexao()->query("SELECT empresa_id FROM ajustes WHERE grupo = 'eventcity' AND chave = 'ligado' AND valor = '1'")
+                 ->fetchAll(PDO::FETCH_COLUMN) as $eid) {
+            $n = EventCity::atualizarAgenda((int) $eid);
+            echo '#' . $eid . ':' . ($n === null ? 'sem resposta' : $n) . ' ';
+        }
+    },
+    'eventcity_aviso' => function (array $payload): void {
+        require_once __DIR__ . '/../app/EventCity.php';
+        $aviso = EventCity::avisoDoItem((int) ($payload['item_id'] ?? 0));
+        if (!$aviso) {
+            return;
+        }
+        [$codigo] = EventCity::pedir((int) $payload['empresa_id'], 'POST', '/api/v1/inventour/aviso', $aviso);
+        if ($codigo !== 202 && $codigo !== 200) {
+            throw new RuntimeException('EventCity respondeu ' . $codigo . ' ao aviso do item ' . (int) $payload['item_id']);
+        }
+    },
+
+    // Etapa 5: o cartaz A4 de um ponto de QR (phygital).
+    'qr_cartaz' => function (array $payload): void {
+        require_once __DIR__ . '/../app/PontosQr.php';
+        PontosQr::gerarCartaz((int) ($payload['id'] ?? 0));
+    },
+
     'importar_mapa_turismo' => function (array $payload): void {
         require_once __DIR__ . '/../app/MapaTurismo.php';
         echo MapaTurismo::importar() . ' ';
@@ -132,6 +161,9 @@ if (!in_array('faxina', $pendentes, true)) {
 // há planilha nova.
 if (!in_array('importar_cadastur', $pendentes, true)) {
     Fila::enfileirar('importar_cadastur', [], date('Y-m-d H:i:s', strtotime('next sunday 04:00')));
+}
+if (!in_array('eventcity_agenda', $pendentes, true)) {
+    Fila::enfileirar('eventcity_agenda', [], date('Y-m-d H:i:s', strtotime('+5 minutes')));
 }
 if (!in_array('importar_mapa_turismo', $pendentes, true)) {
     Fila::enfileirar('importar_mapa_turismo', [], date('Y-m-d H:i:s', strtotime('first day of next month 05:00')));

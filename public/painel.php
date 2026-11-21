@@ -111,7 +111,12 @@ paginaInicio('Início', 'painel');
     <p><?= e(($empresa ? $empresa['nome_fantasia'] : 'Visão da plataforma') . ' · ' . $dias[(int) date('w')] . ', ' . date('d/m/Y')) ?></p>
   </div>
   <?php if ($empresa && !empty($empresa['slug'])): ?>
-    <div class="acoes"><a class="botao claro" href="<?= e($portalDe($empresa)) ?>" target="_blank" rel="noopener"><?= icone('rede') ?>Ver o portal</a></div>
+    <div class="acoes">
+      <?php if (Auth::pode('inventario.ver')): require_once __DIR__ . '/../app/Portal.php'; ?>
+        <a class="botao claro" href="<?= e($portalDe($empresa) . '/?previa=' . Portal::tokenDePrevia($eid)) ?>" target="_blank" rel="noopener"
+           title="Abre o portal com o que ainda não foi homologado, por 2 horas. É só para a equipe: não compartilhe o link."><?= icone('olho') ?>Prévia do portal</a>
+      <?php endif; ?>
+      <a class="botao claro" href="<?= e($portalDe($empresa)) ?>" target="_blank" rel="noopener"><?= icone('rede') ?>Ver o portal</a></div>
   <?php endif; ?>
 </div>
 

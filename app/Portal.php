@@ -1,0 +1,379 @@
+<?php
+/**
+ * Os dados do portal público do destino (etapa 5).
+ * Softsul Software
+ *
+ * Tudo pela conexão do portal (usuário inventour_portal, só as colunas
+ * públicas: docs/servidor/mysql-usuario-portal.sql). Nunca sai rascunho nem
+ * dado técnico: só o que foi homologado (homologada ou desatualizada).
+ *
+ * Prévia interna: o painel gera um link assinado (válido por 2 horas) que
+ * mostra também o que ainda não foi homologado, com a faixa de prévia e sem
+ * indexação. Não há cookie: o parâmetro segue nos links do próprio portal.
+ *
+ * Ordem orgânica das listas (PLANEJAMENTO 2.8): quem tem experiência
+ * aprovada, depois quem tem Cadastur válido, depois um sorteio do dia (a
+ * mesma ordem o dia todo, diferente a cada dia, para ninguém morar no topo).
+ */
+declare(strict_types=1);
+require_once __DIR__ . '/Database.php';
+require_once __DIR__ . '/Cripto.php';
+require_once __DIR__ . '/Imagem.php';
+
+final class Portal
+{
+    /** Pilares do portal: chave => [título, subtítulo, ícone, fichas (ordem do MTur)]. */
+    public const PILARES = [
+        'onde-dormir'  => ['Onde dormir', 'Hotéis, pousadas e outros meios de hospedagem', 'cama', [20, 21]],
+        'onde-comer'   => ['Onde comer', 'Restaurantes, bares, cafés e sorveterias', 'garfo', [22]],
+        'o-que-fazer'  => ['O que fazer', 'Atrativos naturais e culturais, parques, lazer e esporte',
+                           'bussola', [27, 28, 29, 30, 31, 32, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53]],
+        'servicos'     => ['Serviços', 'Agências, transporte, eventos, saúde, bancos e informações turísticas',
+                           'info', [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 23, 24, 25, 26, 33, 34, 35]],
+    ];
+
+    /** Os cinco selos de acessibilidade, a partir das respostas da ficha (seção 6). */
+    public const SELOS_ACESSIBILIDADE = [
+        'cadeirante' => 'Cadeira de rodas',
+        'visual'     => 'Deficiência visual',
+        'auditiva'   => 'Deficiência auditiva',
+        'capacitado' => 'Equipe preparada',
+        'vaga'       => 'Vaga reservada',
+    ];
+
+    private static ?bool $previa = null;
+
+    private static function pdo(): PDO
+    {
+        return Database::conexaoPortal();
+    }
+
+    // ------------------------------------------------------------ prévia
+
+    /** Link de prévia interna (gerado no painel): o parâmetro ?previa=EXPIRA.ASSINATURA. */
+    public static function tokenDePrevia(int $eid, int $horas = 2): string
+    {
+        $expira = time() + $horas * 3600;
+        return $expira . '.' . substr(Cripto::assinar('previa-portal:' . $eid . ':' . $expira), 0, 32);
+    }
+
+    /** O pedido atual é uma prévia válida para este destino? */
+    public static function previa(int $eid): bool
+    {
+        if (self::$previa !== null) {
+            return self::$previa;
+        }
+        $t = (string) ($_GET['previa'] ?? '');
+        if (!preg_match('/^(\d{10})\.([a-f0-9]{32})$/', $t, $m) || (int) $m[1] < time()) {
+            return self::$previa = false;
+        }
+        return self::$previa = hash_equals(substr(Cripto::assinar('previa-portal:' . $eid . ':' . $m[1]), 0, 32), $m[2]);
+    }
+
+    /** Endereço interno do portal, levando a prévia junto quando houver. */
+    public static function url(string $caminho, array $query = []): string
+    {
+        if (self::$previa) {
+            $query['previa'] = (string) $_GET['previa'];
+        }
+        $query = array_filter($query, fn ($v) => $v !== null && $v !== '' && $v !== []);
+        return $caminho . ($query ? '?' . http_build_query($query) : '');
+    }
+
+    /** O filtro de situação: só homologado, ou tudo menos arquivado na prévia. */
+    private static function situacoes(int $eid, string $alias = 'i'): string
+    {
+        return self::previa($eid) ? "{$alias}.situacao <> 'arquivada'" : "{$alias}.situacao IN ('homologada', 'desatualizada')";
+    }
+
+    // ------------------------------------------------------------ listas
+
+    /** Quantos itens públicos há em cada pilar (para o início). */
+    public static function contagens(int $eid): array
+    {
+        $q = self::pdo()->prepare('SELECT f.ordem, COUNT(*) FROM inventario_itens i JOIN inventario_fichas f ON f.id = i.ficha_id
+                                   WHERE i.empresa_id = ? AND ' . self::situacoes($eid) . ' GROUP BY f.ordem');
+        $q->execute([$eid]);
+        $porFicha = array_map('intval', $q->fetchAll(PDO::FETCH_KEY_PAIR));
+        $n = [];
+        foreach (self::PILARES as $k => $p) {
+            $n[$k] = array_sum(array_intersect_key($porFicha, array_flip($p[3])));
+        }
+        return $n;
+    }
+
+    /**
+     * Itens de um pilar (ou de uma busca), na ordem orgânica, já com a foto
+     * de capa, os selos de acessibilidade e os de tribo. Filtros: zona,
+     * acessibilidade (selo), tribo (id), q (texto), ficha (ordem).
+     */
+    public static function itens(int $eid, ?string $pilar, array $filtros = [], int $limite = 400): array
+    {
+        $onde = ['i.empresa_id = ?', self::situacoes($eid)];
+        $args = [$eid];
+        $fichas = $pilar && isset(self::PILARES[$pilar]) ? self::PILARES[$pilar][3] : array_merge(...array_column(self::PILARES, 3));
+        if (!empty($filtros['ficha']) && in_array((int) $filtros['ficha'], $fichas, true)) {
+            $fichas = [(int) $filtros['ficha']];
+        }
+        $onde[] = 'f.ordem IN (' . implode(',', array_map('intval', $fichas)) . ')';
+        if (in_array($filtros['zona'] ?? '', ['urbana', 'rural'], true)) {
+            $onde[] = 'i.zona = ?';
+            $args[] = $filtros['zona'];
+        }
+        $q = trim((string) ($filtros['q'] ?? ''));
+        if ($q !== '') {
+            foreach (array_slice(preg_split('/\s+/', $q) ?: [], 0, 5) as $p) {
+                $onde[] = '(i.nome LIKE ? OR i.nome_popular LIKE ? OR i.bairro LIKE ? OR t.nome LIKE ?)';
+                array_push($args, ...array_fill(0, 4, '%' . $p . '%'));
+            }
+        }
+        $sql = "SELECT i.id, i.nome, i.nome_popular, i.bairro, i.zona, i.latitude, i.longitude, i.telefone, i.whatsapp, i.cadastur,
+                       i.capacidade_uh, i.capacidade_leitos, i.descricao_promocional, i.situacao, f.codigo, f.ordem AS ficha_ordem, f.nome AS ficha_nome,
+                       t.nome AS tipo_nome,
+                       (SELECT COUNT(*) FROM inventario_experiencias x WHERE x.item_id = i.id AND x.empresa_id = i.empresa_id AND x.situacao = 'aprovada') AS experiencias,
+                       (i.cadastur IS NOT NULL AND (i.cadastur_validade IS NULL OR i.cadastur_validade >= CURDATE())) AS cadastur_ok
+                FROM inventario_itens i JOIN inventario_fichas f ON f.id = i.ficha_id LEFT JOIN inventario_tipos t ON t.id = i.tipo_id
+                WHERE " . implode(' AND ', $onde) . '
+                ORDER BY experiencias > 0 DESC, cadastur_ok DESC, CRC32(CONCAT(i.id, CURDATE())) LIMIT ' . (int) $limite;
+        $st = self::pdo()->prepare($sql);
+        $st->execute($args);
+        $itens = [];
+        foreach ($st->fetchAll() as $i) {
+            $itens[(int) $i['id']] = $i + ['foto' => null, 'selos' => [], 'tribos' => []];
+        }
+        if (!$itens) {
+            return [];
+        }
+        self::completar($eid, $itens);
+        if (!empty($filtros['acess']) && isset(self::SELOS_ACESSIBILIDADE[$filtros['acess']])) {
+            $itens = array_filter($itens, fn ($i) => in_array($filtros['acess'], $i['selos'], true));
+        }
+        if (!empty($filtros['tribo'])) {
+            $itens = array_filter($itens, fn ($i) => isset($i['tribos'][(int) $filtros['tribo']]));
+        }
+        return $itens;
+    }
+
+    /** Foto de capa, selos de acessibilidade e de tribo de uma lista de itens, em lote. */
+    private static function completar(int $eid, array &$itens): void
+    {
+        $ids = implode(',', array_map('intval', array_keys($itens)));
+        foreach (self::pdo()->query("SELECT item_id, arquivo FROM inventario_midias WHERE empresa_id = {$eid} AND experiencia_id IS NULL
+                                     AND item_id IN ({$ids}) ORDER BY capa DESC, ordem, id") as $m) {
+            $itens[(int) $m['item_id']]['foto'] ??= $m['arquivo'];
+        }
+        $acess = [];
+        foreach (self::pdo()->query("SELECT item_id, chave, opcoes FROM inventario_item_acessibilidade WHERE empresa_id = {$eid} AND item_id IN ({$ids})") as $a) {
+            $acess[(int) $a['item_id']][$a['chave']] = json_decode((string) $a['opcoes'], true) ?: [];
+        }
+        foreach ($acess as $id => $respostas) {
+            $itens[$id]['selos'] = self::selos($respostas);
+        }
+        foreach (self::pdo()->query("SELECT i.item_id, t.id, t.nome, t.icone, COUNT(*) n FROM inventario_item_facilidades i
+                                     JOIN tribo_facilidades f ON f.id = i.facilidade_id AND f.ativo = 1 JOIN tribos t ON t.id = f.tribo_id AND t.ativo = 1
+                                     WHERE i.empresa_id = {$eid} AND i.item_id IN ({$ids}) GROUP BY i.item_id, t.id HAVING n >= 2") as $t) {
+            $itens[(int) $t['item_id']]['tribos'][(int) $t['id']] = ['nome' => $t['nome'], 'icone' => $t['icone']];
+        }
+    }
+
+    /** Os selos a partir das respostas de acessibilidade (o "Não" sozinho não vale). */
+    public static function selos(array $r): array
+    {
+        $tem = function (string $chave, array $opcoes = []) use ($r): bool {
+            $marcadas = array_diff((array) ($r[$chave] ?? []), ['Não']);
+            return $opcoes ? (bool) array_intersect($marcadas, $opcoes) : (bool) $marcadas;
+        };
+        $selos = [];
+        if ($tem('circulacao_interna', ['Rampa', 'Elevador', 'Plataforma elevatória', 'Porta larga']) || $tem('rota_externa', ['Rampa', 'Calçada rebaixada'])
+            || $tem('sanitario', ['Barra de apoio', 'Acesso para cadeira de rodas', 'Porta larga suficiente para entrada de cadeira de rodas'])) {
+            $selos[] = 'cadeirante';
+        }
+        if ($tem('piso', ['Tátil']) || $tem('sinalizacao_tatil') || $tem('comunicacao', ['Texto informativo em Braille', 'Texto informativo em fonte ampliada'])) {
+            $selos[] = 'visual';
+        }
+        if ($tem('comunicacao', ['Intérprete em Libras']) || $tem('sinalizacao_visual') || $tem('alarme_emergencia', ['Visual', 'Vibratório'])) {
+            $selos[] = 'auditiva';
+        }
+        if ($tem('pessoal_capacitado')) {
+            $selos[] = 'capacitado';
+        }
+        if ($tem('vaga_estacionamento')) {
+            $selos[] = 'vaga';
+        }
+        return $selos;
+    }
+
+    // ------------------------------------------------------------ ficha
+
+    public static function item(int $eid, int $id): ?array
+    {
+        $q = self::pdo()->prepare('SELECT i.*, f.codigo, f.nome AS ficha_nome, f.ordem AS ficha_ordem, f.categoria, t.nome AS tipo_nome
+                                   FROM inventario_itens i JOIN inventario_fichas f ON f.id = i.ficha_id LEFT JOIN inventario_tipos t ON t.id = i.tipo_id
+                                   WHERE i.id = ? AND i.empresa_id = ? AND ' . self::situacoes($eid));
+        $q->execute([$id, $eid]);
+        $i = $q->fetch();
+        if (!$i) {
+            return null;
+        }
+        $lista = [$id => $i + ['foto' => null, 'selos' => [], 'tribos' => []]];
+        self::completar($eid, $lista);
+        $i = $lista[$id];
+        $q = self::pdo()->prepare('SELECT arquivo, legenda, credito FROM inventario_midias WHERE item_id = ? AND empresa_id = ? AND experiencia_id IS NULL ORDER BY capa DESC, ordem, id');
+        $q->execute([$id, $eid]);
+        $i['fotos'] = $q->fetchAll();
+        $q = self::pdo()->prepare("SELECT * FROM inventario_experiencias WHERE item_id = ? AND empresa_id = ? AND situacao = 'aprovada' ORDER BY titulo");
+        $q->execute([$id, $eid]);
+        $i['experiencias'] = $q->fetchAll();
+        return $i;
+    }
+
+    /** Endereço da foto, servido pelo /midia do portal; $tam p (lista), m (cartão) ou '' (grande). */
+    public static function foto(int $eid, ?string $arquivo, string $tam = 'm'): ?string
+    {
+        if (!$arquivo) {
+            return null;
+        }
+        $nome = $tam !== '' ? Imagem::nomeMiniatura((string) $arquivo, $tam) : basename((string) $arquivo);
+        return '/midia/inventario/' . $eid . '/' . rawurlencode($nome);
+    }
+
+    /** "Seg a sex 08:00 às 18:00" a partir do horário da ficha. */
+    public static function horario(?string $json): array
+    {
+        $h = json_decode((string) $json, true) ?: [];
+        if (!empty($h['24h'])) {
+            return ['Aberto 24 horas'];
+        }
+        $dias = ['seg' => 'Segunda', 'ter' => 'Terça', 'qua' => 'Quarta', 'qui' => 'Quinta', 'sex' => 'Sexta', 'sab' => 'Sábado', 'dom' => 'Domingo'];
+        $linhas = [];
+        foreach ($dias as $k => $nome) {
+            if (!empty($h[$k]) && is_array($h[$k])) {
+                $linhas[] = $nome . ': ' . implode(' e ', array_map(fn ($p) => ($p[0] ?? '') . ' às ' . ($p[1] ?? ''), $h[$k]));
+            }
+        }
+        if ($linhas && isset($h['feriados_abre'])) {
+            $linhas[] = $h['feriados_abre'] ? 'Abre em feriados' : 'Fecha em feriados';
+        }
+        return $linhas;
+    }
+
+    /** O pilar de um item, pela ficha. */
+    public static function pilarDe(int $fichaOrdem): ?string
+    {
+        foreach (self::PILARES as $k => $p) {
+            if (in_array($fichaOrdem, $p[3], true)) {
+                return $k;
+            }
+        }
+        return null;
+    }
+
+    // ------------------------------------------------------------ outros
+
+    public static function tribos(): array
+    {
+        return self::pdo()->query('SELECT id, nome, icone FROM tribos WHERE ativo = 1 ORDER BY ordem')->fetchAll();
+    }
+
+    public static function experiencias(int $eid): array
+    {
+        $q = self::pdo()->prepare("SELECT x.*, i.nome AS item_nome,
+                                          (SELECT m.arquivo FROM inventario_midias m WHERE m.experiencia_id = x.id ORDER BY m.ordem, m.id LIMIT 1) AS foto,
+                                          (SELECT m.arquivo FROM inventario_midias m WHERE m.item_id = x.item_id AND m.experiencia_id IS NULL ORDER BY m.capa DESC, m.ordem LIMIT 1) AS foto_item
+                                   FROM inventario_experiencias x JOIN inventario_itens i ON i.id = x.item_id
+                                   WHERE x.empresa_id = ? AND x.situacao = 'aprovada' AND " . self::situacoes($eid) . ' ORDER BY x.titulo');
+        $q->execute([$eid]);
+        return $q->fetchAll();
+    }
+
+    public static function narrativas(int $eid): array
+    {
+        $q = self::pdo()->prepare("SELECT secao, titulo, conteudo_html, indicadores FROM destino_narrativas
+                                   WHERE empresa_id = ? AND conteudo_html <> ''" . (self::previa($eid) ? '' : ' AND no_portal = 1') . ' ORDER BY ordem');
+        $q->execute([$eid]);
+        return $q->fetchAll();
+    }
+
+    public static function marcos(int $eid): array
+    {
+        $q = self::pdo()->prepare('SELECT * FROM destino_linha_tempo WHERE empresa_id = ?' . (self::previa($eid) ? '' : ' AND no_portal = 1') . ' ORDER BY data_marco, id');
+        $q->execute([$eid]);
+        return $q->fetchAll();
+    }
+
+    public static function roteiros(int $eid): array
+    {
+        $q = self::pdo()->prepare('SELECT r.*, (SELECT COUNT(*) FROM roteiro_itens ri WHERE ri.roteiro_id = r.id) AS paradas
+                                   FROM roteiros r WHERE r.empresa_id = ?' . (self::previa($eid) ? '' : ' AND r.publicado = 1') . ' ORDER BY r.ordem, r.titulo');
+        $q->execute([$eid]);
+        return $q->fetchAll();
+    }
+
+    public static function roteiro(int $eid, int $id): ?array
+    {
+        $q = self::pdo()->prepare('SELECT * FROM roteiros WHERE id = ? AND empresa_id = ?' . (self::previa($eid) ? '' : ' AND publicado = 1'));
+        $q->execute([$id, $eid]);
+        $r = $q->fetch();
+        if (!$r) {
+            return null;
+        }
+        $q = self::pdo()->prepare('SELECT item_id, nota FROM roteiro_itens WHERE roteiro_id = ? ORDER BY ordem');
+        $q->execute([$id]);
+        $paradas = $q->fetchAll(PDO::FETCH_KEY_PAIR);
+        $r['paradas'] = self::porIds($eid, array_keys($paradas));
+        foreach ($r['paradas'] as $iid => &$p) {
+            $p['nota'] = $paradas[$iid] ?? null;
+        }
+        return $r;
+    }
+
+    /** Itens públicos pelos ids, na ordem pedida (roteiro, Meu roteiro). */
+    public static function porIds(int $eid, array $ids): array
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
+        if (!$ids) {
+            return [];
+        }
+        $marcas = implode(',', $ids);
+        $q = self::pdo()->prepare("SELECT i.id, i.nome, i.bairro, i.latitude, i.longitude, i.telefone, i.whatsapp, i.descricao_promocional,
+                                          f.ordem AS ficha_ordem, f.nome AS ficha_nome, t.nome AS tipo_nome
+                                   FROM inventario_itens i JOIN inventario_fichas f ON f.id = i.ficha_id LEFT JOIN inventario_tipos t ON t.id = i.tipo_id
+                                   WHERE i.empresa_id = ? AND i.id IN ({$marcas}) AND " . self::situacoes($eid));
+        $q->execute([$eid]);
+        $achados = [];
+        foreach ($q->fetchAll() as $i) {
+            $achados[(int) $i['id']] = $i + ['foto' => null, 'selos' => [], 'tribos' => []];
+        }
+        if ($achados) {
+            self::completar($eid, $achados);
+        }
+        $saida = [];
+        foreach ($ids as $id) {
+            if (isset($achados[$id])) {
+                $saida[$id] = $achados[$id];
+            }
+        }
+        return $saida;
+    }
+
+    /** Rota no Google Maps passando pelos lugares, na ordem (até 10 paradas). */
+    public static function rotaNoMapa(array $itens): ?string
+    {
+        $pontos = array_values(array_filter(array_map(fn ($i) => $i['latitude'] !== null ? $i['latitude'] . ',' . $i['longitude'] : null, $itens)));
+        if (count($pontos) < 2) {
+            return null;
+        }
+        $pontos = array_slice($pontos, 0, 10);
+        $fim = array_pop($pontos);
+        $inicio = array_shift($pontos);
+        return 'https://www.google.com/maps/dir/?api=1&origin=' . rawurlencode($inicio) . '&destination=' . rawurlencode($fim)
+            . ($pontos ? '&waypoints=' . rawurlencode(implode('|', $pontos)) : '') . '&travelmode=driving';
+    }
+
+    /** Slug para o endereço: /lugar/12-hotel-bedin */
+    public static function slug(string $t): string
+    {
+        $t = iconv('UTF-8', 'ASCII//TRANSLIT', $t) ?: $t;
+        return trim((string) preg_replace('/[^a-z0-9]+/', '-', strtolower($t)), '-');
+    }
+}
