@@ -139,6 +139,20 @@ $tratadores = [
         }
     },
 
+    // O mapa base do portal (ruas do OpenStreetMap): de hora em hora, o
+    // próximo destino sem mapa ou com mapa vencido (30 dias) ou com a divisa
+    // mudada; com empresa_id (botão do painel), aquele destino.
+    'portal_mapa_base' => function (array $payload): void {
+        require_once __DIR__ . '/../app/MapaBase.php';
+        $eid = (int) ($payload['empresa_id'] ?? 0) ?: MapaBase::proximo();
+        if (!$eid) {
+            echo 'nada a fazer ';
+            return;
+        }
+        $s = MapaBase::gerar($eid);
+        echo '#' . $eid . ' ' . $s['blocos'] . ' blocos, versão ' . $s['versao'] . ' ';
+    },
+
     'importar_mapa_turismo' => function (array $payload): void {
         require_once __DIR__ . '/../app/MapaTurismo.php';
         echo MapaTurismo::importar() . ' ';
@@ -180,6 +194,9 @@ if (!in_array('importar_cadastur', $pendentes, true)) {
 }
 if (!in_array('portal_mapa', $pendentes, true)) {
     Fila::enfileirar('portal_mapa', [], date('Y-m-d H:i:s', strtotime('tomorrow 03:30')));
+}
+if (!in_array('portal_mapa_base', $pendentes, true)) {
+    Fila::enfileirar('portal_mapa_base', [], date('Y-m-d H:i:s', strtotime('+1 hour')));
 }
 if (!in_array('eventcity_agenda', $pendentes, true)) {
     Fila::enfileirar('eventcity_agenda', [], date('Y-m-d H:i:s', strtotime('+5 minutes')));

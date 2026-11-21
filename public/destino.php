@@ -681,6 +681,12 @@ $acaoForm = endereco('destino', $novo ? null : $id, $novo ? null : $d['nome_fant
           <span class="ajuda">De 0 a 20 km. Atrativos na própria divisa (rio, rodovia, ponte) pedem uns 2 km.</span>
         </div>
       </div>
+      <?php if (!$novo): require_once __DIR__ . '/../app/MapaBase.php'; $mapaBase = MapaBase::situacao($id); ?>
+      <p class="ajuda"><?= icone('mapa') ?> Mapa do portal:
+        <?= $mapaBase
+            ? 'ruas do OpenStreetMap atualizadas em ' . e(date('d/m/Y', strtotime((string) $mapaBase['gerado_em']))) . '. Atualiza sozinho todo mês e quando a divisa muda.'
+            : 'é gerado sozinho em até uma hora depois que a divisa do município estiver disponível.' ?></p>
+      <?php endif; ?>
     </div>
 
     <div class="cartao">

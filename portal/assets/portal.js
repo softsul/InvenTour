@@ -327,7 +327,7 @@
         layout: { 'text-field': ['get', 'nome'], 'text-font': fontes.m, 'text-size': 11.5, 'text-offset': [0, 1.1], 'text-anchor': 'top', 'text-max-width': 10, 'text-optional': true },
         paint: { 'text-color': P.tinta, 'text-halo-color': P.cartao, 'text-halo-width': 1.6 } }
     );
-    return { version: 8, glyphs: location.origin + '/assets/mapa/fontes/{fontstack}/{range}.pbf', sources: fontesDados, layers: camadas };
+    return { version: 8, glyphs: location.origin + '/assets/maplibre/fontes/{fontstack}/{range}.pbf', sources: fontesDados, layers: camadas };
   }
 
   var carregando = null;
@@ -336,11 +336,11 @@
     if (carregando) { return carregando; }
     carregando = new Promise(function (ok, falha) {
       var css = document.createElement('link');
-      css.rel = 'stylesheet'; css.href = '/assets/mapa/maplibre-gl.css';
+      css.rel = 'stylesheet'; css.href = '/assets/maplibre/maplibre-gl.css';
       document.head.appendChild(css);
       var js = document.createElement('script');
-      js.src = '/assets/mapa/maplibre-gl-csp.js';
-      js.onload = function () { window.maplibregl.setWorkerUrl('/assets/mapa/maplibre-gl-csp-worker.js'); ok(window.maplibregl); };
+      js.src = '/assets/maplibre/maplibre-gl-csp.js';
+      js.onload = function () { window.maplibregl.setWorkerUrl('/assets/maplibre/maplibre-gl-csp-worker.js'); ok(window.maplibregl); };
       js.onerror = falha;
       document.head.appendChild(js);
     });
