@@ -1699,7 +1699,11 @@ dialog.folha-opcoes{width:min(560px, calc(100vw - 32px)); height:auto; max-heigh
 .caixas-coluna{display:flex; flex-direction:column; gap:8px; margin-bottom:6px}
 .acoes-gerar{margin-top:16px; align-items:center}
 table.dados td.arquivos-caderno{white-space:nowrap; text-align:right; overflow:visible; text-overflow:clip; max-width:none}
-td.arquivos-caderno .botao.mini{display:inline-flex; width:auto; margin-left:4px}
+td.arquivos-caderno .botao.mini{display:inline-flex; width:auto; margin-left:4px; vertical-align:middle}
+/* A lixeira na mesma linha e do mesmo tamanho dos arquivos (Luiz, 21/11/2026). */
+td.arquivos-caderno form{display:inline; margin:0}
+td.arquivos-caderno .apagar-versao{color:var(--rubi)}
+td.arquivos-caderno .apagar-versao:hover{background:var(--rubi-sup); border-color:var(--rubi)}
 @media (max-width:640px){
   table.dados td.arquivos-caderno{white-space:normal; text-align:left}
   td.arquivos-caderno .botao.mini{margin:4px 6px 0 0}

@@ -169,8 +169,8 @@ paginaInicio('Caderno oficial', 'caderno');
               <?php endif; ?>
               <?php if (Auth::pode('caderno.excluir') && in_array($v['situacao'], ['pronto', 'falhou'], true)): ?>
                 <form method="post" action="/caderno" class="em-linha"><input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="acao" value="apagar"><input type="hidden" name="id" value="<?= (int) $v['id'] ?>">
-                  <button type="submit" class="botao claro mini perigo" title="Apagar esta versão" aria-label="Apagar a versão <?= (int) $v['versao'] ?>"
-                          data-confirmar="Apagar a versão <?= (int) $v['versao'] ?>? O PDF, a planilha e o CSV saem, e os QR dela deixam de abrir."><?= icone('lixeira') ?></button></form>
+                  <button type="submit" class="botao claro mini apagar-versao" title="Apagar esta versão" aria-label="Apagar a versão <?= (int) $v['versao'] ?>"
+                          data-confirmar="Apagar a versão <?= (int) $v['versao'] ?>? O PDF, a planilha e o CSV saem, e os QR dela deixam de abrir."><?= icone('lixeira') ?>Apagar</button></form>
               <?php endif; ?>
             </td>
           </tr>
