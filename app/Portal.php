@@ -345,7 +345,7 @@ final class Portal
         if (!$r) {
             return null;
         }
-        $q = self::pdo()->prepare('SELECT item_id, nota, etapa FROM roteiro_itens WHERE roteiro_id = ? ORDER BY ordem');
+        $q = self::pdo()->prepare('SELECT item_id, nota, hora, duracao_min FROM roteiro_itens WHERE roteiro_id = ? ORDER BY ordem');
         $q->execute([$id]);
         $paradas = [];
         foreach ($q->fetchAll() as $l) {
@@ -354,7 +354,8 @@ final class Portal
         $r['paradas'] = self::porIds($eid, array_keys($paradas));
         foreach ($r['paradas'] as $iid => &$p) {
             $p['nota'] = $paradas[$iid]['nota'] ?? null;
-            $p['etapa'] = $paradas[$iid]['etapa'] ?? null;
+            $p['hora'] = $paradas[$iid]['hora'] ?? null;
+            $p['duracao_min'] = $paradas[$iid]['duracao_min'] ?? null;
         }
         return $r;
     }
@@ -512,7 +513,7 @@ final class Portal
 
     /**
      * O "Um dia aqui" que a equipe do destino definiu (roteiros do tipo Um
-     * dia aqui e regras por etapa, app/UmDia.php), sorteado pela semente.
+     * dia aqui, com horário livre, e blocos de regras, app/UmDia.php), sorteado.
      * Null quando a equipe não definiu nada.
      */
     public static function umDia(int $eid, int $semente): ?array

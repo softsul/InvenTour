@@ -79,7 +79,7 @@ PortalLayout::inicio($destino, $nome, true, ['ativo' => '', 'imagem' => $temCapa
   <div class="dia-mini">
     <?php foreach ($dia as $p): $f = Portal::foto($eid, $p['item']['foto'], 'm'); ?>
       <a href="<?= e(PortalLayout::urlLugar($p['item'])) ?>">
-        <span class="hora"><?= e($p['hora']) ?> · <?= e($p['rotulo']) ?></span>
+        <span class="hora"><?= e(implode(' · ', array_filter([$p['hora'], $p['rotulo']]))) ?></span>
         <figure><?php if ($f): ?><img src="<?= e($f) ?>" alt="" loading="lazy"><?php else: ?><span class="sem-foto"><b><?= e(PortalLayout::inicial((string) $p['item']['nome'])) ?></b></span><?php endif; ?></figure>
         <b><?= e((string) $p['item']['nome']) ?></b><em><?= e((string) ($p['item']['tipo_nome'] ?: $p['item']['ficha_nome'])) ?><?= $p['metros'] !== null ? ' · ' . e(Portal::metros($p['metros'])) . ' do anterior' : '' ?></em></a>
     <?php endforeach; ?>

@@ -764,8 +764,10 @@ function telefoneParaBanco(?string $texto): ?string
     if (strlen($d) <= 11) {
         $d = '55' . $d;
     }
-    // 12 = fixo (55 + DDD + 8), 13 = celular (55 + DDD + 9).
-    return in_array(strlen($d), [12, 13], true) ? $d : null;
+    // 12 = fixo (55 + DDD + 8), 13 = celular (55 + DDD + 9). Com 12 ou mais
+    // dígitos, tem de começar pelo país: "469991051717" (DDD + 10 dígitos, um
+    // 9 repetido) não é número, e antes passava como fixo completo.
+    return in_array(strlen($d), [12, 13], true) && str_starts_with($d, '55') ? $d : null;
 }
 
 /** Diz se o número é celular, pelo nono dígito. */
@@ -848,4 +850,46 @@ function avatarIniciais(?string $nome, string $classe = 'avatar'): string
     $matiz = crc32(mb_strtolower(trim((string) $nome))) % 12;
     return '<span class="' . e($classe) . ' iniciais matiz-' . $matiz . '" aria-hidden="true">'
          . e(iniciaisDe((string) $nome)) . '</span>';
+}
+
+/**
+ * Nome com iniciais maiúsculas (regra do Luiz, 21/11/2026): "HOTEL SAN
+ * PIETRO" vira "Hotel San Pietro" e "CASATUR AGENCIA DE VIAGENS E TURISMO"
+ * vira "Casatur Agencia de Viagens e Turismo". Só mexe em nome que está
+ * inteiro em maiúsculas (o que veio do Cadastur e de planilhas); nome
+ * digitado com minúsculas fica como a pessoa escreveu. Preposições, artigos
+ * e conjunções ficam minúsculas (menos na primeira palavra); siglas
+ * conhecidas, palavras sem vogal (CTG, GSSR), números romanos e palavras
+ * com número continuam em maiúsculas.
+ */
+function nomeProprio(?string $nome): ?string
+{
+    if ($nome === null) {
+        return null;
+    }
+    $nome = trim((string) preg_replace('/\s+/u', ' ', $nome));
+    if ($nome === '' || !preg_match('/\p{Lu}/u', $nome) || preg_match('/\p{Ll}/u', $nome)) {
+        return $nome;
+    }
+    static $miudas = ['a', 'à', 'ao', 'aos', 'as', 'às', 'o', 'os', 'e', 'de', 'da', 'das', 'do', 'dos', 'em', 'na', 'nas', 'no', 'nos',
+                      'com', 'para', 'por', 'pela', 'pelo', 'sem', 'sob', 'del', 'di', 'du', 'la', 'le', 'van', 'von', 'y'];
+    static $siglas = ['AABB', 'ABRASEL', 'ACEPB', 'AFFISP', 'APAE', 'ATISFA', 'CAPS', 'CAT', 'CDL', 'CRAS', 'CTG', 'DEPATRAN', 'EPP', 'FADEP', 'FIEP',
+                      'FURP', 'IAPAR', 'IAT', 'IFPR', 'IPARDES', 'MEI', 'ME', 'NTI', 'PB', 'PR', 'BR', 'PUC', 'SA', 'SEBRAE', 'SENAC', 'SENAI', 'SENAR',
+                      'SESC', 'SESI', 'SUS', 'UBS', 'UFPR', 'UNIDEP', 'UNIMATER', 'UPA', 'UTFPR', 'TV', 'FM', 'AM', 'GNV', 'RV', 'SP', 'SC', 'RS'];
+    $palavras = explode(' ', $nome);
+    foreach ($palavras as $k => $p) {
+        $base = preg_replace('/[^\p{L}]/u', '', $p);
+        $minusc = mb_strtolower($p, 'UTF-8');
+        if ($base === '' || preg_match('/\d/', $p) || in_array($base, $siglas, true) || preg_match('/^[IVXLC]{2,}$/', $base)
+            || !preg_match('/[AEIOUÁÉÍÓÚÂÊÔÃÕÀYaeiou]/u', $base) || (mb_strlen($base) === 1 && !($k > 0 && in_array($minusc, $miudas, true)))) {
+            continue;
+        }
+        if ($k > 0 && in_array($minusc, $miudas, true)) {
+            $palavras[$k] = $minusc;
+            continue;
+        }
+        // Primeira letra maiúscula também depois de hífen e apóstrofo (Apart-Hotel, D'Ávila).
+        $palavras[$k] = preg_replace_callback("/(^|[-'’.])(\p{Ll})/u", fn ($m) => $m[1] . mb_strtoupper($m[2], 'UTF-8'), $minusc);
+    }
+    return implode(' ', $palavras);
 }

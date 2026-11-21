@@ -129,6 +129,7 @@ foreach ($linhas as $l) {
         continue;
     }
     [$nome, $endereco] = $limpar((string) $l['nome'], (string) ($l['endereco'] ?? $l['local'] ?? ''));
+    $nome = (string) nomeProprio($nome);
     if ($nome === '' || preg_match('/^(R|Av|Rua)\.? /u', $nome) || preg_match('/^\p{Ll}/u', $nome)) {
         $conta['pulados']++; // resto de endereço, ou nome cortado ("ube Grêmio") que repete a linha de cima
         continue;

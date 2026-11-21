@@ -76,7 +76,7 @@ PortalLayout::inicio($destino, (string) $item['nome'], false);
   </div>
   <div class="convite">
     <p><?= e((string) $c['convite']) ?></p>
-    <?php if ($c['whatsapp']): ?><a class="cta" href="https://wa.me/<?= e(preg_replace('/\D/', '', (string) $c['whatsapp'])) ?>">Falar pelo WhatsApp</a><?php endif; ?>
+    <?php if ($c['whatsapp']): ?><a class="cta" href="https://wa.me/<?= e((string) telefoneParaBanco((string) $c['whatsapp'])) ?>">Falar pelo WhatsApp</a><?php endif; ?>
     <?php if ($c['email']): ?><a class="cta claro" href="mailto:<?= e((string) $c['email']) ?>">Escrever um e-mail</a><?php endif; ?>
   </div>
 <?php elseif (!$homologado): ?>
@@ -88,7 +88,7 @@ PortalLayout::inicio($destino, (string) $item['nome'], false);
   <?php if ($item['descricao_promocional']): ?><p><?= nl2br(e((string) $item['descricao_promocional'])) ?></p><?php endif; ?>
   <dl class="ficha-dados">
     <?php if ($end !== ''): ?><dt>Endereço</dt><dd><?= e($end) ?></dd><?php endif; ?>
-    <?php if ($item['telefone']): ?><dt>Telefone</dt><dd><?= e((string) $item['telefone']) ?></dd><?php endif; ?>
+    <?php if ($item['telefone']): ?><dt>Telefone</dt><dd><?= e(formatarTelefone((string) $item['telefone'])) ?></dd><?php endif; ?>
     <?php if ($item['site']): ?><dt>Site</dt><dd><a href="<?= e((string) $item['site']) ?>" rel="noopener nofollow"><?= e((string) $item['site']) ?></a></dd><?php endif; ?>
   </dl>
   <p>

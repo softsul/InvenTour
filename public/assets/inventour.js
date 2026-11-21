@@ -6855,3 +6855,28 @@ window.inventourMarcarNoFiltro = function (form, campo, ids, nome) {
     if (document.visibilityState === 'visible' && !document.querySelector('dialog[open]')) { location.reload(); }
   }, segundos * 1000);
 })();
+
+/*
+ * Hora com máscara no painel (00:00), sem o relógio do navegador: campo de
+ * texto com data-hora. Hora que não existe fica marcada ao sair do campo.
+ * Softsul Software
+ */
+(function () {
+  'use strict';
+  function mascaraHora(v) {
+    var d = String(v || '').replace(/\D/g, '').slice(0, 4);
+    return d.length > 2 ? d.slice(0, 2) + ':' + d.slice(2) : d;
+  }
+  document.addEventListener('input', function (ev) {
+    var el = ev.target;
+    if (el.matches && el.matches('input[data-hora]')) { el.value = mascaraHora(el.value); }
+  });
+  document.addEventListener('focusout', function (ev) {
+    var el = ev.target;
+    if (!el.matches || !el.matches('input[data-hora]')) { return; }
+    var v = el.value.trim(), h = v.match(/^(\d{2}):(\d{2})$/);
+    var ok = !v || !!(h && +h[1] < 24 && +h[2] < 60);
+    var ent = el.closest('.entrada');
+    if (ent) { ent.classList.toggle('invalida', !ok); }
+  });
+})();

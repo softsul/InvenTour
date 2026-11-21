@@ -17,6 +17,7 @@ require_once __DIR__ . '/Database.php';
 require_once __DIR__ . '/Empresa.php';
 require_once __DIR__ . '/Auth.php';
 require_once __DIR__ . '/Auditoria.php';
+require_once __DIR__ . '/svg.php';
 
 final class Inventario
 {
@@ -393,7 +394,7 @@ final class Inventario
             $hosp = $c['atividade'] === 'Meio de Hospedagem';
             $ins->execute([
                 $eid, $fichaId,
-                mb_substr((string) ($c['nome_fantasia'] ?: $c['nome_exibicao'] ?: $c['nome_juridico']), 0, 180),
+                mb_substr((string) nomeProprio((string) ($c['nome_fantasia'] ?: $c['nome_exibicao'] ?: $c['nome_juridico'])), 0, 180),
                 $pj ? mb_substr((string) $c['nome_juridico'], 0, 180) : null,
                 $pj ? $c['documento'] : null,
                 $c['certificado'] ?: null, $c['validade'] ?: null, $c['id'],

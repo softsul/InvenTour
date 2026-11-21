@@ -151,7 +151,7 @@ final class PortalLayout
     </div>
     <div>
       <b>Fale com o turismo</b>
-      <?php if (!empty($d['whatsapp'])): ?><a href="https://wa.me/55<?= e(preg_replace('/\D/', '', (string) $d['whatsapp'])) ?>" rel="noopener">WhatsApp</a><?php endif; ?>
+      <?php if (!empty($d['whatsapp'])): ?><a href="https://wa.me/<?= e((string) telefoneParaBanco((string) $d['whatsapp'])) ?>" rel="noopener">WhatsApp</a><?php endif; ?>
       <?php if (!empty($d['email'])): ?><a href="mailto:<?= e((string) $d['email']) ?>"><?= e((string) $d['email']) ?></a><?php endif; ?>
       <a href="/privacidade">Privacidade</a>
     </div>

@@ -138,7 +138,7 @@ $tratadores = [
             echo '#' . $eid . (Portal::gravarMapa((int) $eid) ? ' ok ' : ' sem divisa ');
             // A cópia das regras do Um dia aqui que o portal lê (refeita por segurança).
             require_once __DIR__ . '/../app/UmDia.php';
-            UmDia::publicarRegras((int) $eid);
+            UmDia::publicar((int) $eid);
         }
     },
 

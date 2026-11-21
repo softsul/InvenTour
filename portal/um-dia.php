@@ -1,8 +1,8 @@
 <?php
 /**
  * Um dia no destino, definido pela equipe (app/UmDia.php): um dos roteiros
- * "Um dia aqui" que ela montou ou o dia montado pelas regras de cada etapa
- * (manhã, almoço, tarde, fim da tarde, jantar, pouso), sorteado. Cada dia tem
+ * "Um dia aqui" que ela montou (hora e tempo livres em cada parada) ou o dia
+ * montado pelos blocos de regras, sorteado. Cada dia tem
  * um número (?s=): o link guarda o mesmo dia, e "Outro dia" sorteia de novo.
  * Sem nada definido pela equipe, a página não existe. Softsul Software.
  */
@@ -40,7 +40,7 @@ PortalLayout::inicio($destino, $titulo, true, ['ativo' => 'um-dia',
   <ol class="dia">
     <?php foreach ($passos as $p): ?>
       <li><span class="hora"><?= e($p['hora']) ?></span>
-        <div><p class="passo-rotulo"><?= e($p['rotulo']) ?></p>
+        <div><?php if ($p['rotulo'] !== '' || $p['duracao'] !== ''): ?><p class="passo-rotulo"><?= e(implode(' · ', array_filter([$p['rotulo'], $p['duracao'] !== '' ? 'cerca de ' . $p['duracao'] : '']))) ?></p><?php endif; ?>
           <?php if ($p['metros'] !== null): ?><p class="trajeto"><?= e($jeito($p['metros'])) ?> da parada anterior</p><?php endif; ?>
           <?php if (!empty($p['nota'])): ?><p class="trajeto"><?= e((string) $p['nota']) ?></p><?php endif; ?>
           <?= PortalLayout::cartao($eid, $p['item']) ?></div></li>

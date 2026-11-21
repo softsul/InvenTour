@@ -1716,7 +1716,21 @@ td.arquivos-caderno .apagar-versao:hover{background:var(--rubi-sup); border-colo
 .foto-capa-atual{display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap; margin:0 0 14px}
 .foto-capa-atual img{width:260px; max-width:100%; height:150px; object-fit:cover; border-radius:10px; display:block}
 
-/* Paradas do roteiro "Um dia aqui": a etapa do dia ao lado da dica. */
-.parada-campos { display: grid; grid-template-columns: minmax(0, 200px) minmax(0, 1fr); gap: 8px; }
-.parada-campos > .entrada:only-child { grid-column: 1 / -1; }
-@media (max-width: 600px) { .parada-campos { grid-template-columns: minmax(0, 1fr); } }
+/* Paradas do roteiro: hora de chegada, tempo de visita e a dica. */
+.parada-campos { display: grid; grid-template-columns: minmax(0, 130px) minmax(0, 120px) minmax(0, 1fr); gap: 8px; margin-top: 8px; }
+@media (max-width: 600px) { .parada-campos { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .parada-campos > .entrada:last-child { grid-column: 1 / -1; } }
+
+/* Rodapé de cartão: o botão de salvar respira, separado dos campos (regra do Luiz, 21/11/2026). */
+.cartao-rodape { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--traco); }
+.cartao-rodape .botao { width: auto; flex: none; }
+@media (max-width: 600px) { .cartao-rodape .botao { flex: 1 1 100%; justify-content: center; } }
+
+/* Blocos de regras do Um dia aqui. */
+.blocos-dia { display: grid; gap: 14px; margin-top: 16px; }
+.bloco-dia { border: 1px solid var(--traco); border-radius: var(--r); padding: 16px; background: var(--leve); }
+.bloco-dia-cab { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 12px; }
+.bloco-dia-cab b { font-size: 13.5px; }
+.bloco-dia .grade { row-gap: 12px; }
+/* Botão no fim de um cartão nunca colado nos campos (regra do Luiz, 21/11/2026). */
+.cartao > .acoes, .cartao > form > .acoes, form.cartao > .acoes, .cartao .grade + .acoes { margin-top: 22px; }
+.entrada.invalida{border-color:var(--rubi); background:var(--rubi-sup)}

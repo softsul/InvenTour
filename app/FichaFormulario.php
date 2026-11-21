@@ -18,6 +18,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/Inventario.php';
 require_once __DIR__ . '/Cnpj.php';
 require_once __DIR__ . '/PlusCode.php';
+require_once __DIR__ . '/svg.php';
 
 final class FichaFormulario
 {
@@ -49,12 +50,13 @@ final class FichaFormulario
                 $n[$col] = $valor();
             }
         };
-        $set('nome', fn () => (string) $texto('nome', 180));
+        // Nome todo em maiúsculas ganha as iniciais maiúsculas (nomeProprio, app/svg.php).
+        $set('nome', fn () => (string) nomeProprio($texto('nome', 180)));
         $set('tipo_id', function () use ($p, $fichaId) {
             $t = (int) (is_scalar($p['tipo_id'] ?? null) ? $p['tipo_id'] : 0);
             return $t && in_array($t, array_map('intval', array_column(Inventario::tipos($fichaId), 'id')), true) ? $t : null;
         });
-        $set('nome_popular', fn () => $texto('nome_popular', 180));
+        $set('nome_popular', fn () => nomeProprio($texto('nome_popular', 180)));
         // Endereço, contato, CNPJ e coordenada valem também para o município
         // (A1: a prefeitura; A6: a Secretaria Municipal de Educação).
         $set('cnpj', fn () => Cnpj::normalizar((string) $texto('cnpj', 30)) ?: null);
