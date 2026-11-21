@@ -33,7 +33,11 @@
     if (plugins.Geolocation) {
       return plugins.Geolocation.getCurrentPosition(opcoes).then(traduzir).catch(function (e) {
         var m = String(e && (e.message || e)).toLowerCase();
-        throw new Error(m.indexOf('denied') !== -1 || m.indexOf('permission') !== -1 ? 'negado' : 'falhou');
+        if (m.indexOf('denied') !== -1 || m.indexOf('permission') !== -1) { throw new Error('negado'); }
+        // Sem sinal a primeira posição precisa pode passar dos 20 s: tenta a
+        // última que o aparelho conhece (até 10 minutos), sem exigir precisão.
+        return plugins.Geolocation.getCurrentPosition({ enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 })
+          .then(traduzir).catch(function () { throw new Error('falhou'); });
       });
     }
     return new Promise(function (ok, falha) {

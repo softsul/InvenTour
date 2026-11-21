@@ -101,6 +101,15 @@ if ($lat !== null && $lng !== null && abs($lat) <= 90 && abs($lng) <= 180) {
 }
 Inventario::registrarHistorico($itemId, 'alterou', null, null, 'foto da coleta em campo', $lat, $lng);
 $r = ['ok' => true, 'item_id' => $itemId];
+// Foto que entrou marcada fora da área (pelo GPS do aparelho ou do arquivo):
+// o aparelho mostra o alerta depois de sincronizar.
+$m = $pdo->prepare('SELECT fora_area, distancia_area_m FROM inventario_midias WHERE item_id = ? AND empresa_id = ? ORDER BY id DESC LIMIT 1');
+$m->execute([$itemId, $eid]);
+$ultima = $m->fetch();
+if ($ultima && (int) $ultima['fora_area']) {
+    $km = number_format(((int) $ultima['distancia_area_m']) / 1000, 1, ',', '');
+    $r['aviso'] = 'Atenção: uma foto tem GPS fora do destino (a ' . $km . ' km da divisa). Ela entrou marcada, para a conferência ver.';
+}
 $pdo->prepare('INSERT IGNORE INTO inventario_coletas (empresa_id, uuid, tipo, usuario_id, aparelho_id, item_id, resultado, recebido_em) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())')
     ->execute([$eid, $uuid, 'foto', $uid, Auth::aparelhoId(), $itemId, json_encode($r)]);
 responder($r);

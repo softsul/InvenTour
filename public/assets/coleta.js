@@ -567,6 +567,7 @@
             return postar('/api/coleta-foto', form, true).then(function (r) {
               if (r.status >= 500 || r.status === 429) { throw new Error('servidor'); }
               if (!r.ok) { c.aviso = (c.aviso ? c.aviso + ' ' : '') + (r.mensagem || 'Uma foto não foi aceita.'); }
+              if (r.ok && r.aviso) { c.aviso = (c.aviso ? c.aviso + ' ' : '') + r.aviso; }
               if (aCadaFoto) { aCadaFoto(); }
               return apagar('fotos', f.uuid);
             });
@@ -1226,6 +1227,12 @@
           b.disabled = false;
           if (!r) { return; }
           var camera = id === 'c-tirar-foto';
+          // Sem sinal o GPS demora a responder e a foto da câmera chegava sem
+          // posição (e sem o alerta de fora da área). Vale então a posição que
+          // o GPS deu nesta ficha nos últimos 10 minutos.
+          if (camera && !r.gps && posicao && Date.now() - posicao[3] < 600000) {
+            r.gps = { lat: posicao[0], lng: posicao[1], precisao: posicao[2] };
+          }
           var area = r.gps ? conferirArea(r.gps.lat, r.gps.lng) : { dentro: true };
           if (camera && !area.dentro && areaBloqueia()) {
             avisar('Esta foto foi tirada ' + foraDoDestino(area) + '. Este destino só aceita fotos tiradas dentro da sua área.');
@@ -1575,14 +1582,25 @@
     var caixa = $('c-mapa');
     var lat = parseFloat($('c-lat').value), lng = parseFloat($('c-lng').value);
     if (!isFinite(lat) || !isFinite(lng)) { caixa.hidden = true; caixa.innerHTML = ''; mapaMostrado = ''; return; }
-    if (!temInternet()) {
+    function semMapa() {
       caixa.hidden = true; caixa.innerHTML = ''; mapaMostrado = '';
       avisoEndereco('Sem internet: só a coordenada. O mapa e o endereço aparecem quando houver sinal.', 'nulo');
-      return;
     }
+    if (!temInternet()) { semMapa(); return; }
     var chave = lat.toFixed(6) + ',' + lng.toFixed(6);
-    caixa.hidden = false;
+    if (mapaMostrado === chave) { caixa.hidden = false; return; }
+    // O "online" do aparelho engana (no modo avião o Android às vezes não
+    // avisa): antes de pôr o quadro do Google, confirma que a internet
+    // chega. Sem isso aparecia a página de erro do Android no lugar do mapa.
+    var recente = conexao.estado === 'ok' && Date.now() - conexao.quando < 30000;
+    (recente ? Promise.resolve(true) : testarConexao()).then(function (ok) {
+      if (!ok) { mostrarEstado(); semMapa(); return; }
+      desenharMapa(caixa, chave);
+    }, semMapa);
+  }
+  function desenharMapa(caixa, chave) {
     if (mapaMostrado === chave) { return; }
+    caixa.hidden = false;
     mapaMostrado = chave;
     caixa.innerHTML = '';
     var quadro = document.createElement('iframe');
@@ -1643,7 +1661,14 @@
         if (!preenchi.length && !diferentes.length) { texto += ' A ficha já está igual.'; }
         avisoEndereco(texto, 'achou', diferentes.length > 0);
       })
-      .catch(function () { botao.disabled = false; avisoEndereco('O endereço não veio agora. Tente de novo ou preencha à mão.', 'nulo'); });
+      .catch(function () {
+        botao.disabled = false;
+        // Falhou porque a internet não chega (modo avião sem o aviso do aparelho): diz isso.
+        conexao = { estado: 'falhou', ms: null, quando: Date.now() };
+        mostrarEstado();
+        avisoEndereco('Sem internet: só a coordenada. O mapa e o endereço aparecem quando houver sinal.', 'nulo');
+        mostrarMapa();
+      });
   }
   $('c-buscar-endereco').addEventListener('click', function () { buscarEndereco(); });
   $('c-usar-endereco').addEventListener('click', function () {
@@ -1714,8 +1739,8 @@
   $('col-mais').addEventListener('click', function () { mostrar += POR_PAGINA; desenharLista(); });
   $('col-sincronizar').addEventListener('click', sincronizar);
   if ($('col-historico')) { $('col-historico').addEventListener('click', abrirHistorico); }
-  window.addEventListener('online', function () { medirConexao(); });
-  window.addEventListener('offline', function () { conexao = { estado: 'sem-rede', ms: null, quando: Date.now() }; mostrarEstado(); });
+  window.addEventListener('online', function () { medirConexao().then(function () { if ($('c-mapa')) { mostrarMapa(); } }); });
+  window.addEventListener('offline', function () { conexao = { estado: 'sem-rede', ms: null, quando: Date.now() }; mostrarEstado(); if ($('c-mapa')) { mostrarMapa(); } });
 
   // Para o app: o novo item vem do botão dele, e a primeira sincronização é logo depois de conectar.
   window.inventourColeta = { sincronizar: sincronizar, novo: function () { if (botaoNovo) { botaoNovo.click(); } }, recarregar: recarregarTela };
