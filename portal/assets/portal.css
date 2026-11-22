@@ -620,3 +620,19 @@ body.com-barra .aviso-cookies { bottom: calc(84px + env(safe-area-inset-bottom))
 
 /* Radar de obsolescência: o lugar desatualizado fica no guia, com este selo discreto. */
 .selo-atualizacao { border: 1px dashed currentColor; padding: 0 6px; opacity: .8; }
+
+/* Sugestões da busca enquanto se digita: folha do caderno sob o campo. */
+.sugestoes { position: fixed; z-index: 1000; background: var(--cartao); border: 1.5px solid var(--tinta); box-shadow: var(--sombra), 0 14px 34px rgba(43, 53, 66, .18);
+  overflow-y: auto; overscroll-behavior: contain; padding: 6px 0; color: var(--tinta); font-family: var(--texto); }
+.sugestao-grupo { display: block; font-family: var(--mono); font-size: .64rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--apagado); padding: 8px 14px 4px; }
+.sugestao { display: flex; align-items: center; gap: 12px; padding: 8px 14px; text-decoration: none; color: inherit; }
+.sugestao[aria-selected="true"], .sugestao:hover { background: var(--acento-sup); }
+.sugestao-foto { flex: none; width: 44px; height: 44px; border-radius: 6px; background: var(--papel-2); overflow: hidden; }
+.sugestao-foto img { width: 100%; height: 100%; object-fit: cover; }
+.sugestao-data > span { display: block; }
+.sugestao-data { flex: none; width: 44px; font-family: var(--mono); font-size: .7rem; font-weight: 600; color: var(--brasa); line-height: 1.3; }
+.sugestao-txt { display: flex; flex-direction: column; min-width: 0; }
+.sugestao-txt b { font-weight: 700; font-size: .95rem; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sugestao-txt small { font-size: .78rem; color: var(--grafite); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sugestao-todos { justify-content: center; margin-top: 4px; border-top: 1px dashed var(--linha-forte); padding: 11px 14px 8px; font-weight: 700; font-size: .9rem; color: var(--acento); }
+.sugestao-vazia { margin: 0; padding: 12px 14px; font-size: .9rem; color: var(--grafite); }

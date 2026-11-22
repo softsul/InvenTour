@@ -603,3 +603,163 @@
     }
   });
 })();
+
+/*
+ * Sugestões da busca enquanto se digita (Luiz, 22/11/2026): a partir da
+ * segunda letra, a lista do que o guia encontrou (lugares com foto e tipo,
+ * e eventos da agenda), em /api/sugestoes. Setas escolhem, Enter abre, Esc
+ * fecha; Enter sem escolher segue para a página de resultados. A lista é
+ * do próprio portal, não a do navegador (autocomplete desligado).
+ * Softsul Software
+ */
+(function () {
+  'use strict';
+  var campos = document.querySelectorAll('form[role="search"] input[name="q"]');
+  if (!campos.length || !window.fetch) { return; }
+  var n = 0;
+
+  campos.forEach(function (campo) {
+    var form = campo.form;
+    var previa = form.querySelector('input[name="previa"]');
+    var lista = document.createElement('div');
+    var id = 'sugestoes-' + (++n);
+    lista.className = 'sugestoes';
+    lista.id = id;
+    lista.setAttribute('role', 'listbox');
+    lista.hidden = true;
+    document.body.appendChild(lista);
+    campo.setAttribute('autocomplete', 'off');
+    campo.setAttribute('role', 'combobox');
+    campo.setAttribute('aria-autocomplete', 'list');
+    campo.setAttribute('aria-controls', id);
+    campo.setAttribute('aria-expanded', 'false');
+
+    var espera = null, pedido = 0, ativo = -1, ultimo = '';
+
+    function posicionar() {
+      var r = (form.querySelector('.entrada') && form.classList.contains('busca-menu') ? form.querySelector('.entrada') : form).getBoundingClientRect();
+      var largura = Math.max(r.width, Math.min(360, window.innerWidth - 16));
+      var esq = Math.min(r.left, window.innerWidth - largura - 8);
+      lista.style.left = Math.max(8, esq) + 'px';
+      lista.style.top = (r.bottom + 4) + 'px';
+      lista.style.width = largura + 'px';
+      lista.style.maxHeight = Math.max(160, window.innerHeight - r.bottom - 16) + 'px';
+    }
+    function fechar() {
+      lista.hidden = true;
+      campo.setAttribute('aria-expanded', 'false');
+      campo.removeAttribute('aria-activedescendant');
+      ativo = -1;
+    }
+    function opcoes() { return lista.querySelectorAll('[role="option"]'); }
+    function marcar(i) {
+      var o = opcoes();
+      if (!o.length) { return; }
+      ativo = (i + o.length) % o.length;
+      o.forEach(function (el, k) { el.setAttribute('aria-selected', k === ativo ? 'true' : 'false'); });
+      campo.setAttribute('aria-activedescendant', o[ativo].id);
+      o[ativo].scrollIntoView({ block: 'nearest' });
+    }
+    function el(tag, cls, texto) {
+      var x = document.createElement(tag);
+      if (cls) { x.className = cls; }
+      if (texto) { x.textContent = texto; }
+      return x;
+    }
+    function opcao(url, externo) {
+      var a = el('a', 'sugestao');
+      a.href = url;
+      a.id = id + '-' + opcoes().length;
+      a.setAttribute('role', 'option');
+      a.setAttribute('aria-selected', 'false');
+      if (externo) { a.target = '_blank'; a.rel = 'noopener'; }
+      return a;
+    }
+    function desenhar(d, q) {
+      lista.textContent = '';
+      ativo = -1;
+      if (!d.lugares.length && !d.eventos.length) {
+        lista.appendChild(el('p', 'sugestao-vazia', 'Nada encontrado para "' + q + '". Tente outra palavra, como hotel, pizza ou parque.'));
+      }
+      if (d.lugares.length) {
+        lista.appendChild(el('span', 'sugestao-grupo', 'Lugares'));
+        d.lugares.forEach(function (l) {
+          var a = opcao(l.url, false);
+          var foto = el('span', 'sugestao-foto');
+          if (l.foto) { var img = el('img'); img.src = l.foto; img.alt = ''; img.loading = 'lazy'; foto.appendChild(img); }
+          a.appendChild(foto);
+          var txt = el('span', 'sugestao-txt');
+          txt.appendChild(el('b', '', l.nome));
+          txt.appendChild(el('small', '', l.tipo + (l.bairro ? ' · ' + l.bairro : '')));
+          a.appendChild(txt);
+          lista.appendChild(a);
+        });
+      }
+      if (d.eventos.length) {
+        lista.appendChild(el('span', 'sugestao-grupo', 'Na agenda'));
+        d.eventos.forEach(function (ev) {
+          var a = opcao(ev.url, true);
+          var data = el('span', 'sugestao-data');
+          ev.quando.split(' · ').forEach(function (parte) { data.appendChild(el('span', '', parte)); });
+          a.appendChild(data);
+          var txt = el('span', 'sugestao-txt');
+          txt.appendChild(el('b', '', ev.nome));
+          txt.appendChild(el('small', '', 'no EventCity, abre em outra aba'));
+          a.appendChild(txt);
+          lista.appendChild(a);
+        });
+      }
+      if (d.total > d.lugares.length || d.eventos.length) {
+        var params = new URLSearchParams({ q: q });
+        if (previa) { params.set('previa', previa.value); }
+        var todos = opcao('/busca?' + params.toString(), false);
+        todos.classList.add('sugestao-todos');
+        todos.textContent = d.total > d.lugares.length ? 'Ver os ' + d.total + ' resultados' : 'Ver todos os resultados';
+        lista.appendChild(todos);
+      }
+      // Campo no pé da tela (a capa, ou o celular com o teclado aberto): a
+      // página sobe até o campo ficar no alto, logo abaixo do cabeçalho.
+      var caixa = form.getBoundingClientRect();
+      if (caixa.bottom + 260 > window.innerHeight) {
+        var topo = document.querySelector('.topo');
+        var acima = 12;
+        if (topo && /sticky|fixed/.test(getComputedStyle(topo).position)) { acima += Math.max(0, topo.getBoundingClientRect().bottom); }
+        window.scrollBy(0, caixa.top - acima);
+      }
+      posicionar();
+      lista.hidden = false;
+      campo.setAttribute('aria-expanded', 'true');
+    }
+    function buscar() {
+      var q = campo.value.trim();
+      if (q.length < 2) { ultimo = ''; fechar(); return; }
+      if (q === ultimo && !lista.hidden) { return; }
+      ultimo = q;
+      var este = ++pedido;
+      var params = new URLSearchParams({ q: q });
+      if (previa) { params.set('previa', previa.value); }
+      fetch('/api/sugestoes?' + params.toString(), { headers: { Accept: 'application/json' } })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) { if (d && este === pedido && document.activeElement === campo) { desenhar(d, q); } })
+        .catch(function () {});
+    }
+
+    campo.addEventListener('input', function () {
+      clearTimeout(espera);
+      espera = setTimeout(buscar, 160);
+    });
+    campo.addEventListener('focus', function () { if (campo.value.trim().length >= 2) { ultimo = ''; buscar(); } });
+    campo.addEventListener('keydown', function (ev) {
+      if (lista.hidden) { return; }
+      if (ev.key === 'ArrowDown') { ev.preventDefault(); marcar(ativo + 1); }
+      else if (ev.key === 'ArrowUp') { ev.preventDefault(); marcar(ativo - 1); }
+      else if (ev.key === 'Escape') { fechar(); }
+      else if (ev.key === 'Enter' && ativo >= 0) { ev.preventDefault(); opcoes()[ativo].click(); }
+    });
+    campo.addEventListener('blur', function () { setTimeout(fechar, 180); });
+    // Tocar na lista não pode tirar o foco do campo antes do clique valer.
+    lista.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+    window.addEventListener('resize', function () { if (!lista.hidden) { posicionar(); } });
+    window.addEventListener('scroll', function () { if (!lista.hidden) { posicionar(); } }, { passive: true });
+  });
+})();
