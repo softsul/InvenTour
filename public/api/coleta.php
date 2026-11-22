@@ -109,12 +109,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $q->execute([$eid, ...$ae]);
     $linhas = $q->fetchAll();
     $fichasDosItens = FichaFormulario::paraOAparelho($linhas);
+    // As fotos que já estão no servidor, para o item mostrar as miniaturas
+    // (e não só a conta). A capa primeiro, depois na ordem da ficha.
+    $galeria = [];
+    if ($linhas) {
+        $ids = array_map(fn ($i) => (int) $i['id'], $linhas);
+        $m = $pdo->prepare('SELECT item_id, arquivo, capa, latitude, fora_area FROM inventario_midias
+                            WHERE empresa_id = ? AND experiencia_id IS NULL AND item_id IN (' . implode(',', array_fill(0, count($ids), '?')) . ')
+                            ORDER BY item_id, capa DESC, ordem, id');
+        $m->execute([$eid, ...$ids]);
+        foreach ($m->fetchAll() as $f) {
+            $galeria[(int) $f['item_id']][] = [
+                'm' => Inventario::urlFoto($eid, (string) $f['arquivo'], 'm'), 'g' => Inventario::urlFoto($eid, (string) $f['arquivo']),
+                'capa' => (bool) $f['capa'], 'gps' => $f['latitude'] !== null, 'fora' => (bool) $f['fora_area'],
+            ];
+        }
+    }
     // Na lista, só o que ela mostra; a ficha inteira vai em f.
-    $itens = array_map(function ($i) use ($fichasDosItens) {
+    $itens = array_map(function ($i) use ($fichasDosItens, $galeria) {
         return ['id' => (int) $i['id'], 'ficha_id' => (int) $i['ficha_id'], 'situacao' => $i['situacao'], 'nome' => $i['nome'],
                 'logradouro' => $i['logradouro'], 'numero' => $i['numero'], 'bairro' => $i['bairro'],
                 'latitude' => $i['latitude'] === null ? null : (float) $i['latitude'], 'longitude' => $i['longitude'] === null ? null : (float) $i['longitude'],
                 'devolucao_nota' => $i['devolucao_nota'], 'ficha_codigo' => $i['ficha_codigo'], 'fotos' => (int) $i['fotos'],
+                'galeria' => $galeria[(int) $i['id']] ?? [],
                 'f' => (object) ($fichasDosItens[(int) $i['id']] ?? [])];
     }, $linhas);
     $empresa = Empresa::atual();

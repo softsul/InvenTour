@@ -347,6 +347,8 @@ function telaColeta(bool $noApp, bool $comEstado = true): string
         <?php endif; ?>
         <ul class="coleta-miniaturas" id="c-miniaturas"></ul>
         <p class="nulo" id="c-fotos-servidor"></p>
+        <?php /* As que já estão no servidor, em miniatura (a lista traz). */ ?>
+        <ul class="coleta-miniaturas no-servidor" id="c-galeria-servidor"></ul>
       </section>
 
       <section class="painel-coleta" data-painel-coleta="conferencia" hidden>

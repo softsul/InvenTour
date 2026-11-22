@@ -1051,6 +1051,7 @@
     var naFila = item.fotos_fila || 0;
     $('c-fotos-servidor').textContent = (noServidor ? (noServidor === 1 ? '1 foto já no servidor' : noServidor + ' fotos já no servidor') : '')
       + (naFila ? (noServidor ? '; ' : '') + (naFila === 1 ? '1 foto' : naFila + ' fotos') + ' esperando sincronizar' : '');
+    desenharGaleriaServidor(item);
     fotosNovas.forEach(function (x) { URL.revokeObjectURL(x.url); });
     fotosNovas = [];
     desenharMiniaturas();
@@ -1059,6 +1060,25 @@
     abrirAba('ident');
     dialogo.showModal();
     if (!item.id && !item.local_id) { form.elements.nome.focus(); }
+  }
+
+  // As fotos que já estão no servidor, em miniatura. No painel abrem no
+  // visualizador (data-visualizar); no app só aparecem, e sem sinal a
+  // miniatura que não carrega some, ficando a conta escrita.
+  function desenharGaleriaServidor(item) {
+    var lista = $('c-galeria-servidor');
+    if (!lista) { return; }
+    var fotos = (item && item.galeria) || [];
+    lista.innerHTML = fotos.map(function (f) {
+      var selo = f.fora ? '<span class="foto-gps foto-fora">' + icone('alerta') + 'Fora</span>'
+        : (f.gps ? '<span class="foto-gps">' + icone('mapa') + 'GPS</span>' : '');
+      var capa = f.capa ? '<span class="foto-capa">Capa</span>' : '';
+      var img = '<img src="' + esc(API + f.m) + '" alt="" loading="lazy">';
+      return '<li>' + (APP ? img : '<a href="' + esc(f.g) + '" data-visualizar="foto" data-galeria="coleta-' + esc(item.id) + '">' + img + '</a>') + capa + selo + '</li>';
+    }).join('');
+    Array.prototype.forEach.call(lista.querySelectorAll('img'), function (im) {
+      im.addEventListener('error', function () { var li = im.closest('li'); if (li) { li.remove(); } });
+    });
   }
 
   function desenharMiniaturas() {

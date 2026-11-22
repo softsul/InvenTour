@@ -846,7 +846,7 @@ table.dados .cli .avatar{width:34px; height:34px; border-radius:50%; padding:0}
 dialog:not([open]){display:none !important}
 
 .visor{
-  width:min(1080px, 94vw); height:min(88vh, 900px); max-width:none; max-height:none;
+  width:min(1400px, calc(100vw - 32px)); height:calc(100vh - 32px); height:calc(100dvh - 32px); max-width:none; max-height:none;
   padding:0; border:0; border-radius:var(--r-g); overflow:hidden;
   background:var(--branco); box-shadow:0 30px 90px -20px rgba(21,29,51,.55);
   display:flex; flex-direction:column;
@@ -873,12 +873,22 @@ dialog:not([open]){display:none !important}
   cursor:pointer; padding:0 6px; border-radius:8px;
 }
 .visor header button:hover{background:var(--leve); color:var(--tinta)}
-.visor iframe{flex:1; width:100%; border:0; background:var(--leve)}
+.visor iframe{flex:1; width:100%; min-height:0; border:0; background:var(--leve)}
+/* PDF desenhado pelo pdf.js (celular): páginas brancas na largura do modal,
+   rolando dentro dele. */
+.visor-paginas{flex:1; width:100%; min-height:0; overflow:auto; -webkit-overflow-scrolling:touch; background:#525659;
+  display:flex; flex-direction:column; align-items:center; gap:8px; padding:8px}
+.visor-paginas[hidden]{display:none}
+.visor-paginas canvas{display:block; flex:none; max-width:100%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.35)}
+.visor-aviso{margin:auto; padding:24px; max-width:320px; text-align:center; color:#fff; font-size:14px; line-height:1.5}
+.vis-conteudo .visor-paginas{height:100%; border-radius:8px}
 a.ver-pdf{color:var(--fraca)}
 a.ver-pdf:hover{color:var(--indigo)}
 @media (max-width:640px){
-  .visor{width:100vw; height:100vh; border-radius:0}
+  .visor{width:100vw; height:100vh; height:100dvh; border-radius:0}
   .visor header a span,.visor header a{padding:6px 8px}
+  .visor header{gap:8px; padding:10px 8px 10px 14px}
+  #visor-aba{display:none}
 }
 
 /* --- zona de arrastar e soltar --- */

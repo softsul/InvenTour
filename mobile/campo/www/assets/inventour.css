@@ -1339,6 +1339,9 @@ details.tribo summary .tribo-conta{margin-left:auto}
 .coleta-miniaturas:empty{display:none}
 .coleta-miniaturas li{position:relative; aspect-ratio:1}
 .coleta-miniaturas img{width:100%; height:100%; object-fit:cover; border-radius:10px}
+.coleta-miniaturas a{display:block; width:100%; height:100%}
+.coleta-miniaturas.no-servidor{margin-top:10px}
+.coleta-miniaturas .foto-capa{position:absolute; left:6px; top:6px; padding:2px 6px; border-radius:6px; background:rgba(255,255,255,.92); color:var(--indigo); font-size:11px; font-weight:600}
 .coleta-miniaturas .foto-gps{position:absolute; left:6px; bottom:6px; display:inline-flex; align-items:center; gap:3px; padding:2px 6px; border-radius:6px;
   background:rgba(0,0,0,.6); color:#fff; font-size:10.5px; font-weight:700}
 .coleta-miniaturas .foto-gps svg{width:11px; height:11px}
@@ -1775,3 +1778,99 @@ body.arrastando-parada { user-select: none; -webkit-user-select: none; cursor: g
 @media (max-width: 600px) {
   .parada-linha { grid-template-areas: "alca num lugar tirar" "meio meio meio meio" "campos campos campos campos"; }
 }
+
+/* Etapa 6, trade turístico: o pedido público, Meus lugares e a revisão. */
+.termo-trade{border:1px solid var(--traco); border-radius:12px; padding:14px 16px; margin:6px 0 18px; background:var(--fundo, transparent)}
+.termo-trade b{display:block; margin-bottom:6px}
+.termo-trade ul{margin:0 0 12px; padding-left:18px; font-size:13.5px; color:var(--suave)}
+.termo-trade li{margin-bottom:4px}
+.form-reivindicar .zona-upload{margin-top:6px}
+.form-reivindicar > .botao{margin-top:4px}
+.grade-lugares{display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:16px}
+.cartao-lugar{display:flex; flex-direction:column; padding:0; overflow:hidden}
+.cartao-lugar > img, .cartao-lugar .sem-foto{width:100%; aspect-ratio:16/9; object-fit:cover; display:block; background:var(--traco)}
+.cartao-lugar .sem-foto{display:flex; align-items:center; justify-content:center; color:var(--suave)}
+.cartao-lugar .sem-foto svg{width:34px; height:34px}
+.cartao-lugar-txt{padding:14px 16px 0; flex:1}
+.cartao-lugar-txt h2{font-size:17px; margin:0 0 4px}
+.cartao-lugar-txt p{margin:0 0 10px; color:var(--suave); font-size:13.5px}
+.cartao-lugar .cartao-rodape{margin-top:14px; padding:14px 16px 16px; flex-wrap:wrap}
+table.comparar td{vertical-align:top}
+table.comparar td.proposta{font-weight:600}
+table.comparar .nota svg{width:14px; height:14px; vertical-align:-2px; margin-right:4px}
+.cartao > form + form{margin-top:22px}
+.acoes-linha form{display:contents}
+.acoes-linha button.aprovar:hover{color:var(--verde); border-color:var(--verde); background:var(--verde-sup)}
+
+/* Relatórios: no celular, a tabela em cartões não guarda a largura mínima
+   da tabela larga (tema.css, .rolagem.sem-borda). */
+@media (max-width:640px){ .rolagem.sem-borda table.dados.em-cartoes{min-width:0} }
+
+/* Radar de obsolescência: os dois botões do link de uso único (public/confirmar.php). */
+.botoes-radar{display:flex; flex-wrap:wrap; gap:10px; margin-top:22px}
+.botoes-radar .botao{flex:1 1 180px; justify-content:center}
+
+/* Diagnóstico DTI (public/diagnostico.php e diagnostico-requisito.php). */
+.radar-dti-caixa{display:flex; justify-content:center; padding:4px 0}
+.radar-dti{width:100%; max-width:480px; height:auto; overflow:visible}
+.radar-dti .anel{fill:none; stroke:var(--traco); stroke-width:1}
+.radar-dti .eixo{stroke:var(--traco); stroke-width:1}
+.radar-dti .minima{fill:none; stroke:var(--ambar); stroke-width:1.5; stroke-dasharray:5 4}
+.radar-dti .valor{fill:var(--indigo); fill-opacity:.18; stroke:var(--indigo); stroke-width:2}
+.radar-dti .no{fill:var(--indigo); cursor:help}
+.radar-dti text{font-size:10.5px; fill:var(--suave)}
+.gira-180{transform:rotate(180deg)}
+.requisito-dti .texto-requisito{margin:0; font-size:15px; line-height:1.55}
+.requisito-dti .itens-requisito{margin:10px 0 0; padding-left:4px; list-style:none; display:flex; flex-direction:column; gap:6px}
+.requisito-dti .itens-requisito li{line-height:1.5}
+.requisito-dti .ajuda{margin-top:12px}
+.evidencia-auto{display:flex; align-items:flex-start; gap:10px; flex-wrap:wrap}
+.evidencia-auto > span{flex:1 1 240px; min-width:0}
+.evidencia-auto .botao{width:auto; flex:none}
+.janela-dti{width:min(560px,95vw)}
+@media (max-width:640px){ .radar-dti text{font-size:12px} }
+.painel-colunas .rolagem.eixos-dti{max-height:none}
+.eixos-dti td.elastica a{white-space:normal}
+/* O requisito todo começa com "O órgão gestor deve": cortado, não diz nada. Quebra a linha. */
+table.dados.tabela-dti td.elastica{white-space:normal; width:55%; overflow-wrap:anywhere; line-height:1.45}
+
+/* Início do destino (Luiz, 22/11/2026): cartões em faixas por assunto, a
+   busca do Google e do Bing num quadro só e gráficos mais baixos. */
+.faixa-metricas{margin:0 0 18px}
+.faixa-metricas + .faixa-metricas{margin-top:-2px}
+.faixa-cab{display:flex; align-items:center; gap:8px; width:100%; margin:0 0 10px; padding:0; border:0; background:none;
+  font:inherit; color:var(--suave); cursor:pointer; text-align:left}
+.faixa-cab span{font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase}
+.faixa-cab em{font-style:normal; font-family:var(--dado); font-size:11px; color:var(--fraca); background:var(--leve); border-radius:999px; padding:1px 8px}
+.faixa-cab::after{content:""; flex:1; height:1px; background:var(--traco); order:2}
+.faixa-cab .faixa-seta{order:3; width:14px; height:14px; transform:rotate(90deg); transition:transform .15s; color:var(--fraca)}
+.faixa-cab[aria-expanded="false"] .faixa-seta{transform:rotate(0deg)}
+.faixa-cab[aria-expanded="false"] + .metricas{display:none}
+.faixa-cab[aria-expanded="false"]{margin-bottom:6px}
+.faixa-metricas .metricas{display:flex; flex-wrap:wrap}
+.faixa-metricas .metricas > .metrica{flex:1 1 150px; max-width:100%}
+.faixa-metricas .metrica.destaque, .metricas-plataforma .metrica.destaque{background:var(--branco); border-color:var(--acento-borda); box-shadow:inset 3px 0 0 var(--indigo)}
+.faixa-metricas .metrica.destaque .val, .metricas-plataforma .metrica.destaque .val{color:inherit}
+.cab-cartao h2 .total-titulo{display:block; font-size:12px; font-weight:500; color:var(--fraca); margin-top:2px}
+.grafico-baixo .grafico-svg{height:92px}
+.grafico-baixo .pes-grafico span.zero{visibility:hidden}
+.busca-motores{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:6px 22px}
+.busca-motores .motor .sub-cartao{margin-top:0}
+.busca-motores .sub-cartao .nota{font-weight:500; color:var(--fraca)}
+.motor-vazio{margin-top:2px}
+.numeros-motor{list-style:none; margin:0 0 10px; padding:0; display:grid; grid-template-columns:repeat(3,1fr); gap:8px}
+.numeros-motor li{background:var(--leve); border-radius:var(--r-p); padding:8px 10px; display:flex; flex-direction:column}
+.numeros-motor b{font-family:var(--dado); font-size:18px}
+.numeros-motor span{font-size:11px; color:var(--fraca)}
+
+/* Cartões compactos do Início (Luiz, 22/11/2026): ocupavam muito da tela.
+   Nota em até duas linhas; a inteira vai no balão. */
+.metricas.compactas{gap:10px}
+.metricas.compactas .metrica{padding:10px 13px; gap:1px; border-radius:12px}
+.metricas.compactas .metrica .rot{font-size:11.5px}
+.metricas.compactas .metrica .val{font-size:min(20px, 12cqi); line-height:1.25}
+.metricas.compactas .metrica .nota{font-size:11px; line-height:1.35; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+.metricas-plataforma{display:flex; flex-wrap:wrap}
+.metricas-plataforma > .metrica{flex:1 1 150px}
+.faixa-cab{margin-bottom:8px}
+.radar-inicio .radar-dti{max-width:400px}
