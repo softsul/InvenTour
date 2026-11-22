@@ -1,6 +1,6 @@
 <?php
 /**
- * Gestão, Visitas: o Google Analytics dos portais, lido na hora pela Data
+ * Monitoramento, Visitas: o Google Analytics dos portais, lido na hora pela Data
  * API (app/Analytics.php, cache de uma hora), como no EventCity.
  * Softsul Software
  *
@@ -58,7 +58,7 @@ $linkCom = function (array $mudar) use ($dias, $empresas, $empresa): string {
 
 paginaInicio('Visitas', 'visitas');
 ?>
-<div class="trilha"><span>Gestão</span><?= icone('seta') ?><span>Visitas</span></div>
+<div class="trilha"><span>Monitoramento</span><?= icone('seta') ?><span>Visitas</span></div>
 <div class="cab-pag">
   <div><h1>Visitas<?= $empresa ? ' ao portal' : ' aos portais' ?></h1><p>Pelo Google Analytics: de onde vêm, de que cidade, o que procuram e o que fazem na ficha de cada lugar. Conta só quem aceitou os cookies; números do dia chegam com algumas horas de atraso.</p></div>
 </div>

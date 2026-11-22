@@ -1,0 +1,16 @@
+[Unit]
+Description=InvenTour - le os logs do Apache e soma os acessos
+After=network.target mysql.service
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+# So este servico enxerga os logs (grupo adm); o Apache e a fila, nao.
+SupplementaryGroups=adm
+WorkingDirectory=/home/www/app.inventour.com.br
+ExecStart=/usr/bin/php /home/www/app.inventour.com.br/scripts/ler_logs_apache.php
+TimeoutStartSec=900
+Nice=15
+PrivateTmp=true
+NoNewPrivileges=true

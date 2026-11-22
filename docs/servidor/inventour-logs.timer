@@ -1,0 +1,10 @@
+[Unit]
+Description=InvenTour - le os logs do Apache a cada 10 minutos
+
+[Timer]
+OnBootSec=3min
+OnUnitInactiveSec=10min
+AccuracySec=30s
+
+[Install]
+WantedBy=timers.target

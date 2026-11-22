@@ -287,6 +287,7 @@ function explicacaoDoMenu(string $chave): string
         'roteiros' => 'Roteiros prontos para o visitante, com os lugares do inventário em ordem e a rota no mapa do portal.',
         'trade' => 'Quem responde pelos lugares do inventário: os pedidos feitos pelo portal, as atualizações que os responsáveis mandam e a transferência de titularidade.',
         'meus-lugares' => 'Os lugares por que você responde no portal: mande horário, contato, capacidade e fotos para a conferência da equipe.',
+        'acessos' => 'O que o servidor registrou nos portais e no painel: pessoas e robôs separados, páginas mais vistas, o que os robôs de busca e de IA leem e os erros.',
         'visitas' => $plataforma
             ? 'Visitas aos portais pelo Google Analytics, com o filtro de destino e o comparativo entre eles.'
             : 'Visitas ao portal do destino pelo Google Analytics: sessões por dia, cidades, canais e o que os visitantes clicaram.',

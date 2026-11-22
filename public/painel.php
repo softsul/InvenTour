@@ -21,6 +21,7 @@ require_once __DIR__ . '/../app/SesAvisos.php';
 require_once __DIR__ . '/../app/Email.php';
 require_once __DIR__ . '/../app/Bing.php';
 require_once __DIR__ . '/../app/Analytics.php';
+require_once __DIR__ . '/../app/Acessos.php';
 
 /**
  * Os quadros da busca orgânica e das visitas, como no Início do EventCity:
@@ -344,6 +345,31 @@ Os municípios vizinhos estão na região turística <strong><?= e($regiaoVizinh
   <div class="cartao">
     <div class="cab-cartao"><h2>Atividade no painel</h2><a href="/configuracoes/auditoria">Auditoria</a></div>
     <?= Graficos::colunas(Painel::atividade(0), [['chave' => 'acoes', 'nome' => 'Ações registradas', 'cor' => '#2E8B3E']], 'Ações registradas na auditoria por dia') ?>
+  </div>
+
+  <?php $ac = Acessos::resumo(7); ?>
+  <div class="cartao">
+    <div class="cab-cartao"><h2>Acessos ao servidor</h2><a href="/acessos">Detalhes</a></div>
+    <div class="metricas">
+      <div class="metrica"><span class="rot">Visitantes</span><span class="val"><?= milhar($ac['visitantes']) ?></span><span class="nota">por dia, somados em 7 dias</span></div>
+      <div class="metrica"><span class="rot">Páginas vistas</span><span class="val"><?= milhar($ac['paginas']) ?></span><span class="nota">por pessoas</span></div>
+      <div class="metrica"><span class="rot">Robôs</span><span class="val"><?= $ac['parte_robos'] ?>%</span><span class="nota">dos pedidos</span></div>
+    </div>
+    <p class="nota-cartao"><?= plural($ac['e5'], 'erro do servidor', 'erros do servidor') ?> e <?= milhar($ac['e429']) ?> pedidos barrados pelo limite por IP em 7 dias.</p>
+    <?= Graficos::colunas(Acessos::porDia(14), [
+        ['chave' => 'pessoas', 'nome' => 'Pessoas', 'cor' => Acessos::GRUPOS['pessoa']['cor']],
+        ['chave' => 'robos', 'nome' => 'Robôs', 'cor' => Acessos::GRUPOS['outro']['cor']],
+    ], 'Páginas vistas por dia nos últimos 14 dias, pessoas e robôs') ?>
+  </div>
+
+  <div class="cartao">
+    <div class="cab-cartao"><h2>Robôs</h2><span class="nota">pedidos em 7 dias</span></div>
+    <?php $qp = Acessos::quemPediu(7); ?>
+    <?= Graficos::faixa($qp['faixa']) ?>
+    <?php if ($qp['robos']): ?>
+      <h3 class="sub-cartao">Mais ativos</h3>
+      <?= Graficos::barras(array_slice($qp['robos'], 0, 8)) ?>
+    <?php endif; ?>
   </div>
 
   <div class="cartao">
