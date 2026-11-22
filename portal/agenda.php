@@ -1,5 +1,5 @@
 <?php
-/** Agenda: os eventos dos próximos 60 dias, lidos do EventCity (cache). Softsul Software. */
+/** Agenda: os eventos dos próximos 90 dias, lidos do EventCity (cache). Softsul Software. */
 declare(strict_types=1);
 require __DIR__ . '/inc/abrir.php';
 require_once __DIR__ . '/../app/EventCity.php';

@@ -8,7 +8,7 @@
  * O segredo é por destino, cifrado em ajustes (grupo eventcity), e só a fila
  * e o painel o leem: o portal não tem acesso a ajustes.
  *
- * - Agenda: a fila busca a agenda dos próximos 60 dias a cada 5 minutos e
+ * - Agenda: a fila busca a agenda dos próximos 90 dias a cada 5 minutos e
  *   grava em storage/cache/eventcity/<destino>.json. O portal só lê esse
  *   arquivo: a página nunca espera o EventCity, e se ele cair a Agenda e a
  *   aba de eventos somem (o cache vale 2 horas).
@@ -95,6 +95,79 @@ final class EventCity
         }));
     }
 
+    /** Nível da noite: falta (turistas passam dos leitos), atencao (70% ou mais dos leitos) ou folga. */
+    public const NIVEIS = ['falta' => 'Faltam leitos', 'atencao' => 'Atenção', 'folga' => 'Com folga', 'sem_leitos' => 'Sem leitos no inventário'];
+    public const ATENCAO = 70;
+
+    /** Os leitos da hospedagem no portal (fichas de meios de hospedagem, homologados e desatualizados). */
+    public static function leitosDoDestino(int $eid): int
+    {
+        $q = Database::conexao()->prepare("SELECT COALESCE(SUM(i.capacidade_leitos), 0) FROM inventario_itens i JOIN inventario_fichas f ON f.id = i.ficha_id
+                                           WHERE i.empresa_id = ? AND f.ordem IN (20, 21) AND i.situacao IN ('homologada', 'desatualizada')");
+        $q->execute([$eid]);
+        return (int) $q->fetchColumn();
+    }
+
+    /**
+     * Cruzamento dos leitos com a agenda (PLANEJAMENTO 2.9), na mesma regra
+     * do alerta de hospedagem do EventCity: quem ocupa leito é o visitante
+     * turista (publico_turistas, por dia); residente e excursionista não.
+     * Evento sem a divisão do público fica fora da conta e vai para
+     * sem_divisao, para a tela avisar. Cada dia do evento é uma noite. Os
+     * leitos são os do inventário, sem descontar a ocupação de rotina dos
+     * hotéis: o EventCity desconta, aqui é o teto do destino.
+     *
+     * @return array{agenda:bool, leitos:int, noites:list<array>, sem_divisao:list<array>, eventos:int}
+     */
+    public static function noitesDeEventos(int $eid, int $dias = 90): array
+    {
+        $agenda = self::agendaEmCache($eid);
+        $leitos = self::leitosDoDestino($eid);
+        $hoje = date('Y-m-d');
+        $fim = date('Y-m-d', strtotime('+' . $dias . ' days'));
+        $noites = [];
+        $semDivisao = [];
+        foreach ($agenda ?? [] as $e) {
+            if (($e['alcance'] ?? '') === 'trade_externo') {
+                continue;
+            }
+            $turistas = (int) ($e['publico_turistas'] ?? 0);
+            $evento = ['id' => (int) ($e['id'] ?? 0), 'titulo' => (string) ($e['titulo'] ?? ''), 'url' => (string) ($e['url'] ?? ''), 'turistas' => $turistas,
+                       'publico' => (int) ($e['publico_esperado'] ?? 0), 'dia' => (string) ($e['proximo_dia'] ?? $e['data_inicio'] ?? '')];
+            if ($turistas <= 0) {
+                if (($e['publico_turistas'] ?? null) === null && $evento['publico'] > 0 && in_array($e['alcance'] ?? '', ['turistico', 'misto'], true)) {
+                    $semDivisao[] = $evento;
+                }
+                continue;
+            }
+            // Os dias do evento: a lista, se a agenda trouxer; senão do próximo dia até o fim.
+            if (isset($e['dias']) && is_array($e['dias'])) {
+                $dosDias = array_filter(array_map('strval', $e['dias']), fn ($d) => $d >= $hoje && $d <= $fim);
+            } else {
+                $ini = max($hoje, $evento['dia'] ?: $hoje);
+                $ate = min($fim, max($ini, (string) ($e['data_fim'] ?? '') ?: $ini));
+                $dosDias = [];
+                for ($d = $ini; $d <= $ate && count($dosDias) < 400; $d = date('Y-m-d', strtotime($d . ' +1 day'))) {
+                    $dosDias[] = $d;
+                }
+            }
+            foreach ($dosDias as $d) {
+                $noites[$d] ??= ['dia' => $d, 'turistas' => 0, 'eventos' => []];
+                $noites[$d]['turistas'] += $turistas;
+                $noites[$d]['eventos'][] = $evento;
+            }
+        }
+        ksort($noites);
+        foreach ($noites as &$n) {
+            $n['percentual'] = $leitos ? (int) round($n['turistas'] / $leitos * 100) : null;
+            // Sem hospedagem homologada não há conta: o inventário ainda não chegou lá.
+            $n['nivel'] = !$leitos ? 'sem_leitos' : ($n['turistas'] > $leitos ? 'falta' : ($n['percentual'] >= self::ATENCAO ? 'atencao' : 'folga'));
+            $n['faltam'] = $leitos ? max(0, $n['turistas'] - $leitos) : null;
+        }
+        unset($n);
+        return ['agenda' => $agenda !== null, 'leitos' => $leitos, 'noites' => array_values($noites), 'sem_divisao' => $semDivisao, 'eventos' => count($agenda ?? [])];
+    }
+
     /** Pedido assinado. Devolve [código HTTP, corpo decodificado ou null]. */
     public static function pedir(int $eid, string $metodo, string $caminho, ?array $corpo = null, float $limite = 5.0): array
     {
@@ -127,7 +200,7 @@ final class EventCity
         $q = Database::conexao()->prepare('SELECT municipio_id FROM empresas WHERE id = ?');
         $q->execute([$eid]);
         $ibge = (int) $q->fetchColumn();
-        [$codigo, $j] = self::pedir($eid, 'GET', '/api/v1/inventour/agenda?ibge=' . $ibge . '&de=' . date('Y-m-d') . '&ate=' . date('Y-m-d', strtotime('+60 days')));
+        [$codigo, $j] = self::pedir($eid, 'GET', '/api/v1/inventour/agenda?ibge=' . $ibge . '&de=' . date('Y-m-d') . '&ate=' . date('Y-m-d', strtotime('+90 days')));
         if ($codigo !== 200 || !is_array($j)) {
             return null;
         }

@@ -22,6 +22,7 @@ require_once __DIR__ . '/../app/Email.php';
 require_once __DIR__ . '/../app/Bing.php';
 require_once __DIR__ . '/../app/Analytics.php';
 require_once __DIR__ . '/../app/Acessos.php';
+require_once __DIR__ . '/../app/EventCity.php';
 
 /**
  * Os quadros da busca orgânica e das visitas, como no Início do EventCity:
@@ -185,6 +186,18 @@ if ($empresa) {
         $metricas[] = ['Saúde do banco', $rs['saude'] !== null ? $rs['saude'] . '%' : '-', $rs['saude'] === null ? 'nenhum lugar no portal ainda'
             : plural($rs['desatualizados'], 'desatualizado', 'desatualizados') . ' · ' . plural($rs['enviados'], 'aviso', 'avisos') . ' em 90 dias, ' . milhar($rs['iguais']) . ' confirmados',
             Auth::pode('relatorios.ver') ? '/relatorio?tipo=radar' : null];
+    }
+    // Etapa 7: leitos x eventos do EventCity nos próximos 90 dias.
+    if (Auth::pode('inventario.ver') && EventCity::temAgenda($eid)) {
+        $le = EventCity::noitesDeEventos($eid);
+        $falta = count(array_filter($le['noites'], fn ($n) => $n['nivel'] === 'falta'));
+        $atencao = count(array_filter($le['noites'], fn ($n) => $n['nivel'] === 'atencao'));
+        $pico = $le['noites'] ? max(array_column($le['noites'], 'turistas')) : 0;
+        $metricas[] = ['Noites sem leito', $le['leitos'] ? $falta : '-', !$le['leitos']
+            ? ($le['noites'] ? 'pico de ' . plural($pico, 'turista', 'turistas') . ' em 90 dias · nenhuma hospedagem homologada ainda' : 'nenhuma hospedagem homologada ainda')
+            : ($le['noites'] ? plural($atencao, 'noite', 'noites') . ' em atenção · pico de ' . plural($pico, 'turista', 'turistas') . ' para ' . plural($le['leitos'], 'leito', 'leitos')
+            : 'nos eventos dos próximos 90 dias · nenhum com turistas informados' . ($le['sem_divisao'] ? ' (' . count($le['sem_divisao']) . ' sem a divisão do público)' : '')),
+            Auth::pode('relatorios.ver') ? '/relatorio?tipo=leitos_eventos' : null];
     }
     // Busca orgânica (Search Console e Bing), como no EventCity: 30 dias.
     if (Auth::pode('inventario.ver')) {

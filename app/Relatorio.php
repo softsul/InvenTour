@@ -16,6 +16,7 @@
  * sem filtro de datas. `categoria`: liga o filtro de categoria do MTur.
  */
 declare(strict_types=1);
+require_once __DIR__ . '/EventCity.php';
 require_once __DIR__ . '/Database.php';
 require_once __DIR__ . '/Empresa.php';
 require_once __DIR__ . '/Esteira.php';
@@ -102,6 +103,18 @@ final class Relatorio
                     . 'inventário estava. Lugares no portal são os homologados e os desatualizados; leitos e UH contam só a hospedagem; '
                     . 'páginas e leituras de QR são as do mês, sem cookie.',
             ],
+            'leitos_eventos' => [
+                'nome' => 'Leitos e eventos', 'grupo' => 'gestao', 'icone' => 'calendario', 'permissao' => 'relatorios.ver',
+                'descricao' => 'Noite a noite, nos próximos 90 dias: os turistas que os eventos do EventCity esperam contra os leitos da hospedagem no portal.',
+                'data' => 'próximos 90 dias', 'sem_periodo' => true,
+                'situacoes' => ['' => 'Todas as noites', 'risco' => 'Faltam leitos ou atenção', 'falta' => 'Faltam leitos'],
+                'explicacao_titulo' => 'Como é calculado',
+                'explicacao' => 'Entram os eventos da agenda do EventCity com o número de visitantes turistas informado pelo proponente: quem ocupa leito é o turista, '
+                    . 'não o morador nem o excursionista que volta no mesmo dia. Cada dia do evento conta como uma noite e os eventos da mesma noite se somam. '
+                    . 'Os leitos são os da hospedagem homologada no inventário, sem descontar a ocupação de rotina dos hotéis. '
+                    . 'A partir de ' . EventCity::ATENCAO . '% dos leitos a noite fica em atenção; acima dos leitos, faltam leitos. '
+                    . 'Evento turístico sem a divisão do público fica fora da conta até o proponente dividir no EventCity.',
+            ],
             'trade' => [
                 'nome' => 'Trade turístico', 'grupo' => 'gestao', 'icone' => 'negocios', 'permissao' => 'trade.ver',
                 'descricao' => 'Os pedidos de responsável e as revisões que os responsáveis mandaram, com a decisão da equipe.',
@@ -123,7 +136,7 @@ final class Relatorio
     /** @return array{colunas:array<int,array>, linhas:array<int,array>, totais:array<string,float>} */
     public static function rodar(string $chave, array $filtro): array
     {
-        $metodo = 'rel' . str_replace(' ', '', ucwords(str_replace('-', ' ', $chave)));
+        $metodo = 'rel' . str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $chave)));
         if (!method_exists(self::class, $metodo)) {
             throw new RuntimeException('Relatório desconhecido.');
         }
@@ -430,6 +443,35 @@ final class Relatorio
                             'roteiros' => $d['roteiros'] ?? 0, 'paginas' => $d['paginas_no_mes'] ?? 0, 'homologados' => $d['homologados_no_mes'] ?? 0];
                 }, $linhas);
             },
+        ];
+    }
+
+    private static function relLeitosEventos(array $f): array
+    {
+        $eid = (int) Empresa::id();
+        $c = $eid ? EventCity::noitesDeEventos($eid) : ['noites' => [], 'leitos' => 0];
+        $nivel = (string) ($f['situacao'] ?? '');
+        $linhas = array_values(array_filter(array_map(fn ($n) => [
+            'dia' => $n['dia'],
+            'eventos' => implode('; ', array_map(fn ($e) => $e['titulo'] . ' (' . milhar($e['turistas']) . ')', $n['eventos'])),
+            'turistas' => $n['turistas'], 'leitos' => $c['leitos'] ?: null, 'percentual' => $n['percentual'],
+            'faltam' => $n['faltam'], 'situacao' => EventCity::NIVEIS[$n['nivel']], 'nivel' => $n['nivel'],
+        ], $c['noites']), fn ($l) => match ($nivel) {
+            'falta' => $l['nivel'] === 'falta',
+            'risco' => in_array($l['nivel'], ['falta', 'atencao'], true),
+            default => true,
+        }));
+        return [
+            [
+                ['chave' => 'dia', 'titulo' => 'Noite', 'tipo' => 'data', 'sub' => 'eventos', 'sub_titulo' => 'Eventos (turistas)'],
+                ['chave' => 'turistas', 'titulo' => 'Turistas', 'tipo' => 'numero'],
+                ['chave' => 'leitos', 'titulo' => 'Leitos', 'tipo' => 'numero'],
+                ['chave' => 'percentual', 'titulo' => 'Dos leitos', 'tipo' => 'percentual'],
+                ['chave' => 'faltam', 'titulo' => 'Faltam', 'tipo' => 'numero'],
+                ['chave' => 'situacao', 'titulo' => 'Situação', 'tipo' => 'texto'],
+            ],
+            'SELECT 1', [],
+            fn () => $linhas,
         ];
     }
 

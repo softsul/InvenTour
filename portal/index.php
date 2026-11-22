@@ -62,7 +62,7 @@ PortalLayout::inicio($destino, $nome, true, ['ativo' => '', 'imagem' => $temCapa
   <div><b><?= milhar(count($todos)) ?></b><span>lugares no guia</span></div>
   <div><b><?= milhar($abertos) ?></b><span>abertos agora, <?= date('H:i') ?></span></div>
   <div><b><?= milhar($contagens['onde-comer']) ?></b><span>para comer e beber</span></div>
-  <div><b><?= $agenda ? milhar(count(EventCity::agendaEmCache($eid) ?? [])) : milhar($contagens['o-que-fazer']) ?></b><span><?= $agenda ? 'eventos nos próximos 60 dias' : 'coisas para fazer' ?></span></div>
+  <div><b><?= $agenda ? milhar(count(EventCity::agendaEmCache($eid) ?? [])) : milhar($contagens['o-que-fazer']) ?></b><span><?= $agenda ? 'eventos nos próximos 90 dias' : 'coisas para fazer' ?></span></div>
 </div>
 
 <section class="secao">

@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (($_POST['acao'] ?? '') === 'testar') {
         $n = EventCity::atualizarAgenda($eid);
         avisar($n === null ? 'O EventCity não respondeu (ou recusou a assinatura). A agenda continua escondida no portal.'
-            : 'O EventCity respondeu: ' . plural($n, 'evento', 'eventos') . ' nos próximos 60 dias.', $n === null ? 'atencao' : 'bom');
+            : 'O EventCity respondeu: ' . plural($n, 'evento', 'eventos') . ' nos próximos 90 dias.', $n === null ? 'atencao' : 'bom');
     } else {
         $valores = ['ligado' => empty($_POST['ligado']) ? '0' : '1',
                     'url' => rtrim(trim((string) ($_POST['url'] ?? '')), '/') ?: 'https://app.eventcity.com.br'];
@@ -71,7 +71,7 @@ paginaInicio('EventCity', 'configuracoes');
 </form>
 <div class="cartao">
   <h2 class="titulo-secao">Situação</h2>
-  <p><?= $agenda !== null ? 'Agenda no portal: ' . plural(count($agenda), 'evento', 'eventos') . ' nos próximos 60 dias, atualizada a cada 5 minutos.'
+  <p><?= $agenda !== null ? 'Agenda no portal: ' . plural(count($agenda), 'evento', 'eventos') . ' nos próximos 90 dias, atualizada a cada 5 minutos.'
       : 'A agenda não está no portal: a ponte está desligada ou o EventCity ainda não respondeu.' ?></p>
 </div>
 <?php paginaFim();
