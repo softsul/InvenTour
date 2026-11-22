@@ -1506,11 +1506,27 @@ dialog.visualizador.vis-pdf .vis-palco{padding:0 12px 12px}
 .coleta-estado .sinal{cursor:help}
 
 /* Coleta: mapa online (só com internet) e o endereço achado pela coordenada. */
-.mapa-online{position:relative; height:240px; border-radius:var(--r); overflow:hidden; border:1px solid var(--traco); background:var(--leve)}
+.mapa-online{position:relative; height:clamp(300px, 48vh, 460px); border-radius:var(--r); overflow:hidden; border:1px solid var(--traco); background:var(--leve)}
 .mapa-online[hidden]{display:none}
 .mapa-online iframe{display:block; width:100%; height:100%; border:0}
 .mapa-online .mapa-abrir{position:absolute; right:8px; bottom:8px; padding:6px 10px; border-radius:999px; background:#fff; color:var(--indigo-fte);
   font-size:12px; font-weight:700; text-decoration:none; box-shadow:var(--sombra)}
+.mapa-online .mapa-tela{position:absolute; inset:0}
+.mapa-online .mapa-abrir[hidden]{display:none}
+.mapa-online .mapa-abrir{z-index:2; bottom:30px}
+.pino-mapa{width:36px; height:48px; cursor:grab; filter:drop-shadow(0 3px 4px rgba(0,0,0,.35)); touch-action:none}
+.pino-mapa svg{display:block; width:36px !important; height:48px !important}
+.pino-mapa:active{cursor:grabbing}
+.mapa-modos{position:absolute; left:8px; top:8px; z-index:2; display:inline-flex; padding:3px; border-radius:999px; background:#fff; box-shadow:var(--sombra)}
+.mapa-modos button{border:0; background:none; padding:6px 12px; border-radius:999px; font:inherit; font-size:12.5px; font-weight:600; color:var(--suave); cursor:pointer}
+.mapa-modos button[aria-pressed="true"]{background:var(--indigo); color:#fff}
+.mapa-dica{position:absolute; left:8px; bottom:8px; z-index:2; margin:0; max-width:calc(100% - 190px); padding:5px 10px; border-radius:10px; background:rgba(255,255,255,.92);
+  color:var(--tinta); font-size:12px; line-height:1.3; box-shadow:var(--sombra); pointer-events:none}
+.mapa-dica:empty{display:none}
+@media (max-width:640px){
+  .mapa-dica{max-width:calc(100% - 50px); bottom:8px}
+  .mapa-online .mapa-abrir{bottom:auto; top:8px; right:52px}
+}
 .endereco-achado{margin:0; padding:10px 12px; border-radius:var(--r); font-size:13px; background:var(--leve); color:var(--suave)}
 .endereco-achado.achou{background:var(--verde-sup); color:#0A6B4F}
 .endereco-achado[hidden]{display:none}
@@ -1583,13 +1599,15 @@ select.ausencia.ausente{color:var(--ambar); font-weight:700}
 .grupo-ficha .grupo-conta{flex:none; padding:2px 9px; border-radius:999px; background:var(--leve); color:var(--suave); font-family:var(--dado); font-size:11.5px; font-weight:700}
 .grupo-ficha .grupo-conta.completo{background:var(--verde-sup); color:var(--verde)}
 
-/* Sim ou não em dois botões. */
-.sim-nao{display:flex; gap:8px}
-.opcao-sn{flex:1; position:relative; cursor:pointer}
+/* Sim ou não: duas pílulas como as das outras opções (antes eram dois
+   botões largos, que pareciam de outra tela). */
+.sim-nao{display:flex; flex-wrap:wrap; gap:8px; margin:4px 0 8px}
+.opcao-sn{position:relative; cursor:pointer}
 .opcao-sn input{position:absolute; opacity:0; width:0; height:0}
-.opcao-sn span{display:flex; align-items:center; justify-content:center; min-height:44px; border:1px solid var(--traco); border-radius:var(--r);
-  background:var(--branco); font-weight:600; font-size:14px; color:var(--suave)}
-.opcao-sn input:checked + span{background:var(--indigo); border-color:var(--indigo); color:#fff}
+.opcao-sn span{display:flex; align-items:center; justify-content:center; min-width:64px; min-height:40px; padding:9px 16px; border:1px solid var(--traco); border-radius:999px;
+  background:var(--branco); font-size:13.5px; line-height:1.25; color:var(--tinta)}
+.opcao-sn input:checked + span{background:var(--indigo-sup); border-color:var(--indigo); color:var(--indigo-fte); font-weight:600}
+.opcao-sn input:checked + span::before{content:"✓"; margin-right:4px; font-weight:700}
 .opcao-sn input:focus-visible + span{box-shadow:var(--anel)}
 
 /* Opções de marcar na coleta: botões de toque, que acendem quando marcados. */

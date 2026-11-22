@@ -1630,29 +1630,222 @@
     return navigator.onLine && conexao.estado !== 'falhou' && conexao.estado !== 'sem-rede';
   }
   var mapaMostrado = '';
+  // O mapa da Localização: satélite (Esri World Imagery) ou o mapa de ruas
+  // do destino (OpenStreetMap, os blocos do portal por /api/mapa-base), com
+  // o pin que se arrasta ou vai para onde se toca. O GPS do celular erra
+  // dezenas de metros; aqui quem está no lugar acerta o ponto. Sem
+  // coordenada, o mapa abre no destino e o toque marca o ponto. Sem
+  // internet, só a coordenada, como antes.
   function mostrarMapa() {
     var caixa = $('c-mapa');
     var lat = parseFloat($('c-lat').value), lng = parseFloat($('c-lng').value);
-    if (!isFinite(lat) || !isFinite(lng)) { caixa.hidden = true; caixa.innerHTML = ''; mapaMostrado = ''; return; }
+    var tem = isFinite(lat) && isFinite(lng);
+    var limites = tem ? null : limitesDoDestino();
     function semMapa() {
-      caixa.hidden = true; caixa.innerHTML = ''; mapaMostrado = '';
+      caixa.hidden = true; mapaMostrado = '';
       avisoEndereco('Sem internet: só a coordenada. O mapa e o endereço aparecem quando houver sinal.', 'nulo');
     }
+    if (!tem && !limites) { caixa.hidden = true; return; }
     if (!temInternet()) { semMapa(); return; }
-    var chave = lat.toFixed(6) + ',' + lng.toFixed(6);
-    if (mapaMostrado === chave) { caixa.hidden = false; return; }
-    // O "online" do aparelho engana (no modo avião o Android às vezes não
-    // avisa): antes de pôr o quadro do Google, confirma que a internet
-    // chega. Sem isso aparecia a página de erro do Android no lugar do mapa.
     var recente = conexao.estado === 'ok' && Date.now() - conexao.quando < 30000;
     (recente ? Promise.resolve(true) : testarConexao()).then(function (ok) {
       if (!ok) { mostrarEstado(); semMapa(); return; }
-      desenharMapa(caixa, chave);
+      desenharMapa(caixa, tem ? [lng, lat] : null, limites);
     }, semMapa);
   }
-  function desenharMapa(caixa, chave) {
-    if (mapaMostrado === chave) { return; }
+  function limitesDoDestino() {
+    var a = base && base.area;
+    if (!a || !a.poligonos || !a.poligonos.length) { return null; }
+    var l = [180, 90, -180, -90];
+    a.poligonos.forEach(function (anel) { anel.forEach(function (p) { l = [Math.min(l[0], p[0]), Math.min(l[1], p[1]), Math.max(l[2], p[0]), Math.max(l[3], p[1])]; }); });
+    return [[l[0], l[1]], [l[2], l[3]]];
+  }
+
+  var ml = null, mapa = null, pino = null, modoMapa = 'satelite';
+  try { modoMapa = localStorage.getItem('inventour-coleta-mapa') === 'ruas' ? 'ruas' : 'satelite'; } catch (e) { /* sem armazenamento */ }
+  var carregandoMapa = null;
+  function carregarMapLibre() {
+    if (window.maplibregl) { return Promise.resolve(window.maplibregl); }
+    if (carregandoMapa) { return carregandoMapa; }
+    carregandoMapa = new Promise(function (ok, falha) {
+      var css = document.createElement('link');
+      css.rel = 'stylesheet'; css.href = '/assets/maplibre/maplibre-gl.css';
+      document.head.appendChild(css);
+      var js = document.createElement('script');
+      js.src = '/assets/maplibre/maplibre-gl-csp.js';
+      js.onload = function () { window.maplibregl.setWorkerUrl(location.origin + '/assets/maplibre/maplibre-gl-csp-worker.js'); ok(window.maplibregl); };
+      js.onerror = function () { carregandoMapa = null; falha(new Error('maplibre')); };
+      document.head.appendChild(js);
+    });
+    return carregandoMapa;
+  }
+  function estiloMapa() {
+    var servidor = API || location.origin;
+    var via = function (tipos) { return ['in', ['get', 'kind'], ['literal', tipos]]; };
+    var ruas = modoMapa === 'ruas' ? 'visible' : 'none';
+    var noSat = modoMapa === 'satelite' ? 'visible' : 'none';
+    var divisa = (base && base.area && base.area.poligonos) || [];
+    return {
+      version: 8,
+      glyphs: location.origin + '/assets/maplibre/fontes/{fontstack}/{range}.pbf',
+      sources: {
+        // Até o 18, que a Esri cobre no Brasil quase todo; dali o mapa
+        // amplia o bloco. Onde nem o 18 existe, blankTile=false devolve 404
+        // (e não o quadro "Map data not yet available") e fica o bloco de cima.
+        sat: { type: 'raster', tileSize: 256, maxzoom: 18,
+          tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}?blankTile=false'],
+          attribution: 'Imagens © Esri, Maxar, Earthstar Geographics' },
+        base: { type: 'vector', minzoom: 0, maxzoom: 15, tiles: [servidor + '/api/mapa-base?z={z}&x={x}&y={y}'],
+          attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' },
+        divisa: { type: 'geojson', data: { type: 'Feature', properties: {}, geometry: { type: 'MultiLineString', coordinates: divisa } } }
+      },
+      layers: [
+        { id: 'fundo', type: 'background', paint: { 'background-color': '#EEF1F6' } },
+        { id: 'sat', type: 'raster', source: 'sat', layout: { visibility: noSat } },
+        { id: 'verde', type: 'fill', source: 'base', 'source-layer': 'landuse', layout: { visibility: ruas },
+          filter: via(['park', 'wood', 'forest', 'nature_reserve', 'garden', 'grass', 'meadow', 'playground', 'pitch', 'golf_course', 'cemetery', 'farmland', 'orchard']),
+          paint: { 'fill-color': '#D5E8D0' } },
+        { id: 'agua', type: 'fill', source: 'base', 'source-layer': 'water', layout: { visibility: ruas }, filter: ['==', ['geometry-type'], 'Polygon'], paint: { 'fill-color': '#BFDDEB' } },
+        { id: 'rios', type: 'line', source: 'base', 'source-layer': 'water', layout: { visibility: ruas }, filter: ['==', ['geometry-type'], 'LineString'],
+          paint: { 'line-color': '#8EC0D6', 'line-width': ['interpolate', ['linear'], ['zoom'], 12, 1, 18, 4] } },
+        { id: 'predios', type: 'fill', source: 'base', 'source-layer': 'buildings', minzoom: 14, layout: { visibility: ruas },
+          paint: { 'fill-color': '#DCDFE6', 'fill-outline-color': '#C3C8D2' } },
+        { id: 'vias-borda', type: 'line', source: 'base', 'source-layer': 'roads', layout: { visibility: ruas, 'line-cap': 'round', 'line-join': 'round' },
+          filter: via(['minor_road', 'major_road', 'highway', 'other']),
+          paint: { 'line-color': '#C3C8D2', 'line-width': ['interpolate', ['exponential', 1.6], ['zoom'], 12, 1.4, 16, 7, 19, 22] } },
+        { id: 'vias', type: 'line', source: 'base', 'source-layer': 'roads', layout: { visibility: ruas, 'line-cap': 'round', 'line-join': 'round' },
+          filter: via(['minor_road', 'major_road', 'highway', 'other']),
+          paint: { 'line-color': ['match', ['get', 'kind'], 'highway', '#F7D08A', 'major_road', '#FFF3D6', '#FFFFFF'],
+                   'line-width': ['interpolate', ['exponential', 1.6], ['zoom'], 12, 0.8, 16, 5.5, 19, 19] } },
+        { id: 'trilhas', type: 'line', source: 'base', 'source-layer': 'roads', minzoom: 14, layout: { visibility: ruas }, filter: via(['path']),
+          paint: { 'line-color': '#9AA3B2', 'line-width': 1.2, 'line-dasharray': [2, 2] } },
+        { id: 'divisa', type: 'line', source: 'divisa', paint: { 'line-color': modoMapa === 'satelite' ? '#FFE08A' : '#5B6476', 'line-width': 1.6, 'line-dasharray': [3, 2] } },
+        { id: 'nomes-ruas', type: 'symbol', source: 'base', 'source-layer': 'roads', minzoom: 14, filter: ['all', ['has', 'name'], via(['minor_road', 'major_road', 'highway'])],
+          layout: { 'text-field': ['get', 'name'], 'text-font': ['Noto Sans Regular'], 'text-size': ['interpolate', ['linear'], ['zoom'], 14, 10.5, 18, 13.5], 'symbol-placement': 'line', 'text-max-angle': 30 },
+          paint: modoMapa === 'satelite' ? { 'text-color': '#FFFFFF', 'text-halo-color': 'rgba(0,0,0,.75)', 'text-halo-width': 1.6 }
+            : { 'text-color': '#3B4352', 'text-halo-color': '#FFFFFF', 'text-halo-width': 1.6 } },
+        { id: 'marcos', type: 'symbol', source: 'base', 'source-layer': 'pois', minzoom: 15, filter: ['has', 'name'],
+          layout: { 'text-field': ['get', 'name'], 'text-font': ['Noto Sans Italic'], 'text-size': 11, 'text-max-width': 9, 'text-optional': true },
+          paint: modoMapa === 'satelite' ? { 'text-color': '#FFF7D6', 'text-halo-color': 'rgba(0,0,0,.75)', 'text-halo-width': 1.4 }
+            : { 'text-color': '#6B7385', 'text-halo-color': '#FFFFFF', 'text-halo-width': 1.4 } },
+        { id: 'bairros', type: 'symbol', source: 'base', 'source-layer': 'places', minzoom: 12, maxzoom: 16, filter: ['==', ['get', 'kind'], 'neighbourhood'],
+          layout: { 'text-field': ['upcase', ['get', 'name']], 'text-font': ['Noto Sans Medium'], 'text-size': 11, 'text-letter-spacing': 0.14 },
+          paint: modoMapa === 'satelite' ? { 'text-color': '#FFFFFF', 'text-halo-color': 'rgba(0,0,0,.7)', 'text-halo-width': 1.6 }
+            : { 'text-color': '#6B7385', 'text-halo-color': '#FFFFFF', 'text-halo-width': 1.6 } }
+      ]
+    };
+  }
+  function desenharMapa(caixa, ponto, limites) {
     caixa.hidden = false;
+    carregarMapLibre().then(function (maplibregl) {
+      ml = maplibregl;
+      if (!mapa) { criarMapa(caixa); }
+      if (!mapa) { desenharMapaGoogle(caixa, ponto); return; }
+      mapa.resize();
+      if (ponto) {
+        pino.setLngLat(ponto).addTo(mapa);
+        var chave = ponto[1].toFixed(6) + ',' + ponto[0].toFixed(6);
+        if (mapaMostrado !== chave) { mapa.jumpTo({ center: ponto, zoom: Math.max(mapa.getZoom(), 18) }); }
+        mapaMostrado = chave;
+        caixa.querySelector('.mapa-dica').textContent = 'Arraste o pin, ou toque no mapa, para acertar o ponto.';
+      } else {
+        pino.remove();
+        mapaMostrado = '';
+        mapa.fitBounds(limites, { padding: 20, duration: 0 });
+        caixa.querySelector('.mapa-dica').textContent = 'Sem coordenada: aproxime e toque no lugar do item para marcar.';
+      }
+      var abrir = caixa.querySelector('.mapa-abrir');
+      abrir.hidden = !ponto;
+      if (ponto) { abrir.href = 'https://www.google.com/maps/search/?api=1&query=' + ponto[1].toFixed(6) + ',' + ponto[0].toFixed(6); }
+    }).catch(function () { desenharMapaGoogle(caixa, ponto); });
+  }
+  function criarMapa(caixa) {
+    caixa.innerHTML = '';
+    var tela = document.createElement('div');
+    tela.className = 'mapa-tela';
+    caixa.appendChild(tela);
+    try {
+      mapa = new ml.Map({
+        container: tela, style: estiloMapa(), center: [-51.9, -14.2], zoom: 3, maxZoom: 19.5, attributionControl: { compact: true },
+        dragRotate: false, pitchWithRotate: false, touchPitch: false,
+        transformRequest: function (url) {
+          if (APP && url.indexOf('/api/mapa-base') !== -1) { return { url: url, headers: { 'X-Aparelho': APP.token() } }; }
+          return { url: url };
+        }
+      });
+    } catch (e) { mapa = null; return; }
+    mapa.touchZoomRotate.disableRotation();
+    mapa.addControl(new ml.NavigationControl({ showCompass: false }), 'top-right');
+    // Pin da casa, grande para o dedo (a regra geral de ícone encolhia o do MapLibre).
+    var elPino = document.createElement('div');
+    elPino.className = 'pino-mapa';
+    elPino.setAttribute('aria-label', 'Ponto do item: arraste para ajustar');
+    elPino.innerHTML = '<svg viewBox="0 0 36 48" aria-hidden="true" focusable="false"><path d="M18 1C8.6 1 1 8.4 1 17.6 1 30 18 47 18 47s17-17 17-29.4C35 8.4 27.4 1 18 1z" fill="#0E7C86" stroke="#fff" stroke-width="2"/><circle cx="18" cy="17.5" r="6.5" fill="#fff"/></svg>';
+    pino = new ml.Marker({ element: elPino, draggable: true, anchor: 'bottom' });
+    pino.on('dragend', function () { var p = pino.getLngLat(); definirPonto(p.lat, p.lng); });
+    mapa.on('click', function (ev) { definirPonto(ev.lngLat.lat, ev.lngLat.lng); });
+    var modos = document.createElement('div');
+    modos.className = 'mapa-modos';
+    modos.setAttribute('role', 'group');
+    modos.setAttribute('aria-label', 'Tipo de mapa');
+    [['satelite', 'Satélite'], ['ruas', 'Mapa']].forEach(function (m) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = m[1];
+      b.setAttribute('data-modo-mapa', m[0]);
+      b.setAttribute('aria-pressed', m[0] === modoMapa ? 'true' : 'false');
+      b.addEventListener('click', function () {
+        if (modoMapa === m[0]) { return; }
+        modoMapa = m[0];
+        try { localStorage.setItem('inventour-coleta-mapa', modoMapa); } catch (e) { /* sem armazenamento */ }
+        modos.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+        mapa.setStyle(estiloMapa());
+      });
+      modos.appendChild(b);
+    });
+    caixa.appendChild(modos);
+    var dica = document.createElement('p');
+    dica.className = 'mapa-dica';
+    caixa.appendChild(dica);
+    var abrir = document.createElement('a');
+    abrir.target = '_blank'; abrir.rel = 'noopener';
+    abrir.className = 'mapa-abrir';
+    abrir.textContent = 'Abrir no Google Maps';
+    caixa.appendChild(abrir);
+  }
+  // O ponto escolhido no mapa vira a coordenada do item, com a mesma
+  // conferência da área do destino que o GPS tem.
+  function definirPonto(lat, lng) {
+    var area = conferirArea(lat, lng);
+    var quando = $('c-gps-quando');
+    if (!area.dentro && areaBloqueia()) {
+      quando.classList.add('gps-aviso');
+      quando.textContent = 'Este ponto fica ' + foraDoDestino(area) + '. Este destino só aceita pontos dentro da sua área.';
+      var antes = [parseFloat($('c-lng').value), parseFloat($('c-lat').value)];
+      if (isFinite(antes[0]) && isFinite(antes[1])) { pino.setLngLat(antes); } else { pino.remove(); }
+      return;
+    }
+    $('c-lat').value = lat.toFixed(6);
+    $('c-lng').value = lng.toFixed(6);
+    mapaMostrado = lat.toFixed(6) + ',' + lng.toFixed(6);
+    pino.setLngLat([lng, lat]).addTo(mapa);
+    $('c-gps-texto').classList.remove('gps-aviso');
+    $('c-gps-texto').textContent = textoGps(lat, lng);
+    quando.classList.toggle('gps-aviso', !area.dentro);
+    quando.textContent = area.dentro ? 'ajustada no mapa' : 'Atenção: este ponto fica ' + foraDoDestino(area) + '. Confira o lugar do item.';
+    $('c-mapa').querySelector('.mapa-dica').textContent = 'Arraste o pin, ou toque no mapa, para acertar o ponto.';
+    var abrir = $('c-mapa').querySelector('.mapa-abrir');
+    abrir.hidden = false;
+    abrir.href = 'https://www.google.com/maps/search/?api=1&query=' + lat.toFixed(6) + ',' + lng.toFixed(6);
+    mostrarPendencias();
+    buscarEndereco(lat, lng);
+  }
+  // Reserva: sem MapLibre (aparelho sem WebGL), o quadro do Google, só para ver.
+  function desenharMapaGoogle(caixa, ponto) {
+    if (mapa) { try { mapa.remove(); } catch (e) { /* já fora */ } mapa = null; }
+    if (!ponto) { caixa.hidden = true; return; }
+    var chave = ponto[1].toFixed(6) + ',' + ponto[0].toFixed(6);
+    if (mapaMostrado === chave && caixa.querySelector('iframe')) { return; }
     mapaMostrado = chave;
     caixa.innerHTML = '';
     var quadro = document.createElement('iframe');

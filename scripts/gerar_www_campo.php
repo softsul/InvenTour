@@ -41,6 +41,12 @@ foreach (['emblema.svg', 'marca.css'] as $a) {
         copy("{$assets}/marca/{$a}", "{$www}/assets/marca/{$a}");
     }
 }
+// O MapLibre do mapa da Localização (pin ajustável), com as fontes dos rótulos.
+foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator("{$assets}/maplibre", FilesystemIterator::SKIP_DOTS)) as $f) {
+    $destinoArq = $www . '/assets/maplibre/' . substr($f->getPathname(), strlen("{$assets}/maplibre/"));
+    @mkdir(dirname($destinoArq), 0775, true);
+    copy($f->getPathname(), $destinoArq);
+}
 copy($raiz . '/mobile/campo/fonte/campo.js', $www . '/assets/campo.js');
 copy($raiz . '/mobile/campo/fonte/campo.css', $www . '/assets/campo.css');
 
@@ -64,7 +70,7 @@ $html = '<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light">
-<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; script-src \'self\'; style-src \'self\'; img-src \'self\' data: blob: capacitor: https://localhost https://app.inventour.com.br; font-src \'self\'; connect-src \'self\' https://app.inventour.com.br blob: capacitor: https://localhost; frame-src https://www.google.com; object-src \'none\'; base-uri \'self\'">
+<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; script-src \'self\'; style-src \'self\'; img-src \'self\' data: blob: capacitor: https://localhost https://app.inventour.com.br https://server.arcgisonline.com; font-src \'self\'; connect-src \'self\' https://app.inventour.com.br https://server.arcgisonline.com blob: capacitor: https://localhost; worker-src \'self\' blob:; frame-src https://www.google.com; object-src \'none\'; base-uri \'self\'">
 <title>InvenTour Campo</title>
 <link rel="stylesheet" href="assets/tema.css">
 <link rel="stylesheet" href="assets/inventour.css">

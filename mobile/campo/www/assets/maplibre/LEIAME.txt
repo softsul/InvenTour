@@ -1,0 +1,10 @@
+Biblioteca do mapa do portal do destino (Softsul Software, 21/11/2026). Pasta de terceiros: o conferir_telas não varre.
+
+- maplibre-gl-csp.js, maplibre-gl-csp-worker.js e maplibre-gl.css: MapLibre GL JS 4.7.1
+  (licença BSD-3-Clause, LICENSE.txt). Versão CSP: sem eval e sem worker de blob.
+- fontes/: glifos das fontes Noto Sans (SIL Open Font License), do repositório
+  protomaps/basemaps-assets.
+- Os blocos do mapa base ficam em portal/mapa-base/<destino>/ (fora do Git),
+  gerados sozinhos pela fila (app/MapaBase.php, job portal_mapa_base) a partir do OpenStreetMap
+  (© colaboradores do OpenStreetMap, ODbL) pelo Protomaps. O crédito aparece no
+  canto do mapa.
