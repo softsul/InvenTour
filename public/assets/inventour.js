@@ -43,6 +43,62 @@ window.inventourIframeNovo = function (velho, historicoAntes) {
   return novo;
 };
 
+/*
+ * PDF desenhado dentro do modal, página por página (pdf.js 4.10.38, em
+ * assets/pdfjs). O Chrome do Android não tem leitor de PDF embutido e o
+ * iframe ficava com erro; no iPhone mostrava só a primeira página. Em tela
+ * de toque, ou sem leitor, as páginas viram imagens na largura do modal,
+ * desenhadas só quando chegam perto da tela.
+ * Softsul Software
+ */
+window.inventourPdfSemLeitor = function () {
+  return navigator.pdfViewerEnabled === false
+    || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+};
+window.inventourDesenharPdf = function (paginas, url) {
+  var vez = (paginas._vez = (paginas._vez || 0) + 1);
+  paginas.innerHTML = '<p class="visor-aviso">Abrindo o documento...</p>';
+  import('/assets/pdfjs/pdf.min.mjs').then(function (pdfjs) {
+    pdfjs.GlobalWorkerOptions.workerSrc = '/assets/pdfjs/pdf.worker.min.mjs';
+    return pdfjs.getDocument({url: url, isEvalSupported: false}).promise;
+  }).then(function (doc) {
+    if (vez !== paginas._vez) { return; }
+    paginas.textContent = '';
+    var largura = Math.max(260, paginas.clientWidth - 16);
+    var olho = 'IntersectionObserver' in window ? new IntersectionObserver(function (vistos) {
+      vistos.forEach(function (v) { if (v.isIntersecting) { olho.unobserve(v.target); pintar(v.target); } });
+    }, {root: paginas, rootMargin: '600px 0px'}) : null;
+    function pintar(tela) {
+      doc.getPage(+tela.dataset.pagina).then(function (pg) {
+        if (vez !== paginas._vez) { return; }
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        var vp = pg.getViewport({scale: largura / pg.getViewport({scale: 1}).width * dpr});
+        tela.width = vp.width; tela.height = vp.height;
+        tela.style.height = (vp.height / dpr) + 'px';
+        pg.render({canvasContext: tela.getContext('2d'), viewport: vp});
+      });
+    }
+    for (var n = 1; n <= doc.numPages; n++) {
+      var tela = document.createElement('canvas');
+      tela.dataset.pagina = String(n);
+      tela.setAttribute('role', 'img');
+      tela.setAttribute('aria-label', 'Página ' + n + ' de ' + doc.numPages);
+      tela.style.width = largura + 'px';
+      tela.style.height = Math.round(largura * 1.414) + 'px';
+      paginas.appendChild(tela);
+      if (olho) { olho.observe(tela); } else if (n <= 3) { pintar(tela); }
+    }
+  }).catch(function () {
+    if (vez !== paginas._vez) { return; }
+    paginas.innerHTML = '<p class="visor-aviso">Este aparelho não conseguiu mostrar o documento aqui. Use o botão Baixar, no alto.</p>';
+  });
+};
+window.inventourPararPdf = function (paginas) {
+  if (!paginas) { return; }
+  paginas._vez = (paginas._vez || 0) + 1;
+  paginas.textContent = '';
+};
+
 window.erpPerguntar = function (opcoes) {
   return new Promise(function (resolver) {
     var caixa = document.createElement('dialog');
@@ -677,7 +733,7 @@ window.erpPerguntar = function (opcoes) {
       + '<a id="visor-baixar" href="#" download title="Baixar o arquivo">Baixar</a>'
       + '<a id="visor-aba" href="#" target="_blank" rel="noopener" title="Abrir em outra aba">Nova aba</a>'
       + '<button type="button" id="visor-fechar" aria-label="Fechar">&times;</button></header>'
-      + '<iframe id="visor-quadro" title="Documento em PDF"></iframe><img id="visor-imagem" alt="" hidden>';
+      + '<iframe id="visor-quadro" title="Documento em PDF"></iframe><div id="visor-paginas" class="visor-paginas" hidden></div><img id="visor-imagem" alt="" hidden>';
     document.body.appendChild(visor);
   }
   if (!visor) { return; }
@@ -691,6 +747,14 @@ window.erpPerguntar = function (opcoes) {
   // Exposta porque há lista que chega depois, vinda do servidor: sem religar,
   // o link sairia da tela em vez de abrir o documento aqui.
   var imagem = document.getElementById('visor-imagem');
+  var paginas = document.getElementById('visor-paginas');
+  if (!paginas) {
+    paginas = document.createElement('div');
+    paginas.id = 'visor-paginas';
+    paginas.className = 'visor-paginas';
+    paginas.hidden = true;
+    quadro.parentNode.insertBefore(paginas, quadro.nextSibling);
+  }
   var visorAntes = null;
 
   window.erpLigarVerPdf = function (onde) {
@@ -714,10 +778,12 @@ window.erpPerguntar = function (opcoes) {
           imagem.hidden = !ehImagem;
           imagem.src = ehImagem ? url : '';
         }
-        quadro.hidden = ehImagem;
+        var semLeitor = !ehImagem && window.inventourPdfSemLeitor();
+        quadro.hidden = ehImagem || semLeitor;
+        paginas.hidden = !semLeitor;
         visorAntes = history.length;
-        if (!ehImagem) { quadro.src = url + '#view=FitH'; }
         visor.showModal();
+        if (semLeitor) { window.inventourDesenharPdf(paginas, url); } else if (!ehImagem) { quadro.src = url + '#view=FitH'; }
       });
     });
   };
@@ -726,6 +792,7 @@ window.erpPerguntar = function (opcoes) {
   if (fechar) { fechar.addEventListener('click', function () { visor.close(); }); }
   visor.addEventListener('close', function () {
     quadro = window.inventourIframeNovo(quadro, visorAntes);
+    window.inventourPararPdf(paginas);
     if (imagem) { imagem.src = ''; }
   });
   // Clicar fora não fecha, aqui nem em modal nenhum: a mesma janela que abre
@@ -6438,7 +6505,10 @@ window.inventourMarcarNoFiltro = function (form, campo, ids, nome) {
       if (ev.key === 'ArrowLeft') { mostrar(atual - 1); }
       if (ev.key === 'ArrowRight') { mostrar(atual + 1); }
     });
-    caixa.addEventListener('close', function () { caixa.querySelector('.vis-conteudo').innerHTML = ''; });
+    caixa.addEventListener('close', function () {
+      window.inventourPararPdf(caixa.querySelector('.visor-paginas'));
+      caixa.querySelector('.vis-conteudo').innerHTML = '';
+    });
   }
 
   function mostrar(i) {
@@ -6447,8 +6517,15 @@ window.inventourMarcarNoFiltro = function (form, campo, ids, nome) {
     var el = grupo[atual];
     var tipo = el.getAttribute('data-visualizar') || (/\.pdf($|\?)/i.test(el.href) ? 'pdf' : 'foto');
     var conteudo = caixa.querySelector('.vis-conteudo');
+    window.inventourPararPdf(conteudo.querySelector('.visor-paginas'));
     conteudo.innerHTML = '';
-    if (tipo === 'pdf') {
+    if (tipo === 'pdf' && window.inventourPdfSemLeitor()) {
+      var paginas = document.createElement('div');
+      paginas.className = 'visor-paginas';
+      conteudo.appendChild(paginas);
+      caixa.classList.add('vis-pdf');
+      window.inventourDesenharPdf(paginas, el.href.split('#')[0]);
+    } else if (tipo === 'pdf') {
       var quadro = document.createElement('iframe');
       // Abre sempre na largura toda do quadro (Luiz, 21/11/2026): o leitor
       // de PDF do navegador começava em 100% de zoom, com faixas cinza dos lados.
