@@ -116,7 +116,7 @@ final class Relatorio
                     . 'Evento turístico sem a divisão do público fica fora da conta até o proponente dividir no EventCity.',
             ],
             'dti' => [
-                'nome' => 'Diagnóstico DTI', 'grupo' => 'gestao', 'icone' => 'emblema', 'permissao' => 'diagnostico.ver',
+                'nome' => 'Diagnóstico DTI', 'grupo' => 'gestao', 'icone' => 'certificado', 'permissao' => 'diagnostico.ver',
                 'descricao' => 'Os 105 requisitos do DTI Brasil no diagnóstico mais recente: eixo, nível de conformidade, evidência, fonte e data.',
                 'data' => 'diagnóstico mais recente', 'sem_periodo' => true, 'deitado' => true,
                 'situacoes' => ['' => 'Todos', 'nao_conforme' => 'Níveis 1 e 2', 'observacao' => 'Nível 3', 'conforme' => 'Níveis 4 e 5', 'sem' => 'Sem resposta'],
