@@ -19,6 +19,72 @@ require_once __DIR__ . '/../app/Painel.php';
 require_once __DIR__ . '/../app/Graficos.php';
 require_once __DIR__ . '/../app/SesAvisos.php';
 require_once __DIR__ . '/../app/Email.php';
+require_once __DIR__ . '/../app/Bing.php';
+require_once __DIR__ . '/../app/Analytics.php';
+
+/**
+ * Os quadros da busca orgânica e das visitas, como no Início do EventCity:
+ * Google (Search Console), Bing (Webmaster) e Google Analytics. Com
+ * $empresaId, o portal do destino; com null, todos os portais.
+ */
+function quadrosDeBusca(?int $empresaId): string
+{
+    ob_start();
+    if (SearchConsole::configurado()): $g = SearchConsole::resumo($empresaId); ?>
+  <div class="cartao">
+    <div class="cab-cartao"><h2>No Google</h2><span class="nota"><?= $g['ultimo'] ? 'últimos 30 dias, até ' . e(dataBr((string) $g['ultimo'], 'd/m')) : 'aguardando a primeira leitura' ?></span></div>
+    <div class="metricas">
+      <div class="metrica"><span class="rot">Cliques</span><span class="val"><?= milhar($g['cliques']) ?></span><span class="nota">vindos da busca</span></div>
+      <div class="metrica"><span class="rot">Impressões</span><span class="val"><?= milhar($g['impressoes']) ?></span><span class="nota">vezes que apareceu</span></div>
+      <div class="metrica"><span class="rot">Posição média</span><span class="val"><?= $g['posicao'] !== null ? number_format((float) $g['posicao'], 1, ',', '') : '-' ?></span><span class="nota">no resultado</span></div>
+    </div>
+    <?php if ($g['termos']): ?>
+      <h3 class="sub-cartao">O que buscaram</h3>
+      <?= Graficos::barras(array_map(fn ($t) => ['rotulo' => $t['chave'], 'valor' => (int) $t['c'] ?: (int) $t['i'], 'cor' => '#1C3E73'], $g['termos'])) ?>
+      <p class="nota-cartao">Cliques por termo; sem clique ainda, as impressões.</p>
+    <?php else: ?>
+      <p class="nota-cartao">Os termos aparecem quando o Google começar a mostrar o portal. Leva alguns dias depois do sitemap, e o portal só mostra lugar homologado.</p>
+    <?php endif; ?>
+  </div>
+    <?php endif;
+    if (Bing::configurado()): $b = Bing::resumo($empresaId); ?>
+  <div class="cartao">
+    <div class="cab-cartao"><h2>No Bing</h2><span class="nota"><?= $b['ultimo'] ? 'últimos 30 dias, até ' . e(dataBr((string) $b['ultimo'], 'd/m')) : ($b['sites'] && $b['verificados'] < $b['sites'] ? 'aguardando a verificação do portal' : 'aguardando a primeira leitura') ?></span></div>
+    <div class="metricas">
+      <div class="metrica"><span class="rot">Cliques</span><span class="val"><?= milhar($b['cliques']) ?></span><span class="nota">vindos da busca</span></div>
+      <div class="metrica"><span class="rot">Impressões</span><span class="val"><?= milhar($b['impressoes']) ?></span><span class="nota">vezes que apareceu</span></div>
+      <div class="metrica"><span class="rot">Posição média</span><span class="val"><?= $b['posicao'] !== null ? number_format((float) $b['posicao'], 1, ',', '') : '-' ?></span><span class="nota">no resultado</span></div>
+    </div>
+    <?php if ($b['termos']): ?>
+      <h3 class="sub-cartao">O que buscaram</h3>
+      <?= Graficos::barras(array_map(fn ($t) => ['rotulo' => $t['chave'], 'valor' => (int) $t['c'] ?: (int) $t['i'], 'cor' => '#00809D'], $b['termos'])) ?>
+      <p class="nota-cartao">Cliques por termo; sem clique ainda, as impressões. Vale também para Yahoo, DuckDuckGo e Ecosia.</p>
+    <?php else: ?>
+      <p class="nota-cartao">Os termos aparecem quando o Bing começar a mostrar o portal. O Bing também abastece Yahoo, DuckDuckGo, Ecosia e Copilot.</p>
+    <?php endif; ?>
+  </div>
+    <?php endif;
+    if (Analytics::configurado()): $ga = Analytics::resumo($empresaId); ?>
+  <div class="cartao">
+    <div class="cab-cartao"><h2>Visitas no Analytics</h2><?= Auth::pode('visitas.ver') ? '<a href="/visitas">Ver as visitas</a>' : '<span class="nota">28 dias</span>' ?></div>
+    <div class="metricas">
+      <div class="metrica"><span class="rot">Visitantes</span><span class="val"><?= milhar($ga['usuarios']) ?></span><span class="nota">que aceitaram os cookies</span></div>
+      <div class="metrica"><span class="rot">Sessões</span><span class="val"><?= milhar($ga['sessoes']) ?></span><span class="nota"><?= $ga['engajamento'] ?>% engajadas</span></div>
+      <div class="metrica"><span class="rot">Tempo</span><span class="val"><?= $ga['tempo'] >= 60 ? intdiv($ga['tempo'], 60) . ' min' : $ga['tempo'] . ' s' ?></span><span class="nota">por visitante</span></div>
+    </div>
+    <?php if ($ga['canais']): ?>
+      <h3 class="sub-cartao">De onde vêm</h3>
+      <?= Graficos::barras(array_map(fn ($c) => ['rotulo' => Analytics::canal((string) $c['chave']), 'valor' => (int) $c['s'], 'cor' => '#E37400'], $ga['canais'])) ?>
+    <?php endif; ?>
+    <?php if ($ga['cidades']): ?>
+      <h3 class="sub-cartao">De que cidade</h3>
+      <?= Graficos::barras(array_map(fn ($c) => ['rotulo' => (string) $c['chave'], 'valor' => (int) $c['s'], 'cor' => '#E37400'], $ga['cidades'])) ?>
+    <?php endif; ?>
+    <p class="nota-cartao"><?= $ga['ultimo'] ? 'Últimos 28 dias, até ' . e(dataBr((string) $ga['ultimo'], 'd/m')) . '.' : 'Aguardando a primeira leitura (todo dia às 7h30).' ?> Só conta quem aceitou os cookies.</p>
+  </div>
+    <?php endif;
+    return (string) ob_get_clean();
+}
 
 $u = Auth::exigirPermissao('painel.ver');
 $empresa = Empresa::atual();
@@ -142,7 +208,14 @@ if ($empresa) {
     // O catálogo do MTur que os formulários do inventário usam.
     [$totalFichas, $totalTipos] = Database::conexao()->query('SELECT (SELECT COUNT(*) FROM inventario_fichas WHERE ativo = 1), (SELECT COUNT(*) FROM inventario_tipos WHERE ativo = 1)')->fetch(PDO::FETCH_NUM);
     $metricas[] = ['Fichas do MTur', (int) $totalFichas, plural((int) $totalTipos, 'tipo e subtipo', 'tipos e subtipos') . ' no catálogo', Auth::pode('fichas.ver') ? '/fichas' : null];
-    require_once __DIR__ . '/../app/Analytics.php';
+    if (SearchConsole::configurado()) {
+        $gP = SearchConsole::resumo(null);
+        $metricas[] = ['Busca no Google', $gP['cliques'], plural($gP['impressoes'], 'impressão', 'impressões') . ' em 30 dias, todos os portais', '/configuracoes/google'];
+    }
+    if (Bing::configurado()) {
+        $bP = Bing::resumo(null);
+        $metricas[] = ['Busca no Bing', $bP['cliques'], plural($bP['impressoes'], 'impressão', 'impressões') . ' em 30 dias · ' . plural($bP['verificados'], 'portal verificado', 'portais verificados'), '/configuracoes/bing'];
+    }
     if (Analytics::configurado()) {
         $ga = Analytics::resumo(null);
         $metricas[] = ['Visitas aos portais', $ga['usuarios'], 'visitantes em 28 dias · ' . plural($ga['sessoes'], 'sessão', 'sessões'), '/visitas'];
@@ -235,6 +308,7 @@ Os municípios vizinhos estão na região turística <strong><?= e($regiaoVizinh
     ], 'O que chegou da coleta de campo por dia') ?>
   </div>
   <?php endif; ?>
+  <?= Auth::pode('inventario.ver') ? quadrosDeBusca($eid) : '' ?>
   <div class="cartao">
     <div class="cab-cartao"><h2>Atividade no painel</h2><?= Auth::pode('auditoria.ver') ? '<a href="/configuracoes/auditoria">Auditoria</a>' : '' ?></div>
     <?= Graficos::colunas(Painel::atividade($eid), [['chave' => 'acoes', 'nome' => 'Ações registradas', 'cor' => '#2E8B3E']], 'Ações registradas na auditoria por dia') ?>
@@ -266,6 +340,7 @@ Os municípios vizinhos estão na região turística <strong><?= e($regiaoVizinh
 </div>
 
 <div class="painel-colunas painel-graficos">
+  <?= quadrosDeBusca(null) ?>
   <div class="cartao">
     <div class="cab-cartao"><h2>Atividade no painel</h2><a href="/configuracoes/auditoria">Auditoria</a></div>
     <?= Graficos::colunas(Painel::atividade(0), [['chave' => 'acoes', 'nome' => 'Ações registradas', 'cor' => '#2E8B3E']], 'Ações registradas na auditoria por dia') ?>
@@ -281,6 +356,13 @@ Os municípios vizinhos estão na região turística <strong><?= e($regiaoVizinh
         <span><?= plural($fila['agendados'], 'agendado', 'agendados') ?> · <?= plural($fila['rodando'], 'rodando', 'rodando') ?><?= $fila['ultimo'] ? ' · última concluída ' . e(dataBr((string) $fila['ultimo'], 'd/m H:i')) : '' ?></span></span>
         <span class="pilula <?= $fila['falhos7'] || $fila['atrasados'] ? 'ruim' : 'ok' ?>"><?= $fila['atrasados'] ? plural($fila['atrasados'], 'atrasado', 'atrasados')
             : ($fila['falhos7'] ? plural($fila['falhos7'], 'falha', 'falhas') . ' em 7 dias' : 'Em dia') ?></span></span></li>
+      <?php $bSaude = Bing::configurado() ? Bing::resumo(null) : null; ?>
+      <li><a href="/configuracoes/google"><?= icone('busca') ?><span class="txt-saude"><b>Google Search Console</b>
+        <span>inventour.com.br, todos os portais</span></span><span class="pilula <?= SearchConsole::configurado() ? 'ok' : 'at' ?>"><?= SearchConsole::configurado() ? 'Conectado' : 'Falta a chave' ?></span></a></li>
+      <li><a href="/configuracoes/bing"><?= icone('busca') ?><span class="txt-saude"><b>Bing Webmaster</b>
+        <span><?= $bSaude ? plural($bSaude['verificados'], 'portal verificado', 'portais verificados') . ' de ' . $bSaude['sites'] : 'Um site por portal, cadastrado sozinho' ?></span></span><span class="pilula <?= $bSaude ? 'ok' : 'at' ?>"><?= $bSaude ? 'Conectado' : 'Falta a chave' ?></span></a></li>
+      <li><a href="/configuracoes/analytics"><?= icone('painel') ?><span class="txt-saude"><b>Google Analytics</b>
+        <span><?= Analytics::lembrete() === 'marcar' ? 'Os cliques chegaram: marque clique_whatsapp e clique_rota como eventos principais' : (Analytics::medicao() !== '' ? 'Nos portais, com aviso de cookies' : 'Sem código de medição') ?></span></span><span class="pilula <?= Analytics::lembrete() === 'marcar' ? 'ruim' : (Analytics::configurado() ? 'ok' : 'at') ?>"><?= Analytics::lembrete() === 'marcar' ? 'Marcar eventos' : (Analytics::configurado() ? 'Conectado' : (Analytics::medicao() !== '' ? 'Falta a leitura' : 'Desligado')) ?></span></a></li>
     </ul>
   </div>
 </div>
