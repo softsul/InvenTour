@@ -226,6 +226,40 @@ if ($empresa) {
             $metricas[] = ['Visitas no portal', $ga['usuarios'], 'visitantes em 28 dias · ' . plural($ga['sessoes'], 'sessão', 'sessões') . ', ' . $ga['engajamento'] . '% engajadas', '/visitas', 'portal'];
         }
     }
+    // Módulos que ainda não tinham resumo aqui (Luiz, 22/11/2026): pontos
+    // de QR, roteiros, a agenda do EventCity e o diagnóstico DTI.
+    if (Auth::pode('phygital.ver')) {
+        $q = $pdo->prepare('SELECT (SELECT COUNT(*) FROM qr_pontos WHERE empresa_id = ? AND ativo = 1),
+                                   (SELECT COALESCE(SUM(leituras), 0) FROM qr_leituras WHERE empresa_id = ? AND dia >= CURDATE() - INTERVAL 30 DAY)');
+        $q->execute([$eid, $eid]);
+        [$pontosQ, $leiturasQ] = array_map('intval', $q->fetch(PDO::FETCH_NUM));
+        $metricas[] = ['Pontos de QR', $pontosQ, $pontosQ ? plural($leiturasQ, 'leitura', 'leituras') . ' em 30 dias' : 'nenhum ponto criado ainda', '/phygital', 'portal'];
+    }
+    if (Auth::pode('roteiros.ver')) {
+        $q = $pdo->prepare("SELECT COUNT(*), COALESCE(SUM(publicado = 1), 0), COALESCE(SUM(tipo = 'um_dia'), 0) FROM roteiros WHERE empresa_id = ?");
+        $q->execute([$eid]);
+        [$totalR, $publicadosR, $umDiaR] = array_map('intval', $q->fetch(PDO::FETCH_NUM));
+        $metricas[] = ['Roteiros', $totalR, $totalR ? plural($publicadosR, 'publicado', 'publicados') . ' no portal · ' . plural($umDiaR, 'de um dia', 'de um dia') : 'nenhum roteiro montado ainda', '/roteiros', 'portal'];
+    }
+    if (EventCity::temAgenda($eid)) {
+        $agendaE = EventCity::agendaEmCache($eid) ?? [];
+        $proxE = $agendaE[0] ?? null;
+        $metricas[] = ['Agenda do EventCity', count($agendaE), $proxE
+            ? 'eventos em 90 dias · o próximo em ' . date('d/m', strtotime((string) ($proxE['proximo_dia'] ?? $proxE['data_inicio'])))
+            : 'eventos em 90 dias', Auth::pode('configuracoes.ver') ? '/eventcity' : null, 'portal'];
+    }
+    if (Auth::pode('diagnostico.ver') && !(int) $pdo->query("SELECT desligado FROM modulos WHERE chave = 'diagnostico'")->fetchColumn()) {
+        require_once __DIR__ . '/../app/Diagnostico.php';
+        $cicloD = Diagnostico::ciclos($eid)[0] ?? null;
+        if (!$cicloD) {
+            $metricas[] = ['Diagnóstico DTI', '-', 'nenhum diagnóstico aberto: comece pelos 105 requisitos do MTur', '/diagnostico', 'destino'];
+        } elseif ($cicloD['situacao'] === 'fechado') {
+            $metricas[] = ['Diagnóstico DTI', Diagnostico::nota((float) $cicloD['nota']), 'média do ciclo fechado em ' . dataBr((string) $cicloD['fechado_em'], 'd/m/Y'), '/diagnostico?c=' . (int) $cicloD['id'], 'destino'];
+        } else {
+            $resD = Diagnostico::resultado(Diagnostico::requisitos((int) $cicloD['metodologia_id']), Diagnostico::respostas((int) $cicloD['id']));
+            $metricas[] = ['Diagnóstico DTI', Diagnostico::nota($resD['geral']['media']), 'média parcial · ' . (int) $cicloD['respondidos'] . ' de ' . (int) $cicloD['total'] . ' requisitos respondidos', '/diagnostico?c=' . (int) $cicloD['id'], 'destino'];
+        }
+    }
     $metricas[] = ['Equipe', Painel::equipe($eid), 'pessoas com acesso ao destino', Auth::pode('usuarios.ver') ? '/configuracoes/usuarios' : null, 'destino'];
 } elseif ($u['softsul']) {
     $destinos = Painel::destinosPlataforma();
