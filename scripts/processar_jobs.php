@@ -153,6 +153,43 @@ $tratadores = [
         echo '#' . $eid . ' ' . $s['blocos'] . ' blocos, versão ' . $s['versao'] . ' ';
     },
 
+    // SEO, como no EventCity: os números do Google Search Console (e o
+    // sitemap dos portais novos), os do Bing Webmaster (e o cadastro e a
+    // verificação dos portais novos) e, de hora em hora, o aviso ao
+    // IndexNow dos lugares e roteiros que mudaram.
+    'puxar_busca' => function (array $payload): void {
+        require_once __DIR__ . '/../app/SearchConsole.php';
+        if (!SearchConsole::configurado()) {
+            echo '(sem chave do Google) ';
+            return;
+        }
+        foreach (SearchConsole::puxar() as $linha) {
+            echo "\n   {$linha}";
+        }
+        echo "\n";
+    },
+    'puxar_bing' => function (array $payload): void {
+        require_once __DIR__ . '/../app/Bing.php';
+        if (!Bing::configurado()) {
+            echo '(sem chave do Bing) ';
+            return;
+        }
+        foreach (Bing::puxar() as $linha) {
+            echo "\n   {$linha}";
+        }
+        echo "\n";
+    },
+    'avisar_indexnow' => function (array $payload): void {
+        require_once __DIR__ . '/../app/Bing.php';
+        if (!Bing::configurado()) {
+            echo '(sem chave do Bing) ';
+            return;
+        }
+        foreach (Bing::avisarIndexNow() as $linha) {
+            echo "\n   {$linha}";
+        }
+    },
+
     'importar_mapa_turismo' => function (array $payload): void {
         require_once __DIR__ . '/../app/MapaTurismo.php';
         echo MapaTurismo::importar() . ' ';
@@ -203,4 +240,14 @@ if (!in_array('eventcity_agenda', $pendentes, true)) {
 }
 if (!in_array('importar_mapa_turismo', $pendentes, true)) {
     Fila::enfileirar('importar_mapa_turismo', [], date('Y-m-d H:i:s', strtotime('first day of next month 05:00')));
+}
+// O Google e o Bing fecham o dia de madrugada: os números saem às 7h e 7h15.
+if (!in_array('puxar_busca', $pendentes, true)) {
+    Fila::enfileirar('puxar_busca', [], date('Y-m-d H:i:s', strtotime(date('G') < 7 ? 'today 07:00' : 'tomorrow 07:00')));
+}
+if (!in_array('puxar_bing', $pendentes, true)) {
+    Fila::enfileirar('puxar_bing', [], date('Y-m-d H:i:s', strtotime(date('G') < 7 || (date('G') === '7' && (int) date('i') < 15) ? 'today 07:15' : 'tomorrow 07:15')));
+}
+if (!in_array('avisar_indexnow', $pendentes, true)) {
+    Fila::enfileirar('avisar_indexnow', [], date('Y-m-d H:i:s', strtotime('+1 hour')));
 }

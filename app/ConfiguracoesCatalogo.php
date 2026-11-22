@@ -39,7 +39,7 @@ final class ConfiguracoesCatalogo
     private static function podeAbrir(string $endereco): bool
     {
         $caminho = (string) parse_url($endereco, PHP_URL_PATH);
-        if (preg_match('#^/configuracoes/(email|modulos|comercial)$#', $caminho)) {
+        if (preg_match('#^/configuracoes/(email|modulos|comercial|google|bing)$#', $caminho)) {
             return Auth::ehSoftsul() && Auth::pode('configuracoes.ver');
         }
         return Auth::pode(match (true) {
@@ -124,6 +124,8 @@ final class ConfiguracoesCatalogo
         require_once __DIR__ . '/Waha.php';
         require_once __DIR__ . '/SesAvisos.php';
         require_once __DIR__ . '/Comercial.php';
+        require_once __DIR__ . '/SearchConsole.php';
+        require_once __DIR__ . '/Bing.php';
         $comercial = Comercial::dados();
         return [
             [
@@ -145,6 +147,26 @@ final class ConfiguracoesCatalogo
                 'descricao' => 'Liga e desliga, para todos os destinos, os módulos que ainda dependem de decisão, como Documentos.',
                 'total'     => fn () => $conta('SELECT COUNT(*) FROM modulos WHERE pode_desligar = 1 AND desligado = 1'),
                 'unidade'   => 'desligados',
+                'pronto'    => true,
+            ],
+            [
+                'endereco'  => '/configuracoes/google',
+                'grupo'     => 'Integrações',
+                'icone'     => 'busca',
+                'nome'      => 'Google Search Console',
+                'descricao' => 'A conta de serviço que lê cliques, impressões e termos de busca de cada portal e envia o sitemap dos portais novos.',
+                'total'     => fn () => SearchConsole::configurado() ? 1 : 0,
+                'unidade'   => SearchConsole::configurado() ? 'conectado' : 'falta a chave',
+                'pronto'    => true,
+            ],
+            [
+                'endereco'  => '/configuracoes/bing',
+                'grupo'     => 'Integrações',
+                'icone'     => 'busca',
+                'nome'      => 'Bing Webmaster',
+                'descricao' => 'A chave de API que lê cliques, impressões e termos de cada portal no Bing, cadastra os portais novos e avisa o IndexNow do que mudou.',
+                'total'     => fn () => Bing::configurado() ? 1 : 0,
+                'unidade'   => Bing::configurado() ? 'conectado' : 'falta a chave',
                 'pronto'    => true,
             ],
             [

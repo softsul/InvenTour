@@ -9,7 +9,9 @@ require __DIR__ . '/inc/abrir.php';
 $r = Portal::roteiro($eid, (int) ($_GET['id'] ?? 0)) ?? naoAchou($destino, 'Este roteiro não está publicado.');
 $rota = Portal::rotaNoMapa($r['paradas']);
 $primeira = reset($r['paradas']);
-PortalLayout::inicio($destino, (string) $r['titulo'], true, ['ativo' => 'roteiros', 'imagem' => $primeira ? Portal::foto($eid, $primeira['foto'], 'm') : null,
+require_once __DIR__ . '/../app/PortalSeo.php';
+PortalLayout::inicio($destino, (string) $r['titulo'], true, ['ativo' => 'roteiros',
+    'jsonld' => PortalSeo::roteiro($destino, $r, '/roteiro/' . (int) $r['id'] . '-' . Portal::slug((string) $r['titulo'])), 'imagem' => $primeira ? Portal::foto($eid, $primeira['foto'], 'm') : null,
     'descricao' => $r['descricao'] ? mb_strimwidth((string) $r['descricao'], 0, 200, '...') : 'Roteiro em ' . $destino['nome_fantasia'] . '.']);
 ?>
 <nav class="trilha"><a href="<?= e(Portal::url('/')) ?>">Início</a> › <a href="<?= e(Portal::url('/roteiros')) ?>">Roteiros</a> › <span><?= e((string) $r['titulo']) ?></span></nav>

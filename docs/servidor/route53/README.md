@@ -52,3 +52,17 @@ HTTP-01 (certbot com webroot `/var/www/acme`) no vhost do portal.
 
 Zona hospedada: US$ 0,50 por mês, mais US$ 0,40 por milhão de consultas.
 Aceito pelo Luiz ao pedir a mudança para a AWS (20/11/2026).
+
+## Search Console (22/11/2026)
+
+Propriedade de domínio `sc-domain:inventour.com.br` na conta do Luiz,
+verificada pelo TXT `google-site-verification=BGf9zg...` na raiz da zona
+(não apagar). A conta de serviço do EventCity
+(`eventcity-search-console@eventcity-512518.iam.gserviceaccount.com`) tem
+permissão total: a mesma chave JSON serve ao InvenTour, colada em
+Configurações > Google Search Console.
+
+## E-mail
+
+SES, DKIM, MAIL FROM, DMARC e os avisos por SNS: `ses-inventour.md`.
+

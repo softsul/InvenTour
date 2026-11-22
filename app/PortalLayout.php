@@ -24,7 +24,8 @@ final class PortalLayout
 
     /**
      * @param array<string,mixed>|null $destino
-     * @param array{descricao?:?string,imagem?:?string,ativo?:string,classe?:string} $og
+     * @param array{descricao?:?string,imagem?:?string,ativo?:string,classe?:string,jsonld?:list<array>} $og
+     *        jsonld: os dados estruturados da página (app/PortalSeo.php)
      */
     public static function inicio(?array $destino, string $titulo, bool $indexar = true, array $og = []): void
     {
@@ -64,6 +65,7 @@ final class PortalLayout
 <meta property="og:description" content="<?= e(mb_substr($descricao, 0, 300)) ?>">
 <meta property="og:url" content="<?= e($canonico) ?>">
 <?php if (!empty($og['imagem'])): ?><meta property="og:image" content="<?= e($host . $og['imagem']) ?>"><meta name="twitter:card" content="summary_large_image"><?php endif; ?>
+<?php if ($indexar && !empty($og['jsonld'])) { require_once __DIR__ . '/PortalSeo.php'; echo PortalSeo::bloco((array) $og['jsonld']); } ?>
 <meta name="theme-color" content="#<?= e($cor) ?>">
 <link rel="icon" href="/assets/icone.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/assets/icone-180.png">

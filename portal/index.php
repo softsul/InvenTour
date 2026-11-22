@@ -33,7 +33,9 @@ $temCapa = is_readable(dirname(rtrim((string) $cfg['caminhos']['midias'], '/')) 
 $coord = PortalLayout::coordenadaDoDestino($destino);
 $previa = Portal::previa($eid);
 
-PortalLayout::inicio($destino, $nome, true, ['ativo' => '', 'imagem' => $temCapa ? '/capa.jpg' : null, 'descricao' => $apresentacao ?: null, 'classe' => 'inicio']);
+require_once __DIR__ . '/../app/PortalSeo.php';
+PortalLayout::inicio($destino, $nome, true, ['ativo' => '', 'imagem' => $temCapa ? '/capa.jpg' : null, 'descricao' => $apresentacao ?: null, 'classe' => 'inicio',
+    'jsonld' => PortalSeo::destino($destino, $apresentacao ?: null, $temCapa ? '/capa.jpg' : null)]);
 ?>
 <section class="capa">
   <?php if ($temCapa): ?><img src="/capa.jpg" alt=""><?php endif; ?>

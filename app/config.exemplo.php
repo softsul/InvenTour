@@ -121,7 +121,7 @@ return [
     'mail' => [
         'smtp_host'        => 'email-smtp.sa-east-1.amazonaws.com',
         // Tópico do SNS que traz devoluções e reclamações (api/ses-avisos.php).
-        'topico_sns'       => '',
+        'topico_sns'       => 'arn:aws:sns:sa-east-1:605245836571:inventour-ses-avisos',
         'smtp_porta'       => 587,
         'smtp_usuario'     => '',
         'smtp_senha'       => '',

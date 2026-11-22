@@ -59,7 +59,9 @@ if ($coord) {
     $perto = array_slice($perto, 0, 4);
 }
 
+require_once __DIR__ . '/../app/PortalSeo.php';
 PortalLayout::inicio($destino, $nome, true, ['ativo' => (string) $pilar, 'imagem' => $foto, 'classe' => 'com-barra',
+    'jsonld' => PortalSeo::lugar($destino, $i, (string) $pilar, $certo),
     'descricao' => $descricao !== '' ? mb_strimwidth($descricao, 0, 200, '...') : $tipo . ' em ' . $destino['nome_fantasia'] . '.']);
 ?>
 <section class="ficha-capa<?= $fotoGrande ? '' : ' sem-capa' ?>">

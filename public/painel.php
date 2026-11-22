@@ -111,6 +111,20 @@ if ($empresa) {
             }
         }
     }
+    // Busca orgânica (Search Console e Bing), como no EventCity: 30 dias.
+    if (Auth::pode('inventario.ver')) {
+        require_once __DIR__ . '/../app/Bing.php';
+        if (SearchConsole::configurado()) {
+            $g = SearchConsole::resumo($eid);
+            $metricas[] = ['Busca no Google', $g['cliques'], plural($g['impressoes'], 'impressão', 'impressões') . ' em 30 dias'
+                . ($g['posicao'] !== null ? ' · posição média ' . str_replace('.', ',', (string) $g['posicao']) : ''), Auth::ehSoftsul() ? '/configuracoes/google' : null];
+        }
+        if (Bing::configurado()) {
+            $b = Bing::resumo($eid);
+            $metricas[] = ['Busca no Bing', $b['cliques'], plural($b['impressoes'], 'impressão', 'impressões') . ' em 30 dias'
+                . ($b['sites'] && !$b['verificados'] ? ' · portal aguardando a verificação' : ''), Auth::ehSoftsul() ? '/configuracoes/bing' : null];
+        }
+    }
     $metricas[] = ['Equipe', Painel::equipe($eid), 'pessoas com acesso ao destino', Auth::pode('usuarios.ver') ? '/configuracoes/usuarios' : null];
 } elseif ($u['softsul']) {
     $destinos = Painel::destinosPlataforma();

@@ -25,6 +25,10 @@ RewriteRule ^acento\.css$ /acento.php [L,QSA]
 RewriteRule ^capa\.jpg$ /capa.php [L]
 RewriteRule ^sitemap\.xml$ /sitemap.php [L]
 RewriteRule ^robots\.txt$ /robots.php [L]
+# Bing Webmaster (código de verificação de cada portal) e a chave do IndexNow
+# (app/Bing.php), como no EventCity.
+RewriteRule ^BingSiteAuth\.xml$ /bing-auth.php [L]
+RewriteRule ^([a-f0-9]{32})\.txt$ /indexnow.php?chave=$1 [L]
 
 # QR das fichas do caderno (/qr/CODIGO/item) e verificação (/verificar/CODIGO).
 RewriteRule ^qr/([A-Za-z0-9]{10})/([0-9]+)/?$ /qr.php?c=$1&i=$2 [L,QSA]
