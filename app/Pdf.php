@@ -33,6 +33,15 @@ final class Pdf
         $saida   = $base . '.pdf';
         file_put_contents($entrada, $html);
 
+        // Cabeçalho repetido em todas as páginas: o wkhtmltopdf desenha um
+        // HTML à parte no alto de cada folha. Ele lê o arquivo do disco, então
+        // só esse arquivo é liberado no --allow; o resto segue sem acesso.
+        $cabecalho = null;
+        if (!empty($opcoes['cabecalho_html'])) {
+            $cabecalho = $base . '-cab.html';
+            file_put_contents($cabecalho, $opcoes['cabecalho_html']);
+        }
+
         $args = [
             '--quiet', '--encoding', 'utf-8',
             '--page-size', $opcoes['tamanho'] ?? 'A4',
@@ -49,6 +58,10 @@ final class Pdf
             '--disable-local-file-access',
             '--print-media-type',
         ];
+        if ($cabecalho !== null) {
+            array_push($args, '--header-html', $cabecalho, '--header-spacing', (string) ($opcoes['cabecalho_espaco'] ?? '4'),
+                       '--allow', $cabecalho);
+        }
         if (!empty($opcoes['rodape_texto'])) {
             array_push($args, '--footer-font-size', '7', '--footer-font-name', 'DejaVu Sans',
                        '--footer-left', $opcoes['rodape_texto'],
@@ -97,6 +110,9 @@ final class Pdf
         }
 
         $pdf = is_file($saida) ? (string) file_get_contents($saida) : '';
+        if ($cabecalho !== null) {
+            @unlink($cabecalho);
+        }
         @unlink($entrada);
         @unlink($saida);
 

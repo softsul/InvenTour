@@ -156,7 +156,8 @@ if ($saida === 'pdf') {
     include __DIR__ . '/../app/vistas/relatorio_pdf.php';
     $html = (string) ob_get_clean();
     try {
-        $pdf = Pdf::deHtml($html, ['rodape_texto' => $titulo . ' · ' . $periodo, 'deitado' => !empty($def['deitado'])]);
+        $pdf = Pdf::deHtml($html, ['rodape_texto' => $titulo . ' · ' . $periodo, 'deitado' => !empty($def['deitado']),
+            'cabecalho_html' => $cabecalhoHtml, 'topo' => '34']);
     } catch (Throwable $e) {
         error_log('relatorio-pdf: ' . $e->getMessage());
         paginaErro(500, 'Não consegui gerar o PDF. O erro foi registrado.');
