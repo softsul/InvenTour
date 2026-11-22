@@ -125,6 +125,13 @@ if ($empresa) {
                 . ($b['sites'] && !$b['verificados'] ? ' · portal aguardando a verificação' : ''), Auth::ehSoftsul() ? '/configuracoes/bing' : null];
         }
     }
+    if (Auth::pode('visitas.ver')) {
+        require_once __DIR__ . '/../app/Analytics.php';
+        if (Analytics::configurado()) {
+            $ga = Analytics::resumo($eid);
+            $metricas[] = ['Visitas no portal', $ga['usuarios'], 'visitantes em 28 dias · ' . plural($ga['sessoes'], 'sessão', 'sessões') . ', ' . $ga['engajamento'] . '% engajadas', '/visitas'];
+        }
+    }
     $metricas[] = ['Equipe', Painel::equipe($eid), 'pessoas com acesso ao destino', Auth::pode('usuarios.ver') ? '/configuracoes/usuarios' : null];
 } elseif ($u['softsul']) {
     $destinos = Painel::destinosPlataforma();
@@ -135,6 +142,11 @@ if ($empresa) {
     // O catálogo do MTur que os formulários do inventário usam.
     [$totalFichas, $totalTipos] = Database::conexao()->query('SELECT (SELECT COUNT(*) FROM inventario_fichas WHERE ativo = 1), (SELECT COUNT(*) FROM inventario_tipos WHERE ativo = 1)')->fetch(PDO::FETCH_NUM);
     $metricas[] = ['Fichas do MTur', (int) $totalFichas, plural((int) $totalTipos, 'tipo e subtipo', 'tipos e subtipos') . ' no catálogo', Auth::pode('fichas.ver') ? '/fichas' : null];
+    require_once __DIR__ . '/../app/Analytics.php';
+    if (Analytics::configurado()) {
+        $ga = Analytics::resumo(null);
+        $metricas[] = ['Visitas aos portais', $ga['usuarios'], 'visitantes em 28 dias · ' . plural($ga['sessoes'], 'sessão', 'sessões'), '/visitas'];
+    }
     $metricas[] = ['E-mails devolvidos', $devolvidos, plural($reclamacoes, 'reclamação', 'reclamações') . ' em 30 dias · ' . plural($bloqueados, 'bloqueado', 'bloqueados'), '/configuracoes/email'];
 }
 if (Auth::pode('cadastur.ver')) {

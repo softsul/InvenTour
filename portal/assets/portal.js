@@ -562,3 +562,28 @@
     if (a && externo(a) && a.target !== '_blank') { a.target = '_blank'; a.rel = 'noopener'; }
   }, true);
 })();
+
+/*
+ * Cliques que contam no Google Analytics, só se o visitante aceitou os
+ * cookies (window.itAnalytics, de consentimento.js): WhatsApp, ligar, rota,
+ * site ou Instagram do lugar e guardar no meu roteiro. Os nomes estão em
+ * Analytics::CLIQUES; WhatsApp e rota viram eventos principais.
+ */
+(function () {
+  'use strict';
+  document.addEventListener('click', function (ev) {
+    if (!window.itAnalytics) { return; }
+    var a = ev.target.closest('a[href], button[data-roteiro], button[data-guardar-varios]');
+    if (!a) { return; }
+    var nome = '';
+    var href = a.getAttribute('href') || '';
+    if (a.hasAttribute('data-roteiro') || a.hasAttribute('data-guardar-varios')) { nome = 'guardar_roteiro'; }
+    else if (/^https:\/\/wa\.me\//.test(href)) { nome = 'clique_whatsapp'; }
+    else if (/^tel:/.test(href)) { nome = 'clique_ligar'; }
+    else if (/google\.com\/maps/.test(href)) { nome = 'clique_rota'; }
+    else if (a.closest('.caixa-contato') && /^https?:/.test(href)) { nome = 'clique_site'; }
+    if (!nome) { return; }
+    var m = location.pathname.match(/^\/(lugar|roteiro)\/(\d+)/);
+    window.itAnalytics(nome, m ? { pagina_tipo: m[1], pagina_id: m[2] } : {});
+  });
+})();

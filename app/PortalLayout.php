@@ -156,6 +156,7 @@ final class PortalLayout
       <?php if (!empty($d['whatsapp'])): ?><a target="_blank" rel="noopener" href="https://wa.me/<?= e((string) telefoneParaBanco((string) $d['whatsapp'])) ?>">WhatsApp</a><?php endif; ?>
       <?php if (!empty($d['email'])): ?><a href="mailto:<?= e((string) $d['email']) ?>"><?= e((string) $d['email']) ?></a><?php endif; ?>
       <a href="/privacidade">Privacidade</a>
+      <?php if (self::medicao() !== ''): ?><button type="button" class="como-link link-rodape" data-abrir-cookies>Cookies</button><?php endif; ?>
     </div>
     <div>
       <b>Sobre os dados</b>
@@ -165,12 +166,29 @@ final class PortalLayout
   </div>
   <?php endif; ?>
 </footer>
+<?php if (($ga = self::medicao()) !== '' && $d): ?>
+<?php /* Google Analytics só com consentimento (app/Analytics.php): o aviso
+         fica escondido até o consentimento.js ver que ainda não há escolha
+         guardada neste portal. Sem código de medição, nada disso existe. */ ?>
+<aside class="aviso-cookies" id="aviso-cookies" data-ga="<?= e($ga) ?>" aria-label="Cookies" hidden>
+  <p><b>Podemos medir as visitas?</b> Assim sabemos de onde vêm os visitantes e o que mais procuram no guia, para melhorar o portal. Só com a sua permissão, sem anúncio. <a href="<?= e(Portal::url('/privacidade')) ?>#cookies">Saiba mais</a></p>
+  <div class="aviso-cookies-botoes"><button type="button" class="cta claro" data-cookies="nao">Recusar</button><button type="button" class="cta" data-cookies="sim">Aceitar</button></div>
+</aside>
+<script src="/assets/consentimento.js?v=<?= (int) @filemtime(__DIR__ . '/../portal/assets/consentimento.js') ?>" defer></script>
+<?php endif; ?>
 </body>
 </html>
         <?php
     }
 
-    /** Ícone de cada selo de acessibilidade. */
+    /** O código de medição do Google Analytics, ou '' (o portal não lê ajustes: vem do arquivo do cache). */
+    public static function medicao(): string
+    {
+        require_once __DIR__ . '/Analytics.php';
+        return Analytics::medicaoNoPortal();
+    }
+
+        /** Ícone de cada selo de acessibilidade. */
     public static function iconeDoSelo(string $s): string
     {
         return ['cadeirante' => 'cadeirante', 'auditiva' => 'libras', 'visual' => 'olho', 'vaga' => 'carro'][$s] ?? 'pessoas';

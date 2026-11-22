@@ -16,7 +16,13 @@
  *
  * @var string $quem       o destino (no portal) ou "cada destino da plataforma InvenTour"
  * @var bool   $semContato no painel não há o modal do Fale conosco
+ *
+ * Com a medição de visitas ligada (código do Google Analytics gravado em
+ * Configurações), o texto passa a falar do cookie e do aceite, sem nome de
+ * fornecedor, como o resto desta política.
  */
+require_once __DIR__ . '/../Analytics.php';
+$comMedicao = Analytics::medicaoNoPortal() !== '';
 ?>
 <div class="texto-legal">
   <p>Esta política explica que dados o InvenTour trata quando você usa o inventário turístico oficial de <?= e($quem) ?>, para que, por quanto tempo e como exercer os seus direitos pela Lei Geral de Proteção de Dados (Lei 13.709/2018).</p>
@@ -26,10 +32,25 @@
 
   <h2>Quem só visita o portal</h2>
   <ul>
+    <?php if ($comMedicao): ?>
+    <li><b>Sem anúncio e sem perfil.</b> O portal não tem ferramenta de anúncio e não monta perfil de quem visita. O único cookie é o da medição de visitas, e só com a sua permissão (veja abaixo).</li>
+    <?php else: ?>
     <li><b>Sem anúncio, sem perfil e sem cookie.</b> O portal não tem ferramenta de anúncio, não grava cookie e não monta perfil de quem visita.</li>
+    <?php endif; ?>
     <li><b>Meu roteiro:</b> os lugares que você guarda ficam só no seu aparelho, no navegador. Não vão para o InvenTour, a não ser que você mesmo compartilhe o link do roteiro.</li>
     <li><b>QR Codes:</b> a leitura de um QR do destino é contada por dia, sem guardar quem leu.</li>
   </ul>
+
+  <?php if ($comMedicao): ?>
+  <h2 id="cookies">Cookies e medição de visitas</h2>
+  <ul>
+    <li><b>Só com o seu aceite.</b> Na primeira visita, o portal pergunta se pode medir as visitas. Enquanto você não aceitar, nenhum script de medição é carregado e nenhum cookie é gravado. A base legal é o consentimento (artigo 7º, I, da LGPD).</li>
+    <li><b>Para quê.</b> Saber de onde vêm as visitas (busca, redes sociais, WhatsApp, QR Code), de que cidade, em que tipo de aparelho e que lugares e roteiros são mais procurados, em números somados, para melhorar o guia e o planejamento do turismo.</li>
+    <li><b>O que a ferramenta recebe.</b> As páginas vistas, os cliques na ficha do lugar (WhatsApp, ligar, como chegar, site e guardar no meu roteiro), o aparelho, o navegador, a cidade aproximada e um código aleatório guardado num cookie deste portal. O IP completo não é gravado, e os recursos de anúncio e de personalização ficam desligados. O serviço de medição atua como operador e pode tratar os dados fora do Brasil (artigo 33 da LGPD).</li>
+    <li><b>Por quanto tempo.</b> O cookie dura até dois anos no seu navegador, e os dados da medição ficam o prazo mínimo da ferramenta (dois meses).</li>
+    <li><b>Mudar de ideia.</b> O botão Cookies, no rodapé de toda página do portal, reabre a escolha; recusar apaga os cookies da medição deste portal.</li>
+  </ul>
+  <?php endif; ?>
 
   <h2>Quando você fala com a gente</h2>
   <ul>

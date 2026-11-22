@@ -39,7 +39,7 @@ final class ConfiguracoesCatalogo
     private static function podeAbrir(string $endereco): bool
     {
         $caminho = (string) parse_url($endereco, PHP_URL_PATH);
-        if (preg_match('#^/configuracoes/(email|modulos|comercial|google|bing)$#', $caminho)) {
+        if (preg_match('#^/configuracoes/(email|modulos|comercial|google|bing|analytics)$#', $caminho)) {
             return Auth::ehSoftsul() && Auth::pode('configuracoes.ver');
         }
         return Auth::pode(match (true) {
@@ -126,6 +126,7 @@ final class ConfiguracoesCatalogo
         require_once __DIR__ . '/Comercial.php';
         require_once __DIR__ . '/SearchConsole.php';
         require_once __DIR__ . '/Bing.php';
+        require_once __DIR__ . '/Analytics.php';
         $comercial = Comercial::dados();
         return [
             [
@@ -167,6 +168,16 @@ final class ConfiguracoesCatalogo
                 'descricao' => 'A chave de API que lê cliques, impressões e termos de cada portal no Bing, cadastra os portais novos e avisa o IndexNow do que mudou.',
                 'total'     => fn () => Bing::configurado() ? 1 : 0,
                 'unidade'   => Bing::configurado() ? 'conectado' : 'falta a chave',
+                'pronto'    => true,
+            ],
+            [
+                'endereco'  => '/configuracoes/analytics',
+                'grupo'     => 'Integrações',
+                'icone'     => 'painel',
+                'nome'      => 'Google Analytics',
+                'descricao' => 'De onde vêm as visitas dos portais, de que cidade e em que aparelho. O script só carrega com o aceite de cookies do visitante.',
+                'total'     => fn () => Analytics::configurado() ? 1 : 0,
+                'unidade'   => Analytics::configurado() ? 'conectado' : (Analytics::medicao() !== '' ? 'falta a leitura' : 'desligado'),
                 'pronto'    => true,
             ],
             [

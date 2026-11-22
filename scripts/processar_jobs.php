@@ -190,6 +190,22 @@ $tratadores = [
         }
     },
 
+    'puxar_analytics' => function (array $payload): void {
+        require_once __DIR__ . '/../app/Analytics.php';
+        if (!Analytics::configurado()) {
+            echo '(sem propriedade do Analytics) ';
+            return;
+        }
+        foreach (Analytics::puxar() as $linha) {
+            echo "\n   {$linha}";
+        }
+        // Lembrete: WhatsApp e rota viram eventos principais quando chegam.
+        if (($aviso = Analytics::conferirPrincipais()) !== '') {
+            echo "\n   {$aviso}";
+        }
+        echo "\n";
+    },
+
     'importar_mapa_turismo' => function (array $payload): void {
         require_once __DIR__ . '/../app/MapaTurismo.php';
         echo MapaTurismo::importar() . ' ';
@@ -250,4 +266,7 @@ if (!in_array('puxar_bing', $pendentes, true)) {
 }
 if (!in_array('avisar_indexnow', $pendentes, true)) {
     Fila::enfileirar('avisar_indexnow', [], date('Y-m-d H:i:s', strtotime('+1 hour')));
+}
+if (!in_array('puxar_analytics', $pendentes, true)) {
+    Fila::enfileirar('puxar_analytics', [], date('Y-m-d H:i:s', strtotime(date('G') < 7 || (date('G') === '7' && (int) date('i') < 30) ? 'today 07:30' : 'tomorrow 07:30')));
 }
