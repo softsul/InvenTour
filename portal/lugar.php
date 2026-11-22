@@ -152,6 +152,7 @@ PortalLayout::inicio($destino, $nome, true, ['ativo' => (string) $pilar, 'imagem
       <?php if ($i['capacidade_publico']): ?><dt>Capacidade</dt><dd><?= plural((int) $i['capacidade_publico'], 'pessoa', 'pessoas') ?></dd><?php endif; ?>
       <?php if ($i['cadastur'] && (!$i['cadastur_validade'] || $i['cadastur_validade'] >= date('Y-m-d'))): ?><dt>Cadastur</dt><dd>Cadastro ativo no Ministério do Turismo</dd><?php endif; ?>
     </dl>
+    <button type="button" class="como-link link-rodape corrigir-lugar" data-abrir-contato data-assunto="correcao"><?= icone('alerta') ?> Viu alguma informação errada? Avise</button>
     <?php /* Etapa 6: o trade pede o acesso pelo painel (público, /reivindicar),
              só em destino ativo e para lugar homologado. */
     if (($destino['modo_operacao'] ?? '') === 'ativo' && in_array($i['situacao'] ?? 'homologada', ['homologada', 'desatualizada'], true)): ?>

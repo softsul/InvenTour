@@ -154,7 +154,8 @@ final class PortalLayout
     <div>
       <b>Fale com o turismo</b>
       <?php if (!empty($d['whatsapp'])): ?><a target="_blank" rel="noopener" href="https://wa.me/<?= e((string) telefoneParaBanco((string) $d['whatsapp'])) ?>">WhatsApp</a><?php endif; ?>
-      <?php if (!empty($d['email'])): ?><a href="mailto:<?= e((string) $d['email']) ?>"><?= e((string) $d['email']) ?></a><?php endif; ?>
+      <?php /* Nada de mailto: (regra do Luiz): todo contato passa pelo modal com reCAPTCHA, como no EventCity. */ ?>
+      <button type="button" class="como-link link-rodape" data-abrir-contato>Fale conosco</button>
       <a href="/privacidade">Privacidade</a>
       <?php if (self::medicao() !== ''): ?><button type="button" class="como-link link-rodape" data-abrir-cookies>Cookies</button><?php endif; ?>
     </div>
@@ -166,6 +167,10 @@ final class PortalLayout
   </div>
   <?php endif; ?>
 </footer>
+<?php if ($d): require_once __DIR__ . '/Contato.php'; ?>
+<?= Contato::modal(Portal::url('/api/contato')) ?>
+<script src="/assets/contato.js?v=<?= (int) @filemtime(__DIR__ . '/../portal/assets/contato.js') ?>" defer></script>
+<?php endif; ?>
 <?php if (($ga = self::medicao()) !== '' && $d): ?>
 <?php /* Google Analytics só com consentimento (app/Analytics.php): o aviso
          fica escondido até o consentimento.js ver que ainda não há escolha

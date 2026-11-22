@@ -87,7 +87,9 @@
       folha.appendChild(cab);
       folha.appendChild(lista);
       fundo.appendChild(folha);
-      document.body.appendChild(fundo);
+      // Dentro de um modal aberto (Fale conosco), a folha entra no próprio
+      // modal: fora dele ficaria por baixo da camada do dialog.
+      (select.closest('dialog[open]') || document.body).appendChild(fundo);
       document.body.style.overflow = 'hidden';
       function sair() { fundo.remove(); document.body.style.overflow = ''; document.removeEventListener('keydown', tecla); botao.focus(); }
       function tecla(ev) { if (ev.key === 'Escape') { sair(); } }

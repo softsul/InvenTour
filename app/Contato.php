@@ -20,8 +20,8 @@ final class Contato
 {
     /** assunto => rótulo, na ordem do combo. */
     public const ASSUNTOS = [
-        'duvida'         => 'Dúvida sobre a agenda',
-        'evento'         => 'Quero divulgar um evento',
+        'duvida'         => 'Dúvida sobre o destino',
+        'evento'         => 'Quero incluir o meu negócio no guia',
         'acessibilidade' => 'Acessibilidade',
         'correcao'       => 'Correção de informação',
         'lancamento'     => 'Quero acompanhar o lançamento',
