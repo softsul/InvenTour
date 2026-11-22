@@ -64,7 +64,7 @@ PortalLayout::inicio($destino, $nome, true, ['ativo' => (string) $pilar, 'imagem
     'jsonld' => PortalSeo::lugar($destino, $i, (string) $pilar, $certo),
     'descricao' => $descricao !== '' ? mb_strimwidth($descricao, 0, 200, '...') : $tipo . ' em ' . $destino['nome_fantasia'] . '.']);
 ?>
-<section class="ficha-capa<?= $fotoGrande ? '' : ' sem-capa' ?>">
+<section class="ficha-capa<?= $fotoGrande ? '' : ' sem-capa' ?>" data-lugar="<?= (int) $i['id'] ?>">
   <?php if ($fotoGrande): ?><img src="<?= e($fotoGrande) ?>" alt="<?= e((string) ($capaInfo['legenda'] ?? '')) ?>"><?php if (!empty($capaInfo['credito'])): ?><span class="capa-credito">Foto: <?= e((string) $capaInfo['credito']) ?></span><?php endif; ?><?php else: ?><span class="inicial-gigante" aria-hidden="true"><?= e(PortalLayout::inicial($nome)) ?></span><?php endif; ?>
   <div class="ficha-capa-txt">
     <nav class="trilha"><a href="<?= e(Portal::url('/')) ?>">Início</a><?php if ($pilar): ?> / <a href="<?= e(Portal::url('/' . $pilar)) ?>"><?= e(Portal::PILARES[$pilar][0]) ?></a><?php endif; ?></nav>

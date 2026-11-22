@@ -27,6 +27,8 @@ RewriteRule ^sitemap\.xml$ /sitemap.php [L]
 RewriteRule ^robots\.txt$ /robots.php [L]
 # Bing Webmaster (código de verificação de cada portal) e a chave do IndexNow
 # (app/Bing.php), como no EventCity.
+# Contadores de métrica sem cookie (portal/m.php), como no EventCity.
+RewriteRule ^m/([a-z]{2,10})/([0-9]{1,10})$ /m.php?acao=$1&id=$2 [L,QSA]
 RewriteRule ^BingSiteAuth\.xml$ /bing-auth.php [L]
 RewriteRule ^([a-f0-9]{32})\.txt$ /indexnow.php?chave=$1 [L]
 

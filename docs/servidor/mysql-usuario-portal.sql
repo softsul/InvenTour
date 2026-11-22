@@ -58,3 +58,6 @@ GRANT SELECT ON inventour.roteiro_itens TO 'inventour_portal'@'localhost', 'inve
 GRANT SELECT (id, empresa_id, apelido, titulo, destino_tipo, destino_ref, ativo)
     ON inventour.qr_pontos TO 'inventour_portal'@'localhost', 'inventour_portal'@'127.0.0.1';
 GRANT SELECT, INSERT, UPDATE ON inventour.qr_leituras TO 'inventour_portal'@'localhost', 'inventour_portal'@'127.0.0.1';
+-- Métricas do portal sem cookie (portal/m.php, migração 035), como no EventCity.
+GRANT SELECT, INSERT, UPDATE ON inventour.metricas_lugares TO 'inventour_portal'@'localhost', 'inventour_portal'@'127.0.0.1';
+GRANT SELECT, INSERT, UPDATE ON inventour.metricas_portal  TO 'inventour_portal'@'localhost', 'inventour_portal'@'127.0.0.1';

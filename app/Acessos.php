@@ -89,7 +89,7 @@ final class Acessos
     ];
 
     /** O que é arquivo ou chamada de API e não página: não entra em páginas vistas. */
-    private const ARQUIVO = '#^/(assets|midia|foto|mapa-base|baixar|api)/|^/(acento\.css|capa\.jpg|sitemap\.xml|robots\.txt|BingSiteAuth\.xml|sw-coleta\.js|[a-f0-9]{32}\.txt)$|\.(css|js|mjs|map|png|jpe?g|gif|webp|avif|svg|ico|woff2?|ttf|otf|eot|mp4|webm|mp3|pdf|webmanifest|json)$#i';
+    private const ARQUIVO = '#^/(assets|midia|foto|mapa-base|baixar|api|m)/|^/(acento\.css|capa\.jpg|sitemap\.xml|robots\.txt|BingSiteAuth\.xml|sw-coleta\.js|[a-f0-9]{32}\.txt)$|\.(css|js|mjs|map|png|jpe?g|gif|webp|avif|svg|ico|woff2?|ttf|otf|eot|mp4|webm|mp3|pdf|webmanifest|json)$#i';
 
     private static array $hosts = [];
     private static string $sal = '';

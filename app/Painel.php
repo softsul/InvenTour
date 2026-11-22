@@ -87,4 +87,51 @@ final class Painel
                                  FROM jobs")->fetch(PDO::FETCH_NUM) ?: [0, 0, 0, null, 0];
         return ['atrasados' => (int) $l[0], 'agendados' => (int) $l[1], 'rodando' => (int) $l[2], 'ultimo' => $l[3], 'falhos7' => (int) $l[4]];
     }
+
+    /**
+     * O portal nos últimos dias, como no EventCity: páginas vistas por dia,
+     * os cliques somados e os lugares mais vistos (metricas_portal e
+     * metricas_lugares, gravados pelo portal/m.php). Sem dado de quem
+     * visitou: são só contadores.
+     */
+    public static function portal(int $empresaId, int $dias = 14): array
+    {
+        $pdo = self::pdo();
+        $de = date('Y-m-d', strtotime('-' . ($dias - 1) . ' days'));
+        $q = $pdo->prepare('SELECT dia, paginas FROM metricas_portal WHERE empresa_id = ? AND dia >= ?');
+        $q->execute([$empresaId, $de]);
+        $porDia = array_map('intval', $q->fetchAll(PDO::FETCH_KEY_PAIR));
+        $serie = [];
+        for ($i = 0; $i < $dias; $i++) {
+            $d = date('Y-m-d', strtotime($de . " +{$i} days"));
+            $serie[] = ['rotulo' => (string) (int) date('j', strtotime($d)), 'titulo' => dataBr($d, 'd/m'), 'data' => $d, 'paginas' => $porDia[$d] ?? 0];
+        }
+        $q = $pdo->prepare('SELECT COALESCE(SUM(visualizacoes),0) v, COALESCE(SUM(cliques_rota),0) r, COALESCE(SUM(cliques_whatsapp),0) w,
+                                   COALESCE(SUM(cliques_ligar),0) l, COALESCE(SUM(cliques_site),0) s, COALESCE(SUM(guardados),0) g
+                            FROM metricas_lugares WHERE empresa_id = ? AND dia >= CURDATE() - INTERVAL 29 DAY');
+        $q->execute([$empresaId]);
+        $tot = array_map('intval', $q->fetch());
+        $q = $pdo->prepare('SELECT i.id, i.nome, SUM(m.visualizacoes) AS v
+                            FROM metricas_lugares m JOIN inventario_itens i ON i.id = m.item_id
+                            WHERE m.empresa_id = ? AND m.dia >= CURDATE() - INTERVAL 29 DAY
+                            GROUP BY i.id, i.nome ORDER BY v DESC LIMIT 5');
+        $q->execute([$empresaId]);
+        $top = array_map(fn ($l) => ['rotulo' => $l['nome'], 'valor' => (int) $l['v'], 'cor' => '#1C3E73'], $q->fetchAll());
+        return ['serie' => $serie, 'totais' => $tot, 'top' => $top];
+    }
+
+    /** Visão da plataforma: páginas vistas por dia em todos os portais, 14 dias. */
+    public static function visitasPlataforma(int $dias = 14): array
+    {
+        $de = date('Y-m-d', strtotime('-' . ($dias - 1) . ' days'));
+        $q = self::pdo()->prepare('SELECT dia, SUM(paginas) FROM metricas_portal WHERE dia >= ? GROUP BY dia');
+        $q->execute([$de]);
+        $porDia = array_map('intval', $q->fetchAll(PDO::FETCH_KEY_PAIR));
+        $serie = [];
+        for ($i = 0; $i < $dias; $i++) {
+            $d = date('Y-m-d', strtotime($de . " +{$i} days"));
+            $serie[] = ['rotulo' => ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'][(int) date('w', strtotime($d))], 'titulo' => dataBr($d, 'd/m'), 'data' => $d, 'paginas' => $porDia[$d] ?? 0];
+        }
+        return $serie;
+    }
 }

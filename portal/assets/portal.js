@@ -564,26 +564,40 @@
 })();
 
 /*
- * Cliques que contam no Google Analytics, só se o visitante aceitou os
- * cookies (window.itAnalytics, de consentimento.js): WhatsApp, ligar, rota,
- * site ou Instagram do lugar e guardar no meu roteiro. Os nomes estão em
- * Analytics::CLIQUES; WhatsApp e rota viram eventos principais.
+ * Métricas sem rastreamento (portal/m.php), como no EventCity: um aviso por
+ * página vista e, na ficha do lugar, a visualização e os cliques (WhatsApp,
+ * ligar, rota, site ou Instagram, guardar no meu roteiro). sendBeacon não
+ * segura a navegação e não leva cookie; nada aqui identifica quem visita.
+ * O mesmo clique vai ao Google Analytics só se o visitante aceitou os
+ * cookies (window.itAnalytics, de consentimento.js); os nomes estão em
+ * Analytics::CLIQUES.
  */
 (function () {
   'use strict';
+  function contar(acao, id) { try { if (navigator.sendBeacon) { navigator.sendBeacon('/m/' + acao + '/' + (id || 0), ''); } } catch (e) {} }
+  if (/[?&]previa=/.test(location.search)) { return; }
+  contar('pagina', 0);
+  var ficha = document.querySelector('[data-lugar]');
+  var lugar = ficha ? ficha.getAttribute('data-lugar') : '';
+  if (lugar) { contar('ver', lugar); }
+  var NOMES = { whatsapp: 'clique_whatsapp', ligar: 'clique_ligar', rota: 'clique_rota', site: 'clique_site', guardar: 'guardar_roteiro' };
   document.addEventListener('click', function (ev) {
-    if (!window.itAnalytics) { return; }
     var a = ev.target.closest('a[href], button[data-roteiro], button[data-guardar-varios]');
     if (!a) { return; }
-    var nome = '';
+    var acao = '';
     var href = a.getAttribute('href') || '';
-    if (a.hasAttribute('data-roteiro') || a.hasAttribute('data-guardar-varios')) { nome = 'guardar_roteiro'; }
-    else if (/^https:\/\/wa\.me\//.test(href)) { nome = 'clique_whatsapp'; }
-    else if (/^tel:/.test(href)) { nome = 'clique_ligar'; }
-    else if (/google\.com\/maps/.test(href)) { nome = 'clique_rota'; }
-    else if (a.closest('.caixa-contato') && /^https?:/.test(href)) { nome = 'clique_site'; }
-    if (!nome) { return; }
-    var m = location.pathname.match(/^\/(lugar|roteiro)\/(\d+)/);
-    window.itAnalytics(nome, m ? { pagina_tipo: m[1], pagina_id: m[2] } : {});
+    if (a.hasAttribute('data-roteiro') || a.hasAttribute('data-guardar-varios')) { acao = 'guardar'; }
+    else if (/^https:\/\/wa\.me\//.test(href)) { acao = 'whatsapp'; }
+    else if (/^tel:/.test(href)) { acao = 'ligar'; }
+    else if (/google\.com\/maps/.test(href)) { acao = 'rota'; }
+    else if (a.closest('.caixa-contato') && /^https?:/.test(href)) { acao = 'site'; }
+    if (!acao) { return; }
+    // Guardar pela lista conta para o lugar do botão; na ficha, para o lugar dela.
+    var id = a.hasAttribute('data-roteiro') ? a.getAttribute('data-roteiro') : lugar;
+    if (id && acao !== 'guardar' || a.hasAttribute('data-roteiro')) { contar(acao, id); }
+    if (window.itAnalytics) {
+      var m = location.pathname.match(/^\/(lugar|roteiro)\/(\d+)/);
+      window.itAnalytics(NOMES[acao], m ? { pagina_tipo: m[1], pagina_id: m[2] } : {});
+    }
   });
 })();

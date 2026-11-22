@@ -309,6 +309,23 @@ Os municípios vizinhos estão na região turística <strong><?= e($regiaoVizinh
     ], 'O que chegou da coleta de campo por dia') ?>
   </div>
   <?php endif; ?>
+  <?php if (Auth::pode('inventario.ver')): $portalM = Painel::portal($eid); $t = $portalM['totais']; ?>
+  <div class="cartao" id="portal-visitas">
+    <div class="cab-cartao"><h2>O portal nos últimos dias</h2><span class="nota">sem cookie e sem identificar quem visita</span></div>
+    <?= Graficos::colunas($portalM['serie'], [['chave' => 'paginas', 'nome' => 'Páginas vistas', 'cor' => '#1C3E73']], 'Páginas vistas por dia nos últimos 14 dias') ?>
+    <h3 class="sub-cartao">Em 30 dias, nos lugares</h3>
+    <ul class="legenda-faixa">
+      <li>Visualizações <b><?= milhar($t['v']) ?></b></li><li>Como chegar <b><?= milhar($t['r']) ?></b></li><li>WhatsApp <b><?= milhar($t['w']) ?></b></li>
+      <li>Ligou <b><?= milhar($t['l']) ?></b></li><li>Site ou Instagram <b><?= milhar($t['s']) ?></b></li><li>Guardou no roteiro <b><?= milhar($t['g']) ?></b></li>
+    </ul>
+    <?php if ($portalM['top']): ?>
+      <h3 class="sub-cartao">Mais vistos</h3>
+      <?= Graficos::barras($portalM['top']) ?>
+    <?php else: ?>
+      <p class="nota-cartao">Os lugares mais vistos aparecem quando o portal tiver lugar homologado e as primeiras visitas.</p>
+    <?php endif; ?>
+  </div>
+  <?php endif; ?>
   <?= Auth::pode('inventario.ver') ? quadrosDeBusca($eid) : '' ?>
   <div class="cartao">
     <div class="cab-cartao"><h2>Atividade no painel</h2><?= Auth::pode('auditoria.ver') ? '<a href="/configuracoes/auditoria">Auditoria</a>' : '' ?></div>
@@ -341,6 +358,10 @@ Os municípios vizinhos estão na região turística <strong><?= e($regiaoVizinh
 </div>
 
 <div class="painel-colunas painel-graficos">
+  <div class="cartao">
+    <div class="cab-cartao"><h2>Visitas aos portais</h2><span class="nota">páginas vistas por dia, 14 dias, sem cookie</span></div>
+    <?= Graficos::colunas(Painel::visitasPlataforma(), [['chave' => 'paginas', 'nome' => 'Páginas vistas', 'cor' => '#1C3E73']], 'Páginas vistas por dia nos portais') ?>
+  </div>
   <?= quadrosDeBusca(null) ?>
   <div class="cartao">
     <div class="cab-cartao"><h2>Atividade no painel</h2><a href="/configuracoes/auditoria">Auditoria</a></div>
