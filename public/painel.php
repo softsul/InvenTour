@@ -251,6 +251,8 @@ if ($empresa) {
     if (Auth::pode('diagnostico.ver') && !(int) $pdo->query("SELECT desligado FROM modulos WHERE chave = 'diagnostico'")->fetchColumn()) {
         require_once __DIR__ . '/../app/Diagnostico.php';
         $cicloD = Diagnostico::ciclos($eid)[0] ?? null;
+        $resD = null;
+        $temDiagnostico = true;
         if (!$cicloD) {
             $metricas[] = ['Diagnóstico DTI', '-', 'nenhum diagnóstico aberto: comece pelos 105 requisitos do MTur', '/diagnostico', 'destino'];
         } elseif ($cicloD['situacao'] === 'fechado') {
@@ -270,13 +272,14 @@ if ($empresa) {
     // O catálogo do MTur que os formulários do inventário usam.
     [$totalFichas, $totalTipos] = Database::conexao()->query('SELECT (SELECT COUNT(*) FROM inventario_fichas WHERE ativo = 1), (SELECT COUNT(*) FROM inventario_tipos WHERE ativo = 1)')->fetch(PDO::FETCH_NUM);
     $metricas[] = ['Fichas do MTur', (int) $totalFichas, plural((int) $totalTipos, 'tipo e subtipo', 'tipos e subtipos') . ' no catálogo', Auth::pode('fichas.ver') ? '/fichas' : null];
-    if (SearchConsole::configurado()) {
-        $gP = SearchConsole::resumo(null);
-        $metricas[] = ['Busca no Google', $gP['cliques'], plural($gP['impressoes'], 'impressão', 'impressões') . ' em 30 dias, todos os portais', '/configuracoes/google'];
-    }
-    if (Bing::configurado()) {
-        $bP = Bing::resumo(null);
-        $metricas[] = ['Busca no Bing', $bP['cliques'], plural($bP['impressoes'], 'impressão', 'impressões') . ' em 30 dias · ' . plural($bP['verificados'], 'portal verificado', 'portais verificados'), '/configuracoes/bing'];
+    // Google e Bing num cartão só, que leva ao quadro "Na busca".
+    $gP = SearchConsole::configurado() ? SearchConsole::resumo(null) : null;
+    $bP = Bing::configurado() ? Bing::resumo(null) : null;
+    if ($gP || $bP) {
+        $partes = [];
+        if ($gP) { $partes[] = milhar($gP['impressoes']) . ' no Google'; }
+        if ($bP) { $partes[] = milhar($bP['impressoes']) . ' no Bing (' . plural($bP['verificados'], 'portal verificado', 'portais verificados') . ')'; }
+        $metricas[] = ['Cliques da busca', ($gP['cliques'] ?? 0) + ($bP['cliques'] ?? 0), 'impressões em 30 dias, todos os portais: ' . implode(' e ', $partes), '#busca'];
     }
     if (Analytics::configurado()) {
         $ga = Analytics::resumo(null);
@@ -325,7 +328,9 @@ paginaInicio('Início', 'painel');
 $cartao = function (array $m, bool $destaque): void {
     [$rotulo, $valor, $nota, $link] = $m;
     $cls = 'metrica' . ($link ? ' metrica-link' : '') . ($destaque ? ' destaque' : '');
-    echo $link ? '<a class="' . $cls . '" href="' . e($link) . '">' : '<div class="' . $cls . '">';
+    // A nota fica em duas linhas no cartão compacto; a inteira, no balão.
+    $balao = mb_strlen($nota) > 60 ? ' data-balao-titulo="' . e($rotulo) . '" data-balao="' . e($nota) . '"' : '';
+    echo $link ? '<a class="' . $cls . '" href="' . e($link) . '"' . $balao . '>' : '<div class="' . $cls . '"' . $balao . '>';
     echo '<span class="rot">' . e($rotulo) . '</span><span class="val">' . (is_string($valor) ? e($valor) : milhar((int) $valor)) . '</span><span class="nota">' . e($nota) . '</span>';
     echo $link ? '</a>' : '</div>';
 };
@@ -335,13 +340,13 @@ $faixas = ['inv' => 'Inventário', 'portal' => 'Portal e divulgação', 'destino
   <?php foreach ($faixas as $chave => $nomeFaixa): $daFaixa = array_values(array_filter($metricas, fn ($m) => ($m[4] ?? 'destino') === $chave)); if (!$daFaixa) { continue; } ?>
   <section class="faixa-metricas" id="faixa-<?= $chave ?>"<?= $chave !== 'inv' ? ' data-recolhe-celular' : '' ?>>
     <button type="button" class="faixa-cab" aria-expanded="true" aria-controls="cartoes-<?= $chave ?>"><span><?= e($nomeFaixa) ?></span><em><?= count($daFaixa) ?></em><?= icone('seta', null, 'faixa-seta') ?></button>
-    <div class="metricas" id="cartoes-<?= $chave ?>">
+    <div class="metricas compactas" id="cartoes-<?= $chave ?>">
       <?php foreach ($daFaixa as $i => $m) { $cartao($m, $chave === 'inv' && $i === 0); } ?>
     </div>
   </section>
   <?php endforeach; ?>
 <?php elseif ($metricas): ?>
-<div class="metricas">
+<div class="metricas compactas metricas-plataforma">
   <?php foreach ($metricas as $i => $m) { $cartao($m, $i === 0); } ?>
 </div>
 <?php endif; ?>
@@ -393,6 +398,22 @@ O Mapa é a referência do Ministério do Turismo para regiões turísticas e pa
     ], 'O que chegou da coleta de campo por dia') ?></div>
   </div>
   <?php endif; ?>
+  <?php if (isset($inv) && $inv['total'] > 0): $porFicha = Painel::lugaresPorFicha($eid); ?>
+  <div class="cartao">
+    <div class="cab-cartao"><h2>Lugares por tipo <span class="total-titulo">os <?= count($porFicha) ?> tipos com mais lugares no inventário</span></h2><a href="/inventario">Ver o inventário</a></div>
+    <?= Graficos::barras($porFicha) ?>
+  </div>
+  <?php endif; ?>
+  <?php if (!empty($agendaE)): $porSegmento = [];
+      foreach ($agendaE as $ev) { $sg = (string) ($ev['segmento'] ?? '') ?: 'Sem segmento'; $porSegmento[$sg] = ($porSegmento[$sg] ?? 0) + 1; }
+      arsort($porSegmento); ?>
+  <div class="cartao">
+    <div class="cab-cartao"><h2>Agenda dos próximos 90 dias <span class="total-titulo"><?= plural(count($agendaE), 'evento', 'eventos') ?> no EventCity, por semana</span></h2><?= Auth::pode('configuracoes.ver') ? '<a href="/eventcity">EventCity</a>' : '' ?></div>
+    <div class="grafico-baixo"><?= Graficos::colunas(Painel::agendaPorSemana($agendaE), [['chave' => 'eventos', 'nome' => 'Eventos', 'cor' => '#E2620B']], 'Eventos por semana nos próximos 90 dias') ?></div>
+    <h3 class="sub-cartao">Por segmento</h3>
+    <?= Graficos::barras(array_map(fn ($n, $v) => ['rotulo' => $n, 'valor' => $v, 'cor' => '#E2620B'], array_keys(array_slice($porSegmento, 0, 5, true)), array_slice($porSegmento, 0, 5, true))) ?>
+  </div>
+  <?php endif; ?>
   <?php if (Auth::pode('inventario.ver')): $portalM = Painel::portal($eid); $t = $portalM['totais']; ?>
   <div class="cartao" id="portal-visitas">
     <div class="cab-cartao"><h2>O portal nos últimos dias <span class="total-titulo"><?= plural((int) array_sum(array_column($portalM['serie'], 'paginas')), 'página vista', 'páginas vistas') ?> em 14 dias</span></h2><span class="nota">sem cookie</span></div>
@@ -416,6 +437,29 @@ O Mapa é a referência do Ministério do Turismo para regiões turísticas e pa
     <div class="cab-cartao"><h2>Atividade no painel <span class="total-titulo"><?= plural((int) array_sum(array_column($atividadeDias, 'acoes')), 'ação', 'ações') ?> em 14 dias</span></h2><?= Auth::pode('auditoria.ver') ? '<a href="/configuracoes/auditoria">Auditoria</a>' : '' ?></div>
     <div class="grafico-baixo"><?= Graficos::colunas($atividadeDias, [['chave' => 'acoes', 'nome' => 'Ações registradas', 'cor' => '#2E8B3E']], 'Ações registradas na auditoria por dia') ?></div>
   </div>
+  <?php if (Auth::pode('phygital.ver')): $qrDias = Painel::qrPorDia($eid); $qrTop = Painel::qrMaisLidos($eid); ?>
+  <div class="cartao">
+    <div class="cab-cartao"><h2>Leituras dos QR <span class="total-titulo"><?= plural((int) array_sum(array_column($qrDias, 'leituras')), 'leitura', 'leituras') ?> em 14 dias</span></h2><a href="/phygital">Pontos de QR</a></div>
+    <?php if (empty($pontosQ)): ?>
+      <p class="nota-cartao">Nenhum ponto de QR criado ainda. Cada ponto leva quem lê a uma página do portal, e as leituras aparecem aqui por dia.</p>
+    <?php else: ?>
+      <div class="grafico-baixo"><?= Graficos::colunas($qrDias, [['chave' => 'leituras', 'nome' => 'Leituras', 'cor' => '#7A5BC7']], 'Leituras dos QR por dia') ?></div>
+      <?php if ($qrTop): ?><h3 class="sub-cartao">Mais lidos em 30 dias</h3><?= Graficos::barras($qrTop) ?><?php endif; ?>
+    <?php endif; ?>
+  </div>
+  <?php endif; ?>
+  <?php if (!empty($temDiagnostico)): ?>
+  <div class="cartao">
+    <?php $resR = $cicloD ? ($resD ?? (json_decode((string) ($cicloD['resultado'] ?? ''), true) ?: null)) : null; ?>
+    <div class="cab-cartao"><h2>Diagnóstico DTI <span class="total-titulo"><?= $cicloD ? e((string) $cicloD['titulo']) . ' · ' . ($cicloD['situacao'] === 'fechado' ? 'fechado' : (int) $cicloD['respondidos'] . ' de ' . (int) $cicloD['total'] . ' respondidos') : 'metodologia do MTur, 105 requisitos' ?></span></h2><a href="<?= e($cicloD ? '/diagnostico?c=' . (int) $cicloD['id'] : '/diagnostico') ?>">Ver o diagnóstico</a></div>
+    <?php if ($resR && (int) ($resR['geral']['respondidos'] ?? 0) > 0): ?>
+      <div class="radar-dti-caixa radar-inicio"><?= Diagnostico::radar($resR['grupos'], 3.0) ?></div>
+      <p class="nota-cartao">Média de cada eixo, de 1 a 5. A linha tracejada é a média mínima 3 da distinção DTI.</p>
+    <?php else: ?>
+      <p class="nota-cartao">O radar dos 10 eixos aparece aqui assim que os primeiros requisitos tiverem nível.</p>
+    <?php endif; ?>
+  </div>
+  <?php endif; ?>
 </div>
 <?php elseif (!$u['softsul']): ?>
 <p class="aviso info"><?= icone('alerta') ?><span>Você ainda não está em nenhum destino. <a href="/trocar-empresa">Escolha um</a> para começar.</span></p>
@@ -443,14 +487,38 @@ O Mapa é a referência do Ministério do Turismo para regiões turísticas e pa
 </div>
 
 <div class="painel-colunas painel-graficos">
+  <?php $invDest = Painel::inventarioPorDestino(); $somaInv = array_sum(array_column($invDest, 'total')); $somaHom = array_sum(array_column($invDest, 'homologados')); ?>
   <div class="cartao">
-    <div class="cab-cartao"><h2>Visitas aos portais</h2><span class="nota">páginas vistas por dia, 14 dias, sem cookie</span></div>
-    <?= Graficos::colunas(Painel::visitasPlataforma(), [['chave' => 'paginas', 'nome' => 'Páginas vistas', 'cor' => '#1C3E73']], 'Páginas vistas por dia nos portais') ?>
+    <div class="cab-cartao"><h2>Inventário por destino <span class="total-titulo"><?= plural((int) $somaInv, 'lugar', 'lugares') ?>, <?= plural((int) $somaHom, 'homologado', 'homologados') ?></span></h2><a href="/destinos">Destinos</a></div>
+    <?php if ($somaInv): ?>
+      <?= Graficos::faixa([
+          ['rotulo' => 'Homologados', 'valor' => (int) $somaHom, 'cor' => '#20B295'],
+          ['rotulo' => 'Ainda na esteira', 'valor' => (int) ($somaInv - $somaHom), 'cor' => '#9AA3B2'],
+      ]) ?>
+      <h3 class="sub-cartao">Lugares em cada destino</h3>
+      <?= Graficos::barras(array_map(fn ($d) => ['rotulo' => $d['nome_fantasia'], 'valor' => (int) $d['total'], 'cor' => '#1E6EA7'], array_slice($invDest, 0, 8))) ?>
+    <?php else: ?>
+      <p class="nota-cartao">Nenhum destino tem lugar no inventário ainda.</p>
+    <?php endif; ?>
+  </div>
+  <?php $coletaTodos = Painel::coletaPorDia(0); ?>
+  <div class="cartao">
+    <div class="cab-cartao"><h2>Coleta de campo <span class="total-titulo"><?= plural((int) array_sum(array_column($coletaTodos, 'itens')), 'ficha', 'fichas') ?> e <?= plural((int) array_sum(array_column($coletaTodos, 'fotos')), 'foto', 'fotos') ?> em 14 dias, todos os destinos</span></h2></div>
+    <div class="grafico-baixo"><?= Graficos::colunas($coletaTodos, [
+        ['chave' => 'itens', 'nome' => 'Fichas gravadas', 'cor' => '#20B295'],
+        ['chave' => 'fotos', 'nome' => 'Fotos', 'cor' => '#63B6E5'],
+    ], 'O que chegou da coleta de campo por dia, em todos os destinos') ?></div>
+  </div>
+  <div class="cartao">
+    <?php $visitasTodos = Painel::visitasPlataforma(); ?>
+    <div class="cab-cartao"><h2>Visitas aos portais <span class="total-titulo"><?= plural((int) array_sum(array_column($visitasTodos, 'paginas')), 'página vista', 'páginas vistas') ?> em 14 dias</span></h2><span class="nota">sem cookie</span></div>
+    <div class="grafico-baixo"><?= Graficos::colunas($visitasTodos, [['chave' => 'paginas', 'nome' => 'Páginas vistas', 'cor' => '#1C3E73']], 'Páginas vistas por dia nos portais') ?></div>
   </div>
   <?= quadrosDeBusca(null) ?>
   <div class="cartao">
-    <div class="cab-cartao"><h2>Atividade no painel</h2><a href="/configuracoes/auditoria">Auditoria</a></div>
-    <?= Graficos::colunas(Painel::atividade(0), [['chave' => 'acoes', 'nome' => 'Ações registradas', 'cor' => '#2E8B3E']], 'Ações registradas na auditoria por dia') ?>
+    <?php $atividadeTodos = Painel::atividade(0); ?>
+    <div class="cab-cartao"><h2>Atividade no painel <span class="total-titulo"><?= plural((int) array_sum(array_column($atividadeTodos, 'acoes')), 'ação', 'ações') ?> em 14 dias, todos os destinos</span></h2><a href="/configuracoes/auditoria">Auditoria</a></div>
+    <div class="grafico-baixo"><?= Graficos::colunas($atividadeTodos, [['chave' => 'acoes', 'nome' => 'Ações registradas', 'cor' => '#2E8B3E']], 'Ações registradas na auditoria por dia') ?></div>
   </div>
 
   <?php $ac = Acessos::resumo(7); ?>

@@ -51,9 +51,10 @@ final class Painel
     public static function coletaPorDia(int $empresaId, int $dias = 14): array
     {
         $de = date('Y-m-d', strtotime('-' . ($dias - 1) . ' days'));
+        // Com 0, todos os destinos (a visão da plataforma).
         $q = self::pdo()->prepare('SELECT DATE(recebido_em) d, tipo, COUNT(*) n FROM inventario_coletas
-                                   WHERE empresa_id = ? AND recebido_em >= ? GROUP BY d, tipo');
-        $q->execute([$empresaId, $de]);
+                                   WHERE ' . ($empresaId ? 'empresa_id = ? AND ' : '') . 'recebido_em >= ? GROUP BY d, tipo');
+        $q->execute($empresaId ? [$empresaId, $de] : [$de]);
         $porDia = [];
         foreach ($q->fetchAll() as $l) {
             $porDia[$l['d']][$l['tipo']] = (int) $l['n'];
@@ -65,6 +66,79 @@ final class Painel
                         'itens' => $porDia[$d]['item'] ?? 0, 'fotos' => $porDia[$d]['foto'] ?? 0, 'link' => null];
         }
         return $serie;
+    }
+
+    /** Os tipos de lugar com mais itens no inventário (sem os arquivados), para as barras do Início. */
+    public static function lugaresPorFicha(int $empresaId, int $limite = 8): array
+    {
+        $q = self::pdo()->prepare("SELECT f.id, f.codigo, f.nome, COUNT(*) n FROM inventario_itens i JOIN inventario_fichas f ON f.id = i.ficha_id
+                                   WHERE i.empresa_id = ? AND i.situacao <> 'arquivada' GROUP BY f.id ORDER BY n DESC LIMIT " . (int) $limite);
+        $q->execute([$empresaId]);
+        $cores = ['A' => '#1E6EA7', 'B' => '#20B295', 'C' => '#F3B137'];
+        return array_map(fn ($l) => ['rotulo' => $l['nome'], 'valor' => (int) $l['n'], 'cor' => $cores[substr((string) $l['codigo'], 0, 1)] ?? '#9AA3B2',
+            'link' => '/inventario?ficha=' . (int) $l['id']], $q->fetchAll());
+    }
+
+    /** Leituras dos QR do destino por dia (qr_leituras). */
+    public static function qrPorDia(int $empresaId, int $dias = 14): array
+    {
+        $de = date('Y-m-d', strtotime('-' . ($dias - 1) . ' days'));
+        $q = self::pdo()->prepare('SELECT dia, SUM(leituras) FROM qr_leituras WHERE empresa_id = ? AND dia >= ? GROUP BY dia');
+        $q->execute([$empresaId, $de]);
+        $porDia = array_map('intval', $q->fetchAll(PDO::FETCH_KEY_PAIR));
+        $serie = [];
+        for ($i = 0; $i < $dias; $i++) {
+            $d = date('Y-m-d', strtotime($de . " +{$i} days"));
+            $serie[] = ['rotulo' => self::DIAS_CURTOS[(int) date('w', strtotime($d))], 'titulo' => dataBr($d, 'd/m'), 'data' => $d, 'leituras' => $porDia[$d] ?? 0, 'link' => null];
+        }
+        return $serie;
+    }
+
+    /** Os pontos de QR mais lidos em 30 dias. */
+    public static function qrMaisLidos(int $empresaId, int $limite = 5): array
+    {
+        $q = self::pdo()->prepare('SELECT p.id, p.titulo, COALESCE(SUM(l.leituras), 0) n FROM qr_pontos p
+                                   LEFT JOIN qr_leituras l ON l.ponto_id = p.id AND l.dia >= CURDATE() - INTERVAL 30 DAY
+                                   WHERE p.empresa_id = ? AND p.ativo = 1 GROUP BY p.id HAVING n > 0 ORDER BY n DESC LIMIT ' . (int) $limite);
+        $q->execute([$empresaId]);
+        return array_map(fn ($l) => ['rotulo' => $l['titulo'], 'valor' => (int) $l['n'], 'cor' => '#7A5BC7'], $q->fetchAll());
+    }
+
+    /**
+     * A agenda do EventCity em cache, por semana, nas próximas 13 semanas
+     * (90 dias): quantos eventos começam ou acontecem em cada uma.
+     */
+    public static function agendaPorSemana(array $eventos, int $semanas = 13): array
+    {
+        $inicio = strtotime('monday this week');
+        $serie = [];
+        for ($i = 0; $i < $semanas; $i++) {
+            $d = strtotime("+{$i} week", $inicio);
+            // Só o dia, e o mês quando ele muda: 13 colunas com "dd/mm" se
+            // atropelavam no celular. A data inteira vai no balão.
+            $rot = ($i === 0 || (int) date('j', $d) <= 7) ? date('j', $d) . '/' . date('n', $d) : date('j', $d);
+            $serie[$i] = ['rotulo' => $rot, 'titulo' => 'semana de ' . date('d/m', $d), 'eventos' => 0, 'link' => null];
+        }
+        foreach ($eventos as $ev) {
+            $dia = strtotime((string) ($ev['proximo_dia'] ?? $ev['data_inicio'] ?? ''));
+            if (!$dia) {
+                continue;
+            }
+            $i = intdiv((int) floor(($dia - $inicio) / 86400), 7);
+            if (isset($serie[$i])) {
+                $serie[$i]['eventos']++;
+            }
+        }
+        return array_values($serie);
+    }
+
+    /** Lugares do inventário por destino, homologados e o resto, para a visão da plataforma. */
+    public static function inventarioPorDestino(): array
+    {
+        return self::pdo()->query("SELECT e.id, e.nome_fantasia, COUNT(i.id) total,
+                                          COALESCE(SUM(i.situacao IN ('homologada', 'desatualizada')), 0) homologados
+                                   FROM empresas e LEFT JOIN inventario_itens i ON i.empresa_id = e.id AND i.situacao <> 'arquivada'
+                                   WHERE e.ativo = 1 GROUP BY e.id ORDER BY total DESC")->fetchAll();
     }
 
     /** Uma linha por destino ativo, com a equipe e a última atividade. */
