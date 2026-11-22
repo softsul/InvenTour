@@ -115,6 +115,17 @@ final class Relatorio
                     . 'A partir de ' . EventCity::ATENCAO . '% dos leitos a noite fica em atenção; acima dos leitos, faltam leitos. '
                     . 'Evento turístico sem a divisão do público fica fora da conta até o proponente dividir no EventCity.',
             ],
+            'dti' => [
+                'nome' => 'Diagnóstico DTI', 'grupo' => 'gestao', 'icone' => 'emblema', 'permissao' => 'diagnostico.ver',
+                'descricao' => 'Os 105 requisitos do DTI Brasil no diagnóstico mais recente: eixo, nível de conformidade, evidência, fonte e data.',
+                'data' => 'diagnóstico mais recente', 'sem_periodo' => true, 'deitado' => true,
+                'situacoes' => ['' => 'Todos', 'nao_conforme' => 'Níveis 1 e 2', 'observacao' => 'Nível 3', 'conforme' => 'Níveis 4 e 5', 'sem' => 'Sem resposta'],
+            ],
+            'dti_plano' => [
+                'nome' => 'Plano de Transformação', 'grupo' => 'gestao', 'icone' => 'lista', 'permissao' => 'diagnostico.ver',
+                'descricao' => 'Do diagnóstico DTI mais recente: os requisitos abaixo da conformidade e os que têm ações, com responsável e prazo.',
+                'data' => 'diagnóstico mais recente', 'sem_periodo' => true, 'deitado' => true,
+            ],
             'trade' => [
                 'nome' => 'Trade turístico', 'grupo' => 'gestao', 'icone' => 'negocios', 'permissao' => 'trade.ver',
                 'descricao' => 'Os pedidos de responsável e as revisões que os responsáveis mandaram, com a decisão da equipe.',
@@ -472,6 +483,73 @@ final class Relatorio
             ],
             'SELECT 1', [],
             fn () => $linhas,
+        ];
+    }
+
+    /** O diagnóstico DTI mais recente do destino (o aberto, ou o último fechado). */
+    private static function cicloDti(): ?array
+    {
+        $eid = (int) Empresa::id();
+        if (!$eid) {
+            return null;
+        }
+        $q = Database::conexao()->prepare("SELECT id, titulo FROM dti_ciclos WHERE empresa_id = ? ORDER BY situacao = 'aberto' DESC, criado_em DESC, id DESC LIMIT 1");
+        $q->execute([$eid]);
+        return $q->fetch() ?: null;
+    }
+
+    private static function relDti(array $f): array
+    {
+        require_once __DIR__ . '/Diagnostico.php';
+        $c = self::cicloDti();
+        $nivel = match ($f['situacao'] ?? '') {
+            'nao_conforme' => ' AND s.nivel IN (1, 2)', 'observacao' => ' AND s.nivel = 3', 'conforme' => ' AND s.nivel >= 4', 'sem' => ' AND s.nivel IS NULL',
+            default => '',
+        };
+        return [
+            [
+                ['chave' => 'numero', 'titulo' => 'Nº', 'tipo' => 'numero'],
+                ['chave' => 'requisito', 'titulo' => 'Requisito', 'tipo' => 'texto', 'sub' => 'onde', 'sub_titulo' => 'Eixo'],
+                ['chave' => 'nivel_texto', 'titulo' => 'Nível', 'tipo' => 'texto'],
+                ['chave' => 'situacao_atual', 'titulo' => 'Evidência', 'tipo' => 'texto'],
+                ['chave' => 'fonte', 'titulo' => 'Fonte', 'tipo' => 'texto'],
+                ['chave' => 'evidencia_em', 'titulo' => 'Data', 'tipo' => 'data'],
+            ],
+            "SELECT r.numero, r.texto, r.eixo, r.subeixo, r.subcapitulo, s.nivel, s.situacao_atual, s.fonte, s.evidencia_em
+             FROM dti_requisitos r JOIN dti_ciclos c ON c.metodologia_id = r.metodologia_id AND c.id = ?
+             LEFT JOIN dti_respostas s ON s.ciclo_id = c.id AND s.requisito_id = r.id
+             WHERE 1 = 1{$nivel} ORDER BY r.numero",
+            [(int) ($c['id'] ?? 0)],
+            fn (array $linhas) => array_map(fn ($l) => [
+                'requisito' => strtok((string) $l['texto'], "\n"),
+                'onde' => Diagnostico::GRUPOS[$l['eixo'] ?: 'sistema'][0] . ' · ' . ($l['subeixo'] ?: $l['subcapitulo']),
+                'nivel_texto' => $l['nivel'] === null ? '' : $l['nivel'] . ' · ' . Diagnostico::CURTO[(int) $l['nivel']],
+            ] + $l, $linhas),
+        ];
+    }
+
+    private static function relDtiPlano(array $f): array
+    {
+        require_once __DIR__ . '/Diagnostico.php';
+        $c = self::cicloDti();
+        return [
+            [
+                ['chave' => 'numero', 'titulo' => 'Nº', 'tipo' => 'numero'],
+                ['chave' => 'requisito', 'titulo' => 'Requisito', 'tipo' => 'texto', 'sub' => 'onde', 'sub_titulo' => 'Eixo'],
+                ['chave' => 'nivel', 'titulo' => 'Nível', 'tipo' => 'numero'],
+                ['chave' => 'acoes', 'titulo' => 'Ações', 'tipo' => 'texto'],
+                ['chave' => 'responsavel', 'titulo' => 'Responsável', 'tipo' => 'texto'],
+                ['chave' => 'prazo', 'titulo' => 'Prazo', 'tipo' => 'data'],
+            ],
+            "SELECT r.numero, r.texto, r.eixo, r.subeixo, r.subcapitulo, s.nivel, s.acoes, s.responsavel, s.prazo
+             FROM dti_respostas s JOIN dti_requisitos r ON r.id = s.requisito_id
+             WHERE s.ciclo_id = ? AND ((s.acoes IS NOT NULL AND s.acoes <> '') OR s.nivel < 4)
+             ORDER BY s.prazo IS NULL, s.prazo, r.numero",
+            [(int) ($c['id'] ?? 0)],
+            fn (array $linhas) => array_map(fn ($l) => [
+                'requisito' => strtok((string) $l['texto'], "\n"),
+                'onde' => Diagnostico::GRUPOS[$l['eixo'] ?: 'sistema'][0] . ' · ' . ($l['subeixo'] ?: $l['subcapitulo']),
+            ] + $l, $linhas),
         ];
     }
 

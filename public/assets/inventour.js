@@ -7081,3 +7081,25 @@ window.inventourMarcarNoFiltro = function (form, campo, ids, nome) {
     if (a && /^https?:/i.test(a.href) && a.host !== location.host && a.target !== '_blank' && a.target !== '_top') { a.target = '_blank'; a.rel = 'noopener'; }
   }, true);
 })();
+
+/*
+ * Diagnóstico DTI: "Trazer" põe o que o InvenTour já sabe na evidência do
+ * requisito (diagnostico-requisito.php), sem apagar o que já foi escrito.
+ * Softsul Software
+ */
+(function () {
+  'use strict';
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest ? ev.target.closest('[data-trazer-evidencia]') : null;
+    if (!b) { return; }
+    var origem = document.getElementById(b.getAttribute('data-trazer-evidencia'));
+    var campo = document.getElementById(b.getAttribute('data-para'));
+    if (!origem || !campo) { return; }
+    var texto = origem.textContent.trim();
+    if (campo.value.indexOf(texto) === -1) {
+      campo.value = campo.value.trim() ? campo.value.trim() + '\n' + texto : texto;
+      campo.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    campo.focus();
+  });
+})();

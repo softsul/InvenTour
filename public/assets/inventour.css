@@ -1806,3 +1806,27 @@ table.comparar .nota svg{width:14px; height:14px; vertical-align:-2px; margin-ri
 /* Radar de obsolescência: os dois botões do link de uso único (public/confirmar.php). */
 .botoes-radar{display:flex; flex-wrap:wrap; gap:10px; margin-top:22px}
 .botoes-radar .botao{flex:1 1 180px; justify-content:center}
+
+/* Diagnóstico DTI (public/diagnostico.php e diagnostico-requisito.php). */
+.radar-dti-caixa{display:flex; justify-content:center; padding:4px 0}
+.radar-dti{width:100%; max-width:480px; height:auto; overflow:visible}
+.radar-dti .anel{fill:none; stroke:var(--traco); stroke-width:1}
+.radar-dti .eixo{stroke:var(--traco); stroke-width:1}
+.radar-dti .minima{fill:none; stroke:var(--ambar); stroke-width:1.5; stroke-dasharray:5 4}
+.radar-dti .valor{fill:var(--indigo); fill-opacity:.18; stroke:var(--indigo); stroke-width:2}
+.radar-dti .no{fill:var(--indigo); cursor:help}
+.radar-dti text{font-size:10.5px; fill:var(--suave)}
+.gira-180{transform:rotate(180deg)}
+.requisito-dti .texto-requisito{margin:0; font-size:15px; line-height:1.55}
+.requisito-dti .itens-requisito{margin:10px 0 0; padding-left:4px; list-style:none; display:flex; flex-direction:column; gap:6px}
+.requisito-dti .itens-requisito li{line-height:1.5}
+.requisito-dti .ajuda{margin-top:12px}
+.evidencia-auto{display:flex; align-items:flex-start; gap:10px; flex-wrap:wrap}
+.evidencia-auto > span{flex:1 1 240px; min-width:0}
+.evidencia-auto .botao{width:auto; flex:none}
+.janela-dti{width:min(560px,95vw)}
+@media (max-width:640px){ .radar-dti text{font-size:12px} }
+.painel-colunas .rolagem.eixos-dti{max-height:none}
+.eixos-dti td.elastica a{white-space:normal}
+/* O requisito todo começa com "O órgão gestor deve": cortado, não diz nada. Quebra a linha. */
+table.dados.tabela-dti td.elastica{white-space:normal; width:55%; overflow-wrap:anywhere; line-height:1.45}
