@@ -1297,6 +1297,18 @@ dialog.coleta-dialogo > form{display:flex; flex-direction:column; flex:1; min-he
 .coleta-dialogo .fechar svg{width:18px; height:18px}
 .coleta-dialogo .abas-coleta{flex:none; padding:0 16px; background:var(--branco); overflow-x:auto; scrollbar-width:none}
 .coleta-dialogo .abas-coleta::-webkit-scrollbar{display:none}
+/* Abas que não cabem: o lado com mais abas esmaece e mostra uma seta. */
+.abas-rolam{position:relative; flex:none; display:flex; flex-direction:column}
+.abas-rolam.mais-direita .abas-coleta{-webkit-mask-image:linear-gradient(90deg, #000 calc(100% - 72px), transparent); mask-image:linear-gradient(90deg, #000 calc(100% - 72px), transparent)}
+.abas-rolam.mais-esquerda .abas-coleta{-webkit-mask-image:linear-gradient(90deg, transparent, #000 72px); mask-image:linear-gradient(90deg, transparent, #000 72px)}
+.abas-rolam.mais-esquerda.mais-direita .abas-coleta{-webkit-mask-image:linear-gradient(90deg, transparent, #000 72px, #000 calc(100% - 72px), transparent); mask-image:linear-gradient(90deg, transparent, #000 72px, #000 calc(100% - 72px), transparent)}
+.abas-seta{position:absolute; top:50%; transform:translateY(-50%); z-index:2; display:none; width:30px; height:30px; padding:0; border:1px solid var(--traco); border-radius:50%;
+  background:var(--branco); color:var(--indigo-fte); box-shadow:0 2px 8px rgba(15,23,42,.14); cursor:pointer; align-items:center; justify-content:center}
+.abas-seta svg{width:16px; height:16px}
+.abas-seta-esquerda{left:6px}
+.abas-seta-esquerda svg{transform:rotate(180deg)}
+.abas-seta-direita{right:6px}
+.abas-rolam.mais-esquerda .abas-seta-esquerda, .abas-rolam.mais-direita .abas-seta-direita{display:inline-flex}
 .coleta-dialogo .abas-coleta button{flex:none; white-space:nowrap}
 .coleta-dialogo .abas-coleta button[hidden]{display:none}
 .coleta-dialogo .abas-coleta button svg{width:16px; height:16px}

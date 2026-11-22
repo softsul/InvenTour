@@ -616,7 +616,39 @@
     $('c-anterior').hidden = i <= 0;
     $('c-proxima').hidden = i === ABAS.length - 1;
     form.querySelector('.corpo-dialogo').scrollTop = 0;
+    // Depois de abrir a janela (e de sumir a aba que a ficha não tem).
+    setTimeout(marcarAbasEscondidas, 0);
+    setTimeout(marcarAbasEscondidas, 400);
     if (aba === 'local') { mostrarMapa(); }
+  }
+  // A barra de abas corre de lado quando não cabe. Para ninguém achar que
+  // Textos é a última: o lado que tem mais abas fica esmaecido e ganha uma
+  // seta que leva às escondidas.
+  var barraAbas = form.querySelector('.abas-coleta');
+  function marcarAbasEscondidas() {
+    if (!barraAbas) { return; }
+    var cx = barraAbas.parentNode;
+    var max = barraAbas.scrollWidth - barraAbas.clientWidth;
+    cx.classList.toggle('mais-esquerda', barraAbas.scrollLeft > 2);
+    cx.classList.toggle('mais-direita', barraAbas.scrollLeft < max - 2);
+  }
+  if (barraAbas) {
+    var caixaAbas = document.createElement('div');
+    caixaAbas.className = 'abas-rolam';
+    barraAbas.parentNode.insertBefore(caixaAbas, barraAbas);
+    caixaAbas.appendChild(barraAbas);
+    [['esquerda', -1, 'Ver as abas anteriores'], ['direita', 1, 'Ver mais abas']].forEach(function (s) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'abas-seta abas-seta-' + s[0];
+      b.setAttribute('aria-label', s[2]);
+      b.tabIndex = -1;
+      b.innerHTML = icone('seta');
+      b.addEventListener('click', function () { barraAbas.scrollBy({ left: s[1] * barraAbas.clientWidth * 0.7, behavior: 'smooth' }); });
+      caixaAbas.appendChild(b);
+    });
+    barraAbas.addEventListener('scroll', marcarAbasEscondidas, { passive: true });
+    window.addEventListener('resize', marcarAbasEscondidas);
   }
   form.querySelectorAll('[data-aba-coleta]').forEach(function (b) {
     b.addEventListener('click', function () { abrirAba(b.getAttribute('data-aba-coleta')); });
