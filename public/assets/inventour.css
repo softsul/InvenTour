@@ -1798,3 +1798,7 @@ table.comparar .nota svg{width:14px; height:14px; vertical-align:-2px; margin-ri
 .cartao > form + form{margin-top:22px}
 .acoes-linha form{display:contents}
 .acoes-linha button.aprovar:hover{color:var(--verde); border-color:var(--verde); background:var(--verde-sup)}
+
+/* Relatórios: no celular, a tabela em cartões não guarda a largura mínima
+   da tabela larga (tema.css, .rolagem.sem-borda). */
+@media (max-width:640px){ .rolagem.sem-borda table.dados.em-cartoes{min-width:0} }

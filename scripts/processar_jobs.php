@@ -206,6 +206,14 @@ $tratadores = [
         echo "\n";
     },
 
+    // Etapa 7: o retrato mensal de cada destino (só o mês que ainda não tem).
+    'fotografia_mensal' => function (array $payload): void {
+        require_once __DIR__ . '/../app/Fotografia.php';
+        foreach (Fotografia::tirar() as $linha) {
+            echo "\n   {$linha}";
+        }
+    },
+
     'importar_mapa_turismo' => function (array $payload): void {
         require_once __DIR__ . '/../app/MapaTurismo.php';
         echo MapaTurismo::importar() . ' ';
@@ -269,4 +277,7 @@ if (!in_array('avisar_indexnow', $pendentes, true)) {
 }
 if (!in_array('puxar_analytics', $pendentes, true)) {
     Fila::enfileirar('puxar_analytics', [], date('Y-m-d H:i:s', strtotime(date('G') < 7 || (date('G') === '7' && (int) date('i') < 30) ? 'today 07:30' : 'tomorrow 07:30')));
+}
+if (!in_array('fotografia_mensal', $pendentes, true)) {
+    Fila::enfileirar('fotografia_mensal', [], date('Y-m-d H:i:s', strtotime(date('G') < 2 || (date('G') === '2' && (int) date('i') < 30) ? 'today 02:30' : 'tomorrow 02:30')));
 }

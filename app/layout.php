@@ -292,7 +292,7 @@ function explicacaoDoMenu(string $chave): string
             ? 'Visitas aos portais pelo Google Analytics, com o filtro de destino e o comparativo entre eles.'
             : 'Visitas ao portal do destino pelo Google Analytics: sessões por dia, cidades, canais e o que os visitantes clicaram.',
         'phygital' => 'Placas e cartazes com QR Code nos atrativos e equipamentos: para onde cada leitura leva e quantas leituras teve.',
-        'relatorios' => 'Relatórios e indicadores do inventário do destino.',
+        'relatorios' => 'Relatórios gerenciais do destino: o inventário (lugares, capacidade, Cadastur, acessibilidade, conservação), o público do portal e a evolução mês a mês, em PDF e CSV.',
         'mapa-turismo' => 'Municípios do Mapa do Turismo Brasileiro, com região turística, categoria e os números que o Ministério do Turismo usa para categorizar.',
         'cadastur' => 'Prestadores do Cadastur, do Ministério do Turismo, por município, região, UF, atividade e situação, com a soma de leitos.',
         'destinos' => 'Municípios, regiões turísticas e corporações que usam o InvenTour: o cadastro e a situação de cada um.',
