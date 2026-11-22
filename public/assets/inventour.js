@@ -7180,3 +7180,23 @@ window.inventourMarcarNoFiltro = function (form, campo, ids, nome) {
     campo.focus();
   });
 })();
+
+/*
+ * Início: faixas de cartões que abrem e fecham pelo título. No celular, as
+ * marcadas com data-recolhe-celular começam fechadas (Luiz, 22/11/2026).
+ * Softsul Software
+ */
+(function () {
+  'use strict';
+  var faixas = document.querySelectorAll('.faixa-metricas');
+  if (!faixas.length) { return; }
+  var celular = window.matchMedia && window.matchMedia('(max-width: 640px)').matches;
+  faixas.forEach(function (faixa) {
+    var botao = faixa.querySelector('.faixa-cab');
+    if (!botao) { return; }
+    if (celular && faixa.hasAttribute('data-recolhe-celular')) { botao.setAttribute('aria-expanded', 'false'); }
+    botao.addEventListener('click', function () {
+      botao.setAttribute('aria-expanded', botao.getAttribute('aria-expanded') === 'true' ? 'false' : 'true');
+    });
+  });
+})();

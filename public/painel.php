@@ -32,38 +32,41 @@ require_once __DIR__ . '/../app/EventCity.php';
 function quadrosDeBusca(?int $empresaId): string
 {
     ob_start();
-    if (SearchConsole::configurado()): $g = SearchConsole::resumo($empresaId); ?>
-  <div class="cartao">
-    <div class="cab-cartao"><h2>No Google</h2><span class="nota"><?= $g['ultimo'] ? 'últimos 30 dias, até ' . e(dataBr((string) $g['ultimo'], 'd/m')) : 'aguardando a primeira leitura' ?></span></div>
-    <div class="metricas">
-      <div class="metrica"><span class="rot">Cliques</span><span class="val"><?= milhar($g['cliques']) ?></span><span class="nota">vindos da busca</span></div>
-      <div class="metrica"><span class="rot">Impressões</span><span class="val"><?= milhar($g['impressoes']) ?></span><span class="nota">vezes que apareceu</span></div>
-      <div class="metrica"><span class="rot">Posição média</span><span class="val"><?= $g['posicao'] !== null ? number_format((float) $g['posicao'], 1, ',', '') : '-' ?></span><span class="nota">no resultado</span></div>
+    // Google e Bing num quadro só, lado a lado (Luiz, 22/11/2026). Motor sem
+    // leitura ainda ocupa uma linha com a explicação, não três caixas de zero.
+    $motores = [];
+    if (SearchConsole::configurado()) {
+        $motores[] = ['Google', SearchConsole::resumo($empresaId), '#1C3E73',
+            'Os números aparecem quando o Google começar a mostrar o portal. Leva alguns dias depois do sitemap, e o portal só mostra lugar homologado.'];
+    }
+    if (Bing::configurado()) {
+        $bR = Bing::resumo($empresaId);
+        $motores[] = ['Bing', $bR, '#00809D', ($bR['sites'] && $bR['verificados'] < $bR['sites'] ? 'Aguardando a verificação do portal. ' : '')
+            . 'Os números aparecem quando o Bing começar a mostrar o portal. Ele também abastece Yahoo, DuckDuckGo, Ecosia e Copilot.'];
+    }
+    if ($motores): ?>
+  <div class="cartao" id="busca">
+    <div class="cab-cartao"><h2>Na busca</h2><span class="nota">últimos 30 dias</span></div>
+    <div class="busca-motores">
+      <?php foreach ($motores as [$nomeM, $r, $corM, $explica]): $vazio = !$r['ultimo'] || (!$r['impressoes'] && !$r['termos']); ?>
+      <div class="motor">
+        <h3 class="sub-cartao"><?= e($nomeM) ?><?php if ($r['ultimo']): ?> <span class="nota">até <?= e(dataBr((string) $r['ultimo'], 'd/m')) ?></span><?php endif; ?></h3>
+        <?php if ($vazio): ?>
+          <p class="nota-cartao motor-vazio"><?= e($explica) ?></p>
+        <?php else: ?>
+          <ul class="numeros-motor">
+            <li><b><?= milhar($r['cliques']) ?></b><span>cliques</span></li>
+            <li><b><?= milhar($r['impressoes']) ?></b><span>impressões</span></li>
+            <li><b><?= $r['posicao'] !== null ? number_format((float) $r['posicao'], 1, ',', '') : '-' ?></b><span>posição média</span></li>
+          </ul>
+          <?php if ($r['termos']): ?>
+            <?= Graficos::barras(array_map(fn ($t) => ['rotulo' => $t['chave'], 'valor' => (int) $t['c'] ?: (int) $t['i'], 'cor' => $corM], array_slice($r['termos'], 0, 6))) ?>
+            <p class="nota-cartao">Cliques por termo; sem clique ainda, as impressões.</p>
+          <?php endif; ?>
+        <?php endif; ?>
+      </div>
+      <?php endforeach; ?>
     </div>
-    <?php if ($g['termos']): ?>
-      <h3 class="sub-cartao">O que buscaram</h3>
-      <?= Graficos::barras(array_map(fn ($t) => ['rotulo' => $t['chave'], 'valor' => (int) $t['c'] ?: (int) $t['i'], 'cor' => '#1C3E73'], $g['termos'])) ?>
-      <p class="nota-cartao">Cliques por termo; sem clique ainda, as impressões.</p>
-    <?php else: ?>
-      <p class="nota-cartao">Os termos aparecem quando o Google começar a mostrar o portal. Leva alguns dias depois do sitemap, e o portal só mostra lugar homologado.</p>
-    <?php endif; ?>
-  </div>
-    <?php endif;
-    if (Bing::configurado()): $b = Bing::resumo($empresaId); ?>
-  <div class="cartao">
-    <div class="cab-cartao"><h2>No Bing</h2><span class="nota"><?= $b['ultimo'] ? 'últimos 30 dias, até ' . e(dataBr((string) $b['ultimo'], 'd/m')) : ($b['sites'] && $b['verificados'] < $b['sites'] ? 'aguardando a verificação do portal' : 'aguardando a primeira leitura') ?></span></div>
-    <div class="metricas">
-      <div class="metrica"><span class="rot">Cliques</span><span class="val"><?= milhar($b['cliques']) ?></span><span class="nota">vindos da busca</span></div>
-      <div class="metrica"><span class="rot">Impressões</span><span class="val"><?= milhar($b['impressoes']) ?></span><span class="nota">vezes que apareceu</span></div>
-      <div class="metrica"><span class="rot">Posição média</span><span class="val"><?= $b['posicao'] !== null ? number_format((float) $b['posicao'], 1, ',', '') : '-' ?></span><span class="nota">no resultado</span></div>
-    </div>
-    <?php if ($b['termos']): ?>
-      <h3 class="sub-cartao">O que buscaram</h3>
-      <?= Graficos::barras(array_map(fn ($t) => ['rotulo' => $t['chave'], 'valor' => (int) $t['c'] ?: (int) $t['i'], 'cor' => '#00809D'], $b['termos'])) ?>
-      <p class="nota-cartao">Cliques por termo; sem clique ainda, as impressões. Vale também para Yahoo, DuckDuckGo e Ecosia.</p>
-    <?php else: ?>
-      <p class="nota-cartao">Os termos aparecem quando o Bing começar a mostrar o portal. O Bing também abastece Yahoo, DuckDuckGo, Ecosia e Copilot.</p>
-    <?php endif; ?>
   </div>
     <?php endif;
     if (Analytics::configurado()): $ga = Analytics::resumo($empresaId); ?>
@@ -105,8 +108,8 @@ if ($empresa) {
         $inv = Inventario::resumo($eid);
         $homologados = $inv['situacao']['homologada'] + $inv['situacao']['desatualizada'];
         $metricas[] = ['Inventário', $inv['total'] - $inv['situacao']['arquivada'], plural($homologados, 'homologado', 'homologados') . ', '
-            . plural($inv['situacao']['em_conferencia'], 'em conferência', 'em conferência'), '/inventario'];
-        $metricas[] = ['Leitos homologados', $inv['leitos'], plural($inv['uh'], 'unidade habitacional', 'unidades habitacionais'), '/inventario?ficha=' . (int) $pdo->query('SELECT id FROM inventario_fichas WHERE ordem = 20')->fetchColumn()];
+            . plural($inv['situacao']['em_conferencia'], 'em conferência', 'em conferência'), '/inventario', 'inv'];
+        $metricas[] = ['Leitos homologados', $inv['leitos'], plural($inv['uh'], 'unidade habitacional', 'unidades habitacionais'), '/inventario?ficha=' . (int) $pdo->query('SELECT id FROM inventario_fichas WHERE ordem = 20')->fetchColumn(), 'inv'];
     }
     // Etapa 3: a esteira. Quem coordena vê a fila de conferência; quem
     // coleta, o que tem para levantar e o que voltou da conferência.
@@ -114,20 +117,20 @@ if ($empresa) {
     if (Auth::pode('homologacao.ver')) {
         $q = $pdo->prepare("SELECT COUNT(*) FROM inventario_itens WHERE empresa_id = ? AND situacao = 'homologada' AND homologado_em >= NOW() - INTERVAL 30 DAY");
         $q->execute([$eid]);
-        $metricas[] = ['Fila de conferência', Esteira::naFila($eid), plural((int) $q->fetchColumn(), 'homologado', 'homologados') . ' nos últimos 30 dias', '/homologacao'];
+        $metricas[] = ['Fila de conferência', Esteira::naFila($eid), plural((int) $q->fetchColumn(), 'homologado', 'homologados') . ' nos últimos 30 dias', '/homologacao', 'inv'];
     }
     if (Auth::pode('coleta.ver')) {
         $q = $pdo->prepare('SELECT COUNT(*) FROM campo_aparelhos WHERE empresa_id = ? AND token_hash IS NOT NULL AND revogado_em IS NULL');
         $q->execute([$eid]);
         $metricas[] = ['Para coletar', Esteira::paraColetar($eid), plural(Esteira::devolvidos($eid), 'devolvido', 'devolvidos') . ' pela conferência · '
-            . plural((int) $q->fetchColumn(), 'aparelho com o app', 'aparelhos com o app') . (Esteira::escopo() !== null ? ' · no seu escopo' : ''), '/coleta'];
+            . plural((int) $q->fetchColumn(), 'aparelho com o app', 'aparelhos com o app') . (Esteira::escopo() !== null ? ' · no seu escopo' : ''), '/coleta', 'inv'];
     }
     if (Auth::pode('experiencias.ver')) {
         $q = $pdo->prepare("SELECT COUNT(*), COALESCE(SUM(situacao = 'aguardando'), 0), COALESCE(SUM(situacao = 'aprovada'), 0)
                             FROM inventario_experiencias WHERE empresa_id = ?");
         $q->execute([$eid]);
         [$totalX, $aguardandoX, $aprovadasX] = array_map('intval', $q->fetch(PDO::FETCH_NUM));
-        $metricas[] = ['Experiências', $totalX, plural($aprovadasX, 'aprovada', 'aprovadas') . ' · ' . milhar($aguardandoX) . ' aguardando curadoria', '/experiencias'];
+        $metricas[] = ['Experiências', $totalX, plural($aprovadasX, 'aprovada', 'aprovadas') . ' · ' . milhar($aguardandoX) . ' aguardando curadoria', '/experiencias', 'inv'];
     }
     // Etapa 6: o trade. A equipe vê quem responde pelos lugares e o que
     // espera por ela; o responsável, os lugares dele.
@@ -137,20 +140,20 @@ if ($empresa) {
                                    (SELECT COUNT(*) FROM inventario_revisoes WHERE empresa_id = ? AND situacao = 'aguardando')");
         $q->execute([$eid, $eid, $eid]);
         [$respT, $pedT, $revT] = array_map('intval', $q->fetch(PDO::FETCH_NUM));
-        $metricas[] = ['Trade turístico', $respT, plural($pedT, 'pedido', 'pedidos') . ' e ' . plural($revT, 'revisão', 'revisões') . ' esperando', '/trade'];
+        $metricas[] = ['Trade turístico', $respT, plural($pedT, 'pedido', 'pedidos') . ' e ' . plural($revT, 'revisão', 'revisões') . ' esperando', '/trade', 'portal'];
     }
     if (Auth::pode('meus-lugares.ver')) {
         require_once __DIR__ . '/../app/Trade.php';
         $meus = Trade::meusLugares((int) $u['id']);
         $esperaM = count(array_filter($meus, fn ($l) => in_array($l['revisao'], ['aguardando', 'devolvida'], true)));
-        $metricas[] = ['Meus lugares', count($meus), $esperaM ? plural($esperaM, 'atualização em conferência', 'atualizações em conferência') : 'tudo em dia no portal', '/meus-lugares'];
+        $metricas[] = ['Meus lugares', count($meus), $esperaM ? plural($esperaM, 'atualização em conferência', 'atualizações em conferência') : 'tudo em dia no portal', '/meus-lugares', 'portal'];
     }
     if (Auth::pode('destino-textos.ver')) {
         $q = $pdo->prepare("SELECT (SELECT COUNT(*) FROM destino_narrativas WHERE empresa_id = ? AND conteudo_html <> ''),
                                    (SELECT COUNT(*) FROM destino_linha_tempo WHERE empresa_id = ?)");
         $q->execute([$eid, $eid]);
         [$textosD, $marcosD] = array_map('intval', $q->fetch(PDO::FETCH_NUM));
-        $metricas[] = ['O destino', $textosD, 'de 5 textos · ' . plural($marcosD, 'marco', 'marcos') . ' na linha do tempo', '/destino-textos'];
+        $metricas[] = ['O destino', $textosD, 'de 5 textos · ' . plural($marcosD, 'marco', 'marcos') . ' na linha do tempo', '/destino-textos', 'destino'];
     }
     if (Auth::pode('caderno.ver')) {
         // Etapa 4: o caderno oficial, a última versão pronta e as leituras dos QR.
@@ -160,7 +163,7 @@ if ($empresa) {
         $ultimo = $q->fetch(PDO::FETCH_NUM);
         $metricas[] = ['Caderno oficial', $ultimo ? (int) $ultimo[1] : 0, $ultimo
             ? 'páginas na versão ' . (int) $ultimo[0] . ($ultimo[2] ? ' (prévia)' : '') . ' · ' . plural((int) $ultimo[3], 'leitura do QR', 'leituras do QR')
-            : 'nenhuma versão gerada ainda', '/caderno'];
+            : 'nenhuma versão gerada ainda', '/caderno', 'portal'];
     }
     // O município no Mapa do Turismo Brasileiro, como no EventCity: a região
     // turística e a categoria. Fora do Mapa, a região dos vizinhos e o aviso
@@ -171,21 +174,23 @@ if ($empresa) {
         require_once __DIR__ . '/../app/MapaTurismo.php';
         if ($noMapa = MapaTurismo::doMunicipio((int) $empresa['municipio_id'])) {
             $metricas[] = ['Região turística', (int) $noMapa['na_regiao'], 'municípios em ' . $noMapa['regiao'] . ' · '
-                . mb_strtolower(MapaTurismo::CATEGORIAS[(int) $noMapa['categoria']] ?? ''), Auth::pode('mapa-turismo.ver') ? '/mapa-turismo' : null];
+                . mb_strtolower(MapaTurismo::CATEGORIAS[(int) $noMapa['categoria']] ?? ''), Auth::pode('mapa-turismo.ver') ? '/mapa-turismo' : null, 'destino'];
         } elseif ($foraDoMapa = MapaTurismo::ano()) {
             if ($regiaoVizinha = MapaTurismo::regiaoDosVizinhos((int) $empresa['municipio_id'])) {
                 $metricas[] = ['Região turística', (int) $regiaoVizinha['na_regiao'], 'municípios em ' . $regiaoVizinha['nome']
-                    . ' · a dos vizinhos', Auth::pode('mapa-turismo.ver') ? '/mapa-turismo' : null];
+                    . ' · a dos vizinhos', Auth::pode('mapa-turismo.ver') ? '/mapa-turismo' : null, 'destino'];
             }
         }
     }
-    // Etapa 7: a saúde do banco (radar de obsolescência).
+    // Etapa 7: a saúde do banco (radar de obsolescência): a parte dos lugares
+    // homologados que segue em dia. Sem lugar no portal, não há o que medir.
     if (Auth::pode('inventario.ver')) {
         require_once __DIR__ . '/../app/Radar.php';
         $rs = Radar::saude($eid);
-        $metricas[] = ['Saúde do banco', $rs['saude'] !== null ? $rs['saude'] . '%' : '-', $rs['saude'] === null ? 'nenhum lugar no portal ainda'
-            : plural($rs['desatualizados'], 'desatualizado', 'desatualizados') . ' · ' . plural($rs['enviados'], 'aviso', 'avisos') . ' em 90 dias, ' . milhar($rs['iguais']) . ' confirmados',
-            Auth::pode('relatorios.ver') ? '/relatorio?tipo=radar' : null];
+        if ($rs['saude'] !== null) {
+            $metricas[] = ['Lugares em dia', $rs['saude'] . '%', 'dos homologados · ' . plural($rs['desatualizados'], 'desatualizado', 'desatualizados')
+                . ' · ' . plural($rs['enviados'], 'aviso', 'avisos') . ' em 90 dias', Auth::pode('relatorios.ver') ? '/relatorio?tipo=radar' : null, 'inv'];
+        }
     }
     // Etapa 7: leitos x eventos do EventCity nos próximos 90 dias.
     if (Auth::pode('inventario.ver') && EventCity::temAgenda($eid)) {
@@ -193,34 +198,35 @@ if ($empresa) {
         $falta = count(array_filter($le['noites'], fn ($n) => $n['nivel'] === 'falta'));
         $atencao = count(array_filter($le['noites'], fn ($n) => $n['nivel'] === 'atencao'));
         $pico = $le['noites'] ? max(array_column($le['noites'], 'turistas')) : 0;
+        // Sem hospedagem homologada não há conta a fazer: o cartão só diz o
+        // que falta e leva à homologação. O pico segue no relatório.
         $metricas[] = ['Noites sem leito', $le['leitos'] ? $falta : '-', !$le['leitos']
-            ? ($le['noites'] ? 'pico de ' . plural($pico, 'turista', 'turistas') . ' em 90 dias · nenhuma hospedagem homologada ainda' : 'nenhuma hospedagem homologada ainda')
+            ? 'sem leitos homologados: homologue as hospedagens'
             : ($le['noites'] ? plural($atencao, 'noite', 'noites') . ' em atenção · pico de ' . plural($pico, 'turista', 'turistas') . ' para ' . plural($le['leitos'], 'leito', 'leitos')
             : 'nos eventos dos próximos 90 dias · nenhum com turistas informados' . ($le['sem_divisao'] ? ' (' . count($le['sem_divisao']) . ' sem a divisão do público)' : '')),
-            Auth::pode('relatorios.ver') ? '/relatorio?tipo=leitos_eventos' : null];
+            !$le['leitos'] && Auth::pode('homologacao.ver') ? '/homologacao' : (Auth::pode('relatorios.ver') ? '/relatorio?tipo=leitos_eventos' : null), 'inv'];
     }
     // Busca orgânica (Search Console e Bing), como no EventCity: 30 dias.
     if (Auth::pode('inventario.ver')) {
         require_once __DIR__ . '/../app/Bing.php';
-        if (SearchConsole::configurado()) {
-            $g = SearchConsole::resumo($eid);
-            $metricas[] = ['Busca no Google', $g['cliques'], plural($g['impressoes'], 'impressão', 'impressões') . ' em 30 dias'
-                . ($g['posicao'] !== null ? ' · posição média ' . str_replace('.', ',', (string) $g['posicao']) : ''), Auth::ehSoftsul() ? '/configuracoes/google' : null];
-        }
-        if (Bing::configurado()) {
-            $b = Bing::resumo($eid);
-            $metricas[] = ['Busca no Bing', $b['cliques'], plural($b['impressoes'], 'impressão', 'impressões') . ' em 30 dias'
-                . ($b['sites'] && !$b['verificados'] ? ' · portal aguardando a verificação' : ''), Auth::ehSoftsul() ? '/configuracoes/bing' : null];
+        // Google e Bing num cartão só, que leva ao quadro "Na busca".
+        $g = SearchConsole::configurado() ? SearchConsole::resumo($eid) : null;
+        $b = Bing::configurado() ? Bing::resumo($eid) : null;
+        if ($g || $b) {
+            $partes = [];
+            if ($g) { $partes[] = milhar($g['impressoes']) . ' no Google'; }
+            if ($b) { $partes[] = milhar($b['impressoes']) . ' no Bing'; }
+            $metricas[] = ['Cliques da busca', ($g['cliques'] ?? 0) + ($b['cliques'] ?? 0), 'impressões em 30 dias: ' . implode(' e ', $partes), '#busca', 'portal'];
         }
     }
     if (Auth::pode('visitas.ver')) {
         require_once __DIR__ . '/../app/Analytics.php';
         if (Analytics::configurado()) {
             $ga = Analytics::resumo($eid);
-            $metricas[] = ['Visitas no portal', $ga['usuarios'], 'visitantes em 28 dias · ' . plural($ga['sessoes'], 'sessão', 'sessões') . ', ' . $ga['engajamento'] . '% engajadas', '/visitas'];
+            $metricas[] = ['Visitas no portal', $ga['usuarios'], 'visitantes em 28 dias · ' . plural($ga['sessoes'], 'sessão', 'sessões') . ', ' . $ga['engajamento'] . '% engajadas', '/visitas', 'portal'];
         }
     }
-    $metricas[] = ['Equipe', Painel::equipe($eid), 'pessoas com acesso ao destino', Auth::pode('usuarios.ver') ? '/configuracoes/usuarios' : null];
+    $metricas[] = ['Equipe', Painel::equipe($eid), 'pessoas com acesso ao destino', Auth::pode('usuarios.ver') ? '/configuracoes/usuarios' : null, 'destino'];
 } elseif ($u['softsul']) {
     $destinos = Painel::destinosPlataforma();
     $fila = Painel::filaPlataforma();
@@ -244,15 +250,19 @@ if ($empresa) {
     }
     $metricas[] = ['E-mails devolvidos', $devolvidos, plural($reclamacoes, 'reclamação', 'reclamações') . ' em 30 dias · ' . plural($bloqueados, 'bloqueado', 'bloqueados'), '/configuracoes/email'];
 }
-if (Auth::pode('cadastur.ver')) {
+// Cadastur e Mapa do Turismo são números do país: na visão da plataforma
+// viram cartões; no destino, o Mapa entra no aviso de quem está fora dele.
+if (!$empresa && Auth::pode('cadastur.ver')) {
     require_once __DIR__ . '/../app/Cadastur.php';
     $baseCadastur = Cadastur::base();
     $metricas[] = ['Cadastur', Cadastur::totais()[0],
         'prestadores no país' . ($baseCadastur ? ', ' . mb_strtolower((string) $baseCadastur['recurso_nome']) : ''), '/cadastur'];
 }
-if (Auth::pode('mapa-turismo.ver')) {
+if (Auth::pode('mapa-turismo.ver') || !empty($foraDoMapa)) {
     require_once __DIR__ . '/../app/MapaTurismo.php';
     $mapaTurismo = MapaTurismo::totais();
+}
+if (!$empresa && Auth::pode('mapa-turismo.ver')) {
     $metricas[] = ['Mapa do Turismo' . ($mapaTurismo['ano'] ? ' ' . $mapaTurismo['ano'] : ''), $mapaTurismo['municipios'],
         'municípios em ' . plural($mapaTurismo['regioes'], 'região turística', 'regiões turísticas'), '/mapa-turismo'];
 }
@@ -268,19 +278,37 @@ paginaInicio('Início', 'painel');
     <div class="acoes">
       <?php if (Auth::pode('inventario.ver')): require_once __DIR__ . '/../app/Portal.php'; ?>
         <a class="botao claro" href="<?= e($portalDe($empresa) . '/?previa=' . Portal::tokenDePrevia($eid)) ?>" target="_blank" rel="noopener"
-           title="Abre o portal com o que ainda não foi homologado, por 2 horas. É só para a equipe: não compartilhe o link."><?= icone('olho') ?>Prévia do portal</a>
+           data-balao-titulo="Prévia do portal" data-balao="Abre o portal com o que ainda não foi homologado, por 2 horas. É só para a equipe: não compartilhe o link."><?= icone('olho') ?>Prévia do portal</a>
       <?php endif; ?>
       <a class="botao claro" href="<?= e($portalDe($empresa)) ?>" target="_blank" rel="noopener"><?= icone('rede') ?>Ver o portal</a></div>
   <?php endif; ?>
 </div>
 
-<?php if ($metricas): ?>
-<div class="metricas">
-  <?php foreach ($metricas as $i => [$rotulo, $valor, $nota, $link]): ?>
-    <?php if ($link): ?><a class="metrica metrica-link<?= $i === 0 ? ' destaque' : '' ?>" href="<?= e($link) ?>"><?php else: ?><div class="metrica<?= $i === 0 ? ' destaque' : '' ?>"><?php endif; ?>
-      <span class="rot"><?= e($rotulo) ?></span><span class="val"><?= is_string($valor) ? e($valor) : milhar((int) $valor) ?></span><span class="nota"><?= e($nota) ?></span>
-    <?= $link ? '</a>' : '</div>' ?>
+<?php
+// Os cartões do destino em faixas por assunto (Luiz, 22/11/2026): eram 17
+// soltos, e no celular nove telas antes da esteira. No celular só a faixa do
+// Inventário começa aberta; as outras abrem pelo título.
+$cartao = function (array $m, bool $destaque): void {
+    [$rotulo, $valor, $nota, $link] = $m;
+    $cls = 'metrica' . ($link ? ' metrica-link' : '') . ($destaque ? ' destaque' : '');
+    echo $link ? '<a class="' . $cls . '" href="' . e($link) . '">' : '<div class="' . $cls . '">';
+    echo '<span class="rot">' . e($rotulo) . '</span><span class="val">' . (is_string($valor) ? e($valor) : milhar((int) $valor)) . '</span><span class="nota">' . e($nota) . '</span>';
+    echo $link ? '</a>' : '</div>';
+};
+$faixas = ['inv' => 'Inventário', 'portal' => 'Portal e divulgação', 'destino' => 'Destino'];
+?>
+<?php if ($metricas && $empresa): ?>
+  <?php foreach ($faixas as $chave => $nomeFaixa): $daFaixa = array_values(array_filter($metricas, fn ($m) => ($m[4] ?? 'destino') === $chave)); if (!$daFaixa) { continue; } ?>
+  <section class="faixa-metricas" id="faixa-<?= $chave ?>"<?= $chave !== 'inv' ? ' data-recolhe-celular' : '' ?>>
+    <button type="button" class="faixa-cab" aria-expanded="true" aria-controls="cartoes-<?= $chave ?>"><span><?= e($nomeFaixa) ?></span><em><?= count($daFaixa) ?></em><?= icone('seta', null, 'faixa-seta') ?></button>
+    <div class="metricas" id="cartoes-<?= $chave ?>">
+      <?php foreach ($daFaixa as $i => $m) { $cartao($m, $chave === 'inv' && $i === 0); } ?>
+    </div>
+  </section>
   <?php endforeach; ?>
+<?php elseif ($metricas): ?>
+<div class="metricas">
+  <?php foreach ($metricas as $i => $m) { $cartao($m, $i === 0); } ?>
 </div>
 <?php endif; ?>
 
@@ -290,8 +318,8 @@ paginaInicio('Início', 'painel');
 faça o <a href="/pre-cadastro">pré-cadastro pelo Cadastur</a>, que traz hotéis, restaurantes e agências que a base oficial já conhece, e escreva os textos em <a href="/destino-textos">O destino</a>. Os atrativos e a infraestrutura de apoio entram pelo Novo item do Inventário.</span></p>
 <?php elseif (!empty($foraDoMapa)): ?>
 <p class="aviso atencao"><?= icone('mapa') ?><span><strong><?= e($empresa['cidade'] ?? '' ?: $empresa['nome_fantasia']) ?> não está no Mapa do Turismo Brasileiro <?= (int) $foraDoMapa ?>.</strong>
-O Mapa é a referência do Ministério do Turismo para regiões turísticas e para os programas dele. A inclusão é pedida pela prefeitura ao órgão estadual de turismo, no período de atualização do Mapa.<?php if ($regiaoVizinha): ?>
-Os municípios vizinhos estão na região turística <strong><?= e($regiaoVizinha['nome']) ?></strong>.<?php endif; ?></span></p>
+O Mapa é a referência do Ministério do Turismo para regiões turísticas e para os programas dele<?php if (!empty($mapaTurismo['municipios'])): ?>, e a edição <?= (int) $foraDoMapa ?> reúne <?= milhar((int) $mapaTurismo['municipios']) ?> municípios em <?= plural((int) $mapaTurismo['regioes'], 'região turística', 'regiões turísticas') ?><?php endif; ?>. A inclusão é pedida pela prefeitura ao órgão estadual de turismo, no período de atualização do Mapa.<?php if ($regiaoVizinha): ?>
+ Os municípios vizinhos estão na região turística <strong><?= e($regiaoVizinha['nome']) ?></strong>.<?php endif; ?><?php if (Auth::pode('mapa-turismo.ver')): ?> <a href="/mapa-turismo">Ver o Mapa</a><?php endif; ?></span></p>
 <?php endif; ?>
 <div class="painel-colunas painel-graficos">
   <?php if (isset($inv) && $inv['total'] > 0): ?>
@@ -323,17 +351,18 @@ Os municípios vizinhos estão na região turística <strong><?= e($regiaoVizinh
   <?php endif; ?>
   <?php if (Auth::pode('coleta.ver')): ?>
   <div class="cartao">
-    <div class="cab-cartao"><h2>Coleta de campo</h2><a href="/coleta">Ver a coleta</a></div>
-    <?= Graficos::colunas(Painel::coletaPorDia($eid), [
+    <?php $coletaDias = Painel::coletaPorDia($eid); $somaItens = array_sum(array_column($coletaDias, 'itens')); $somaFotos = array_sum(array_column($coletaDias, 'fotos')); ?>
+    <div class="cab-cartao"><h2>Coleta de campo <span class="total-titulo"><?= $somaItens || $somaFotos ? plural($somaItens, 'ficha', 'fichas') . ' e ' . plural($somaFotos, 'foto', 'fotos') . ' em 14 dias' : 'nada em 14 dias' ?></span></h2><a href="/coleta">Ver a coleta</a></div>
+    <div class="grafico-baixo"><?= Graficos::colunas($coletaDias, [
         ['chave' => 'itens', 'nome' => 'Fichas gravadas', 'cor' => '#20B295'],
         ['chave' => 'fotos', 'nome' => 'Fotos', 'cor' => '#63B6E5'],
-    ], 'O que chegou da coleta de campo por dia') ?>
+    ], 'O que chegou da coleta de campo por dia') ?></div>
   </div>
   <?php endif; ?>
   <?php if (Auth::pode('inventario.ver')): $portalM = Painel::portal($eid); $t = $portalM['totais']; ?>
   <div class="cartao" id="portal-visitas">
-    <div class="cab-cartao"><h2>O portal nos últimos dias</h2><span class="nota">sem cookie e sem identificar quem visita</span></div>
-    <?= Graficos::colunas($portalM['serie'], [['chave' => 'paginas', 'nome' => 'Páginas vistas', 'cor' => '#1C3E73']], 'Páginas vistas por dia nos últimos 14 dias') ?>
+    <div class="cab-cartao"><h2>O portal nos últimos dias <span class="total-titulo"><?= plural((int) array_sum(array_column($portalM['serie'], 'paginas')), 'página vista', 'páginas vistas') ?> em 14 dias</span></h2><span class="nota">sem cookie</span></div>
+    <div class="grafico-baixo"><?= Graficos::colunas($portalM['serie'], [['chave' => 'paginas', 'nome' => 'Páginas vistas', 'cor' => '#1C3E73']], 'Páginas vistas por dia nos últimos 14 dias') ?></div>
     <h3 class="sub-cartao">Em 30 dias, nos lugares</h3>
     <ul class="legenda-faixa">
       <li>Visualizações <b><?= milhar($t['v']) ?></b></li><li>Como chegar <b><?= milhar($t['r']) ?></b></li><li>WhatsApp <b><?= milhar($t['w']) ?></b></li>
@@ -349,8 +378,9 @@ Os municípios vizinhos estão na região turística <strong><?= e($regiaoVizinh
   <?php endif; ?>
   <?= Auth::pode('inventario.ver') ? quadrosDeBusca($eid) : '' ?>
   <div class="cartao">
-    <div class="cab-cartao"><h2>Atividade no painel</h2><?= Auth::pode('auditoria.ver') ? '<a href="/configuracoes/auditoria">Auditoria</a>' : '' ?></div>
-    <?= Graficos::colunas(Painel::atividade($eid), [['chave' => 'acoes', 'nome' => 'Ações registradas', 'cor' => '#2E8B3E']], 'Ações registradas na auditoria por dia') ?>
+    <?php $atividadeDias = Painel::atividade($eid); ?>
+    <div class="cab-cartao"><h2>Atividade no painel <span class="total-titulo"><?= plural((int) array_sum(array_column($atividadeDias, 'acoes')), 'ação', 'ações') ?> em 14 dias</span></h2><?= Auth::pode('auditoria.ver') ? '<a href="/configuracoes/auditoria">Auditoria</a>' : '' ?></div>
+    <div class="grafico-baixo"><?= Graficos::colunas($atividadeDias, [['chave' => 'acoes', 'nome' => 'Ações registradas', 'cor' => '#2E8B3E']], 'Ações registradas na auditoria por dia') ?></div>
   </div>
 </div>
 <?php elseif (!$u['softsul']): ?>

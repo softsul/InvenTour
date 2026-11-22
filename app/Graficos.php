@@ -138,7 +138,8 @@ final class Graficos
             $total = array_sum(array_map(fn ($s) => (int) ($i[$s['chave']] ?? 0), $series));
             // Mil ou mais vira 1,2k: quatro dígitos não cabem na coluna do celular.
             $mostrar = $total >= 1000 ? str_replace('.', ',', (string) round($total / 1000, $total >= 10000 ? 0 : 1)) . 'k' : (string) $total;
-            $pe = '<b>' . e($i['rotulo']) . '</b>' . ($numeros ? '<span>' . ($total ? $mostrar : '-') . '</span>' : '');
+            // Dia sem movimento leva a classe zero: no Início o traço some.
+            $pe = '<b>' . e($i['rotulo']) . '</b>' . ($numeros ? ($total ? '<span>' . $mostrar . '</span>' : '<span class="zero">-</span>') : '');
             $svg .= !empty($i['link']) ? '<a class="pe" href="' . e($i['link']) . '">' . $pe . '</a>' : '<div class="pe">' . $pe . '</div>';
         }
         $svg .= '</div>';

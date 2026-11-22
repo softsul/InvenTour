@@ -1830,3 +1830,32 @@ table.comparar .nota svg{width:14px; height:14px; vertical-align:-2px; margin-ri
 .eixos-dti td.elastica a{white-space:normal}
 /* O requisito todo começa com "O órgão gestor deve": cortado, não diz nada. Quebra a linha. */
 table.dados.tabela-dti td.elastica{white-space:normal; width:55%; overflow-wrap:anywhere; line-height:1.45}
+
+/* Início do destino (Luiz, 22/11/2026): cartões em faixas por assunto, a
+   busca do Google e do Bing num quadro só e gráficos mais baixos. */
+.faixa-metricas{margin:0 0 18px}
+.faixa-metricas + .faixa-metricas{margin-top:-2px}
+.faixa-cab{display:flex; align-items:center; gap:8px; width:100%; margin:0 0 10px; padding:0; border:0; background:none;
+  font:inherit; color:var(--suave); cursor:pointer; text-align:left}
+.faixa-cab span{font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase}
+.faixa-cab em{font-style:normal; font-family:var(--dado); font-size:11px; color:var(--fraca); background:var(--leve); border-radius:999px; padding:1px 8px}
+.faixa-cab::after{content:""; flex:1; height:1px; background:var(--traco); order:2}
+.faixa-cab .faixa-seta{order:3; width:14px; height:14px; transform:rotate(90deg); transition:transform .15s; color:var(--fraca)}
+.faixa-cab[aria-expanded="false"] .faixa-seta{transform:rotate(0deg)}
+.faixa-cab[aria-expanded="false"] + .metricas{display:none}
+.faixa-cab[aria-expanded="false"]{margin-bottom:6px}
+.faixa-metricas .metricas{display:flex; flex-wrap:wrap}
+.faixa-metricas .metricas > .metrica{flex:1 1 150px; max-width:100%}
+.faixa-metricas .metrica.destaque{background:var(--branco); border-color:var(--acento-borda); box-shadow:inset 3px 0 0 var(--indigo)}
+.faixa-metricas .metrica.destaque .val{color:inherit}
+.cab-cartao h2 .total-titulo{display:block; font-size:12px; font-weight:500; color:var(--fraca); margin-top:2px}
+.grafico-baixo .grafico-svg{height:92px}
+.grafico-baixo .pes-grafico span.zero{visibility:hidden}
+.busca-motores{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:6px 22px}
+.busca-motores .motor .sub-cartao{margin-top:0}
+.busca-motores .sub-cartao .nota{font-weight:500; color:var(--fraca)}
+.motor-vazio{margin-top:2px}
+.numeros-motor{list-style:none; margin:0 0 10px; padding:0; display:grid; grid-template-columns:repeat(3,1fr); gap:8px}
+.numeros-motor li{background:var(--leve); border-radius:var(--r-p); padding:8px 10px; display:flex; flex-direction:column}
+.numeros-motor b{font-family:var(--dado); font-size:18px}
+.numeros-motor span{font-size:11px; color:var(--fraca)}
