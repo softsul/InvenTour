@@ -51,11 +51,17 @@ final class Recaptcha
         curl_close($ch);
         $r = is_string($corpo) ? json_decode($corpo, true) : null;
         if (!is_array($r) || empty($r['success'])) {
+            // O motivo do Google (chave trocada, token vencido ou repetido) vai
+            // para o log do Apache; a pessoa só vê "marque a caixa".
+            error_log('recaptcha recusado: ' . (is_array($r) ? implode(',', (array) ($r['error-codes'] ?? [])) . ' host=' . ($r['hostname'] ?? '') : 'sem resposta do Google'));
             return false;
         }
         // A chave vale para inventour.com.br e subdomínios e para o site do
         // InvenTour; outro host é resposta copiada de outro site.
         $host = strtolower((string) ($r['hostname'] ?? ''));
+        if ($host !== 'inventour.com.br' && !str_ends_with($host, '.inventour.com.br')) {
+            error_log('recaptcha de outro host: ' . $host);
+        }
         return $host === 'inventour.com.br' || str_ends_with($host, '.inventour.com.br') || in_array($host, ['inventour.com.br', 'www.inventour.com.br'], true);
     }
 }
