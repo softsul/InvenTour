@@ -1636,7 +1636,18 @@ select.ausencia.ausente{color:var(--ambar); font-weight:700}
 .seletor.seletor-pilula.respondido{color:var(--verde); font-weight:700}
 .seletor.seletor-pilula.ausente{color:var(--ambar); font-weight:700}
 
-dialog.folha-opcoes{width:min(560px, calc(100vw - 32px)); height:auto; max-height:min(640px, calc(100vh - 48px))}
+dialog.coleta-dialogo.folha-opcoes{width:min(560px, calc(100vw - 32px)); height:auto; max-height:min(640px, calc(100vh - 48px))}
+/* No computador, presa ao campo como uma lista comum: sem título, sem
+   escurecer a tela, só a sombra. */
+dialog.coleta-dialogo.folha-opcoes.ancorada{position:fixed; margin:0; inset:auto; height:auto; border:1px solid var(--traco); border-radius:12px;
+  box-shadow:0 12px 32px rgba(15,23,42,.18)}
+dialog.coleta-dialogo.folha-opcoes.ancorada::backdrop{background:transparent; -webkit-backdrop-filter:none; backdrop-filter:none}
+dialog.coleta-dialogo.folha-opcoes.ancorada .cab-dialogo{display:none}
+dialog.coleta-dialogo.folha-opcoes.ancorada .folha-busca{padding:8px 10px}
+dialog.coleta-dialogo.folha-opcoes.ancorada .folha-lista{padding:4px 0}
+dialog.coleta-dialogo.folha-opcoes.ancorada .folha-opcao{min-height:40px; padding:8px 14px; font-size:14px}
+dialog.coleta-dialogo.folha-opcoes.ancorada .folha-opcao.sub{padding-left:26px}
+dialog.coleta-dialogo.folha-opcoes.ancorada .folha-grupo{padding:10px 14px 2px}
 .folha-opcoes .folha-busca{flex:none; padding:4px 20px 10px; background:var(--branco); border-bottom:1px solid var(--traco)}
 .folha-opcoes .folha-busca[hidden]{display:none}
 .folha-lista{list-style:none; margin:0; padding:6px 0 12px; overflow-y:auto; flex:1; min-height:0; background:var(--branco)}

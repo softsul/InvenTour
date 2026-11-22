@@ -2183,6 +2183,24 @@
     });
     lista.innerHTML = html || '<li class="folha-nada">Nada encontrado.</li>';
   }
+  // No computador a lista abre presa ao campo, logo abaixo (ou acima, se
+  // não couber), como uma lista comum; no celular, sobe do rodapé do
+  // tamanho das opções. É modal nos dois (fica por cima da ficha aberta).
+  var celular = window.matchMedia('(max-width: 640px)');
+  function prenderAoCampo(botao) {
+    folha.classList.remove('ancorada');
+    folha.style.cssText = '';
+    if (celular.matches || !botao) { return; }
+    var r = botao.getBoundingClientRect();
+    var largura = Math.min(Math.max(r.width, 260), window.innerWidth - 16);
+    var esquerda = Math.min(Math.max(8, r.left), window.innerWidth - largura - 8);
+    var abaixo = window.innerHeight - r.bottom - 12, acima = r.top - 12;
+    var paraCima = abaixo < 220 && acima > abaixo;
+    var maximo = Math.min(380, paraCima ? acima : abaixo);
+    folha.classList.add('ancorada');
+    folha.style.cssText = 'left:' + esquerda + 'px; width:' + largura + 'px; max-height:' + maximo + 'px;'
+      + (paraCima ? 'bottom:' + (window.innerHeight - r.top + 4) + 'px;' : 'top:' + (r.bottom + 4) + 'px;');
+  }
   function abrir(sel) {
     if (sel.disabled) { return; }
     atual = sel;
@@ -2190,10 +2208,14 @@
     busca.value = '';
     folha.querySelector('.folha-busca').hidden = sel.options.length <= 8;
     desenhar();
+    prenderAoCampo(sel.nextElementSibling && sel.nextElementSibling.classList.contains('seletor') ? sel.nextElementSibling.closest('.entrada') || sel.nextElementSibling : null);
     folha.showModal();
     var m = lista.querySelector('.marcada');
-    if (m) { m.scrollIntoView({ block: 'center' }); }
+    if (m) { m.scrollIntoView({ block: 'nearest' }); }
+    if (!folha.querySelector('.folha-busca').hidden && !celular.matches) { busca.focus(); }
   }
+  // Rolou ou mudou o tamanho da tela com a lista presa aberta: fecha.
+  window.addEventListener('resize', function () { if (folha.open && folha.classList.contains('ancorada')) { folha.close(); } });
   lista.addEventListener('click', function (ev) {
     var b = ev.target.closest('[data-indice]');
     if (!b || !atual) { return; }
