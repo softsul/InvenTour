@@ -124,9 +124,10 @@ PortalLayout::inicio($destino, $nome, true, ['ativo' => '', 'imagem' => $temCapa
 <?php if ($agenda): ?>
 <section class="secao">
   <div class="secao-cab"><div><span class="rotulo">Agenda oficial · EventCity</span><h2>Vem aí</h2></div><a href="<?= e(Portal::url('/agenda')) ?>">A agenda</a></div>
-  <ul class="lista-eventos">
+  <ul class="lista-eventos com-capa">
     <?php foreach ($agenda as $ev): ?>
       <li><a target="_blank" rel="noopener" href="<?= e((string) ($ev['url'] ?? '#')) ?>"><span class="data"><?= e(date('d/m', strtotime((string) ($ev['proximo_dia'] ?? $ev['data_inicio'])))) ?><?= !empty($ev['hora_inicio']) ? '<br>' . e(substr((string) $ev['hora_inicio'], 0, 5)) : '' ?></span>
+        <?php if (!empty($ev['capa'])): ?><img class="capa-evento" src="<?= e((string) $ev['capa']) ?>" alt="" loading="lazy" width="112" height="74"><?php else: ?><span class="capa-evento" aria-hidden="true"></span><?php endif; ?>
         <b><?= e((string) $ev['titulo']) ?></b><?php if (!empty($ev['segmento'])): ?><em><?= e((string) $ev['segmento']) ?></em><?php endif; ?></a></li>
     <?php endforeach; ?>
   </ul>

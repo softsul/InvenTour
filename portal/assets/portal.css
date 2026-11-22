@@ -322,6 +322,16 @@ details.refinar[open] summary::after { content: " ×"; }
 .lista-eventos a:hover b { color: var(--acento); }
 .lista-eventos.grande img { width: 70px; height: 52px; object-fit: cover; grid-row: span 2; }
 .lista-eventos.grande a { grid-template-columns: 70px 70px minmax(0, 1fr); }
+/* Vem aí, no início: data, capa do evento (a -640 do EventCity) e título. */
+.lista-eventos.com-capa a { grid-template-columns: 64px 112px minmax(0, 1fr); gap: 2px 18px; padding: 12px 4px; }
+.lista-eventos.com-capa b { align-self: end; }
+.lista-eventos.com-capa em { align-self: start; margin-top: 4px; }
+.lista-eventos.com-capa .capa-evento { display: block; width: 112px; height: 74px; object-fit: cover; grid-row: span 2; border-radius: 6px; background: var(--papel-2); border: 1px solid var(--linha); }
+@media (max-width: 560px) {
+  .lista-eventos.com-capa a { grid-template-columns: 46px 76px minmax(0, 1fr); gap: 2px 12px; }
+  .lista-eventos.com-capa .capa-evento { width: 76px; height: 56px; }
+  .lista-eventos.com-capa b { font-size: 1rem; }
+}
 .lista-roteiros { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); margin: 0 0 20px; }
 .roteiro-linha { display: flex; flex-direction: column; gap: 6px; padding: 18px; border: 2px solid var(--tinta); background: var(--cartao); text-decoration: none; transition: transform .2s, box-shadow .2s; }
 .roteiro-linha:hover { transform: translate(-3px, -3px); box-shadow: 6px 6px 0 var(--acento); }
