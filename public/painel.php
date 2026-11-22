@@ -178,6 +178,14 @@ if ($empresa) {
             }
         }
     }
+    // Etapa 7: a saúde do banco (radar de obsolescência).
+    if (Auth::pode('inventario.ver')) {
+        require_once __DIR__ . '/../app/Radar.php';
+        $rs = Radar::saude($eid);
+        $metricas[] = ['Saúde do banco', $rs['saude'] !== null ? $rs['saude'] . '%' : '-', $rs['saude'] === null ? 'nenhum lugar no portal ainda'
+            : plural($rs['desatualizados'], 'desatualizado', 'desatualizados') . ' · ' . plural($rs['enviados'], 'aviso', 'avisos') . ' em 90 dias, ' . milhar($rs['iguais']) . ' confirmados',
+            Auth::pode('relatorios.ver') ? '/relatorio?tipo=radar' : null];
+    }
     // Busca orgânica (Search Console e Bing), como no EventCity: 30 dias.
     if (Auth::pode('inventario.ver')) {
         require_once __DIR__ . '/../app/Bing.php';
@@ -257,7 +265,7 @@ paginaInicio('Início', 'painel');
 <div class="metricas">
   <?php foreach ($metricas as $i => [$rotulo, $valor, $nota, $link]): ?>
     <?php if ($link): ?><a class="metrica metrica-link<?= $i === 0 ? ' destaque' : '' ?>" href="<?= e($link) ?>"><?php else: ?><div class="metrica<?= $i === 0 ? ' destaque' : '' ?>"><?php endif; ?>
-      <span class="rot"><?= e($rotulo) ?></span><span class="val"><?= milhar((int) $valor) ?></span><span class="nota"><?= e($nota) ?></span>
+      <span class="rot"><?= e($rotulo) ?></span><span class="val"><?= is_string($valor) ? e($valor) : milhar((int) $valor) ?></span><span class="nota"><?= e($nota) ?></span>
     <?= $link ? '</a>' : '</div>' ?>
   <?php endforeach; ?>
 </div>

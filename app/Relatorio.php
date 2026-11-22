@@ -62,6 +62,16 @@ final class Relatorio
                 'data' => 'situação de hoje', 'sem_periodo' => true,
                 'situacoes' => ['' => 'Todos', 'ruim' => 'Ruins', 'bom' => 'Bons', 'muito_bom' => 'Muito bons', 'sem' => 'Sem informação'],
             ],
+            'radar' => [
+                'nome' => 'Radar de obsolescência', 'grupo' => 'inventario', 'icone' => 'alerta', 'permissao' => 'relatorios.ver',
+                'descricao' => 'Os lugares desatualizados (sem conferência há mais de 180 dias ou com o Cadastur vencido) e o último aviso mandado ao estabelecimento.',
+                'data' => 'situação de hoje', 'sem_periodo' => true, 'categoria' => true,
+                'situacoes' => ['' => 'Todos', 'sem_aviso' => 'Sem aviso', 'sem_resposta' => 'Aviso sem resposta', 'atualizar' => 'Pediram para atualizar'],
+                'explicacao_titulo' => 'Como o radar funciona',
+                'explicacao' => 'Todo dia, às 2h, o lugar homologado sem conferência há mais de 180 dias, ou com o Cadastur vencido, vira desatualizado: '
+                    . 'continua no portal com o selo "Dados em atualização". Em destino ativo, quem tem e-mail (ou WhatsApp, com o envio ligado) na ficha '
+                    . 'recebe um link de uso único por 15 dias; "Está tudo igual" renova a conferência sozinho. Sem contato na ficha, a equipe confere em campo.',
+            ],
             'homologacoes' => [
                 'nome' => 'Homologações', 'grupo' => 'inventario', 'icone' => 'check', 'permissao' => 'relatorios.ver',
                 'descricao' => 'Cada lugar homologado no período, com a ficha e quem coletou.',
@@ -276,6 +286,39 @@ final class Relatorio
              ORDER BY FIELD(COALESCE(i.conservacao, 'z'), 'ruim', 'bom', 'muito_bom', 'nao_aplicavel', 'z'), i.nome",
             $pr,
             fn (array $linhas) => array_map(fn ($l) => ['estado' => Inventario::CONSERVACAO[$l['conservacao'] ?? ''] ?? 'Sem informação'] + $l, $linhas),
+        ];
+    }
+
+    private static function relRadar(array $f): array
+    {
+        [$fr, $pr] = self::recortes($f);
+        $sit = match ($f['situacao'] ?? '') {
+            'sem_aviso'    => ' AND a.id IS NULL',
+            'sem_resposta' => ' AND a.id IS NOT NULL AND a.respondido_em IS NULL',
+            'atualizar'    => " AND a.resposta = 'atualizar'",
+            default        => '',
+        };
+        return [
+            [
+                ['chave' => 'nome', 'titulo' => 'Lugar', 'tipo' => 'texto', 'sub' => 'ficha', 'sub_titulo' => 'Ficha'],
+                ['chave' => 'conferido', 'titulo' => 'Última conferência', 'tipo' => 'data'],
+                ['chave' => 'cadastur_validade', 'titulo' => 'Cadastur até', 'tipo' => 'data'],
+                ['chave' => 'aviso', 'titulo' => 'Último aviso', 'tipo' => 'data'],
+                ['chave' => 'estado', 'titulo' => 'Resposta', 'tipo' => 'texto'],
+            ],
+            "SELECT i.nome, CONCAT(f.codigo, ' ', f.nome) AS ficha, COALESCE(i.ultima_auditoria_em, i.homologado_em) AS conferido, i.cadastur_validade,
+                    a.criado_em AS aviso, a.resposta, a.respondido_em, a.expira_em
+             FROM inventario_itens i JOIN inventario_fichas f ON f.id = i.ficha_id
+             LEFT JOIN radar_avisos a ON a.id = (SELECT MAX(id) FROM radar_avisos x WHERE x.item_id = i.id)
+             WHERE i.situacao = 'desatualizada'{$sit}{$fr} ORDER BY conferido, i.nome",
+            $pr,
+            fn (array $linhas) => array_map(fn ($l) => ['estado' => match (true) {
+                $l['aviso'] === null => 'sem aviso (sem contato ou envio desligado)',
+                $l['resposta'] === 'atualizar' => 'pediu para atualizar',
+                $l['resposta'] === 'igual' => 'confirmou',
+                $l['expira_em'] < date('Y-m-d H:i:s') => 'link venceu sem resposta',
+                default => 'esperando resposta',
+            }] + $l, $linhas),
         ];
     }
 

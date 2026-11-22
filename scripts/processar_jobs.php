@@ -214,6 +214,14 @@ $tratadores = [
         }
     },
 
+    // Etapa 7: o radar de obsolescência (marca o vencido e avisa o estabelecimento).
+    'radar_obsolescencia' => function (array $payload): void {
+        require_once __DIR__ . '/../app/Radar.php';
+        foreach (Radar::rodar() as $linha) {
+            echo "\n   {$linha}";
+        }
+    },
+
     'importar_mapa_turismo' => function (array $payload): void {
         require_once __DIR__ . '/../app/MapaTurismo.php';
         echo MapaTurismo::importar() . ' ';
@@ -280,4 +288,7 @@ if (!in_array('puxar_analytics', $pendentes, true)) {
 }
 if (!in_array('fotografia_mensal', $pendentes, true)) {
     Fila::enfileirar('fotografia_mensal', [], date('Y-m-d H:i:s', strtotime(date('G') < 2 || (date('G') === '2' && (int) date('i') < 30) ? 'today 02:30' : 'tomorrow 02:30')));
+}
+if (!in_array('radar_obsolescencia', $pendentes, true)) {
+    Fila::enfileirar('radar_obsolescencia', [], date('Y-m-d H:i:s', strtotime(date('G') < 2 ? 'today 02:00' : 'tomorrow 02:00')));
 }

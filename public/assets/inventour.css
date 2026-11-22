@@ -1802,3 +1802,7 @@ table.comparar .nota svg{width:14px; height:14px; vertical-align:-2px; margin-ri
 /* Relatórios: no celular, a tabela em cartões não guarda a largura mínima
    da tabela larga (tema.css, .rolagem.sem-borda). */
 @media (max-width:640px){ .rolagem.sem-borda table.dados.em-cartoes{min-width:0} }
+
+/* Radar de obsolescência: os dois botões do link de uso único (public/confirmar.php). */
+.botoes-radar{display:flex; flex-wrap:wrap; gap:10px; margin-top:22px}
+.botoes-radar .botao{flex:1 1 180px; justify-content:center}

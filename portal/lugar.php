@@ -72,6 +72,8 @@ PortalLayout::inicio($destino, $nome, true, ['ativo' => (string) $pilar, 'imagem
     <h1><?= e($nome) ?></h1>
     <div class="ficha-meta">
       <span>Ficha <?= e((string) $i['codigo']) ?></span>
+      <?php /* Radar de obsolescência (app/Radar.php): o lugar sem conferência recente fica, com o selo discreto. */ ?>
+      <?php if (($i['situacao'] ?? '') === 'desatualizada'): ?><span class="selo-atualizacao">Dados em atualização</span><?php endif; ?>
       <?php if ($coord): ?><span><?= e(Portal::coordenada((float) $i['latitude'], (float) $i['longitude'])) ?></span><?php endif; ?>
       <?php if ($agora): ?><span class="estado<?= $agora['aberto'] ? ' aberto' : '' ?>"><?= e($agora['texto']) ?></span><?php endif; ?>
       <span class="dist" data-dist data-lat="<?= e((string) $i['latitude']) ?>" data-lng="<?= e((string) $i['longitude']) ?>"></span>

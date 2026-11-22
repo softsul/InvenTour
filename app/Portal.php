@@ -134,7 +134,7 @@ final class Portal
                        (i.cadastur IS NOT NULL AND (i.cadastur_validade IS NULL OR i.cadastur_validade >= CURDATE())) AS cadastur_ok
                 FROM inventario_itens i JOIN inventario_fichas f ON f.id = i.ficha_id LEFT JOIN inventario_tipos t ON t.id = i.tipo_id
                 WHERE " . implode(' AND ', $onde) . '
-                ORDER BY experiencias > 0 DESC, cadastur_ok DESC, CRC32(CONCAT(i.id, CURDATE())) LIMIT ' . (int) $limite;
+                ORDER BY i.situacao = \'desatualizada\', experiencias > 0 DESC, cadastur_ok DESC, CRC32(CONCAT(i.id, CURDATE())) LIMIT ' . (int) $limite;
         $st = self::pdo()->prepare($sql);
         $st->execute($args);
         $itens = [];

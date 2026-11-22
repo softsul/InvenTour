@@ -608,3 +608,5 @@ body.com-barra .aviso-cookies { bottom: calc(84px + env(safe-area-inset-bottom))
 @media (max-width: 480px) { .contato-acoes button { flex: 1; } }
 .corrigir-lugar { font-size: .85rem; color: var(--apagado); }
 
+/* Radar de obsolescência: o lugar desatualizado fica no guia, com este selo discreto. */
+.selo-atualizacao { border: 1px dashed currentColor; padding: 0 6px; opacity: .8; }
