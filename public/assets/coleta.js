@@ -1924,10 +1924,15 @@
   // transporte que vieram na sincronização. Só preenche o que está vazio
   // (e sem NA/NI/NE) ou o que ela mesma preencheu antes; o que a pessoa
   // digitou fica. Mais de 200 km, ou nenhum, fica zero.
-  function camposDistancia() {
+  // reta: as distâncias em linha reta deste ponto. O valor igual a ela foi
+  // calculado sem sinal (app) e é trocado pelo caminho quando houver sinal.
+  function camposDistancia(reta) {
     return Array.prototype.filter.call(form.querySelectorAll('[data-chave^="dist_"]'), function (c) {
       var i = c.querySelector('input[name^="at["]'), a = c.querySelector('select.ausencia');
-      return i && !i.disabled && (i.dataset.auto === '1' || (!i.value.trim() && !(a && a.value)));
+      if (!i || i.disabled) { return false; }
+      var r = reta && reta[c.getAttribute('data-chave')];
+      var semSinal = r && r.modo === 'reta' && i.value.trim() !== '' && parseFloat(i.value.replace(',', '.')) === r.km;
+      return i.dataset.auto === '1' || semSinal || (!i.value.trim() && !(a && a.value));
     });
   }
   function distanciasEmLinhaReta(lat, lng) {
@@ -1952,30 +1957,33 @@
     var r = Math.PI / 180, x = Math.pow(Math.sin((c - a) * r / 2), 2) + Math.cos(a * r) * Math.cos(c * r) * Math.pow(Math.sin((d - b) * r / 2), 2);
     return 6371 * 2 * Math.asin(Math.min(1, Math.sqrt(x)));
   }
-  function aplicarDistancias(dist) {
-    camposDistancia().forEach(function (c) {
+  function aplicarDistancias(dist, reta) {
+    camposDistancia(reta).forEach(function (c) {
       var r = dist[c.getAttribute('data-chave')];
       if (!r) { return; }
       var i = c.querySelector('input[name^="at["]');
       i.value = String(r.km).replace('.', ',');
       i.dataset.auto = '1';
+      i.dispatchEvent(new Event('change', { bubbles: true }));
       var nota = c.querySelector('.dist-auto');
       if (!nota) { nota = document.createElement('span'); nota.className = 'ajuda dist-auto'; c.appendChild(nota); }
       nota.textContent = r.modo === 'longe' ? 'Calculado pelo ponto: nenhum até 200 km.'
-        : 'Calculado pelo ponto' + (r.nome ? ': ' + r.nome : '') + (r.modo === 'estrada' ? ', pela estrada.' : ', em linha reta.');
+        : 'Calculado pelo ponto' + (r.nome ? ': ' + r.nome : '') + (r.modo === 'estrada' ? ', pelo caminho de carro.' : r.modo === 'a_pe' ? ', pelo caminho a pé.' : ', em linha reta (sem sinal; recalcula pelo caminho quando houver).');
     });
+    // A pílula ao lado do título (Respondido ou Pendente) é o seletor da casa.
+    if (window.inventourSeletores) { window.inventourSeletores.atualizar($('c-especificos')); }
     contarFicha();
     mostrarPendencias();
   }
   var pedidoDistancia = 0;
   function preencherDistancias(lat, lng) {
-    if (!camposDistancia().length) { return; }
-    var este = ++pedidoDistancia;
     var reta = distanciasEmLinhaReta(lat, lng);
+    if (!camposDistancia(reta).length) { return; }
+    var este = ++pedidoDistancia;
     if (!temInternet()) { if (reta) { aplicarDistancias(reta); } return; }
     pedir('/api/distancias?lat=' + lat.toFixed(6) + '&lng=' + lng.toFixed(6), { headers: cabecalhos(false), cache: 'no-store' }, 20000)
       .then(function (r) { return r.json(); })
-      .then(function (d) { if (este === pedidoDistancia && d && d.ok && d.pronto) { aplicarDistancias(d.distancias); } })
+      .then(function (d) { if (este === pedidoDistancia && d && d.ok && d.pronto) { aplicarDistancias(d.distancias, reta); } })
       .catch(function () { if (este === pedidoDistancia && reta) { aplicarDistancias(reta); } });
   }
   // O que a pessoa digita deixa de ser automático.
@@ -2280,7 +2288,8 @@
     busca.value = '';
     folha.querySelector('.folha-busca').hidden = sel.options.length <= 8;
     desenhar();
-    prenderAoCampo(sel.nextElementSibling && sel.nextElementSibling.classList.contains('seletor') ? sel.nextElementSibling.closest('.entrada') || sel.nextElementSibling : null);
+    var bt = botaoDe(sel);
+    prenderAoCampo(bt ? bt.closest('.entrada') || bt : null);
     folha.showModal();
     var m = lista.querySelector('.marcada');
     if (m) { m.scrollIntoView({ block: 'nearest' }); }
@@ -2295,7 +2304,7 @@
     atual.dispatchEvent(new Event('input', { bubbles: true }));
     atual.dispatchEvent(new Event('change', { bubbles: true }));
     folha.close();
-    var botao = atual.nextElementSibling;
+    var botao = botaoDe(atual);
     if (botao && botao.focus) { botao.focus(); }
   });
   busca.addEventListener('input', desenhar);
@@ -2318,7 +2327,7 @@
     // Preso dentro do próprio campo: solto, o navegador rolava a janela da
     // ficha inteira até ele ao receber o foco (a tela ficava vazia).
     if (sel.parentElement) { sel.parentElement.classList.add('com-seletor'); }
-    sel.addEventListener('focus', function () { var bt = sel.nextElementSibling; if (bt && bt.focus) { bt.focus({ preventScroll: true }); } });
+    sel.addEventListener('focus', function () { var bt = botaoDe(sel); if (bt && bt.focus) { bt.focus({ preventScroll: true }); } });
     var b = document.createElement('button');
     b.type = 'button';
     b.className = 'seletor' + (sel.classList.contains('ausencia') ? ' seletor-pilula' : '');
@@ -2327,9 +2336,17 @@
     sel.insertAdjacentElement('afterend', b);
     sel.addEventListener('change', function () { atualizar(sel); });
   }
+  // O botão que faz as vezes do select: o irmão .seletor (no painel, a seta
+  // do combo pode ter entrado no meio).
+  function botaoDe(sel) {
+    var p = sel && sel.parentElement;
+    if (!p) { return null; }
+    for (var el = sel.nextElementSibling; el; el = el.nextElementSibling) { if (el.classList.contains('seletor')) { return el; } }
+    return null;
+  }
   function atualizar(sel) {
-    var b = sel.nextElementSibling;
-    if (!b || !b.classList.contains('seletor')) { return; }
+    var b = botaoDe(sel);
+    if (!b) { return; }
     b.querySelector('span').textContent = textoDo(sel);
     b.disabled = sel.disabled;
     b.classList.toggle('sem-escolha', sel.value === '');

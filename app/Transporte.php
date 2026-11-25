@@ -11,10 +11,11 @@
  * item. Os grandes (aeroporto com código IATA, rodoviária, estações) num
  * raio de 200 km; os pontos de ônibus e de táxi só na área do município.
  *
- * A distância é pela estrada (OSRM, roteador público do OpenStreetMap, um
- * pedido por cálculo com os três candidatos mais perto de cada tipo); sem
- * resposta dele, em linha reta, e a tela diz qual foi. Ponto de ônibus e de
- * táxi são sempre em linha reta (é a pé, e perto). Mais de 200 km, ou nenhum
+ * A distância é a do caminho mais curto de verdade (OSRM, roteadores
+ * públicos do OpenStreetMap, um pedido por perfil com os candidatos mais
+ * perto de cada tipo): de carro até aeroporto, rodoviária, estações e sede;
+ * a pé até o ponto de ônibus e de táxi. Sem resposta deles, em linha reta,
+ * e a tela diz qual foi. Mais de 200 km, ou nenhum
  * no raio, fica zero (pedido do Luiz, 25/11/2026).
  *
  * Igual para todos os destinos: nada aqui depende de cidade.
@@ -52,7 +53,11 @@ final class Transporte
         'https://overpass.private.coffee/api/interpreter',
         'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
     ];
-    private const OSRM = 'https://router.project-osrm.org/table/v1/driving/';
+    /** Roteadores públicos do OpenStreetMap (OSRM), gratuitos, na ordem de tentativa. */
+    private const ROTEADORES = [
+        'carro' => ['https://router.project-osrm.org/table/v1/driving/', 'https://routing.openstreetmap.de/routed-car/table/v1/driving/'],
+        'a_pe'  => ['https://routing.openstreetmap.de/routed-foot/table/v1/foot/'],
+    ];
     private const AGENTE = 'InvenTour/1.0 (+https://inventour.com.br)';
 
     // ------------------------------------------------------------ os pontos
@@ -242,7 +247,7 @@ final class Transporte
 
     /**
      * As distâncias a partir do ponto, por chave de atributo:
-     * ['km' => float, 'nome' => ?string, 'modo' => 'estrada'|'reta'|'longe'].
+     * ['km' => float, 'nome' => ?string, 'modo' => 'estrada'|'a_pe'|'reta'|'longe'].
      * 'longe': nenhum até 200 km, km = 0.
      */
     public static function distancias(int $eid, float $lat, float $lng): array
@@ -253,14 +258,17 @@ final class Transporte
         }
         $sede = self::sede($eid);
         $saida = [];
-        $estrada = [];   // [chave, candidato] para perguntar ao OSRM
+        $rotas = ['carro' => [], 'a_pe' => []];   // [chave, candidato] para perguntar ao roteador
         foreach (self::CHAVES as $chave => $tipo) {
+            $aPe = in_array($tipo, self::A_PE, true);
             if ($tipo === null) {
                 $cand = $sede ? [['nome' => $sede[2], 'lat' => $sede[0], 'lng' => $sede[1], 'reta' => self::haversine($lat, $lng, $sede[0], $sede[1])]] : [];
             } else {
                 $cand = $porTipo[$tipo] ?? [];
                 usort($cand, fn ($a, $b) => $a['reta'] <=> $b['reta']);
-                $cand = array_slice($cand, 0, 3);
+                // O mais perto em linha reta nem sempre é o mais perto pelo
+                // caminho: os 3 (ou 5, a pé) mais perto vão ao roteador.
+                $cand = array_slice($cand, 0, $aPe ? 5 : 3);
             }
             if (!$cand || ($tipo !== null && $cand[0]['reta'] > self::LIMITE_KM)) {
                 if ($tipo !== null) {
@@ -269,55 +277,60 @@ final class Transporte
                 continue;
             }
             $saida[$chave] = ['km' => round($cand[0]['reta'], 1), 'nome' => $cand[0]['nome'], 'modo' => 'reta'];
-            if (!in_array($tipo, self::A_PE, true) && $cand[0]['reta'] >= 0.3) {
-                foreach ($cand as $c) {
-                    $estrada[] = [$chave, $c];
-                }
+            foreach ($cand as $c) {
+                $rotas[$aPe ? 'a_pe' : 'carro'][] = [$chave, $c];
             }
         }
-        if ($estrada) {
-            $km = self::pelaEstrada($lat, $lng, array_map(fn ($e) => [$e[1]['lat'], $e[1]['lng']], $estrada));
-            if ($km !== null) {
-                $melhor = [];
-                foreach ($estrada as $i => [$chave, $c]) {
-                    if ($km[$i] !== null && (!isset($melhor[$chave]) || $km[$i] < $melhor[$chave][0])) {
-                        $melhor[$chave] = [$km[$i], $c['nome']];
-                    }
+        foreach ($rotas as $perfil => $lista) {
+            if (!$lista) {
+                continue;
+            }
+            $km = self::peloCaminho($lat, $lng, array_map(fn ($e) => [$e[1]['lat'], $e[1]['lng']], $lista), $perfil);
+            if ($km === null) {
+                continue;   // roteador fora: fica a linha reta, e a tela diz
+            }
+            $melhor = [];
+            foreach ($lista as $i => [$chave, $c]) {
+                if ($km[$i] !== null && (!isset($melhor[$chave]) || $km[$i] < $melhor[$chave][0])) {
+                    $melhor[$chave] = [$km[$i], $c['nome']];
                 }
-                foreach ($melhor as $chave => [$k, $nome]) {
-                    $saida[$chave] = $chave !== 'dist_sede_km' && $k > self::LIMITE_KM
-                        ? ['km' => 0.0, 'nome' => null, 'modo' => 'longe']
-                        : ['km' => round($k, 1), 'nome' => $nome, 'modo' => 'estrada'];
-                }
+            }
+            foreach ($melhor as $chave => [$k, $nome]) {
+                $saida[$chave] = $chave !== 'dist_sede_km' && $k > self::LIMITE_KM
+                    ? ['km' => 0.0, 'nome' => null, 'modo' => 'longe']
+                    : ['km' => round($k, 1), 'nome' => $nome, 'modo' => $perfil === 'a_pe' ? 'a_pe' : 'estrada'];
             }
         }
         return $saida;
     }
 
     /**
-     * Distância de carro do ponto até cada destino (km), pelo OSRM, num
-     * pedido só. Null se o OSRM não respondeu; null na posição sem rota.
+     * Distância pelo caminho mais curto do ponto até cada destino (km), de
+     * carro ou a pé, num pedido só (serviço "table" do OSRM). Tenta os
+     * roteadores públicos na ordem; null se nenhum respondeu, e null na
+     * posição sem caminho.
      *
      * @param list<array{0:float,1:float}> $destinos
      * @return list<?float>|null
      */
-    private static function pelaEstrada(float $lat, float $lng, array $destinos): ?array
+    private static function peloCaminho(float $lat, float $lng, array $destinos, string $perfil): ?array
     {
         $coords = [sprintf('%.6f,%.6f', $lng, $lat)];
         foreach ($destinos as [$dlat, $dlng]) {
             $coords[] = sprintf('%.6f,%.6f', $dlng, $dlat);
         }
-        $ch = curl_init(self::OSRM . implode(';', $coords) . '?sources=0&annotations=distance');
-        curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 12, CURLOPT_CONNECTTIMEOUT => 5, CURLOPT_USERAGENT => self::AGENTE]);
-        $corpo = curl_exec($ch);
-        $cod = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-        curl_close($ch);
-        $d = is_string($corpo) ? json_decode($corpo, true) : null;
-        if ($cod !== 200 || !is_array($d) || ($d['code'] ?? '') !== 'Ok' || !isset($d['distances'][0])) {
-            return null;
+        foreach (self::ROTEADORES[$perfil] as $base) {
+            $ch = curl_init($base . implode(';', $coords) . '?sources=0&annotations=distance');
+            curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 10, CURLOPT_CONNECTTIMEOUT => 5, CURLOPT_USERAGENT => self::AGENTE]);
+            $corpo = curl_exec($ch);
+            $cod = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+            curl_close($ch);
+            $d = is_string($corpo) ? json_decode($corpo, true) : null;
+            if ($cod === 200 && is_array($d) && ($d['code'] ?? '') === 'Ok' && isset($d['distances'][0])) {
+                return array_map(fn ($m) => is_numeric($m) ? (float) $m / 1000 : null, array_slice((array) $d['distances'][0], 1));
+            }
         }
-        $linha = array_slice((array) $d['distances'][0], 1);
-        return array_map(fn ($m) => is_numeric($m) ? (float) $m / 1000 : null, $linha);
+        return null;
     }
 
     public static function haversine(float $lat1, float $lng1, float $lat2, float $lng2): float

@@ -3925,7 +3925,8 @@ window.erpPerguntar = function (opcoes) {
   }
 
   function preparar(sel) {
-    if (sel.multiple || sel.size > 1 || sel.hasAttribute('data-nativo') || sel.dataset.combo) { return; }
+    // data-seletor: a coleta já pôs o botão dela no lugar (pílula da folha).
+    if (sel.multiple || sel.size > 1 || sel.hasAttribute('data-nativo') || sel.dataset.combo || sel.dataset.seletor) { return; }
     var caixa = sel.closest('.entrada');
     if (!caixa) { return; }
     sel.dataset.combo = '1';
@@ -7239,7 +7240,7 @@ window.inventourMarcarNoFiltro = function (form, campo, ids, nome) {
           var nota = c.querySelector('.dist-auto');
           if (!nota) { nota = document.createElement('span'); nota.className = 'ajuda dist-auto'; c.appendChild(nota); }
           nota.textContent = r.modo === 'longe' ? 'Calculado pelo ponto: nenhum até 200 km.'
-            : 'Calculado pelo ponto' + (r.nome ? ': ' + r.nome : '') + (r.modo === 'estrada' ? ', pela estrada.' : ', em linha reta.');
+            : 'Calculado pelo ponto' + (r.nome ? ': ' + r.nome : '') + (r.modo === 'estrada' ? ', pelo caminho de carro.' : r.modo === 'a_pe' ? ', pelo caminho a pé.' : ', em linha reta (sem sinal; recalcula pelo caminho quando houver).');
         });
       })
       .catch(function () { /* sem resposta: a pessoa preenche */ });
