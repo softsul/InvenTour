@@ -333,6 +333,74 @@ final class Transporte
         return null;
     }
 
+    /**
+     * Preenche as distâncias de todos os itens do destino que têm ponto e
+     * campos de distância vazios (sem valor e sem NA, NI ou NE). O que já
+     * tem resposta fica. Só grava o que veio pelo caminho (carro ou a pé) ou
+     * o zero de "nenhum até 200 km": se o roteador não respondeu, o item fica
+     * para a próxima vez, sem número em linha reta. Não mexe na data de
+     * atualização do item (não é revisão de campo); deixa uma linha no
+     * histórico de cada um. $item: só aquele. Devolve [itens, campos].
+     */
+    public static function preencherItens(int $eid, ?int $item = null, bool $simular = false, ?callable $dizer = null): array
+    {
+        $pdo = Database::conexao();
+        if (!self::pronto($eid)) {
+            return [0, 0];
+        }
+        $chaves = array_keys(self::CHAVES);
+        $marcas = implode(',', array_fill(0, count($chaves), '?'));
+        $q = $pdo->prepare("SELECT i.id, i.nome, i.latitude, i.longitude, a.id AS atributo_id, a.chave
+            FROM inventario_itens i
+            JOIN inventario_atributos a ON a.ficha_id = i.ficha_id AND a.ativo = 1 AND a.tipo = 'numero' AND a.chave IN ({$marcas})
+            LEFT JOIN inventario_item_atributos v ON v.item_id = i.id AND v.atributo_id = a.id
+            WHERE i.empresa_id = ? AND i.latitude IS NOT NULL AND i.longitude IS NOT NULL AND v.item_id IS NULL"
+            . ($item ? ' AND i.id = ?' : '') . ' ORDER BY i.id, a.ordem');
+        $q->execute([...$chaves, $eid, ...($item ? [$item] : [])]);
+        $porItem = [];
+        foreach ($q->fetchAll() as $l) {
+            $porItem[(int) $l['id']]['item'] = $l;
+            $porItem[(int) $l['id']]['campos'][(string) $l['chave']] = (int) $l['atributo_id'];
+        }
+        $ins = $pdo->prepare('INSERT IGNORE INTO inventario_item_atributos (item_id, atributo_id, empresa_id, valor_numero) VALUES (?, ?, ?, ?)');
+        $hist = $pdo->prepare("INSERT INTO inventario_item_historico (item_id, empresa_id, usuario_id, acao, nota, criado_em)
+                               VALUES (?, ?, NULL, 'alterou', ?, NOW())");
+        $rotulos = ['dist_aeroporto' => 'aeroporto', 'dist_rodoviaria' => 'rodoviária', 'dist_ferroviaria' => 'ferroviária', 'dist_maritima' => 'marítima/fluvial',
+                    'dist_metroviaria' => 'metrô', 'dist_ponto_onibus' => 'ponto de ônibus', 'dist_ponto_taxi' => 'ponto de táxi', 'dist_sede_km' => 'sede'];
+        $nItens = $nCampos = 0;
+        foreach ($porItem as $id => ['item' => $it, 'campos' => $campos]) {
+            $dist = self::distancias($eid, (float) $it['latitude'], (float) $it['longitude']);
+            $partes = [];
+            foreach ($campos as $chave => $aid) {
+                $r = $dist[$chave] ?? null;
+                if (!$r || $r['modo'] === 'reta') {
+                    continue;   // sem resposta do roteador: fica para depois
+                }
+                if (!$simular) {
+                    $ins->execute([$id, $aid, $eid, $r['km']]);
+                }
+                $partes[] = $rotulos[$chave] . ' ' . str_replace('.', ',', (string) $r['km']) . ' km';
+            }
+            if ($partes) {
+                $nItens++;
+                $nCampos += count($partes);
+                if (!$simular) {
+                    $hist->execute([$id, $eid, 'Distâncias calculadas pelo ponto (caminho mais curto, OpenStreetMap): ' . implode(', ', $partes) . '.']);
+                }
+                if ($dizer) {
+                    $dizer('#' . $id . ' ' . $it['nome'] . ': ' . implode(', ', $partes));
+                }
+            }
+            // Os roteadores públicos pedem no máximo um pedido por segundo.
+            usleep(1100000);
+        }
+        if ($nItens && !$simular) {
+            require_once __DIR__ . '/Auditoria.php';
+            Auditoria::registrar('alterou', 'inventario_itens', $item, 'distâncias calculadas pelo ponto: ' . $nItens . ' itens, ' . $nCampos . ' campos', null, null, $eid);
+        }
+        return [$nItens, $nCampos];
+    }
+
     public static function haversine(float $lat1, float $lng1, float $lat2, float $lng2): float
     {
         $r = M_PI / 180;

@@ -166,6 +166,15 @@ $tratadores = [
         foreach (Transporte::buscar($eid) as $tipo => $n) {
             echo $tipo . ' ' . $n . ' ';
         }
+        // Com os pontos novos, as distâncias dos itens que ainda estão em branco.
+        Fila::enfileirar('distancias_itens', ['empresa_id' => $eid]);
+    },
+    // As distâncias da ficha de todos os itens do destino com ponto e campo
+    // vazio (o que já tem resposta fica). Um pedido por segundo aos roteadores.
+    'distancias_itens' => function (array $payload): void {
+        require_once __DIR__ . '/../app/Transporte.php';
+        [$itens, $campos] = Transporte::preencherItens((int) ($payload['empresa_id'] ?? 0));
+        echo $itens . ' itens, ' . $campos . ' campos ';
     },
 
     // SEO, como no EventCity: os números do Google Search Console (e o
