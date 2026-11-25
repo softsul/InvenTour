@@ -715,7 +715,7 @@
   function campoEspecifico(a, valor) {
     var id = 'c-at-' + a.id;
     var largo = ['texto_longo', 'multipla', 'tabela'].indexOf(a.tipo) !== -1;
-    var h = '<div class="campo campo-ficha ' + (largo ? 'c-12' : 'c-6') + '" data-campo-at="' + a.id + '"><div class="campo-cab"><label for="' + id + '">' + esc(a.rotulo)
+    var h = '<div class="campo campo-ficha ' + (largo ? 'c-12' : 'c-6') + '" data-campo-at="' + a.id + '"' + (a.chave ? ' data-chave="' + esc(a.chave) + '"' : '') + '><div class="campo-cab"><label for="' + id + '">' + esc(a.rotulo)
       + (a.obrigatorio ? ' <span class="essencial" title="Item essencial da metodologia do MTur">MTur</span>' : '') + '</label>' + seletorAusencia(a.id) + '</div>';
     if (a.tipo === 'numero') {
       h += '<div class="entrada"><input type="text" id="' + id + '" name="at[' + a.id + ']" inputmode="decimal" autocomplete="off"></div>';
@@ -1084,6 +1084,8 @@
     $('c-fotos-servidor').textContent = (noServidor ? (noServidor === 1 ? '1 foto já no servidor' : noServidor + ' fotos já no servidor') : '')
       + (naFila ? (noServidor ? '; ' : '') + (naFila === 1 ? '1 foto' : naFila + ' fotos') + ' esperando sincronizar' : '');
     desenharGaleriaServidor(item);
+    // Ficha com ponto e distâncias em branco: calcula na hora.
+    if (lat && lng && isFinite(parseFloat(lat)) && isFinite(parseFloat(lng))) { preencherDistancias(parseFloat(lat), parseFloat(lng)); }
     fotosNovas.forEach(function (x) { URL.revokeObjectURL(x.url); });
     fotosNovas = [];
     desenharMiniaturas();
@@ -1877,6 +1879,7 @@
       lat = parseFloat($('c-lat').value); lng = parseFloat($('c-lng').value);
     }
     if (!isFinite(lat) || !isFinite(lng)) { avisoEndereco('Sem coordenada: use o GPS daqui ou marque o plus code primeiro.', 'nulo'); return; }
+    preencherDistancias(lat, lng);
     if (!temInternet()) {
       avisoEndereco('Sem internet: só a coordenada. O endereço pode ser buscado depois, com sinal.', 'nulo');
       return;
@@ -1915,6 +1918,75 @@
         mostrarMapa();
       });
   }
+  // Distâncias da ficha (aeroporto, rodoviária, estações, pontos de ônibus
+  // e de táxi, sede do município) calculadas pelo ponto. Com sinal, pela
+  // estrada (/api/distancias); sem sinal, em linha reta pelos pontos de
+  // transporte que vieram na sincronização. Só preenche o que está vazio
+  // (e sem NA/NI/NE) ou o que ela mesma preencheu antes; o que a pessoa
+  // digitou fica. Mais de 200 km, ou nenhum, fica zero.
+  function camposDistancia() {
+    return Array.prototype.filter.call(form.querySelectorAll('[data-chave^="dist_"]'), function (c) {
+      var i = c.querySelector('input[name^="at["]'), a = c.querySelector('select.ausencia');
+      return i && !i.disabled && (i.dataset.auto === '1' || (!i.value.trim() && !(a && a.value)));
+    });
+  }
+  function distanciasEmLinhaReta(lat, lng) {
+    var t = base && base.transporte;
+    if (!t) { return null; }
+    var tipos = { dist_aeroporto: 'aeroporto', dist_rodoviaria: 'rodoviaria', dist_ferroviaria: 'ferroviaria', dist_maritima: 'maritima',
+      dist_metroviaria: 'metroviaria', dist_ponto_onibus: 'ponto_onibus', dist_ponto_taxi: 'ponto_taxi' };
+    var saida = {};
+    Object.keys(tipos).forEach(function (k) {
+      var melhor = null;
+      t.pontos.forEach(function (p) {
+        if (p[0] !== tipos[k]) { return; }
+        var d = kmEntre(lat, lng, p[2], p[3]);
+        if (!melhor || d < melhor.km) { melhor = { km: d, nome: p[1] }; }
+      });
+      saida[k] = !melhor || melhor.km > t.limite_km ? { km: 0, nome: null, modo: 'longe' } : { km: Math.round(melhor.km * 10) / 10, nome: melhor.nome, modo: 'reta' };
+    });
+    if (t.sede) { saida.dist_sede_km = { km: Math.round(kmEntre(lat, lng, t.sede[0], t.sede[1]) * 10) / 10, nome: t.sede[2], modo: 'reta' }; }
+    return saida;
+  }
+  function kmEntre(a, b, c, d) {
+    var r = Math.PI / 180, x = Math.pow(Math.sin((c - a) * r / 2), 2) + Math.cos(a * r) * Math.cos(c * r) * Math.pow(Math.sin((d - b) * r / 2), 2);
+    return 6371 * 2 * Math.asin(Math.min(1, Math.sqrt(x)));
+  }
+  function aplicarDistancias(dist) {
+    camposDistancia().forEach(function (c) {
+      var r = dist[c.getAttribute('data-chave')];
+      if (!r) { return; }
+      var i = c.querySelector('input[name^="at["]');
+      i.value = String(r.km).replace('.', ',');
+      i.dataset.auto = '1';
+      var nota = c.querySelector('.dist-auto');
+      if (!nota) { nota = document.createElement('span'); nota.className = 'ajuda dist-auto'; c.appendChild(nota); }
+      nota.textContent = r.modo === 'longe' ? 'Calculado pelo ponto: nenhum até 200 km.'
+        : 'Calculado pelo ponto' + (r.nome ? ': ' + r.nome : '') + (r.modo === 'estrada' ? ', pela estrada.' : ', em linha reta.');
+    });
+    contarFicha();
+    mostrarPendencias();
+  }
+  var pedidoDistancia = 0;
+  function preencherDistancias(lat, lng) {
+    if (!camposDistancia().length) { return; }
+    var este = ++pedidoDistancia;
+    var reta = distanciasEmLinhaReta(lat, lng);
+    if (!temInternet()) { if (reta) { aplicarDistancias(reta); } return; }
+    pedir('/api/distancias?lat=' + lat.toFixed(6) + '&lng=' + lng.toFixed(6), { headers: cabecalhos(false), cache: 'no-store' }, 20000)
+      .then(function (r) { return r.json(); })
+      .then(function (d) { if (este === pedidoDistancia && d && d.ok && d.pronto) { aplicarDistancias(d.distancias); } })
+      .catch(function () { if (este === pedidoDistancia && reta) { aplicarDistancias(reta); } });
+  }
+  // O que a pessoa digita deixa de ser automático.
+  form.addEventListener('input', function (ev) {
+    var i = ev.target;
+    if (i && i.dataset && i.dataset.auto === '1' && i.name && i.name.indexOf('at[') === 0) {
+      delete i.dataset.auto;
+      var nota = i.closest('[data-chave]') && i.closest('[data-chave]').querySelector('.dist-auto');
+      if (nota) { nota.remove(); }
+    }
+  });
   $('c-buscar-endereco').addEventListener('click', function () { buscarEndereco(); });
   $('c-usar-endereco').addEventListener('click', function () {
     if (!enderecoAchado) { return; }

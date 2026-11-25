@@ -692,7 +692,7 @@ paginaFicha($titulo, 'inventario');
       <?php foreach ($lista as $at): $aid = (int) $at['id']; $v = $valores[$aid] ?? null; $cfg = (array) ($at['config'] ?? []);
         $txt = $v['valor_texto'] ?? null; $num = $v['valor_numero'] ?? null; $aus = $v['ausencia'] ?? null; $outro = $v['valor_outro'] ?? null;
         $largo = in_array($at['tipo'], ['texto_longo', 'multipla', 'tabela'], true); ?>
-        <div class="campo <?= $largo ? 'c-12' : 'c-6' ?>">
+        <div class="campo <?= $largo ? 'c-12' : 'c-6' ?>" data-chave="<?= e((string) $at['chave']) ?>">
           <label for="at-<?= $aid ?>"><?= e((string) $at['rotulo']) ?><?= $at['obrigatorio'] ? ' <span class="obrig">núcleo do MTur</span>' : '' ?></label>
           <?php switch ($at['tipo']):
             case 'numero': ?>

@@ -414,7 +414,7 @@ final class FichaFormulario
             foreach (Inventario::atributos((int) $fid) as $grupo => $itens) {
                 foreach ($itens as $a) {
                     $cfg = (array) ($a['config'] ?? []);
-                    $lista[] = ['id' => (int) $a['id'], 'grupo' => (string) $grupo, 'rotulo' => (string) $a['rotulo'], 'tipo' => (string) $a['tipo'],
+                    $lista[] = ['id' => (int) $a['id'], 'chave' => (string) $a['chave'], 'grupo' => (string) $grupo, 'rotulo' => (string) $a['rotulo'], 'tipo' => (string) $a['tipo'],
                                 'opcoes' => array_values($a['opcoes']), 'obrigatorio' => (bool) $a['obrigatorio'], 'ajuda' => $a['ajuda'] ?: null,
                                 'outros' => !empty($cfg['outros']), 'maximo' => !empty($cfg['maximo']) ? (int) $cfg['maximo'] : null,
                                 'colunas' => $a['tipo'] === 'tabela' ? self::colunas($a) : null,

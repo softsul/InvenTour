@@ -153,6 +153,21 @@ $tratadores = [
         echo '#' . $eid . ' ' . $s['blocos'] . ' blocos, versão ' . $s['versao'] . ' ';
     },
 
+    // Os pontos de transporte em volta do destino (OpenStreetMap), para as
+    // distâncias da ficha: de hora em hora, o próximo destino sem pontos ou
+    // com pontos de mais de 30 dias; com empresa_id, aquele destino.
+    'destino_transporte' => function (array $payload): void {
+        require_once __DIR__ . '/../app/Transporte.php';
+        $eid = (int) ($payload['empresa_id'] ?? 0) ?: Transporte::proximo();
+        if (!$eid) {
+            echo 'nada a fazer ';
+            return;
+        }
+        foreach (Transporte::buscar($eid) as $tipo => $n) {
+            echo $tipo . ' ' . $n . ' ';
+        }
+    },
+
     // SEO, como no EventCity: os números do Google Search Console (e o
     // sitemap dos portais novos), os do Bing Webmaster (e o cadastro e a
     // verificação dos portais novos) e, de hora em hora, o aviso ao
@@ -266,6 +281,9 @@ if (!in_array('portal_mapa', $pendentes, true)) {
 }
 if (!in_array('portal_mapa_base', $pendentes, true)) {
     Fila::enfileirar('portal_mapa_base', [], date('Y-m-d H:i:s', strtotime('+1 hour')));
+}
+if (!in_array('destino_transporte', $pendentes, true)) {
+    Fila::enfileirar('destino_transporte', [], date('Y-m-d H:i:s', strtotime('+1 hour')));
 }
 if (!in_array('eventcity_agenda', $pendentes, true)) {
     Fila::enfileirar('eventcity_agenda', [], date('Y-m-d H:i:s', strtotime('+5 minutes')));

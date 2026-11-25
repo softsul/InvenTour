@@ -7200,3 +7200,59 @@ window.inventourMarcarNoFiltro = function (form, campo, ids, nome) {
     });
   });
 })();
+
+/*
+ * Ficha do item: distâncias (aeroporto, rodoviária, estações, pontos de
+ * ônibus e de táxi, sede) calculadas pela latitude e longitude, pelo
+ * /api/distancias (OpenStreetMap e OSRM, ver app/Transporte.php). Só
+ * preenche o que está vazio e sem NA/NI/NE, ou o que ela mesma preencheu;
+ * o que a pessoa digitou fica. Mais de 200 km, ou nenhum, fica zero.
+ * A mesma regra da coleta (coleta.js), no painel e no app.
+ * Softsul Software
+ */
+(function () {
+  'use strict';
+  var lat = document.getElementById('latitude'), lng = document.getElementById('longitude');
+  if (!lat || !lng || !document.querySelector('[data-chave^="dist_"] input[name^="at["]')) { return; }
+  function campos() {
+    return Array.prototype.filter.call(document.querySelectorAll('[data-chave^="dist_"]'), function (c) {
+      var i = c.querySelector('input[name^="at["]'), a = c.querySelector('select.ausencia');
+      return i && !i.readOnly && !i.disabled && (i.dataset.auto === '1' || (!i.value.trim() && !(a && a.value)));
+    });
+  }
+  var pedido = 0;
+  function calcular() {
+    var la = parseFloat(String(lat.value).replace(',', '.')), lo = parseFloat(String(lng.value).replace(',', '.'));
+    if (!isFinite(la) || !isFinite(lo) || !campos().length) { return; }
+    var este = ++pedido;
+    fetch('/api/distancias?lat=' + la.toFixed(6) + '&lng=' + lo.toFixed(6), { credentials: 'same-origin', cache: 'no-store' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (este !== pedido || !d || !d.ok || !d.pronto) { return; }
+        campos().forEach(function (c) {
+          var r = d.distancias[c.getAttribute('data-chave')];
+          if (!r) { return; }
+          var i = c.querySelector('input[name^="at["]');
+          i.value = String(r.km).replace('.', ',');
+          i.dataset.auto = '1';
+          i.dispatchEvent(new Event('change', { bubbles: true }));
+          var nota = c.querySelector('.dist-auto');
+          if (!nota) { nota = document.createElement('span'); nota.className = 'ajuda dist-auto'; c.appendChild(nota); }
+          nota.textContent = r.modo === 'longe' ? 'Calculado pelo ponto: nenhum até 200 km.'
+            : 'Calculado pelo ponto' + (r.nome ? ': ' + r.nome : '') + (r.modo === 'estrada' ? ', pela estrada.' : ', em linha reta.');
+        });
+      })
+      .catch(function () { /* sem resposta: a pessoa preenche */ });
+  }
+  document.addEventListener('input', function (ev) {
+    var i = ev.target;
+    if (i && i.dataset && i.dataset.auto === '1') {
+      delete i.dataset.auto;
+      var c = i.closest('[data-chave]'), nota = c && c.querySelector('.dist-auto');
+      if (nota) { nota.remove(); }
+    }
+  });
+  lat.addEventListener('change', calcular);
+  lng.addEventListener('change', calcular);
+  calcular();
+})();

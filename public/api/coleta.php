@@ -23,6 +23,7 @@ require_once __DIR__ . '/../../app/Campo.php';
 require_once __DIR__ . '/../../app/PlusCode.php';
 require_once __DIR__ . '/../../app/FichaFormulario.php';
 require_once __DIR__ . '/../../app/AreaDestino.php';
+require_once __DIR__ . '/../../app/Transporte.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
@@ -141,7 +142,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                'pode_criar' => Auth::pode('coleta.criar') || Auth::pode('inventario.criar'), 'fichas' => $fichas, 'itens' => $itens,
                'catalogo' => FichaFormulario::catalogo(array_column($fichas, 'id')), 'formato' => 2,
                // A área do destino, para o app conferir GPS e fotos sem sinal.
-               'area' => AreaDestino::doDestino()]);
+               'area' => AreaDestino::doDestino(),
+               // Os pontos de transporte e a sede, para o app calcular as
+               // distâncias da ficha sem sinal (em linha reta).
+               'transporte' => !Transporte::pronto(Empresa::id()) ? null : ['pontos' => Transporte::pontos(Empresa::id()), 'sede' => Transporte::sede(Empresa::id()), 'limite_km' => Transporte::LIMITE_KM]]);
 }
 
 // ------------------------------------------------------------------ ENVIOS
